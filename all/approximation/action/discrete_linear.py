@@ -17,3 +17,19 @@ class DiscreteLinearApproximation:
   def update(self, state, action, error):
     features = self.basis.features(state)
     self.weights[action] += self.alpha * error * features
+
+  def gradient(self, state, action):
+    grad = np.zeros(self.weights.shape)
+    grad[action] = self.basis.features(state)
+    return grad
+
+  def get_parameters(self):
+    return self.weights
+
+  def set_parameters(self, parameters):
+    self.parameters += self.alpha * parameters
+    return self
+
+  def update_parameters(self, gradient):
+    self.parameters += self.alpha * gradient
+    return self
