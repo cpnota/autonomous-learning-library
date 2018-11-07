@@ -14,7 +14,7 @@ class LinearApproximation:
     features = self.basis.features(state)
     self.weights += self.alpha * error * features
 
-  def gradient(state):
+  def gradient(self, state):
     return self.basis.features(state)
 
   def get_parameters(self):

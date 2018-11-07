@@ -1,17 +1,20 @@
-from approximation.action.discrete_linear import DiscreteLinearApproximation
-from approximation.bases.fourier import FourierBasis
+from all.approximation.action.discrete_linear import DiscreteLinearApproximation
+from all.approximation.bases.fourier import FourierBasis
+from gym.spaces import Box
 import numpy as np
 import unittest
 
+space = Box(low=0, high=1, shape=(2,))
+
 class TestDiscreteLinearApproximation(unittest.TestCase):
   def test_init(self):
-    basis = FourierBasis(2, 2, 2)
+    basis = FourierBasis(space, 2, 2)
     approximation = DiscreteLinearApproximation(0.1, basis, actions=3)
     x = np.array([0.5, 1])
     np.testing.assert_equal(approximation.call(x), np.array([0, 0, 0]))
 
   def test_update(self):
-    basis = FourierBasis(2, 2, 2)
+    basis = FourierBasis(space, 2, 2)
     approximation = DiscreteLinearApproximation(0.1, basis, actions=3)
     x = np.array([0.5, 1])
     np.testing.assert_equal(approximation.call(x), np.array([0, 0, 0]))
@@ -19,7 +22,7 @@ class TestDiscreteLinearApproximation(unittest.TestCase):
     np.testing.assert_allclose(approximation.call(x), np.array([0, 0.6, 0]))
 
   def test_call_one(self):
-    basis = FourierBasis(2, 2, 2)
+    basis = FourierBasis(space, 2, 2)
     approximation = DiscreteLinearApproximation(0.1, basis, actions=3)
     x = np.array([0.5, 1])
     np.testing.assert_equal(approximation.call(x), np.array([0, 0, 0]))

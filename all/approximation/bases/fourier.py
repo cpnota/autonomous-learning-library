@@ -30,7 +30,7 @@ class FourierBasis:
             row[j] = j_freq + 1
             self.C = np.vstack([self.C, row])
 
-    # self.C *= np.pi
+    self.C *= np.pi
     self.C /= scale
     self.num_features = self.C.shape[0]
 
