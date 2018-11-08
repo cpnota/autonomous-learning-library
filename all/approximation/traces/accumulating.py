@@ -10,10 +10,8 @@ class AccumulatingTraces:
   def call(self, *args):
     return self.approximation.call(*args)
 
-  def update(self, *args):
-    num_args = len(args) - 1
-    error = args[num_args]
-    gradient = error * self.approximation.gradient(*(args[0:num_args]))
+  def update(self, error, *args):
+    gradient = error * self.approximation.gradient(*args)
     return self.update_parameters(gradient)
 
   def gradient(self, *args):
