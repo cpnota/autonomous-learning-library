@@ -30,6 +30,5 @@ class TestLinearFunctionApproximation(unittest.TestCase):
       basis.features(x)
     )
 
-
 if __name__ == '__main__':
     unittest.main()
