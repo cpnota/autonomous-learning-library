@@ -9,9 +9,7 @@ class DiscreteLinearApproximation:
   def call(self, state, action=None):
     features = self.basis.features(state)
     if (action == None):
-      result = self.weights.dot(features)
-      # print(result)
-      return result
+      return self.weights.dot(features)
     return self.weights[action].dot(features)
   
   def update(self, state, action, error):
