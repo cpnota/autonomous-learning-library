@@ -26,4 +26,4 @@ class Sarsa:
         + self.action_approximation.call(self.next_state, self.next_action) 
         - self.action_approximation.call(self.state, self.action)
       )
-    self.action_approximation.update(self.state, self.action, td_error)
+    self.action_approximation.update(td_error, self.state, self.action)
