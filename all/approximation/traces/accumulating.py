@@ -1,7 +1,7 @@
 import numpy as np
 
 class AccumulatingTraces:
-  def __init__(self, env, approximation, decay_rate):
+  def __init__(self, approximation, env, decay_rate):
     self.env = env
     self.approximation = approximation
     self.decay_rate = decay_rate

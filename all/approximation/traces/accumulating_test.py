@@ -18,7 +18,7 @@ class TestAccumulatingTraces(unittest.TestCase):
     self.basis = FourierBasis(space, 2, 2)
     self.approximation = DiscreteLinearApproximation(0.1, self.basis, actions=3)
     self.env = Env()
-    self.traces = AccumulatingTraces(self.env, self.approximation, 0.5)
+    self.traces = AccumulatingTraces(self.approximation, self.env, 0.5)
 
   def test_init(self):
     np.testing.assert_equal(self.traces.call(x), np.array([0, 0, 0]))
