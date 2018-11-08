@@ -25,7 +25,7 @@ class DiscreteLinearApproximation:
     return self.weights
 
   def set_parameters(self, parameters):
-    self.weights += self.alpha * parameters
+    self.weights = parameters
     return self
 
   def update_parameters(self, gradient):
