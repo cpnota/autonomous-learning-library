@@ -12,7 +12,7 @@ class DiscreteLinearApproximation:
       return self.weights.dot(features)
     return self.weights[action].dot(features)
   
-  def update(self, state, action, error):
+  def update(self, error, state, action):
     features = self.basis.features(state)
     self.weights[action] += self.alpha * error * features
 

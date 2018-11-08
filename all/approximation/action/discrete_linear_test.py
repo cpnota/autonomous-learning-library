@@ -8,24 +8,24 @@ num_actions = 3
 learning_rate = 0.1
 space = Box(low=0, high=1, shape=(2,))
 basis = FourierBasis(space, 2, 2)
-x = np.array([0.5, 1])
+state = np.array([0.5, 1])
 
 class TestDiscreteLinearApproximation(unittest.TestCase):
   def setUp(self):
     self.approximation = DiscreteLinearApproximation(learning_rate, basis, actions=num_actions)
 
   def test_call_initial(self):
-    np.testing.assert_equal(self.approximation.call(x), np.array([0, 0, 0]))
+    np.testing.assert_equal(self.approximation.call(state), np.array([0, 0, 0]))
 
   def test_update(self):
-    np.testing.assert_equal(self.approximation.call(x), np.array([0, 0, 0]))
-    self.approximation.update(x, 1, 1)
-    np.testing.assert_allclose(self.approximation.call(x), np.array([0, 0.6, 0]))
+    np.testing.assert_equal(self.approximation.call(state), np.array([0, 0, 0]))
+    self.approximation.update(1, state, 1)
+    np.testing.assert_allclose(self.approximation.call(state), np.array([0, 0.6, 0]))
 
   def test_call_single(self):
-    np.testing.assert_equal(self.approximation.call(x), np.array([0, 0, 0]))
-    self.approximation.update(x, 1, 1)
-    np.testing.assert_approx_equal(self.approximation.call(x, 1), 0.6)
+    np.testing.assert_equal(self.approximation.call(state), np.array([0, 0, 0]))
+    self.approximation.update(1, state, 1)
+    np.testing.assert_approx_equal(self.approximation.call(state, 1), 0.6)
 
   def test_get_parameters(self):
     np.testing.assert_equal(

@@ -18,7 +18,7 @@ class TestLinearFunctionApproximation(unittest.TestCase):
     approximation = LinearApproximation(0.1, basis)
     x = np.array([0.5, 1])
     self.assertEqual(approximation.call(x), 0)
-    approximation.update(x, 1)
+    approximation.update(1, x)
     self.assertAlmostEqual(approximation.call(x), 0.6)
 
 if __name__ == '__main__':

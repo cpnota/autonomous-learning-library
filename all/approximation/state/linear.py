@@ -10,7 +10,7 @@ class LinearApproximation:
     features = self.basis.features(state)
     return self.weights.dot(features)
   
-  def update(self, state, error):
+  def update(self, error, state):
     features = self.basis.features(state)
     self.weights += self.alpha * error * features
 
