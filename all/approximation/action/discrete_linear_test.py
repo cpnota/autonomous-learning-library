@@ -27,6 +27,15 @@ class TestDiscreteLinearApproximation(unittest.TestCase):
     self.approximation.update(1, state, 1)
     np.testing.assert_approx_equal(self.approximation.call(state, 1), 0.6)
 
+  def test_gradient(self):
+    features = basis.features(state)
+    expected = np.array([
+      np.zeros(features.shape[0]),
+      features,
+      np.zeros(features.shape[0])
+    ])
+    np.testing.assert_allclose(self.approximation.gradient(state, 1), expected)
+
   def test_get_parameters(self):
     np.testing.assert_equal(
       self.approximation.get_parameters(), 
