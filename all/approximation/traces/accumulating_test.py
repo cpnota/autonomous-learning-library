@@ -6,7 +6,7 @@ from all.approximation.bases.fourier import FourierBasis
 from all.approximation.traces import AccumulatingTraces
 
 
-SPACE = Box(low=0, high=1, shape=(2,))
+SPACE = Box(low=0, high=1, shape=(2,), dtype=np.float32)
 STATE = np.array([0.5, 1])
 
 
