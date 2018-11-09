@@ -1,3 +1,3 @@
-from all.presets.fourier.sarsa import Sarsa
+from all.presets.fourier.sarsa import sarsa
 
-__all__ = ['Sarsa']
+__all__ = ['sarsa']

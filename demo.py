@@ -1,31 +1,31 @@
-import gym
 from all.environments import GymWrapper
 from all.presets.fourier import Sarsa
-from time import sleep
-import numpy as np
+
 
 def run_episode(agent, env):
-  env.reset()
-  agent.new_episode(env)
-  returns = 0
+    env.reset()
+    agent.new_episode(env)
+    returns = 0
 
-  while(not env.done):
-    env.env.render()
-    agent.act()
-    returns += env.reward
+    while not env.done:
+        env.env.render()
+        agent.act()
+        returns += env.reward
 
-  print('Returns: ', returns)
+    print('Returns: ', returns)
+
 
 def run():
-  env = GymWrapper('MountainCar-v0')
-  env.env._max_episode_steps = 3000 # defaults to 200
-  agent = Sarsa(env)
+    env = GymWrapper('MountainCar-v0')
+    env.env._max_episode_steps = 3000  # defaults to 200
+    agent = Sarsa(env)
 
-  for trial in range(1):
-    for episode in range(200):
-      run_episode(agent, env)
+    for _ in range(1):
+        for _ in range(200):
+            run_episode(agent, env)
 
-  env.close()
+    env.close()
+
 
 if __name__ == '__main__':
     run()
