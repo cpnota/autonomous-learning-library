@@ -7,7 +7,7 @@ from all.approximation.bases.fourier import FourierBasis
 NUM_ACTIONS = 3
 LEARNING_RATE = 0.1
 SPACE = Box(low=0, high=1, shape=(2,))
-BASIS = FourierBasis(SPACE, 2, 2)
+BASIS = FourierBasis(SPACE, 2)
 STATE = np.array([0.5, 1])
 
 

@@ -11,7 +11,7 @@ SPACE = Box(low=0, high=1, shape=(2,))
 
 class TestGreedyPolicy(unittest.TestCase):
     def test_choose_greedy(self):
-        basis = FourierBasis(SPACE, 2, 2)
+        basis = FourierBasis(SPACE, 2)
         approximation = DiscreteLinearApproximation(0.1, basis, actions=3)
         policy = Greedy(approximation, 0)
         state = np.array([0.5, 1])

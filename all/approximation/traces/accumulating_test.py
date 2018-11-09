@@ -22,7 +22,7 @@ class Env:
 
 class TestAccumulatingTraces(unittest.TestCase):
     def setUp(self):
-        self.basis = FourierBasis(SPACE, 2, 2)
+        self.basis = FourierBasis(SPACE, 2)
         self.approximation = DiscreteLinearApproximation(
             0.1, self.basis, actions=3)
         self.env = Env()

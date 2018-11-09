@@ -1,6 +1,5 @@
 import numpy as np
 
-# TODO implement function approximator interface
 class Greedy:
     def __init__(self, action_approximation, epsilon=0.1):
         self.action_approximation = action_approximation

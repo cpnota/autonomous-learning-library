@@ -2,12 +2,10 @@ import numpy as np
 
 
 class FourierBasis:
-    def __init__(self, space, max_frequency, correlations=2):
+    def __init__(self, space, max_frequency):
         inputs = space.shape[0]
         scale = space.high - space.low
         self.offset = -space.low
-
-        # TODO accept a variable number of correlations
 
         # 0th order (constant)
         self.weights = np.zeros(inputs)
