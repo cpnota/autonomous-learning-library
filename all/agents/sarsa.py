@@ -23,7 +23,9 @@ class Sarsa:
         self.action = self.next_action
 
     def update(self):
-        td_error = self.env.reward + (self.action_approximation.call(self.next_state, self.next_action)
-                                      if not self.env.done else 0) - self.action_approximation.call(self.state, self.action)
+        td_error = (self.env.reward
+                    + (self.action_approximation.call(self.next_state, self.next_action)
+                       if not self.env.done else 0)
+                    - self.action_approximation.call(self.state, self.action))
 
         self.action_approximation.update(td_error, self.state, self.action)
