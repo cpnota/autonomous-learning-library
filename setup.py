@@ -1,5 +1,3 @@
-# from sys import platform as _platform
-
 from setuptools import setup, find_packages
 
 
