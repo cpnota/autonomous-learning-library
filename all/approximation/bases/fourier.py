@@ -1,38 +1,42 @@
 import numpy as np
 
+
 class FourierBasis:
-  def __init__(self, space, max_frequency, correlations=2):
-    inputs = space.shape[0]
-    scale = space.high - space.low
-    self.offset = -space.low
+    def __init__(self, space, max_frequency, correlations=2):
+        inputs = space.shape[0]
+        scale = space.high - space.low
+        self.offset = -space.low
 
-    # 0th order (constant)
-    self.C = np.zeros(inputs)
+        # TODO accept a variable number of correlations
 
-    # TODO better initialization
+        # 0th order (constant)
+        self.weights = np.zeros(inputs)
 
-    # first order correlations
-    for i in range(inputs):
-      for frequency in range(max_frequency):
-        row = np.zeros(inputs)
-        row[i] = frequency + 1
-        self.C = np.vstack([self.C, row])
-    
-    # second order correlations
-    for i in range(inputs):
-      for j in range(i, inputs):
-        if (i == j): 
-          continue
-        for i_freq in range(max_frequency):
-          for j_freq in range(max_frequency):
-            row = np.zeros(inputs)
-            row[i] = i_freq + 1
-            row[j] = j_freq + 1
-            self.C = np.vstack([self.C, row])
+        # first order correlations
+        for i in range(inputs):
+            for frequency in range(max_frequency):
+                row = np.zeros(inputs)
+                row[i] = frequency + 1
+                self.weights = np.vstack([self.weights, row])
 
-    self.C *= np.pi
-    self.C /= scale
-    self.num_features = self.C.shape[0]
+        # second order correlations
+        for i in range(inputs):
+            for j in range(i, inputs):
+                if i == j:
+                    continue
+                for i_freq in range(max_frequency):
+                    for j_freq in range(max_frequency):
+                        row = np.zeros(inputs)
+                        row[i] = i_freq + 1
+                        row[j] = j_freq + 1
+                        self.weights = np.vstack([self.weights, row])
 
-  def features(self, x):
-    return np.cos(self.C.dot(x + self.offset))
+        self.weights *= np.pi
+        self.weights /= scale
+        self.num_features = self.weights.shape[0]
+
+    def features(self, args):
+        return np.cos(self.weights.dot(args + self.offset))
+
+    def get_num_features(self):
+        return self.num_features
