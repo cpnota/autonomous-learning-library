@@ -1,7 +1,7 @@
 import numpy as np
+from all.approximation.value.action.action_value_approximation import ActionValueApproximation
 
-
-class LinearStateDiscreteActionValue:
+class LinearStateDiscreteActionValue(ActionValueApproximation):
     def __init__(self, alpha, basis, actions):
         self.alpha = alpha
         self.basis = basis
