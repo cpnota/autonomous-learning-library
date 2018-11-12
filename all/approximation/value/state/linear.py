@@ -1,8 +1,8 @@
 import numpy as np
-from all.approximation import Approximation
+from all.approximation.value.state.state_value_approximation import StateValueApproximation
 
 
-class LinearStateValue(Approximation):
+class LinearStateValue(StateValueApproximation):
     def __init__(self, alpha, basis):
         self.alpha = alpha
         self.basis = basis
