@@ -1,4 +1,6 @@
-class Sarsa:
+from all.agents import Agent
+
+class Sarsa(Agent):
     def __init__(self, action_approximation, policy):
         self.action_approximation = action_approximation
         self.policy = policy
