@@ -13,8 +13,7 @@ STATE = np.array([0.5, 1])
 
 class TestLinearFunctionApproximation(unittest.TestCase):
     def setUp(self):
-        self.approximation = LinearStateValue(LEARNING_RATE, BASIS
-                                                 )
+        self.approximation = LinearStateValue(LEARNING_RATE, BASIS)
 
     def test_call_init(self):
         self.assertEqual(self.approximation.call(STATE), 0)
