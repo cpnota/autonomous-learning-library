@@ -3,7 +3,7 @@ from all.environments import Environment
 
 class GymWrapper(Environment):
     def __init__(self, env):
-        if (isinstance(env, str)):
+        if isinstance(env, str):
             self._env = gym.make(env)
         else:
             self._env = env
@@ -29,8 +29,19 @@ class GymWrapper(Environment):
         self._info = info
         return state, reward, done, info
 
+    def render(self):
+        return self._env.render()
+
     def close(self):
         return self._env.close()
+
+    @property
+    def action_space(self):
+        return self._env.action_space
+
+    @property
+    def state_space(self):
+        return self._env.action_space
 
     @property
     def state(self):
