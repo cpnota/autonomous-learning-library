@@ -36,11 +36,11 @@ class GymWrapper(Environment):
         return self._env.close()
 
     @property
-    def action_space(self):
+    def state_space(self):
         return self._env.action_space
 
     @property
-    def state_space(self):
+    def action_space(self):
         return self._env.action_space
 
     @property
