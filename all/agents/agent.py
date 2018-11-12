@@ -25,7 +25,7 @@ class Agent(ABC):
         """
         Choose an action, apply it to the environment, and update self.
 
-        In general, a reinforcement learning agent needs to do several things during a timestep:
+        In general, a reinforcement learning agent does several things during a timestep:
         1. Choose an action,
         2. Dispatch it to the environment (i.e. env.step(action))
         3. Compute the TD error
