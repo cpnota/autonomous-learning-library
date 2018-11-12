@@ -1,7 +1,7 @@
 import unittest
 from gym.spaces import Box
 import numpy as np
-from all.approximation.action.discrete_linear import DiscreteLinearApproximation
+from all.approximation.value.action import LinearStateDiscreteActionValue
 from all.approximation.bases.fourier import FourierBasis
 from all.approximation.traces import AccumulatingTraces
 
@@ -23,7 +23,7 @@ class Env:
 class TestAccumulatingTraces(unittest.TestCase):
     def setUp(self):
         self.basis = FourierBasis(SPACE, 2)
-        self.approximation = DiscreteLinearApproximation(
+        self.approximation = LinearStateDiscreteActionValue(
             0.1, self.basis, actions=3)
         self.env = Env()
         self.traces = AccumulatingTraces(self.approximation, self.env, 0.5)

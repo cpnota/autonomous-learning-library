@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class DiscreteLinearApproximation:
+class LinearStateDiscreteActionValue:
     def __init__(self, alpha, basis, actions):
         self.alpha = alpha
         self.basis = basis
@@ -22,13 +22,14 @@ class DiscreteLinearApproximation:
         grad[action] = self.basis.features(state)
         return grad
 
-    def get_parameters(self):
-        return self.weights
-
-    def set_parameters(self, parameters):
-        self.weights = parameters
-        return self
-
-    def update_parameters(self, gradient):
+    def apply(self, gradient):
         self.weights += self.alpha * gradient
         return self
+
+    @property
+    def parameters(self):
+        return self.weights
+
+    @parameters.setter
+    def parameters(self, weights):
+        self.weights = weights

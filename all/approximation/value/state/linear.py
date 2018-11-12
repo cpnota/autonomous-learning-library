@@ -1,7 +1,8 @@
 import numpy as np
+from all.approximation import Approximation
 
 
-class LinearApproximation:
+class LinearStateValue(Approximation):
     def __init__(self, alpha, basis):
         self.alpha = alpha
         self.basis = basis
@@ -18,11 +19,13 @@ class LinearApproximation:
     def gradient(self, state):
         return self.basis.features(state)
 
-    def get_parameters(self):
+    def apply(self, gradient):
+        self.weights += self.alpha * gradient
+
+    @property
+    def parameters(self):
         return self.weights
 
-    def set_parameters(self, weights):
+    @parameters.setter
+    def parameters(self, weights):
         self.weights = weights
-
-    def update_parameters(self, errors):
-        self.weights += self.alpha * errors
