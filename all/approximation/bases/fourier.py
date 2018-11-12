@@ -1,7 +1,7 @@
 import numpy as np
+from all.approximation.bases.basis import Basis
 
-
-class FourierBasis:
+class FourierBasis(Basis):
     def __init__(self, space, max_frequency):
         inputs = space.shape[0]
         scale = space.high - space.low
@@ -31,10 +31,11 @@ class FourierBasis:
 
         self.weights *= np.pi
         self.weights /= scale
-        self.num_features = self.weights.shape[0]
+        self._num_features = self.weights.shape[0]
 
     def features(self, args):
         return np.cos(self.weights.dot(args + self.offset))
 
-    def get_num_features(self):
-        return self.num_features
+    @property
+    def num_features(self):
+        return self._num_features

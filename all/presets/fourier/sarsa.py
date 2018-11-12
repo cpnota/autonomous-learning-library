@@ -1,4 +1,4 @@
-from all.approximation.action import DiscreteLinearApproximation
+from all.approximation.value.action import LinearStateDiscreteActionValue
 from all.approximation.bases import FourierBasis
 from all.approximation.traces import AccumulatingTraces
 from all.policies import Greedy
@@ -9,7 +9,7 @@ def sarsa(env, alpha=0.05, epsilon=0.1, trace_decay_rate=0.5, order=1):
     num_actions = env.env.action_space.n
     basis = FourierBasis(env.env.observation_space, order)
     action_approximation = AccumulatingTraces(
-        DiscreteLinearApproximation(alpha, basis, num_actions),
+        LinearStateDiscreteActionValue(alpha, basis, num_actions),
         env,
         trace_decay_rate
     )

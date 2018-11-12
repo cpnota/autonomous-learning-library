@@ -1,4 +1,6 @@
-class Sarsa:
+from all.agents import Agent
+
+class Sarsa(Agent):
     def __init__(self, action_approximation, policy):
         self.action_approximation = action_approximation
         self.policy = policy
@@ -12,12 +14,12 @@ class Sarsa:
     def new_episode(self, env):
         self.env = env
         self.state = self.env.state
-        self.action = self.policy.choose_action(self.state)
+        self.action = self.policy.call(self.state)
 
     def act(self):
         self.env.step(self.action)
         self.next_state = self.env.state
-        self.next_action = self.policy.choose_action(self.next_state)
+        self.next_action = self.policy.call(self.next_state)
         self.update()
         self.state = self.next_state
         self.action = self.next_action

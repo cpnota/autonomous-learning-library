@@ -1,12 +1,30 @@
 import numpy as np
+from all.policies.policy import Policy
 
-class Greedy:
-    def __init__(self, action_approximation, epsilon=0.1):
-        self.action_approximation = action_approximation
+class Greedy(Policy):
+    def __init__(self, q, epsilon=0.1):
+        self.q = q
         self.epsilon = epsilon
 
-    def choose_action(self, state):
-        action_scores = self.action_approximation.call(state)
+    def call(self, state, action=None, prob=False):
+        action_scores = self.q.call(state)
         if np.random.rand() < self.epsilon:
             return np.random.randint(action_scores.shape[0])
         return np.argmax(action_scores)
+
+    def update(self, error, state, action):
+        return self.q.update(error, state, action)
+
+    def gradient(self, state, action):
+        return self.q.gradient(state, action)
+
+    def apply(self, gradient):
+        return self.q.apply(gradient)
+
+    @property
+    def parameters(self):
+        return self.q.parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        self.q.parameters = parameters

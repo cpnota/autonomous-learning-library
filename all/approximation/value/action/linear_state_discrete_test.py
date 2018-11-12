@@ -1,7 +1,7 @@
 import unittest
 from gym.spaces import Box
 import numpy as np
-from all.approximation.action.discrete_linear import DiscreteLinearApproximation
+from all.approximation.value.action import LinearStateDiscreteActionValue
 from all.approximation.bases.fourier import FourierBasis
 
 NUM_ACTIONS = 3
@@ -11,9 +11,9 @@ BASIS = FourierBasis(SPACE, 2)
 STATE = np.array([0.5, 1])
 
 
-class TestDiscreteLinearApproximation(unittest.TestCase):
+class TestLinearStateDiscreteActionValue(unittest.TestCase):
     def setUp(self):
-        self.approximation = DiscreteLinearApproximation(
+        self.approximation = LinearStateDiscreteActionValue(
             LEARNING_RATE, BASIS, actions=NUM_ACTIONS)
 
     def test_call_initial(self):
@@ -46,7 +46,7 @@ class TestDiscreteLinearApproximation(unittest.TestCase):
 
     def test_get_parameters(self):
         np.testing.assert_equal(
-            self.approximation.get_parameters(),
+            self.approximation.parameters,
             np.zeros((NUM_ACTIONS, BASIS
                       .num_features))
         )
@@ -54,18 +54,18 @@ class TestDiscreteLinearApproximation(unittest.TestCase):
     def test_set_parameters(self):
         new_parameters = np.ones((NUM_ACTIONS, BASIS
                                   .num_features))
-        self.approximation.set_parameters(new_parameters)
+        self.approximation.parameters = new_parameters
         np.testing.assert_equal(
-            self.approximation.get_parameters(),
+            self.approximation.parameters,
             new_parameters
         )
 
     def test_update_parameters(self):
         gradient = np.ones((NUM_ACTIONS, BASIS
                             .num_features))
-        self.approximation.update_parameters(gradient)
+        self.approximation.apply(gradient)
         np.testing.assert_equal(
-            self.approximation.get_parameters(),
+            self.approximation.parameters,
             LEARNING_RATE * gradient
         )
 

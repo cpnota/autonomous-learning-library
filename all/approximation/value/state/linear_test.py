@@ -1,7 +1,7 @@
 import unittest
 from gym.spaces import Box
 import numpy as np
-from all.approximation.state import LinearApproximation
+from all.approximation.value.state import LinearStateValue
 from all.approximation.bases import FourierBasis
 
 NUM_ACTIONS = 3
@@ -13,8 +13,7 @@ STATE = np.array([0.5, 1])
 
 class TestLinearFunctionApproximation(unittest.TestCase):
     def setUp(self):
-        self.approximation = LinearApproximation(LEARNING_RATE, BASIS
-                                                 )
+        self.approximation = LinearStateValue(LEARNING_RATE, BASIS)
 
     def test_call_init(self):
         self.assertEqual(self.approximation.call(STATE), 0)
@@ -32,23 +31,23 @@ class TestLinearFunctionApproximation(unittest.TestCase):
 
     def test_get_parameters(self):
         np.testing.assert_equal(
-            self.approximation.get_parameters(),
+            self.approximation.parameters,
             np.zeros((BASIS.num_features))
         )
 
     def test_set_parameters(self):
         new_parameters = np.ones((BASIS.num_features))
-        self.approximation.set_parameters(new_parameters)
+        self.approximation.parameters = new_parameters
         np.testing.assert_equal(
-            self.approximation.get_parameters(),
+            self.approximation.parameters,
             new_parameters
         )
 
-    def test_update_parameters(self):
+    def test_apply_gradient(self):
         gradient = np.ones((BASIS.num_features))
-        self.approximation.update_parameters(gradient)
+        self.approximation.apply(gradient)
         np.testing.assert_equal(
-            self.approximation.get_parameters(),
+            self.approximation.parameters,
             LEARNING_RATE
             * gradient
         )
