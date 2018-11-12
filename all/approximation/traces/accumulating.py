@@ -1,7 +1,8 @@
 import numpy as np
+from all.approximation import Approximation
 
 
-class AccumulatingTraces:
+class AccumulatingTraces(Approximation):
     def __init__(self, approximation, env, decay_rate):
         self.env = env
         self.approximation = approximation
@@ -20,12 +21,13 @@ class AccumulatingTraces:
     def gradient(self, *args):
         return self.approximation.gradient(*args)
 
-    def update_parameters(self, gradient):
-        # TODO
-        pass
+    def apply(self, gradient):
+        return self.approximation.apply(gradient)
 
-    def get_parameters(self):
+    @property
+    def parameters(self):
         return self.approximation.parameters
 
-    def set_parameters(self, parameters):
+    @parameters.setter
+    def parameters(self, parameters):
         self.approximation.parameters = parameters
