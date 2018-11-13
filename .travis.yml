@@ -1,0 +1,10 @@
+language: python
+python:
+  - "3.6"
+branches:
+  only:
+  - master
+install:
+  - make install
+script:
+  - make lint && make test

@@ -1,3 +1,6 @@
+install:
+	pip install -e .
+
 lint:
 	pylint all --rcfile=.pylintrc
 

@@ -1,5 +1,5 @@
 import gym
-from all.environments import Environment
+from all.environments.environment import Environment
 
 class GymWrapper(Environment):
     def __init__(self, env):
