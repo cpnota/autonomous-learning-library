@@ -17,6 +17,7 @@ def run_episode(agent, env):
 
 def run():
     env = GymWrapper('MountainCar-v0')
+    # pylint: disable=protected-access
     env.env._max_episode_steps = 3000  # defaults to 200
     agent = actor_critic(env, alpha=0.02)
 

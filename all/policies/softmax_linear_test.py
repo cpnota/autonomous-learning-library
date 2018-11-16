@@ -25,13 +25,13 @@ class TestLinearStateDiscreteActionValue(unittest.TestCase):
     def test_update(self):
         self.policy.update(1, STATE, 0)
         np.testing.assert_allclose(
-            self.policy.probabilities(FEATURES), 
+            self.policy.probabilities(FEATURES),
             np.array([0.47673, 0.261635, 0.261635]
-        ))
+                     ))
 
     def test_gradient(self):
         np.testing.assert_allclose(
-            self.policy.gradient(STATE, 1), 
+            self.policy.gradient(STATE, 1),
             np.array([
                 -FEATURES / 3,
                 FEATURES * 2/3,
