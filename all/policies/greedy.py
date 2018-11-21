@@ -10,7 +10,8 @@ class Greedy(Policy):
         action_scores = self.q.call(state)
         if np.random.rand() < self.epsilon:
             return np.random.randint(action_scores.shape[0])
-        return np.argmax(action_scores)
+        best = np.argwhere(action_scores == np.max(action_scores)).flatten()
+        return np.random.choice(best)
 
     def update(self, error, state, action):
         return self.q.update(error, state, action)
