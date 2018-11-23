@@ -10,7 +10,7 @@ STATE = 2
 ACTION = 1
 
 
-class TestLinearStateDiscreteActionValue(unittest.TestCase):
+class TestSoftmaxTabular(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
         self.policy = SoftmaxTabular(LEARNING_RATE, STATE_SPACE, ACTION_SPACE)
@@ -35,21 +35,21 @@ class TestLinearStateDiscreteActionValue(unittest.TestCase):
         features[STATE] = 1
         np.testing.assert_allclose(
             self.policy.gradient(STATE, ACTION),
-            np.array([
+            np.array(np.array([
                 -features / 3,
                 features * 2/3,
                 -features / 3
-            ])
+            ]).T)
         )
 
     def test_get_parameters(self):
         np.testing.assert_equal(
             self.policy.parameters,
-            np.zeros((ACTION_SPACE.n, STATE_SPACE.n))
+            np.zeros((STATE_SPACE.n, ACTION_SPACE.n))
         )
 
     def test_set_parameters(self):
-        new_parameters = np.ones((ACTION_SPACE.n, STATE_SPACE.n))
+        new_parameters = np.ones((STATE_SPACE.n, ACTION_SPACE.n))
         self.policy.parameters = new_parameters
         np.testing.assert_equal(
             self.policy.parameters,
@@ -57,7 +57,7 @@ class TestLinearStateDiscreteActionValue(unittest.TestCase):
         )
 
     def test_update_parameters(self):
-        gradient = np.ones((ACTION_SPACE.n, STATE_SPACE.n))
+        gradient = np.ones((STATE_SPACE.n, ACTION_SPACE.n))
         self.policy.apply(gradient)
         np.testing.assert_equal(
             self.policy.parameters,
