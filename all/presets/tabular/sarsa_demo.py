@@ -18,7 +18,7 @@ def run():
     agent = sarsa(env)
 
     for _ in range(1):
-        for _ in range(200):
+        for _ in range(2500):
             run_episode(agent, env)
 
     env.close()
