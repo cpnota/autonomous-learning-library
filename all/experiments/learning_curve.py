@@ -4,42 +4,45 @@ from all.environments import GymWrapper
 
 
 class LearningCurve:
-    results = None
+    def __init__(self, env, episodes=200, trials=100):
+        if isinstance(env, str):
+            self.env = GymWrapper(env)
+            self.env_name = env
+        else:
+            self.env = env
+            self.env_name = env.__class__.__name__
+        self.episodes = episodes
+        self.trials = trials
+        self.results = {}
 
     def run(
             self,
             make_agent,
-            env,
-            episodes=200,
-            trials=100
+            label=None
     ):
         agent = None
-        results = np.zeros((trials, episodes))
+        if label is None:
+            label = make_agent.__name__
+        self.results[label] = np.zeros((self.trials, self.episodes))
 
-        if isinstance(env, str):
-            env = GymWrapper(env)
+        print('Generating learning curve for ' + label + "...")
+        for trial in range(self.trials):
+            agent = make_agent(self.env)
+            for episode in range(self.episodes):
+                returns = run_episode(agent, self.env)
+                self.results[label][trial][episode] = returns
 
-        print('Running learning curve experiment...')
-        for trial in range(trials):
-            agent = make_agent(env)
-            for episode in range(episodes):
-                returns = run_episode(agent, env)
-                results[trial][episode] = returns
-        print('Learning curve experiment finished!')
+        return self.results[label]
 
-        self.results = results
-        return results
-
-    def plot(self, results=None):
-        if results is None:
-            results = self.results
-        (trials, episodes) = results.shape
-        x = np.arange(1, episodes + 1)
-        y = np.mean(results, axis=0)
-        stderr = np.std(results, axis=0) / np.sqrt(trials)
-        plt.errorbar(x, y, stderr)
-        plt.xlabel("episode")
-        plt.ylabel("returns")
+    def plot(self):
+        plt.title(self.env_name)
+        for label, results in self.results.items():
+            x = np.arange(1, self.episodes + 1)
+            y = np.mean(results, axis=0)
+            plt.plot(x, y, label=label)
+            plt.xlabel("episode")
+            plt.ylabel("returns")
+            plt.legend(loc='upper left')
         plt.show()
 
 
