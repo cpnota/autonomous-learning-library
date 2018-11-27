@@ -19,7 +19,8 @@ class LearningCurve:
     def run(
             self,
             make_agent,
-            label=None
+            label=None,
+            print_every=np.inf
     ):
         agent = None
         if label is None:
@@ -31,11 +32,13 @@ class LearningCurve:
             agent = make_agent(self.env)
             for episode in range(self.episodes):
                 returns = run_episode(agent, self.env)
+                self.log(trial, episode, returns, print_every)
                 self.results[label][trial][episode] = returns
 
         return self.results[label]
 
     def plot(self):
+        print("Plotting learning curve...")
         plt.title(self.env_name)
         for label, results in self.results.items():
             x = np.arange(1, self.episodes + 1)
@@ -65,6 +68,11 @@ class LearningCurve:
         self.trials = data["trials"]
         self.results = {k:np.array(v) for (k,v) in data["results"].items()}
 
+    def log(self, trial, episode, returns, print_every):
+        episode_number = trial * self.episodes + episode + 1
+        if episode_number % print_every == 0:
+            print("trial: %i/%i, episode: %i/%i, returns: %d" % (trial + 1, self.trials, episode + 1, self.episodes, returns))
+
 def run_episode(agent, env):
     env.reset()
     agent.new_episode(env)
@@ -73,3 +81,4 @@ def run_episode(agent, env):
         agent.act()
         returns += env.reward
     return returns
+
