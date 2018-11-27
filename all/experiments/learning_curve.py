@@ -20,7 +20,8 @@ class LearningCurve:
             self,
             make_agent,
             agent_name=None,
-            print_every=np.inf
+            print_every=np.inf,
+            plot_every=np.inf
     ):
         agent = None
         if agent_name is None:
@@ -32,17 +33,21 @@ class LearningCurve:
             agent = make_agent(self.env)
             for episode in range(self.episodes):
                 returns = run_episode(agent, self.env)
-                self.log(trial, episode, returns, print_every)
                 self.results[agent_name][trial][episode] = returns
+                self.monitor(trial, episode, returns, print_every, plot_every)
+        print('Done!')
 
         return self.results[agent_name]
 
-    def plot(self):
-        print("Plotting learning curve...")
+    def plot(self, max_trials=None):
+        if max_trials is None:
+            max_trials = self.trials
+
+        plt.cla()
         plt.title(self.env_name)
         for agent_name, results in self.results.items():
             x = np.arange(1, self.episodes + 1)
-            y = np.mean(results, axis=0)
+            y = np.mean(results[0:max_trials], axis=0)
             plt.plot(x, y, label=agent_name)
             plt.xlabel("episode")
             plt.ylabel("returns")
@@ -68,11 +73,17 @@ class LearningCurve:
         self.trials = data["trials"]
         self.results = {k:np.array(v) for (k, v) in data["results"].items()}
 
-    def log(self, trial, episode, returns, print_every):
+    def monitor(self, trial, episode, returns, print_every, plot_every):
         episode_number = trial * self.episodes + episode + 1
         if episode_number % print_every == 0:
             print("trial: %i/%i, episode: %i/%i, returns: %d" %
                   (trial + 1, self.trials, episode + 1, self.episodes, returns))
+        if episode_number % plot_every == 0:
+            plt.ion()
+            self.plot(max_trials=trial)
+            plt.pause(0.0001)
+            plt.ioff()
+
 
 def run_episode(agent, env):
     env.reset()
