@@ -1,4 +1,5 @@
 import numpy as np
+import json
 import matplotlib.pyplot as plt
 from all.environments import GymWrapper
 
@@ -45,6 +46,24 @@ class LearningCurve:
             plt.legend(loc='upper left')
         plt.show()
 
+    def save(self, filename):
+        data = {
+            "env": self.env_name,
+            "episodes": self.episodes,
+            "trials": self.trials,
+            "results":  {k:v.tolist() for (k,v) in self.results.items()}
+        }
+        with open(filename, 'w') as outfile:  
+            json.dump(data, outfile)
+
+    def load(self, filename):
+        with open(filename) as infile:
+            data = json.load(infile)
+
+        self.env_name = data["env"]
+        self.episodes = data["episodes"]
+        self.trials = data["trials"]
+        self.results = {k:np.array(v) for (k,v) in data["results"].items()}
 
 def run_episode(agent, env):
     env.reset()
