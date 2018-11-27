@@ -1,6 +1,6 @@
-import numpy as np
 import json
 import matplotlib.pyplot as plt
+import numpy as np
 from all.environments import GymWrapper
 
 
@@ -54,9 +54,9 @@ class LearningCurve:
             "env": self.env_name,
             "episodes": self.episodes,
             "trials": self.trials,
-            "results":  {k:v.tolist() for (k,v) in self.results.items()}
+            "results":  {k:v.tolist() for (k, v) in self.results.items()}
         }
-        with open(filename, 'w') as outfile:  
+        with open(filename, 'w') as outfile:
             json.dump(data, outfile)
 
     def load(self, filename):
@@ -66,12 +66,13 @@ class LearningCurve:
         self.env_name = data["env"]
         self.episodes = data["episodes"]
         self.trials = data["trials"]
-        self.results = {k:np.array(v) for (k,v) in data["results"].items()}
+        self.results = {k:np.array(v) for (k, v) in data["results"].items()}
 
     def log(self, trial, episode, returns, print_every):
         episode_number = trial * self.episodes + episode + 1
         if episode_number % print_every == 0:
-            print("trial: %i/%i, episode: %i/%i, returns: %d" % (trial + 1, self.trials, episode + 1, self.episodes, returns))
+            print("trial: %i/%i, episode: %i/%i, returns: %d" %
+                  (trial + 1, self.trials, episode + 1, self.episodes, returns))
 
 def run_episode(agent, env):
     env.reset()
@@ -81,4 +82,3 @@ def run_episode(agent, env):
         agent.act()
         returns += env.reward
     return returns
-
