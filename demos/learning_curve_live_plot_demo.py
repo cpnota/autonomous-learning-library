@@ -1,5 +1,4 @@
 from all.presets.tabular import sarsa
-from all.presets.tabular import actor_critic
 from all.experiments import LearningCurve
 
 def run():
