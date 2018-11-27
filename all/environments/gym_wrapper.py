@@ -37,7 +37,7 @@ class GymWrapper(Environment):
 
     @property
     def state_space(self):
-        return self._env.action_space
+        return self._env.observation_space
 
     @property
     def action_space(self):
