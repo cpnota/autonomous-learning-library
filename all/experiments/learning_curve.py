@@ -19,31 +19,31 @@ class LearningCurve:
     def run(
             self,
             make_agent,
-            label=None,
+            agent_name=None,
             print_every=np.inf
     ):
         agent = None
-        if label is None:
-            label = make_agent.__name__
-        self.results[label] = np.zeros((self.trials, self.episodes))
+        if agent_name is None:
+            agent_name = make_agent.__name__
+        self.results[agent_name] = np.zeros((self.trials, self.episodes))
 
-        print('Generating learning curve for ' + label + "...")
+        print('Generating learning curve for ' + agent_name + "...")
         for trial in range(self.trials):
             agent = make_agent(self.env)
             for episode in range(self.episodes):
                 returns = run_episode(agent, self.env)
                 self.log(trial, episode, returns, print_every)
-                self.results[label][trial][episode] = returns
+                self.results[agent_name][trial][episode] = returns
 
-        return self.results[label]
+        return self.results[agent_name]
 
     def plot(self):
         print("Plotting learning curve...")
         plt.title(self.env_name)
-        for label, results in self.results.items():
+        for agent_name, results in self.results.items():
             x = np.arange(1, self.episodes + 1)
             y = np.mean(results, axis=0)
-            plt.plot(x, y, label=label)
+            plt.plot(x, y, label=agent_name)
             plt.xlabel("episode")
             plt.ylabel("returns")
             plt.legend(loc='upper left')
