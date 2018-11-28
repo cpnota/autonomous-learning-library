@@ -1,2 +1,3 @@
 from .experiment import Experiment
-__all__ = ["Experiment"]
+from .plots import learning_curve
+__all__ = ["Experiment", "learning_curve"]

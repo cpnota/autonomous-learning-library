@@ -44,23 +44,10 @@ class Experiment:
         plot(self.results)
 
     def save(self, filename):
-        data = {
-            "env": self.env_name,
-            "episodes": self.episodes,
-            "trials": self.trials,
-            "results":  {k:v.tolist() for (k, v) in self.data.items()}
-        }
+        results = self.results
+        results["data"] = {k:v.tolist() for (k, v) in results["data"].items()}
         with open(filename, 'w') as outfile:
-            json.dump(data, outfile)
-
-    def load(self, filename):
-        with open(filename) as infile:
-            data = json.load(infile)
-
-        self.env_name = data["env"]
-        self.episodes = data["episodes"]
-        self.trials = data["trials"]
-        self.data = {k:np.array(v) for (k, v) in data["results"].items()}
+            json.dump(results, outfile)
 
     def monitor(self, trial, episode, returns, print_every, plot_every):
         episode_number = trial * self.episodes + episode + 1
@@ -81,6 +68,12 @@ class Experiment:
             "trials": self.trials,
             "data": self.data
         }
+
+    def load(filename):
+        with open(filename) as infile:
+            results = json.load(infile)
+        results["data"] = {k:np.array(v) for (k, v) in results["data"].items()}
+        return results
 
 def run_episode(agent, env):
     env.reset()
