@@ -17,49 +17,6 @@ class Experiment:
         self.trials = trials
         self.data = {}
 
-    def run(
-            self,
-            make_agent,
-            agent_name=None,
-            print_every=np.inf,
-            plot_every=np.inf
-    ):
-        agent = None
-        if agent_name is None:
-            agent_name = make_agent.__name__
-        self.data[agent_name] = np.zeros((self.trials, self.episodes))
-
-        print('Running %s on %s...' % (agent_name, self.env_name))
-        for trial in range(self.trials):
-            agent = make_agent(self.env)
-            for episode in range(self.episodes):
-                returns = run_episode(agent, self.env)
-                self.data[agent_name][trial][episode] = returns
-                self.monitor(trial, episode, returns, print_every, plot_every)
-        print('Finished %s on %s.' % (agent_name, self.env_name))
-
-        return self.data[agent_name]
-
-    def plot(self, plot=learning_curve):
-        plot(self.results)
-
-    def save(self, filename):
-        results = self.results
-        results["data"] = {k:v.tolist() for (k, v) in results["data"].items()}
-        with open(filename, 'w') as outfile:
-            json.dump(results, outfile)
-
-    def monitor(self, trial, episode, returns, print_every, plot_every):
-        episode_number = trial * self.episodes + episode + 1
-        if episode_number % print_every == 0:
-            print("trial: %i/%i, episode: %i/%i, returns: %d" %
-                  (trial + 1, self.trials, episode + 1, self.episodes, returns))
-        if episode_number % plot_every == 0:
-            plt.ion()
-            self.plot()
-            plt.pause(0.0001)
-            plt.ioff()
-
     @property
     def results(self):
         return {
@@ -69,7 +26,48 @@ class Experiment:
             "data": self.data
         }
 
-    # pylint: disable=E0213
+    def run(
+            self,
+            make_agent,
+            agent_name=None,
+            print_every=np.inf,
+            plot_every=np.inf,
+            plot=learning_curve
+    ):
+        agent_name = make_agent.__name__ if agent_name is None else agent_name
+        self.data[agent_name] = np.zeros((self.trials, self.episodes))
+
+        print('Running: %s on %s...' % (agent_name, self.env_name))
+        for trial in range(self.trials):
+            agent = make_agent(self.env)
+            for episode in range(self.episodes):
+                returns = run_episode(agent, self.env)
+                self.data[agent_name][trial][episode] = returns
+                self.monitor(trial, episode, returns, print_every, plot_every, plot)
+        print('Finished %s on %s!' % (agent_name, self.env_name))
+
+        return self.data[agent_name]
+
+    def plot(self, plot=learning_curve):
+        plot(self.results)
+
+    def monitor(self, trial, episode, returns, print_every, plot_every, plot):
+        episode_number = trial * self.episodes + episode + 1
+        if episode_number % print_every == 0:
+            print("trial: %i/%i, episode: %i/%i, returns: %d" %
+                  (trial + 1, self.trials, episode + 1, self.episodes, returns))
+        if episode_number % plot_every == 0:
+            plt.ion()
+            self.plot(plot)
+            plt.pause(0.0001)
+            plt.ioff()
+
+    def save(self, filename):
+        results = self.results
+        results["data"] = {k:v.tolist() for (k, v) in results["data"].items()}
+        with open(filename, 'w') as outfile:
+            json.dump(results, outfile)
+
     def load(filename):
         with open(filename) as infile:
             results = json.load(infile)
