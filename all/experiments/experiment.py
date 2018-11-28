@@ -34,10 +34,11 @@ class Experiment:
             plot=learning_curve
     ):
         agent_name = make_agent.__name__ if agent_name is None else agent_name
-        self.data[agent_name] = np.zeros((self.trials, self.episodes))
+        self.data[agent_name] = np.zeros((0, self.episodes))
 
         for trial in range(self.trials):
             agent = make_agent(self.env)
+            self.data[agent_name] = np.vstack((self.data[agent_name], np.zeros(self.episodes)))
             for episode in range(self.episodes):
                 returns = run_episode(agent, self.env)
                 self.data[agent_name][trial][episode] = returns
