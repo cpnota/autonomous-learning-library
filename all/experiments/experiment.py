@@ -45,8 +45,8 @@ class Experiment:
 
         return self.data[agent_name]
 
-    def plot(self, plot=learning_curve):
-        plot(self.results)
+    def plot(self, plot=learning_curve, filename=None):
+        plot(self.results, filename=filename)
 
     def monitor(self, trial, episode, returns, print_every, plot_every, plot):
         episode_number = trial * self.episodes + episode + 1

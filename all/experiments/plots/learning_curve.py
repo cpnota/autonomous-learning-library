@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def learning_curve(results):
+def learning_curve(results, filename=None):
     env = results["env"]
     data = results["data"]
 
@@ -15,4 +15,8 @@ def learning_curve(results):
         plt.xlabel("episode")
         plt.ylabel("returns")
         plt.legend(loc='upper left')
-    plt.show()
+
+    if filename is not None:
+        plt.savefig(filename)
+    else:
+        plt.show()
