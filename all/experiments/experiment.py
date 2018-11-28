@@ -4,7 +4,7 @@ import numpy as np
 from all.environments import GymWrapper
 
 
-class LearningCurve:
+class Experiment:
     def __init__(self, env, episodes=200, trials=100):
         if isinstance(env, str):
             self.env = GymWrapper(env)

@@ -1,2 +1,2 @@
-from .learning_curve import LearningCurve
-__all__ = ["LearningCurve"]
+from .experiment import Experiment
+__all__ = ["Experiment"]

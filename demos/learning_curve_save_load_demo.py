@@ -1,11 +1,11 @@
 import os
 from all.presets.tabular import sarsa
 from all.presets.tabular import actor_critic
-from all.experiments import LearningCurve
+from all.experiments import Experiment
 
 def run():
     # create some learning curve data
-    lc_original = LearningCurve('FrozenLake-v0')
+    lc_original = Experiment('FrozenLake-v0')
     lc_original.run(sarsa)
     lc_original.run(actor_critic)
 
@@ -13,7 +13,7 @@ def run():
     lc_original.save('lc.json')
 
     # load the data from file in new learning curve object
-    lc_loaded = LearningCurve('FrozenLake-v0')
+    lc_loaded = Experiment('FrozenLake-v0')
     lc_loaded.load('lc.json')
     lc_loaded.plot()
 
