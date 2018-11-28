@@ -28,7 +28,6 @@ class Agent(ABC):
         env : Environment
             Environment object for the next episode.
         """
-        pass
 
     @abstractmethod
     def act(self):
@@ -48,4 +47,3 @@ class Agent(ABC):
         ----------
         None
         """
-        pass

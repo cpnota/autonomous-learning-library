@@ -21,7 +21,6 @@ class Environment(ABC):
         State
             The initial state for the next episode.
         """
-        pass
 
     @abstractmethod
     def step(self, action):
@@ -44,21 +43,18 @@ class Environment(ABC):
         info
             Diagnostic information useful for debugging
         """
-        pass
 
     @abstractmethod
     def render(self):
         """
         Render the current environment state.
         """
-        pass
 
     @abstractmethod
     def close(self):
         """
         Clean up any extraneaous environment objects.
         """
-        pass
 
     @property
     @abstractmethod
@@ -71,7 +67,6 @@ class Environment(ABC):
         Space
             An object of type Space that represents possible states the agent may observe
         """
-        pass
 
     @property
     def observation_space(self):
@@ -96,7 +91,6 @@ class Environment(ABC):
         Space
             An object of type Space that represents possible actions the agent may take
         """
-        pass
 
     @property
     @abstractmethod
@@ -104,7 +98,6 @@ class Environment(ABC):
         """
         The State of the Environment at the current timestep.
         """
-        pass
 
     @property
     @abstractmethod
@@ -112,7 +105,6 @@ class Environment(ABC):
         """
         The most recent Action taken
         """
-        pass
 
     @property
     @abstractmethod
@@ -120,7 +112,6 @@ class Environment(ABC):
         """
         The reward for the previous action taken
         """
-        pass
 
     @property
     @abstractmethod
@@ -128,7 +119,6 @@ class Environment(ABC):
         """
         Whether or not the environment has terminated and should be reset.
         """
-        pass
 
     @property
     def info(self):
