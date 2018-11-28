@@ -1,9 +1,8 @@
 import json
 import numpy as np
 import matplotlib.pyplot as plt
-from .plots import learning_curve
 from all.environments import GymWrapper
-
+from .plots import learning_curve
 
 class Experiment:
     def __init__(self, env, episodes=200, trials=100):
