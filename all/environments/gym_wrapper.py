@@ -35,6 +35,9 @@ class GymWrapper(Environment):
     def close(self):
         return self._env.close()
 
+    def seed(self, seed):
+        self._env.seed(seed)
+
     @property
     def state_space(self):
         return self._env.observation_space

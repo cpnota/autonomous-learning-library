@@ -36,14 +36,12 @@ class Experiment:
         agent_name = make_agent.__name__ if agent_name is None else agent_name
         self.data[agent_name] = np.zeros((self.trials, self.episodes))
 
-        print('Running: %s on %s...' % (agent_name, self.env_name))
         for trial in range(self.trials):
             agent = make_agent(self.env)
             for episode in range(self.episodes):
                 returns = run_episode(agent, self.env)
                 self.data[agent_name][trial][episode] = returns
                 self.monitor(trial, episode, returns, print_every, plot_every, plot)
-        print('Finished %s on %s!' % (agent_name, self.env_name))
 
         return self.data[agent_name]
 
