@@ -69,6 +69,7 @@ class Experiment:
             "data": self.data
         }
 
+    # pylint: disable=E0213
     def load(filename):
         with open(filename) as infile:
             results = json.load(infile)

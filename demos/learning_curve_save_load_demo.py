@@ -5,12 +5,12 @@ from all.experiments import Experiment, learning_curve
 
 def run():
     # create some learning curve data
-    lc_original = Experiment('FrozenLake-v0')
-    lc_original.run(sarsa)
-    lc_original.run(actor_critic)
+    experiment = Experiment('FrozenLake-v0')
+    experiment.run(sarsa)
+    experiment.run(actor_critic)
 
     # save the data to file
-    lc_original.save('lc.json')
+    experiment.save('lc.json')
 
     # load the data from file in new learning curve object
     results = Experiment.load('lc.json')
