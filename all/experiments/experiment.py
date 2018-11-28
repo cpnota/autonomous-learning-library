@@ -1,6 +1,7 @@
 import json
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+from .plots import learning_curve
 from all.environments import GymWrapper
 
 
@@ -14,7 +15,7 @@ class Experiment:
             self.env_name = env.__class__.__name__
         self.episodes = episodes
         self.trials = trials
-        self.results = {}
+        self.data = {}
 
     def run(
             self,
@@ -26,40 +27,28 @@ class Experiment:
         agent = None
         if agent_name is None:
             agent_name = make_agent.__name__
-        self.results[agent_name] = np.zeros((self.trials, self.episodes))
+        self.data[agent_name] = np.zeros((self.trials, self.episodes))
 
         print('Generating learning curve for ' + agent_name + "...")
         for trial in range(self.trials):
             agent = make_agent(self.env)
             for episode in range(self.episodes):
                 returns = run_episode(agent, self.env)
-                self.results[agent_name][trial][episode] = returns
+                self.data[agent_name][trial][episode] = returns
                 self.monitor(trial, episode, returns, print_every, plot_every)
         print('Done!')
 
-        return self.results[agent_name]
+        return self.data[agent_name]
 
-    def plot(self, max_trials=None):
-        if max_trials is None:
-            max_trials = self.trials
-
-        plt.cla()
-        plt.title(self.env_name)
-        for agent_name, results in self.results.items():
-            x = np.arange(1, self.episodes + 1)
-            y = np.mean(results[0:max_trials], axis=0)
-            plt.plot(x, y, label=agent_name)
-            plt.xlabel("episode")
-            plt.ylabel("returns")
-            plt.legend(loc='upper left')
-        plt.show()
+    def plot(self, plot=learning_curve):
+        plot(self.results)
 
     def save(self, filename):
         data = {
             "env": self.env_name,
             "episodes": self.episodes,
             "trials": self.trials,
-            "results":  {k:v.tolist() for (k, v) in self.results.items()}
+            "results":  {k:v.tolist() for (k, v) in self.data.items()}
         }
         with open(filename, 'w') as outfile:
             json.dump(data, outfile)
@@ -71,7 +60,7 @@ class Experiment:
         self.env_name = data["env"]
         self.episodes = data["episodes"]
         self.trials = data["trials"]
-        self.results = {k:np.array(v) for (k, v) in data["results"].items()}
+        self.data = {k:np.array(v) for (k, v) in data["results"].items()}
 
     def monitor(self, trial, episode, returns, print_every, plot_every):
         episode_number = trial * self.episodes + episode + 1
@@ -80,10 +69,18 @@ class Experiment:
                   (trial + 1, self.trials, episode + 1, self.episodes, returns))
         if episode_number % plot_every == 0:
             plt.ion()
-            self.plot(max_trials=trial)
+            self.plot()
             plt.pause(0.0001)
             plt.ioff()
 
+    @property
+    def results(self):
+        return {
+            "env": self.env_name,
+            "episodes": self.episodes,
+            "trials": self.trials,
+            "data": self.data
+        }
 
 def run_episode(agent, env):
     env.reset()
