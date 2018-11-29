@@ -143,6 +143,8 @@ disable=print-statement,
         C0111, # docstring
         R0801, # duplicate-code
         R0903, # public methods
+        R0913, # number of args
+        E0213  # allow static methods
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -421,7 +423,9 @@ good-names=i,
            Run,
            q,
            v,
-           _
+           _,
+           x,
+           y
 
 # Include a hint for the correct naming format with invalid-name.
 include-naming-hint=no

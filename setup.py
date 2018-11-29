@@ -12,6 +12,6 @@ setup(
         "numpy",
         "gym",
         "pylint",
+        "matplotlib"
     ],
 )
-
