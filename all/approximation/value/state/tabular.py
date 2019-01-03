@@ -7,6 +7,8 @@ class TabularStateValue(StateValueApproximation):
         self.values = np.zeros((state_space.n))
 
     def __call__(self, state):
+        if state is None:
+            return 0
         return self.values[state]
 
     def update(self, error, state):

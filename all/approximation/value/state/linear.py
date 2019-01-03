@@ -9,6 +9,8 @@ class LinearStateValue(StateValueApproximation):
         self.weights = np.zeros(self.basis.num_features)
 
     def __call__(self, state):
+        if state is None:
+            return 0
         features = self.basis.features(state)
         return self.weights.dot(features)
 

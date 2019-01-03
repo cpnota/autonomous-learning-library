@@ -19,15 +19,14 @@ class Sarsa(Agent):
     def act(self):
         self.env.step(self.action)
         self.next_state = self.env.state
-        self.next_action = self.policy(self.next_state)
+        if not self.env.done:
+            self.next_action = self.policy(self.next_state)
         self.update()
         self.state = self.next_state
         self.action = self.next_action
 
     def update(self):
         td_error = (self.env.reward
-                    + (self.action_approximation(self.next_state, self.next_action)
-                       if not self.env.done else 0)
+                    + self.action_approximation(self.next_state, self.next_action)
                     - self.action_approximation(self.state, self.action))
-
         self.action_approximation.update(td_error, self.state, self.action)

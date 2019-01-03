@@ -11,12 +11,11 @@ class TestActorCritic(unittest.TestCase):
         env.reset()
         agent.new_episode(env)
 
-        agent.act()
-        agent.act()
-        agent.act()
-
-        self.assertIsNotNone(env.state)
-
+        for i in range(0, 3):
+            agent.act()
+            if env.done:
+                env.reset()
+                agent.new_episode(env)
 
 if __name__ == '__main__':
     unittest.main()

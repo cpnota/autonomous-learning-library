@@ -7,6 +7,8 @@ class TabularActionValue(ActionValueApproximation):
         self.values = np.zeros((state_space.n, action_space.n))
 
     def __call__(self, state, action=None):
+        if state is None:
+            return 0
         if action is None:
             return self.values[state]
         return self.values[state, action]

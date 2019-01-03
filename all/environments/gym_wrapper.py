@@ -22,7 +22,7 @@ class GymWrapper(Environment):
 
     def step(self, action):
         state, reward, done, info = self._env.step(action)
-        self._state = state
+        self._state = state if not done else None
         self._action = action
         self._reward = reward
         self._done = done
