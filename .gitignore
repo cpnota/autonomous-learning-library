@@ -5,3 +5,6 @@ __pycache__
 # editor
 .vscode
 .idea
+
+# non-committed code
+local
