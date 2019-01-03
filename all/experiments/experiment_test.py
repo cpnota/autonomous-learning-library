@@ -36,13 +36,13 @@ def run_experiment(experiment):
 def check_results(results):
     np.testing.assert_equal(
         results["data"]["sarsa"],
-        np.array([[1558., 1558., 1526.],
-                  [996., 1044., 1042.]])
+        np.array([[1558., 1562., 1414.],
+                  [992., 1010., 1404.]])
     )
     np.testing.assert_equal(
-        results["data"]["sarsa"],
-        np.array([[1558., 1558., 1526.],
-                  [996., 1044., 1042.]])
+        results["data"]["actor_critic"],
+        np.array([[1692., 1572., 1596.],
+                  [1582., 1648., 1594.]])
     )
 
 

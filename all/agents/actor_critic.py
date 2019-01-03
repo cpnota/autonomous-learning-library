@@ -5,7 +5,6 @@ class ActorCritic(Agent):
     def __init__(self, v, policy):
         self.v = v
         self.policy = policy
-
         self.env = None
         self.state = None
         self.action = None

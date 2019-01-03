@@ -1,10 +1,9 @@
 from all.agents.agent import Agent
 
 class Sarsa(Agent):
-    def __init__(self, action_approximation, policy):
-        self.action_approximation = action_approximation
+    def __init__(self, q, policy):
+        self.q = q
         self.policy = policy
-
         self.env = None
         self.state = None
         self.action = None
@@ -27,6 +26,6 @@ class Sarsa(Agent):
 
     def update(self):
         td_error = (self.env.reward
-                    + self.action_approximation(self.next_state, self.next_action)
-                    - self.action_approximation(self.state, self.action))
-        self.action_approximation.update(td_error, self.state, self.action)
+                    + self.q(self.next_state, self.next_action)
+                    - self.q(self.state, self.action))
+        self.q.update(td_error, self.state, self.action)
