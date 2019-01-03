@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from all.policies.policy import Policy
 
-class Greedy(Policy):
+class GreedyPolicy(Policy):
     def __init__(self, q, epsilon=0.1):
         self.q = q
         self.epsilon = epsilon
