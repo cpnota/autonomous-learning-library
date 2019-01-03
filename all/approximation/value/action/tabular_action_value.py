@@ -6,7 +6,7 @@ class TabularActionValue(ActionValueApproximation):
         self.alpha = alpha
         self.values = np.zeros((state_space.n, action_space.n))
 
-    def call(self, state, action=None):
+    def __call__(self, state, action=None):
         if action is None:
             return self.values[state]
         return self.values[state, action]

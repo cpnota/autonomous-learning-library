@@ -16,12 +16,12 @@ class TestLinearFunctionApproximation(unittest.TestCase):
         self.approximation = LinearStateValue(LEARNING_RATE, BASIS)
 
     def test_call_init(self):
-        self.assertEqual(self.approximation.call(STATE), 0)
+        self.assertEqual(self.approximation(STATE), 0)
 
     def test_update(self):
-        self.assertEqual(self.approximation.call(STATE), 0)
+        self.assertEqual(self.approximation(STATE), 0)
         self.approximation.update(1, STATE)
-        self.assertAlmostEqual(self.approximation.call(STATE), 0.6)
+        self.assertAlmostEqual(self.approximation(STATE), 0.6)
 
     def test_gradient(self):
         np.testing.assert_equal(

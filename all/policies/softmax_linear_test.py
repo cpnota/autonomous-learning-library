@@ -20,7 +20,7 @@ class TestLinearStateDiscreteActionValue(unittest.TestCase):
 
     def test_call_initial(self):
         np.testing.assert_equal(
-            self.policy.call(STATE), 1)
+            self.policy(STATE), 1)
 
     def test_update(self):
         self.policy.update(1, STATE, 0)

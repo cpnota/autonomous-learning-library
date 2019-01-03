@@ -9,8 +9,8 @@ class AccumulatingTraces(Approximation):
         self.decay_rate = decay_rate
         self.traces = np.zeros(approximation.parameters.shape)
 
-    def call(self, *args):
-        return self.approximation.call(*args)
+    def __call__(self, *args):
+        return self.approximation(*args)
 
     def update(self, error, *args):
         gradient = self.approximation.gradient(*args)

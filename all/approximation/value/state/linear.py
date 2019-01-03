@@ -8,7 +8,7 @@ class LinearStateValue(StateValueApproximation):
         self.basis = basis
         self.weights = np.zeros(self.basis.num_features)
 
-    def call(self, state):
+    def __call__(self, state):
         features = self.basis.features(state)
         return self.weights.dot(features)
 

@@ -13,12 +13,12 @@ class TabularStateValueTest(unittest.TestCase):
         self.approximation = TabularStateValue(LEARNING_RATE, STATE_SPACE)
 
     def test_call_initial(self):
-        np.testing.assert_equal(self.approximation.call(STATE), 0)
+        np.testing.assert_equal(self.approximation(STATE), 0)
 
     def test_update(self):
-        np.testing.assert_equal(self.approximation.call(STATE), 0)
+        np.testing.assert_equal(self.approximation(STATE), 0)
         self.approximation.update(1, STATE)
-        np.testing.assert_equal(self.approximation.call(STATE), np.array(LEARNING_RATE))
+        np.testing.assert_equal(self.approximation(STATE), np.array(LEARNING_RATE))
 
     def test_gradient(self):
         expected = np.zeros((STATE_SPACE.n))

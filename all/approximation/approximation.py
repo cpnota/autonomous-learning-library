@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 class Approximation(ABC):
     @abstractmethod
-    def call(self, *args):
+    def __call__(self, *args):
         pass
 
     @abstractmethod

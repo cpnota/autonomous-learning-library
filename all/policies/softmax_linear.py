@@ -7,7 +7,7 @@ class SoftmaxLinear(Policy):
         self.basis = basis
         self.weights = np.zeros((actions, self.basis.num_features))
 
-    def call(self, state, action=None, prob=False):
+    def __call__(self, state, action=None, prob=False):
         features = self.basis.features(state)
         probabilities = self.probabilities(features)
         return np.random.choice(probabilities.shape[0], p=probabilities)

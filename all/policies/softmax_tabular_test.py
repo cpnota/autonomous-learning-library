@@ -16,7 +16,7 @@ class TestSoftmaxTabular(unittest.TestCase):
         self.policy = SoftmaxTabular(LEARNING_RATE, STATE_SPACE, ACTION_SPACE)
 
     def test_call_initial(self):
-        np.testing.assert_equal(self.policy.call(STATE), 1)
+        np.testing.assert_equal(self.policy(STATE), 1)
 
     def test_initial_probabilities(self):
         np.testing.assert_allclose(

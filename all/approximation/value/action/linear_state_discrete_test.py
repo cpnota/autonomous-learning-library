@@ -18,21 +18,21 @@ class TestLinearStateDiscreteActionValue(unittest.TestCase):
 
     def test_call_initial(self):
         np.testing.assert_equal(
-            self.approximation.call(STATE), np.array([0, 0, 0]))
+            self.approximation(STATE), np.array([0, 0, 0]))
 
     def test_update(self):
         np.testing.assert_equal(
-            self.approximation.call(STATE), np.array([0, 0, 0]))
+            self.approximation(STATE), np.array([0, 0, 0]))
         self.approximation.update(1, STATE, 1)
         np.testing.assert_allclose(
-            self.approximation.call(STATE), np.array([0, 0.6, 0]))
+            self.approximation(STATE), np.array([0, 0.6, 0]))
 
     def test_call_single(self):
         np.testing.assert_equal(
-            self.approximation.call(STATE), np.array([0, 0, 0]))
+            self.approximation(STATE), np.array([0, 0, 0]))
         self.approximation.update(1, STATE, 1)
         np.testing.assert_approx_equal(
-            self.approximation.call(STATE, 1), 0.6)
+            self.approximation(STATE, 1), 0.6)
 
     def test_gradient(self):
         features = BASIS.features(STATE)

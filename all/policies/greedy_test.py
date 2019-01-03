@@ -17,7 +17,7 @@ class TestGreedyPolicy(unittest.TestCase):
         state = np.array([0.5, 1])
 
         approximation.update(1, state, 1)
-        self.assertEqual((policy.call(state)), 1)
+        self.assertEqual((policy(state)), 1)
 
 
 if __name__ == '__main__':

@@ -17,21 +17,21 @@ class TabularActionValueTest(unittest.TestCase):
             LEARNING_RATE, STATE_SPACE, ACTION_SPACE)
 
     def test_call_initial(self):
-        np.testing.assert_equal(self.approximation.call(STATE), np.array([0, 0, 0]))
+        np.testing.assert_equal(self.approximation(STATE), np.array([0, 0, 0]))
 
     def test_update(self):
         np.testing.assert_equal(
-            self.approximation.call(STATE), np.array([0, 0, 0]))
+            self.approximation(STATE), np.array([0, 0, 0]))
         self.approximation.update(1, STATE, ACTION)
         np.testing.assert_allclose(
-            self.approximation.call(STATE), np.array([0, LEARNING_RATE, 0]))
+            self.approximation(STATE), np.array([0, LEARNING_RATE, 0]))
 
     def test_call_single(self):
         np.testing.assert_equal(
-            self.approximation.call(STATE), np.array([0, 0, 0]))
+            self.approximation(STATE), np.array([0, 0, 0]))
         self.approximation.update(1, STATE, ACTION)
         np.testing.assert_approx_equal(
-            self.approximation.call(STATE, ACTION), LEARNING_RATE)
+            self.approximation(STATE, ACTION), LEARNING_RATE)
 
     def test_gradient(self):
         expected = np.zeros((STATE_SPACE.n, ACTION_SPACE.n))

@@ -7,7 +7,7 @@ class LinearStateDiscreteActionValue(ActionValueApproximation):
         self.basis = basis
         self.weights = np.zeros((actions, self.basis.num_features))
 
-    def call(self, state, action=None):
+    def __call__(self, state, action=None):
         features = self.basis.features(state)
         if action is None:
             return self.weights.dot(features)

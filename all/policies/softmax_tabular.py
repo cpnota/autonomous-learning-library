@@ -6,7 +6,7 @@ class SoftmaxTabular(Policy):
         self.learning_rate = learning_rate
         self.weights = np.zeros((state_space.n, action_space.n))
 
-    def call(self, state, action=None, prob=False):
+    def __call__(self, state, action=None, prob=False):
         probabilities = self.probabilities(state)
         return np.random.choice(probabilities.shape[0], p=probabilities)
 

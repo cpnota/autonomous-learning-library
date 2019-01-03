@@ -4,7 +4,7 @@ from all.approximation import Approximation
 # pylint: disable=arguments-differ
 class Policy(Approximation):
     @abstractmethod
-    def call(self, state, action=None, prob=False):
+    def __call__(self, state, action=None, prob=False):
         pass
 
     @abstractmethod

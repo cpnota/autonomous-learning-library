@@ -6,8 +6,8 @@ class Greedy(Policy):
         self.q = q
         self.epsilon = epsilon
 
-    def call(self, state, action=None, prob=False):
-        action_scores = self.q.call(state)
+    def __call__(self, state, action=None, prob=False):
+        action_scores = self.q(state)
         if np.random.rand() < self.epsilon:
             return np.random.randint(action_scores.shape[0])
         best = np.argwhere(action_scores == np.max(action_scores)).flatten()
