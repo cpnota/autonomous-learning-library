@@ -1,6 +1,7 @@
 # python
 *.pyc
 __pycache__
+all.egg-info
 
 # editor
 .vscode
