@@ -2,11 +2,11 @@ from abc import abstractmethod
 from all.approximation import Approximation
 
 # pylint: disable=arguments-differ
-class StateValueApproximation(Approximation):
+class StateValue(Approximation):
     @abstractmethod
-    def __call__(self, state):
+    def __call__(self, state, action=None):
         pass
 
     @abstractmethod
-    def update(self, error, state):
+    def update(self, error, state, action):
         pass

@@ -1,10 +1,8 @@
-import numpy as np
 import torch
-import torch.nn as nn
-import torch.optim as optim
-from .action_value_approximation import ActionValueApproximation
+from torch import optim
+from .abstract import ActionValue
 
-class TabularActionValue(ActionValueApproximation):
+class TabularActionValue(ActionValue):
     def __init__(self, model, optimizer=None):
         self.model = model
         self.optimizer = (optimizer

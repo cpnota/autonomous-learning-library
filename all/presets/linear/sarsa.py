@@ -1,6 +1,6 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 from torch import nn
-from all.approximation.value.action.torch import TabularActionValue 
+from all.approximation.action_value import TabularActionValue
 from all.agents import Sarsa
 from all.policies.greedy import Greedy
 

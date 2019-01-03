@@ -2,7 +2,7 @@ from abc import abstractmethod
 from all.approximation import Approximation
 
 # pylint: disable=arguments-differ
-class ActionValueApproximation(Approximation):
+class ActionValue(Approximation):
     @abstractmethod
     def __call__(self, state, action=None):
         pass
