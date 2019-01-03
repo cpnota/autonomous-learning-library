@@ -1,4 +1,5 @@
 import gym
+import torch
 from all.environments.environment import Environment
 
 class GymWrapper(Environment):
@@ -15,19 +16,20 @@ class GymWrapper(Environment):
         self._info = None
 
     def reset(self):
-        self._state = self._env.reset()
+        state = self._env.reset()
+        self._state = torch.Tensor(state)
         self._done = False
         self._reward = 0
         return self._state
 
     def step(self, action):
         state, reward, done, info = self._env.step(action)
-        self._state = state if not done else None
+        self._state = torch.Tensor(state) if not done else None
         self._action = action
         self._reward = reward
         self._done = done
         self._info = info
-        return state, reward, done, info
+        return self._state, self._reward, self._done, self._info
 
     def render(self):
         return self._env.render()

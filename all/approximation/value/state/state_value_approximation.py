@@ -10,21 +10,3 @@ class StateValueApproximation(Approximation):
     @abstractmethod
     def update(self, error, state):
         pass
-
-    @abstractmethod
-    def gradient(self, state):
-        pass
-
-    @abstractmethod
-    def apply(self, gradient):
-        pass
-
-    @property
-    @abstractmethod
-    def parameters(self):
-        pass
-
-    @parameters.setter
-    @abstractmethod
-    def parameters(self, parameters):
-        pass
