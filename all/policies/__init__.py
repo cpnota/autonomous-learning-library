@@ -1,4 +1,4 @@
-from .policy import Policy
+from .abstract import Policy
 from .greedy import GreedyPolicy
 from .softmax import SoftmaxPolicy
 

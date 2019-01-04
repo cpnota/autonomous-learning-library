@@ -1,8 +1,9 @@
 import torch
 from torch import optim
 from torch.nn import functional
+from .abstract import Policy
 
-class SoftmaxPolicy():
+class SoftmaxPolicy(Policy):
     def __init__(self, model):
         self.model = model
         self.optimizer = optim.Adam(self.model.parameters())

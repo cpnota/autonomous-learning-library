@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from all.policies.policy import Policy
+from .abstract import Policy
 
 class GreedyPolicy(Policy):
     def __init__(self, q, epsilon=0.1):
@@ -15,17 +15,3 @@ class GreedyPolicy(Policy):
 
     def update(self, error, state, action):
         return self.q.update(error, state, action)
-
-    def gradient(self, state, action):
-        return self.q.gradient(state, action)
-
-    def apply(self, gradient):
-        return self.q.apply(gradient)
-
-    @property
-    def parameters(self):
-        return self.q.parameters
-
-    @parameters.setter
-    def parameters(self, parameters):
-        self.q.parameters = parameters
