@@ -1,5 +1,5 @@
 from all.environments import GymWrapper
-from all.presets.linear.sarsa import sarsa
+from all.presets.linear import sarsa
 
 def run_episode(agent, env):
     env.reset()

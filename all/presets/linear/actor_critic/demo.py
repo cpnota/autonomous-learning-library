@@ -1,5 +1,5 @@
 from all.environments import GymWrapper
-from all.presets.linear.actor_critic import actor_critic
+from all.presets.linear import actor_critic
 
 def run_episode(agent, env):
     env.reset()

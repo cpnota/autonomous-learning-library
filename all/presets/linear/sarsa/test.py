@@ -1,12 +1,12 @@
 import unittest
 from all.environments import GymWrapper
-from all.presets.linear.actor_critic import actor_critic
+from all.presets.linear import sarsa
 
 
 class TestSarsa(unittest.TestCase):
     def test_runs(self):
         env = GymWrapper('MountainCar-v0')
-        agent = actor_critic(env)
+        agent = sarsa(env)
 
         env.reset()
         agent.new_episode(env)

@@ -2,7 +2,7 @@
 from all.approximation.state_value import ContinuousStateValue
 from all.agents import ActorCritic
 from all.policies import SoftmaxPolicy
-from .models import tabular_action, continuous_state
+from ..models import tabular_action, continuous_state
 
 def actor_critic(env):
     v = ContinuousStateValue(continuous_state(env))
