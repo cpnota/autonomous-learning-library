@@ -1,6 +1,6 @@
 import gym
 import torch
-from all.environments.environment import Environment
+from .abstract import Environment
 
 class GymWrapper(Environment):
     def __init__(self, env):
