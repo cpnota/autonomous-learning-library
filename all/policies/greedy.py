@@ -11,7 +11,12 @@ class GreedyPolicy(Policy):
         action_scores = self.q(state)
         if np.random.rand() < self.epsilon:
             return np.random.randint(action_scores.shape[0])
-        return torch.argmax(action_scores).item()
+
+        # select randomly from the best
+        # not sure how to do in pure torch
+        scores = action_scores.detach().numpy()
+        best = np.argwhere(action_scores == np.max(scores)).flatten()
+        return np.random.choice(best)
 
     def update(self, error, state, action):
         return self.q.update(error, state, action)

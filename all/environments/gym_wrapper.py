@@ -17,14 +17,14 @@ class GymWrapper(Environment):
 
     def reset(self):
         state = self._env.reset()
-        self._state = torch.Tensor(state)
+        self._state = torch.tensor(state)
         self._done = False
         self._reward = 0
         return self._state
 
     def step(self, action):
         state, reward, done, info = self._env.step(action)
-        self._state = torch.Tensor(state) if not done else None
+        self._state = torch.tensor(state) if not done else None
         self._action = action
         self._reward = reward
         self._done = done
