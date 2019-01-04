@@ -11,11 +11,8 @@ class TestSarsa(unittest.TestCase):
         env.reset()
         agent.new_episode(env)
 
-        agent.act()
-        agent.act()
-        agent.act()
-
-        self.assertIsNotNone(env.state)
+        while not env.done:
+            agent.act()
 
 
 if __name__ == '__main__':

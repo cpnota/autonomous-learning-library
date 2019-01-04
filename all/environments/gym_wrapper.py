@@ -1,4 +1,5 @@
 import gym
+import numpy as np
 import torch
 from .abstract import Environment
 
@@ -17,14 +18,14 @@ class GymWrapper(Environment):
 
     def reset(self):
         state = self._env.reset()
-        self._state = torch.tensor(state)
+        self.state = state
         self._done = False
         self._reward = 0
         return self._state
 
     def step(self, action):
         state, reward, done, info = self._env.step(action)
-        self._state = torch.tensor(state) if not done else None
+        self.state = state if not done else None
         self._action = action
         self._reward = reward
         self._done = done
@@ -51,6 +52,18 @@ class GymWrapper(Environment):
     @property
     def state(self):
         return self._state
+
+    @state.setter
+    def state(self, value):
+        if value is None:
+            self._state = None
+        else:
+            # Somewhat tortured method of
+            # ensuring that the tensor
+            # is of the correct type.
+            self._state = torch.from_numpy(
+                np.array(value, dtype=self.state_space.dtype)
+            )
 
     @property
     def action(self):
