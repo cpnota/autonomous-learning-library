@@ -1,5 +1,5 @@
 from all.environments import GymWrapper
-from all.presets.linear import actor_critic
+from all.presets.linear import reinforce
 
 def run_episode(agent, env):
     env.reset()
@@ -16,7 +16,7 @@ def run_episode(agent, env):
 def run():
     env = GymWrapper('CartPole-v0')
     # pylint: disable=protected-access
-    agent = actor_critic(env)
+    agent = reinforce(env)
 
     for _ in range(1):
         for _ in range(2000):

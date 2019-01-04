@@ -14,7 +14,7 @@ class ContinuousStateValue(StateValue):
             return 0
 
         with torch.no_grad():
-            return self.model(state)
+            return torch.squeeze(self.model(state), -1)
 
     def update(self, error, state):
         self.optimizer.zero_grad()
