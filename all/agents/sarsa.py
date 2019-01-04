@@ -1,4 +1,4 @@
-from all.agents.agent import Agent
+from .abstract import Agent
 
 class Sarsa(Agent):
     def __init__(self, q, policy):

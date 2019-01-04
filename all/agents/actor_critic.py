@@ -1,4 +1,4 @@
-from all.agents.agent import Agent
+from .abstract import Agent
 
 
 class ActorCritic(Agent):

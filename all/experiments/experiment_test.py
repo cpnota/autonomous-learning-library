@@ -1,6 +1,7 @@
 import unittest
 import os
 import numpy as np
+import torch
 from all.presets.tabular import sarsa
 from all.presets.tabular import actor_critic
 from . import Experiment
@@ -9,6 +10,7 @@ from . import Experiment
 class TestExperiment(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
+        torch.manual_seed(0)
         self.experiment = Experiment('NChain-v0', episodes=3, trials=2)
         self.experiment.env.seed(0)
 
@@ -36,13 +38,13 @@ def run_experiment(experiment):
 def check_results(results):
     np.testing.assert_equal(
         results["data"]["sarsa"],
-        np.array([[1558., 1562., 1414.],
-                  [992., 1010., 1404.]])
+        np.array([[1518., 1546., 1530.],
+                  [1860., 1262., 1552.]])
     )
     np.testing.assert_equal(
         results["data"]["actor_critic"],
-        np.array([[1692., 1572., 1596.],
-                  [1582., 1648., 1594.]])
+        np.array([[1280., 1370., 1492.],
+                  [1384., 1414., 1434.]])
     )
 
 
