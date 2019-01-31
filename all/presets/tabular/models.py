@@ -16,4 +16,4 @@ class VTable(nn.Module):
         self.values = nn.Parameter(torch.zeros(states))
 
     def forward(self, state):
-        return self.values[state]
+        return self.values[state].unsqueeze(-1)
