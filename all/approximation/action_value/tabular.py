@@ -18,10 +18,10 @@ class TabularActionValue(ActionValue):
             if action is None:
                 return values
             else:
-                return values[action]
+                return values.transpose(0, 1)[action]
 
     def update(self, error, state, action):
         self.optimizer.zero_grad()
-        value = self.model(state)[action]
+        value = self.model(state).transpose(0, 1)[action]
         value.backward(-error.view(value.shape))
         self.optimizer.step()

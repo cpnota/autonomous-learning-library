@@ -1,22 +1,11 @@
 import unittest
-from all.environments import GymWrapper
+from all.presets.validate_agent import validate_agent
 from all.presets.linear import sarsa
 
 
 class TestSarsa(unittest.TestCase):
     def test_runs(self):
-        env = GymWrapper('MountainCar-v0')
-        agent = sarsa(env)
-
-        env.reset()
-        agent.new_episode(env)
-
-        agent.act()
-        agent.act()
-        agent.act()
-
-        self.assertIsNotNone(env.state)
-
+        validate_agent(sarsa, 'CartPole-v0')
 
 if __name__ == '__main__':
     unittest.main()

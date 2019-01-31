@@ -8,15 +8,15 @@ class GreedyPolicy(Policy):
         self.epsilon = epsilon
 
     def __call__(self, state, action=None, prob=False):
-        action_scores = self.q(state)
+        action_scores = self.q(state).squeeze(0)
         if np.random.rand() < self.epsilon:
-            return np.random.randint(action_scores.shape[0])
+            return torch.tensor(np.random.randint(action_scores.shape[0]))
 
         # select randomly from the best
         # not sure how to do in pure torch
         scores = action_scores.detach().numpy()
-        best = np.argwhere(action_scores == np.max(scores)).flatten()
-        return np.random.choice(best)
+        best = np.argwhere(scores == np.max(scores)).flatten()
+        return torch.tensor(np.random.choice(best), dtype=torch.long)
 
-    def update(self, error, state, action):
-        return self.q.update(error, state, action)
+    def reinforce(self, errors):
+        return # not possible
