@@ -20,8 +20,6 @@ class SoftmaxPolicy(Policy):
 
 
     def reinforce(self, errors):
-        print(self._cache.shape)
-        print(errors.shape)
         loss = self._cache.dot(errors)
         loss.backward()
         self.optimizer.step()
