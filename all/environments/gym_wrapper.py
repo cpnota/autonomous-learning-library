@@ -63,7 +63,7 @@ class GymWrapper(Environment):
             # is of the correct type.
             self._state = torch.from_numpy(
                 np.array(value, dtype=self.state_space.dtype)
-            )
+            ).unsqueeze(0)
 
     @property
     def action(self):

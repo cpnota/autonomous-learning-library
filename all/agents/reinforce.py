@@ -29,7 +29,7 @@ class REINFORCE(Agent):
             self.update()
 
     def update(self):
-        states = torch.stack(self.states)
+        states = torch.cat(self.states)
         rewards = torch.tensor(self.rewards)
         
         values = self.v(states)

@@ -20,6 +20,8 @@ class SoftmaxPolicy(Policy):
 
 
     def reinforce(self, errors):
+        print(self._cache.shape)
+        print(errors.shape)
         loss = self._cache.dot(errors)
         loss.backward()
         self.optimizer.step()
@@ -27,4 +29,4 @@ class SoftmaxPolicy(Policy):
         self._cache = torch.tensor([])
 
     def cache(self, log_prob):
-        self._cache = torch.cat((self._cache, log_prob.unsqueeze(0)))
+        self._cache = torch.cat((self._cache, log_prob))

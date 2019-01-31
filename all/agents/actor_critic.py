@@ -24,4 +24,4 @@ class ActorCritic(Agent):
     def update(self):
         td_error = self.env.reward + self.v(self.next_state) - self.v(self.state)
         self.v.update(td_error, self.state)
-        self.policy.update(td_error, self.state, self.action)
+        self.policy.reinforce(td_error)
