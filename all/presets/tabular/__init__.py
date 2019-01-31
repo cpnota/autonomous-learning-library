@@ -1,4 +1,4 @@
-from .sarsa import sarsa
 from .actor_critic import actor_critic
+from .sarsa import sarsa
 
-__all__ = ["sarsa", "actor_critic"]
+__all__ = ["actor_critic", "sarsa"]

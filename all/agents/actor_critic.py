@@ -1,10 +1,10 @@
-from all.agents.agent import Agent
+from .abstract import Agent
+
 
 class ActorCritic(Agent):
     def __init__(self, v, policy):
         self.v = v
         self.policy = policy
-
         self.env = None
         self.state = None
         self.action = None
@@ -16,16 +16,12 @@ class ActorCritic(Agent):
 
     def act(self):
         self.state = self.next_state
-        self.action = self.policy.call(self.state)
+        self.action = self.policy(self.state)
         self.env.step(self.action)
         self.next_state = self.env.state
         self.update()
 
     def update(self):
-        td_error = (self.env.reward
-                    + (self.v.call(self.next_state)
-                       if not self.env.done else 0)
-                    - self.v.call(self.state))
-
+        td_error = self.env.reward + self.v(self.next_state) - self.v(self.state)
         self.v.update(td_error, self.state)
-        self.policy.update(td_error, self.state, self.action)
+        self.policy.reinforce(td_error)

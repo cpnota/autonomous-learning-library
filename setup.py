@@ -12,6 +12,8 @@ setup(
         "numpy",
         "gym",
         "pylint",
-        "matplotlib"
+        "matplotlib",
+        "torch",
+        "torchvision"
     ],
 )

@@ -1,6 +1,5 @@
-from .policy import Policy
-from .greedy import Greedy
-from .softmax_linear import SoftmaxLinear
-from .softmax_tabular import SoftmaxTabular
+from .abstract import Policy
+from .greedy import GreedyPolicy
+from .softmax import SoftmaxPolicy
 
-__all__ = ["Policy", "Greedy", "SoftmaxLinear", "SoftmaxTabular"]
+__all__ = ["Policy", "GreedyPolicy", "SoftmaxPolicy"]

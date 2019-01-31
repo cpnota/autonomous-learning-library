@@ -1,31 +1,22 @@
 import numpy as np
-from all.policies.policy import Policy
+import torch
+from .abstract import Policy
 
-class Greedy(Policy):
+class GreedyPolicy(Policy):
     def __init__(self, q, epsilon=0.1):
         self.q = q
         self.epsilon = epsilon
 
-    def call(self, state, action=None, prob=False):
-        action_scores = self.q.call(state)
+    def __call__(self, state, action=None, prob=False):
+        action_scores = self.q(state).squeeze(0)
         if np.random.rand() < self.epsilon:
-            return np.random.randint(action_scores.shape[0])
-        best = np.argwhere(action_scores == np.max(action_scores)).flatten()
-        return np.random.choice(best)
+            return torch.tensor(np.random.randint(action_scores.shape[0]))
 
-    def update(self, error, state, action):
-        return self.q.update(error, state, action)
+        # select randomly from the best
+        # not sure how to do in pure torch
+        scores = action_scores.detach().numpy()
+        best = np.argwhere(scores == np.max(scores)).flatten()
+        return torch.tensor(np.random.choice(best), dtype=torch.long)
 
-    def gradient(self, state, action):
-        return self.q.gradient(state, action)
-
-    def apply(self, gradient):
-        return self.q.apply(gradient)
-
-    @property
-    def parameters(self):
-        return self.q.parameters
-
-    @parameters.setter
-    def parameters(self, parameters):
-        self.q.parameters = parameters
+    def reinforce(self, errors):
+        return # not possible

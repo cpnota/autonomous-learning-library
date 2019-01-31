@@ -1,7 +1,12 @@
 # python
 *.pyc
 __pycache__
+all.egg-info
 
 # editor
 .vscode
 .idea
+
+# non-committed code
+local
+legacy
