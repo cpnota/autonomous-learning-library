@@ -42,4 +42,4 @@ class REINFORCE(Agent):
         advantages = returns - values
 
         self.v.update(advantages, states)
-        self.policy.update(advantages, states, actions)
+        self.policy.reinforce(advantages)
