@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 from .abstract import Agent
 
@@ -15,7 +14,6 @@ class REINFORCE(Agent):
         self.next_state = self.env.state
         self.states = []
         self.values = []
-        self.actions = []
         self.values = []
         self.rewards = []
 
@@ -25,7 +23,6 @@ class REINFORCE(Agent):
         self.env.step(action)
 
         self.states.append(state)
-        self.actions.append(action)
         self.rewards.append(self.env.reward)
 
         if self.env.done:
@@ -33,7 +30,6 @@ class REINFORCE(Agent):
 
     def update(self):
         states = torch.stack(self.states)
-        actions = torch.tensor(self.actions)
         rewards = torch.tensor(self.rewards)
         
         values = self.v(states)
