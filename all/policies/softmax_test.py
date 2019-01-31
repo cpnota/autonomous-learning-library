@@ -17,10 +17,10 @@ class TestSoftmax(unittest.TestCase):
         self.policy = SoftmaxPolicy(self.model, optimizer)
 
     def test_run(self):
-        state = torch.randn(STATE_DIM)
+        state = torch.randn(1, STATE_DIM)
         action = self.policy(state)
         self.assertEqual(action.item(), 0)
-        state = torch.randn(STATE_DIM)
+        state = torch.randn(1, STATE_DIM)
         action = self.policy(state)
         self.assertEqual(action.item(), 2)
         self.policy.reinforce(torch.tensor([-1, 1000000]).float())
