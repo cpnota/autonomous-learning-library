@@ -2,6 +2,8 @@ import torch
 from .abstract import Agent
 
 # pylint: disable=W0201
+
+
 class REINFORCE(Agent):
     def __init__(self, v, policy):
         self.v = v
@@ -9,8 +11,6 @@ class REINFORCE(Agent):
 
     def new_episode(self, env):
         self.env = env
-        self.state = None
-        self.action = None
         self.next_state = self.env.state
         self.states = []
         self.values = []
@@ -31,7 +31,7 @@ class REINFORCE(Agent):
     def update(self):
         states = torch.cat(self.states)
         rewards = torch.tensor(self.rewards)
-        
+
         values = self.v(states)
         ordered = torch.flip(rewards, dims=(0,))
         returns = torch.flip(torch.cumsum(ordered, dim=0), dims=(0,))

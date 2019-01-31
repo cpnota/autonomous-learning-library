@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from all.approximation import Approximation
+from ..abstract import Approximation
 
 # pylint: disable=arguments-differ
 class StateValue(Approximation):

@@ -4,8 +4,8 @@ from .actor_critic import ActorCritic
 from .reinforce import REINFORCE
 
 __all__ = [
-    "Agent", 
-    "Sarsa", 
-    "ActorCritic", 
+    "Agent",
+    "Sarsa",
+    "ActorCritic",
     "REINFORCE"
 ]
