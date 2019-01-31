@@ -144,7 +144,8 @@ disable=print-statement,
         R0801, # duplicate-code
         R0903, # public methods
         R0913, # number of args
-        E0213  # allow static methods
+        E0213, # allow static methods
+        E1102  # not callable (pytorch.tensor)
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
