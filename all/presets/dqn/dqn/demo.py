@@ -1,28 +1,16 @@
+from all.experiments import Experiment
 from all.environments import make_atari
 from all.presets.dqn import dqn
 
-def run_episode(agent, env):
-    env.reset()
-    agent.new_episode(env)
-    returns = 0
-
-    while not env.done:
-        env.env.render()
-        agent.act()
-        returns += env.reward
-
-    print('Returns: ', returns)
-
 def run():
     env = make_atari('BreakoutDeterministic-v4')
-    # pylint: disable=protected-access
-    agent = dqn(env)
-
-    for _ in range(1):
-        for _ in range(200):
-            run_episode(agent, env)
-
-    env.close()
+    experiment = Experiment(env, episodes=1000000, trials=1)
+    experiment.run(
+        dqn,
+        plot_every=1,
+        print_every=1,
+        render=True
+    )
 
 
 if __name__ == '__main__':

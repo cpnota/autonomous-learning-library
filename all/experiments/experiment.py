@@ -31,7 +31,8 @@ class Experiment:
             agent_name=None,
             print_every=np.inf,
             plot_every=np.inf,
-            plot=learning_curve
+            plot=learning_curve,
+            render=False
     ):
         agent_name = make_agent.__name__ if agent_name is None else agent_name
         self.data[agent_name] = np.zeros((0, self.episodes))
@@ -40,7 +41,7 @@ class Experiment:
             agent = make_agent(self.env)
             self.data[agent_name] = np.vstack((self.data[agent_name], np.zeros(self.episodes)))
             for episode in range(self.episodes):
-                returns = run_episode(agent, self.env)
+                returns = run_episode(agent, self.env, render)
                 self.data[agent_name][trial][episode] = returns
                 self.monitor(trial, episode, returns, print_every, plot_every, plot)
 
@@ -72,11 +73,13 @@ class Experiment:
         results["data"] = {k:np.array(v) for (k, v) in results["data"].items()}
         return results
 
-def run_episode(agent, env):
+def run_episode(agent, env, render=False):
     env.reset()
     agent.new_episode(env)
     returns = 0
     while not env.done:
+        if render:
+            env.render()
         agent.act()
         returns += env.reward
     return returns

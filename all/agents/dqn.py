@@ -16,6 +16,7 @@ class DQN(Agent):
     def new_episode(self, env):
         self.env = env
         self.states = [self.env.state.squeeze(0)] * self.frames
+        print(self.policy.epsilon)
 
     def act(self):
         inputs = torch.cat(self.states).unsqueeze(0)
