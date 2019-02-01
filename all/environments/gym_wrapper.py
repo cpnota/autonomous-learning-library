@@ -10,8 +10,9 @@ def preprocess(preprocessors):
         return preprocess(preprocessors[1:])(preprocessors[0](frame))
     return _
 
+# pylint: disable=too-many-instance-attributes
 class GymWrapper(Environment):
-    def __init__(self, env, preprocessors=[]):
+    def __init__(self, env, preprocessors=None):
         if isinstance(env, str):
             self._env = gym.make(env)
         else:
@@ -22,7 +23,7 @@ class GymWrapper(Environment):
         self._reward = None
         self._done = None
         self._info = None
-        self.preprocess = preprocess(preprocessors)
+        self.preprocess = [] if preprocessors is None else preprocess(preprocessors)
 
     def reset(self):
         state = self._env.reset()
