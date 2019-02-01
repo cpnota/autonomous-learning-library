@@ -3,11 +3,16 @@ import torch
 from .abstract import Policy
 
 class GreedyPolicy(Policy):
-    def __init__(self, q, epsilon=0.1):
+    def __init__(self, q, initial_epsilon=1., final_epsilon=0.1, annealing_time=1000000):
         self.q = q
-        self.epsilon = epsilon
+        self.epsilon = initial_epsilon
+        self.final_epsilon = final_epsilon
+        self.executions = 0
+        self.annealing_rate = (initial_epsilon - final_epsilon) / annealing_time
+        self.annealing_time = annealing_time
 
     def __call__(self, state, action=None, prob=False):
+        self.anneal()
         action_scores = self.q.eval(state).squeeze(0)
         if np.random.rand() < self.epsilon:
             return torch.tensor(np.random.randint(action_scores.shape[0]))
@@ -20,3 +25,10 @@ class GreedyPolicy(Policy):
 
     def reinforce(self, errors):
         return # not possible
+
+    def anneal(self):
+        self.executions += 1
+        if (self.executions > self.annealing_time):
+            self.epsilon = self.final_epsilon
+        else:
+            self.epsilon -= self.annealing_rate

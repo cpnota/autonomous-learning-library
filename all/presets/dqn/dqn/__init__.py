@@ -7,7 +7,7 @@ from ..model import deep_q_atari
 def dqn(env):
     model = deep_q_atari(env)
     q = TabularActionValue(model)
-    policy = GreedyPolicy(q, epsilon=0.1)
+    policy = GreedyPolicy(q)
     return DQN(q, policy)
 
 __all__ = ["dqn"]

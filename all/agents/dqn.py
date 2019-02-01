@@ -2,6 +2,7 @@ import random
 import torch
 from .abstract import Agent
 
+MAX_BUFFER = 100000
 
 class DQN(Agent):
     def __init__(self, q, policy, frames=4):
@@ -28,6 +29,9 @@ class DQN(Agent):
 
     def record(self, states, action, next_states, reward):
         self.buffer.append((states, action, next_states, reward))
+        if len(self.buffer) > MAX_BUFFER:
+            self.buffer = self.buffer[int(MAX_BUFFER / 10):]
+
 
     def update(self):
         minibatch = [random.choice(self.buffer) for _ in range(0, 32)]
