@@ -1,0 +1,42 @@
+import unittest
+import torch
+from torch import nn
+import numpy as np
+from . import TabularActionValue
+
+STATE_DIM = 2
+ACTIONS = 3
+
+
+class TestTabular(unittest.TestCase):
+    def setUp(self):
+        torch.manual_seed(2)
+        self.model = nn.Sequential(
+            nn.Linear(STATE_DIM, ACTIONS)
+        )
+        def optimizer(params):
+            return torch.optim.SGD(params, lr=0.1)
+        self.q = TabularActionValue(self.model, optimizer)
+
+    def test_eval_list(self):
+        states = [
+            torch.randn(1, STATE_DIM),
+            torch.randn(1, STATE_DIM),
+            None,
+            torch.randn(1, STATE_DIM),
+            None
+        ]
+        result = self.q.eval(states)
+        print(result.detach().numpy())
+        np.testing.assert_array_almost_equal(
+            result.detach().numpy(),
+            np.array([[-0.238509, -0.726287, -0.034026],
+                      [-0.35688755, -0.6612102, 0.34849477],
+                      [0., 0., 0.],
+                      [-0.02961645, -0.7566322, -0.46243042],
+                      [0., 0., 0.]], dtype=np.float32)
+        )
+
+
+if __name__ == '__main__':
+    unittest.main()
