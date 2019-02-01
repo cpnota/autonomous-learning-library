@@ -3,8 +3,15 @@ import numpy as np
 import torch
 from .abstract import Environment
 
+def preprocess(preprocessors):
+    def _(frame):
+        if not preprocessors:
+            return frame
+        return preprocess(preprocessors[1:])(preprocessors[0](frame))
+    return _
+
 class GymWrapper(Environment):
-    def __init__(self, env):
+    def __init__(self, env, preprocessors=[]):
         if isinstance(env, str):
             self._env = gym.make(env)
         else:
@@ -15,6 +22,7 @@ class GymWrapper(Environment):
         self._reward = None
         self._done = None
         self._info = None
+        self.preprocess = preprocess(preprocessors)
 
     def reset(self):
         state = self._env.reset()
@@ -62,7 +70,10 @@ class GymWrapper(Environment):
             # ensuring that the tensor
             # is of the correct type.
             self._state = torch.from_numpy(
-                np.array(value, dtype=self.state_space.dtype)
+                np.array(
+                    self.preprocess(value),
+                    dtype=self.state_space.dtype
+                )
             ).unsqueeze(0)
 
     @property
