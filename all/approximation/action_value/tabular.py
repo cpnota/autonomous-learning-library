@@ -11,27 +11,25 @@ class TabularActionValue(ActionValue):
         self.cache = None
 
     def __call__(self, state, action=None):
-        if state is None:
-            return 0
+        if isinstance(state, list):
+            state = torch.cat(state)
+        value = self.model(state.float())
+        result = value.transpose(0, 1)[action]
+        self.cache = result
+        return result
 
-        with torch.no_grad():
-            values = self.model(state.float())
-            if action is None:
-                return values
-            return values.transpose(0, 1)[action]
-
-    def eval(self, states, actions=None):
+    def eval(self, states):
         with torch.no_grad():
             if isinstance(states, list):
                 non_terminal_states = [state for state in states if state is not None]
                 non_terminal_indexes = [i for i, state in enumerate(states) if state is not None]
-                values = self.model(torch.cat(non_terminal_states))
+                values = self.model(torch.cat(non_terminal_states).float())
 
                 result = torch.zeros((len(states), values.shape[1]))
                 result[non_terminal_indexes] = values
                 return result
 
-            return self.model(states.float()).transpose(0, 1)[actions]
+            return self.model(states.float())
 
     def update(self, error, state, action):
         self.optimizer.zero_grad()
@@ -39,13 +37,7 @@ class TabularActionValue(ActionValue):
         value.backward(-error.view(value.shape))
         self.optimizer.step()
 
-    # def execute(self, state, action):
-    #     value = self.model(state.float())
-    #     result = value.transpose(0, 1)[action]
-    #     self.cache = result
-    #     return result
-
-    # def reinforce(self, errors):
-    #     self.cache.backward(errors)
-    #     self.optimizer.step()
-    #     self.optimizer.zero_grad()
+    def reinforce(self, errors):
+        self.cache.backward(errors)
+        self.optimizer.step()
+        self.optimizer.zero_grad()

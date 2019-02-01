@@ -6,9 +6,9 @@ class Flatten(nn.Module):
     def forward(self, x):
         return x.view(x.size()[0], -1)
 
-def deep_q_atari(env):
+def deep_q_atari(env, frames=4):
     return nn.Sequential(
-        nn.Conv2d(1, 16, 8, stride=4),
+        nn.Conv2d(frames, 16, 8, stride=4),
         nn.ReLU(),
         nn.Conv2d(16, 32, 4, stride=2),
         nn.ReLU(),
