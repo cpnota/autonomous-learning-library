@@ -14,13 +14,13 @@ class TabularActionValue(ActionValue):
             return 0
 
         with torch.no_grad():
-            values = self.model(state)
+            values = self.model(state.float())
             if action is None:
                 return values
             return values.transpose(0, 1)[action]
 
     def update(self, error, state, action):
         self.optimizer.zero_grad()
-        value = self.model(state).transpose(0, 1)[action]
+        value = self.model(state.float()).transpose(0, 1)[action]
         value.backward(-error.view(value.shape))
         self.optimizer.step()

@@ -5,3 +5,8 @@ def to_grayscale(frame):
 
 def downsample(frame):
     return frame[::2, ::2]
+
+def to_torch(frame):
+    # input: (H, W)
+    # output: (C, H, W)
+    return np.expand_dims(frame, axis=0)

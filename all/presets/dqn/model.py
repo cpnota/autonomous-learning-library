@@ -1,0 +1,20 @@
+from torch import nn
+
+# Not provided by Pytorch,
+# because devs = nazis
+class Flatten(nn.Module):
+    def forward(self, x):
+        return x.view(x.size()[0], -1)
+
+def deep_q_atari(env):
+    return nn.Sequential(
+        nn.Conv2d(1, 16, 8, stride=4),
+        nn.ReLU(),
+        nn.Conv2d(16, 32, 4, stride=2),
+        nn.ReLU(),
+        Flatten(),
+        nn.Linear(2816, 256),
+        # nn.ReLU(),
+        nn.Linear(256, env.action_space.n)
+    )
+ 
