@@ -23,7 +23,8 @@ class GymWrapper(Environment):
         self._reward = None
         self._done = None
         self._info = None
-        self.preprocess = [] if preprocessors is None else preprocess(preprocessors)
+        preprocessors = [] if preprocessors is None else preprocessors
+        self.preprocess = preprocess(preprocessors)
 
     def reset(self):
         state = self._env.reset()

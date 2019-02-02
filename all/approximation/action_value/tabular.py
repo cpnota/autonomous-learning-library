@@ -38,6 +38,6 @@ class TabularActionValue(ActionValue):
         self.optimizer.step()
 
     def reinforce(self, errors):
-        self.cache.backward(errors)
+        self.cache.backward(-errors)
         self.optimizer.step()
         self.optimizer.zero_grad()

@@ -43,7 +43,8 @@ class DQN(Agent):
         rewards = torch.tensor([sample[3] for sample in minibatch]).float()
 
         values = self.q(states, actions)
-        targets = rewards + torch.max(self.q.eval(next_states), dim=1)[0]
+        targets = rewards + 0.99 * torch.max(self.q.eval(next_states), dim=1)[0]
         td_errors = targets - values
+        # print(values[0][0], targets[0][0], rewards[0], td_errors[0][0])
 
         self.q.reinforce(td_errors)
