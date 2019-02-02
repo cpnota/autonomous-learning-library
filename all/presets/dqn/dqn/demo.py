@@ -11,6 +11,7 @@ def run():
         print_every=1,
         render=True
     )
+    experiment.plot(filename="dqn-breakout")
 
 
 if __name__ == '__main__':
