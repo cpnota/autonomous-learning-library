@@ -2,9 +2,6 @@ import random
 import torch
 from .abstract import Agent
 
-def stack(frames):
-    return torch.cat(frames, dim=1) if frames is not None else None
-
 class DQN(Agent):
     def __init__(self, q, policy, frames=4, replay_buffer_size=100000):
         self.q = q
@@ -59,3 +56,6 @@ class ReplayBuffer():
         next_states = [stack(sample[2]) for sample in minibatch]
         rewards = torch.tensor([sample[3] for sample in minibatch]).float()
         return (states, actions, next_states, rewards)
+
+def stack(frames):
+    return torch.cat(frames, dim=1) if frames is not None else None
