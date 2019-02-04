@@ -37,6 +37,44 @@ class TestTabular(unittest.TestCase):
                       [0., 0., 0.]], dtype=np.float32)
         )
 
+    def test_target_net(self):
+        torch.manual_seed(2)
+        model = nn.Sequential(
+            nn.Linear(1, 1)
+        )
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
+        q = TabularActionValue(model, optimizer, target_update_frequency=3)
+        inputs = torch.tensor([1.])
+        errors = torch.tensor([-1.])
+
+        policy_value = q(inputs).item()
+        target_value = q.eval(inputs).item()
+        np.testing.assert_equal(policy_value, -0.008584141731262207)
+        np.testing.assert_equal(target_value, -0.008584141731262207)
+
+        q.reinforce(errors)
+        policy_value = q(inputs).item()
+        target_value = q.eval(inputs).item()
+        np.testing.assert_equal(policy_value, -0.20858412981033325)
+        np.testing.assert_equal(target_value, -0.008584141731262207)
+
+        q.reinforce(errors)
+        policy_value = q(inputs).item()
+        target_value = q.eval(inputs).item()
+        np.testing.assert_equal(policy_value, -0.4085841178894043)
+        np.testing.assert_equal(target_value, -0.008584141731262207)
+
+        q.reinforce(errors)
+        policy_value = q(inputs).item()
+        target_value = q.eval(inputs).item()
+        np.testing.assert_equal(policy_value, -0.6085841655731201)
+        np.testing.assert_equal(target_value, -0.6085841655731201)
+
+        q.reinforce(errors)
+        policy_value = q(inputs).item()
+        target_value = q.eval(inputs).item()
+        np.testing.assert_equal(policy_value, -0.8085842132568359)
+        np.testing.assert_equal(target_value, -0.6085841655731201)
 
 if __name__ == '__main__':
     unittest.main()
