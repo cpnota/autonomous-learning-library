@@ -3,15 +3,16 @@ from all.environments import make_atari
 from all.presets.dqn import dqn
 
 def run():
-    env = make_atari('BreakoutDeterministic-v4')
-    experiment = Experiment(env, episodes=1000000, trials=1)
+    env = make_atari('Pong-v4')
+    experiment = Experiment(env, episodes=20000, trials=1)
     experiment.run(
         dqn,
         plot_every=1,
         print_every=1,
         render=True
     )
-    experiment.plot(filename="dqn-breakout")
+    experiment.plot(filename="dqn-pong.png")
+    experiment.save("dqn_pong")
 
 
 if __name__ == '__main__':
