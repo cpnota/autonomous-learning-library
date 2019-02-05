@@ -15,33 +15,34 @@ class DQN(Agent):
         self.q = q
         self.policy = policy
         self.env = None
-        self.states = None
+        self.state = None
         self.action = None
         self.frames = frames
         self.minibatch_size = minibatch_size
         self.gamma = gamma
         self.replay_buffer = ReplayBuffer(replay_buffer_size)
+        self.frames_seen = 0
 
     def new_episode(self, env):
         self.env = env
-        self.states = [self.env.state] * self.frames
+        print('epsilon: ', self.policy.epsilon)
+        print('frames_seen: ', self.frames_seen)
 
     def act(self):
+        self.frames_seen += 1
         self.take_action()
         self.store_transition()
         self.train()
 
     def take_action(self):
-        inputs = stack(self.states)
-        self.action = self.policy(inputs)
+        self.state = self.env.state
+        self.action = self.policy(self.state)
         self.env.step(self.action)
 
     def store_transition(self):
-        next_states = None if self.env.state is None else self.states[1:] + [
-            self.env.state]
+        next_state = self.env.state
         self.replay_buffer.store(
-            self.states, self.action, next_states, self.env.reward)
-        self.states = next_states
+            self.state, self.action, next_state, self.env.reward)
 
     def train(self):
         (states, actions, next_states, rewards) = self.replay_buffer.sample(self.minibatch_size)
@@ -64,12 +65,8 @@ class ReplayBuffer():
 
     def sample(self, sample_size):
         minibatch = [random.choice(self.data) for _ in range(0, sample_size)]
-        states = [stack(sample[0]) for sample in minibatch]
+        states = [sample[0] for sample in minibatch]
         actions = [sample[1] for sample in minibatch]
-        next_states = [stack(sample[2]) for sample in minibatch]
+        next_states = [sample[2] for sample in minibatch]
         rewards = torch.tensor([sample[3] for sample in minibatch]).float()
         return (states, actions, next_states, rewards)
-
-
-def stack(frames):
-    return torch.cat(frames, dim=1) if frames is not None else None

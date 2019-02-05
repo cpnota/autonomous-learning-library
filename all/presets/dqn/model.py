@@ -13,12 +13,12 @@ def deep_q_atari(env, frames=4):
         nn.Conv2d(16, 32, 4, stride=2),
         nn.ReLU(),
         Flatten(),
-        nn.Linear(2816, 256),
+        nn.Linear(2592, 256),
         nn.ReLU(),
         nn.Linear(256, env.action_space.n)
     )
  
-def deep_q_classic_control(env, frames=4):
+def deep_q_classic_control(env, frames=1):
     return nn.Sequential(
         Flatten(),
         nn.Linear(env.state_space.shape[0] * frames, 256),
