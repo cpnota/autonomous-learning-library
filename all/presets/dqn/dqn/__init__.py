@@ -8,7 +8,7 @@ from ..model import deep_q_atari
 def dqn(env):
     model = deep_q_atari(env)
     optimizer = Adam(model.parameters(), lr=1e-4)
-    q = TabularActionValue(model, optimizer)
+    q = TabularActionValue(model, optimizer, target_update_frequency=250)
     policy = GreedyPolicy(q, annealing_time=100000, initial_epsilon=1.00, final_epsilon=0.02)
     return DQN(q, policy)
 

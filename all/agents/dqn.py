@@ -7,18 +7,18 @@ class DQN(Agent):
     def __init__(self,
                  q,
                  policy,
-                 frames=4,
                  replay_buffer_size=100000,
                  minibatch_size=32,
                  gamma=0.99,
-                 prefetch=10000
+                 prefetch=10000,
+                 update_frequency=4
                  ):
         self.q = q
         self.policy = policy
         self.env = None
         self.state = None
         self.action = None
-        self.frames = frames
+        self.update_frequency = update_frequency
         self.minibatch_size = minibatch_size
         self.gamma = gamma
         self.replay_buffer = ReplayBuffer(replay_buffer_size)
@@ -31,10 +31,9 @@ class DQN(Agent):
         print('frames_seen: ', self.frames_seen)
 
     def act(self):
-        self.frames_seen += 1
         self.take_action()
         self.store_transition()
-        if (self.frames_seen > self.prefetch):
+        if (self.should_train()):
             self.train()
 
     def take_action(self):
@@ -43,9 +42,13 @@ class DQN(Agent):
         self.env.step(self.action)
 
     def store_transition(self):
+        self.frames_seen += 1
         next_state = self.env.state
         self.replay_buffer.store(
             self.state, self.action, next_state, self.env.reward)
+
+    def should_train(self):
+       return self.frames_seen > self.prefetch and self.frames_seen % self.update_frequency
 
     def train(self):
         (states, actions, next_states, rewards) = self.replay_buffer.sample(self.minibatch_size)
