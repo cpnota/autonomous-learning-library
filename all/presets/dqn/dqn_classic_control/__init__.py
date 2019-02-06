@@ -9,7 +9,7 @@ def dqn_cc(env):
     model = deep_q_classic_control(env)
     optimizer = Adam(model.parameters(), lr=1e-4)
     q = TabularActionValue(model, optimizer)
-    policy = GreedyPolicy(q, annealing_time=20000)
-    return DQN(q, policy)
+    policy = GreedyPolicy(q, annealing_time=10000)
+    return DQN(q, policy, replay_buffer_size=10000, prefetch=1000)
 
 __all__ = ["dqn_cc"]
