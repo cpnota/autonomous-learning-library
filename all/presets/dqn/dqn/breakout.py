@@ -4,7 +4,7 @@ from all.presets.dqn import dqn
 
 def run():
     env = make_atari('BreakoutNoFrameskip-v4')
-    experiment = Experiment(env, episodes=20000, trials=1)
+    experiment = Experiment(env, episodes=100000, trials=1)
     experiment.run(
         dqn,
         plot_every=100,

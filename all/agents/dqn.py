@@ -10,7 +10,8 @@ class DQN(Agent):
                  frames=4,
                  replay_buffer_size=100000,
                  minibatch_size=32,
-                 gamma=0.99
+                 gamma=0.99,
+                 prefetch=10000
                  ):
         self.q = q
         self.policy = policy
@@ -22,6 +23,7 @@ class DQN(Agent):
         self.gamma = gamma
         self.replay_buffer = ReplayBuffer(replay_buffer_size)
         self.frames_seen = 0
+        self.prefetch = prefetch
 
     def new_episode(self, env):
         self.env = env
@@ -32,7 +34,8 @@ class DQN(Agent):
         self.frames_seen += 1
         self.take_action()
         self.store_transition()
-        self.train()
+        if (self.frames_seen > self.prefetch):
+            self.train()
 
     def take_action(self):
         self.state = self.env.state
