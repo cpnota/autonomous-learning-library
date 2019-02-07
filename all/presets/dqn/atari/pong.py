@@ -6,8 +6,8 @@ def run():
     env = make_atari('PongNoFrameskip-v4')
     experiment = Experiment(env, episodes=20000, trials=1)
     experiment.run(
-        dqn,
-        plot_every=100,
+        dqn(),
+        plot_every=50,
         print_every=1,
         render=True
     )

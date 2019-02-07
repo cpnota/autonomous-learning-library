@@ -1,9 +1,9 @@
 from all.environments import GymWrapper
 
-def validate_agent(make_agent, env_name):
-    env = GymWrapper(env_name)
+def validate_agent(make_agent, env):
+    if isinstance(env, str):
+        env = GymWrapper(env)
     agent = make_agent(env)
-
     # Run two episodes, enough to
     # exercise all parts of the agent
     # in most cases.

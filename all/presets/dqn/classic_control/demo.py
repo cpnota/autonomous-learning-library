@@ -4,8 +4,8 @@ from all.presets.dqn import dqn_cc
 def run():
     experiment = Experiment('CartPole-v0', episodes=2000, trials=1)
     experiment.run(
-        dqn_cc,
-        plot_every=1,
+        dqn_cc(),
+        plot_every=50,
         print_every=1,
         render=True
     )

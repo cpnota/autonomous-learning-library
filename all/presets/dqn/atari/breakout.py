@@ -6,7 +6,7 @@ def run():
     env = make_atari('BreakoutNoFrameskip-v4')
     experiment = Experiment(env, episodes=100000, trials=1)
     experiment.run(
-        dqn,
+        dqn(),
         plot_every=100,
         print_every=1,
         render=True

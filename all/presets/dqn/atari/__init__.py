@@ -6,6 +6,7 @@ from all.approximation import QTabular
 from all.agents import DQN
 from all.policies import GreedyPolicy
 
+
 def conv_net(env, frames=4):
     return nn.Sequential(
         nn.Conv2d(frames, 16, 8, stride=4),
@@ -18,11 +19,23 @@ def conv_net(env, frames=4):
         nn.Linear(256, env.action_space.n)
     )
 
-def dqn(env):
-    model = conv_net(env)
-    optimizer = Adam(model.parameters(), lr=1e-4)
-    q = QTabular(model, optimizer, target_update_frequency=250)
-    policy = GreedyPolicy(q, annealing_time=250000, initial_epsilon=1.00, final_epsilon=0.02)
-    return DQN(q, policy)
+
+def dqn(
+        lr=1e-4,
+        target_update_frequency=250,
+        annealing_time=250000,
+        initial_epsilon=1.00,
+        final_epsilon=0.02,
+        ):
+    def _dqn(env):
+        model = conv_net(env)
+        optimizer = Adam(model.parameters(), lr=lr)
+        q = QTabular(model, optimizer,
+                     target_update_frequency=target_update_frequency)
+        policy = GreedyPolicy(q, annealing_time=annealing_time,
+                              initial_epsilon=initial_epsilon, final_epsilon=final_epsilon)
+        return DQN(q, policy)
+    return _dqn
+
 
 __all__ = ["dqn"]

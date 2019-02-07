@@ -6,6 +6,7 @@ from all.approximation import QTabular
 from all.agents import DQN
 from all.policies import GreedyPolicy
 
+
 def fc_net(env, frames=1):
     return nn.Sequential(
         Flatten(),
@@ -14,11 +15,26 @@ def fc_net(env, frames=1):
         nn.Linear(256, env.action_space.n)
     )
 
-def dqn_cc(env):
-    model = fc_net(env)
-    optimizer = Adam(model.parameters(), lr=1e-4)
-    q = QTabular(model, optimizer, target_update_frequency=1000)
-    policy = GreedyPolicy(q, annealing_time=10000)
-    return DQN(q, policy, prefetch_size=0, update_frequency=1, minibatch_size=32)
+
+def dqn_cc(
+        lr=1e-4,
+        target_update_frequency=1000,
+        annealing_time=10000,
+        prefetch_size=32 * 8,
+        minibatch_size=32,
+        update_frequency=1,
+):
+    def _dqn_cc(env):
+        model = fc_net(env)
+        optimizer = Adam(model.parameters(), lr=lr)
+        q = QTabular(model, optimizer,
+                     target_update_frequency=target_update_frequency)
+        policy = GreedyPolicy(q, annealing_time=annealing_time)
+        return DQN(q, policy,
+                   prefetch_size=prefetch_size,
+                   update_frequency=update_frequency,
+                   minibatch_size=minibatch_size)
+    return _dqn_cc
+
 
 __all__ = ["dqn_cc"]
