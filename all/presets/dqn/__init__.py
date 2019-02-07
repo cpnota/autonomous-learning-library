@@ -1,5 +1,4 @@
-from .dqn import dqn
-from .dqn_classic_control import dqn_cc
-from .sarsa import sarsa
+from .atari import dqn
+from .classic_control import dqn_cc
 
-__all__ = ["dqn", "dqn_cc", "sarsa"]
+__all__ = ["dqn", "dqn_cc"]

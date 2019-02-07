@@ -1,10 +1,10 @@
 import copy
 import torch
 from torch import optim
-from .abstract import ActionValue
+from .q_function import QFunction
 
 
-class TabularActionValue(ActionValue):
+class QTabular(QFunction):
     def __init__(self, model, optimizer=None, target_update_frequency=None):
         self.model = model
         self.optimizer = (optimizer
@@ -37,13 +37,6 @@ class TabularActionValue(ActionValue):
                 result[non_terminal_indexes] = values
                 return result
             return self.target_model(states.float())
-
-    # TODO delete this function and all like it
-    def update(self, error, state, action):
-        self.optimizer.zero_grad()
-        value = self.model(state.float()).transpose(0, 1)[action]
-        value.backward(-error.view(value.shape))
-        self.optimizer.step()
 
     def reinforce(self, errors):
         self.cache.backward(-errors)
