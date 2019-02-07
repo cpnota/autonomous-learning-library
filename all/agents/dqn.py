@@ -8,7 +8,7 @@ class DQN(Agent):
                  q,
                  policy,
                  replay_buffer_size=100000,
-                 minibatch_size=32,
+                 minibatch_size=4 * 32,
                  gamma=0.99,
                  prefetch_size=10000,
                  update_frequency=4
@@ -53,8 +53,7 @@ class DQN(Agent):
                 and self.frames_seen % self.update_frequency == 0)
 
     def train(self):
-        (states, actions, next_states, rewards) = self.replay_buffer.sample(
-            self.update_frequency * self.minibatch_size)
+        (states, actions, next_states, rewards) = self.replay_buffer.sample(self.minibatch_size)
         values = self.q(states, actions)
         targets = rewards + self.gamma * \
             torch.max(self.q.eval(next_states), dim=1)[0]
