@@ -51,7 +51,7 @@ class DQN(Agent):
        return self.frames_seen > self.prefetch and self.frames_seen % self.update_frequency
 
     def train(self):
-        (states, actions, next_states, rewards) = self.replay_buffer.sample(self.minibatch_size)
+        (states, actions, next_states, rewards) = self.replay_buffer.sample(self.update_frequency * self.minibatch_size)
         values = self.q(states, actions)
         targets = rewards + self.gamma * \
             torch.max(self.q.eval(next_states), dim=1)[0]

@@ -11,6 +11,9 @@ def learning_curve(results, filename=None):
         _, episodes = result.shape
         x = np.arange(1, episodes + 1)
         y = np.mean(result, axis=0)
+        # TODO conditional?
+        x = np.mean(x.reshape(-1, 100), axis=1)
+        y = np.mean(y.reshape(-1, 100), axis=1)
         plt.plot(x, y, label=agent_name)
         plt.xlabel("episode")
         plt.ylabel("returns")
