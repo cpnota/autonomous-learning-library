@@ -1,5 +1,5 @@
 import torch
-from ..utils import ReplayBuffer
+from all.utils import ReplayBuffer
 from .abstract import Agent
 
 
