@@ -19,11 +19,25 @@ def conv_net(env, frames=4):
         nn.Linear(256, env.action_space.n)
     )
 
+# def conv_net(env, frames=4):
+#     return nn.Sequential(
+#         nn.Conv2d(frames, 32, kernel_size=8, stride=4),
+#         nn.ReLU(),
+#         nn.Conv2d(32, 64, kernel_size=4, stride=2),
+#         nn.ReLU(),
+#         nn.Conv2d(64, 64, kernel_size=3, stride=1),
+#         nn.ReLU(),
+#         Flatten(),
+#         nn.Linear(2592, 512),
+#         nn.ReLU(),
+#         nn.Linear(512, env.action_space.n)
+#     )
+
 
 def dqn(
         lr=1e-4,
-        target_update_frequency=250,
-        annealing_time=250000,
+        target_update_frequency=1000,
+        annealing_time=100000,
         initial_epsilon=1.00,
         final_epsilon=0.02,
         ):

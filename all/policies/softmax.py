@@ -13,7 +13,7 @@ class SoftmaxPolicy(Policy):
         self._cache = torch.tensor([])
 
     def __call__(self, state, action=None, prob=None):
-        scores = self.model(state)
+        scores = self.model(state.float())
         probs = functional.softmax(scores, dim=-1)
         distribution = torch.distributions.Categorical(probs)
         action = distribution.sample()
@@ -21,7 +21,7 @@ class SoftmaxPolicy(Policy):
         return action
 
     def reinforce(self, errors):
-        loss = self._cache.dot(errors.detach())
+        loss = self._cache.dot(errors)
         loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()

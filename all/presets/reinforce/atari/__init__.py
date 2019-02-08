@@ -20,8 +20,8 @@ def conv_net(outputs):
 
 
 def reinforce_atari(
-        lr_v=1e-4,
-        lr_pi=1e-4
+        lr_v=1e-5,
+        lr_pi=1e-5
         ):
     def _reinforce_atari(env):
         value_model = conv_net(1)
