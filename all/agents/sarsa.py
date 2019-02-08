@@ -1,9 +1,11 @@
 from .abstract import Agent
 
+
 class Sarsa(Agent):
-    def __init__(self, q, policy):
+    def __init__(self, q, policy, gamma=1):
         self.q = q
         self.policy = policy
+        self.gamma = gamma
         self.env = None
         self.state = None
         self.action = None
@@ -26,6 +28,6 @@ class Sarsa(Agent):
 
     def update(self):
         td_error = (self.env.reward
-                    + self.q(self.next_state, self.next_action)
+                    + self.gamma * self.q.eval(self.next_state, self.next_action)
                     - self.q(self.state, self.action))
-        self.q.update(td_error, self.state, self.action)
+        self.q.reinforce(td_error)

@@ -24,7 +24,7 @@ class QTabular(QFunction):
         self.cache = result
         return result
 
-    def eval(self, states):
+    def eval(self, states, actions=None):
         with torch.no_grad():
             if isinstance(states, list):
                 non_terminal_states = [
@@ -36,7 +36,12 @@ class QTabular(QFunction):
                 result = torch.zeros((len(states), values.shape[1]))
                 result[non_terminal_indexes] = values
                 return result
-            return self.target_model(states.float())
+            if states is None:
+                return torch.zeros(1)
+            values = self.target_model(states.float())
+            result = values.transpose(0, 1)[actions] if actions is not None else values
+            return result
+
 
     def reinforce(self, errors):
         self.cache.backward(-errors)
