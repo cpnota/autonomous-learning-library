@@ -8,10 +8,10 @@ class DQN(Agent):
                  q,
                  policy,
                  replay_buffer_size=100000,
-                 minibatch_size=4 * 32,
+                 minibatch_size=32,
                  gamma=0.99,
-                 prefetch_size=10000,
-                 update_frequency=4
+                 prefetch_size=5000,
+                 update_frequency=1
                  ):
         # objects
         self.q = q
