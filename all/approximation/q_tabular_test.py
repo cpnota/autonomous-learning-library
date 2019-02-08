@@ -2,7 +2,7 @@ import unittest
 import torch
 from torch import nn
 import numpy as np
-from . import TabularActionValue
+from all.approximation.q_tabular import QTabular
 
 STATE_DIM = 2
 ACTIONS = 3
@@ -16,7 +16,7 @@ class TestTabular(unittest.TestCase):
         )
         def optimizer(params):
             return torch.optim.SGD(params, lr=0.1)
-        self.q = TabularActionValue(self.model, optimizer)
+        self.q = QTabular(self.model, optimizer)
 
     def test_eval_list(self):
         states = [
@@ -27,7 +27,6 @@ class TestTabular(unittest.TestCase):
             None
         ]
         result = self.q.eval(states)
-        print(result.detach().numpy())
         np.testing.assert_array_almost_equal(
             result.detach().numpy(),
             np.array([[-0.238509, -0.726287, -0.034026],
@@ -43,7 +42,7 @@ class TestTabular(unittest.TestCase):
             nn.Linear(1, 1)
         )
         optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
-        q = TabularActionValue(model, optimizer, target_update_frequency=3)
+        q = QTabular(model, optimizer, target_update_frequency=3)
         inputs = torch.tensor([1.])
         errors = torch.tensor([-1.])
 
@@ -78,3 +77,4 @@ class TestTabular(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+''

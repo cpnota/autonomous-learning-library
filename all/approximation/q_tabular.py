@@ -13,8 +13,11 @@ class QTabular(QFunction):
         self.cache = None
         self.updates = 0
         self.target_update_frequency = target_update_frequency
-        self.target_model = copy.deepcopy(
-            self.model) if target_update_frequency is not None else self.model
+        self.target_model = (
+            copy.deepcopy(self.model)
+            if target_update_frequency is not None
+            else self.model
+        )
 
     def __call__(self, state, action=None):
         if isinstance(state, list):
