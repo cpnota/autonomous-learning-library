@@ -45,8 +45,7 @@ class DQN(Agent):
     def store_transition(self):
         self.frames_seen += 1
         next_state = self.env.state
-        self.replay_buffer.store(
-            self.state, self.action, next_state, self.env.reward)
+        self.replay_buffer.store(self.state, self.action, next_state, self.env.reward)
 
     def should_train(self):
         return (self.frames_seen > self.prefetch_size
@@ -54,8 +53,9 @@ class DQN(Agent):
 
     def train(self):
         (states, actions, next_states, rewards) = self.replay_buffer.sample(self.minibatch_size)
-        values = self.q(states, actions)
-        targets = rewards + self.gamma * \
-            torch.max(self.q.eval(next_states), dim=1)[0]
-        td_errors = targets - values
+        td_errors = (
+            rewards
+            + self.gamma * torch.max(self.q.eval(next_states), dim=1)[0]
+            - self.q(states, actions)
+        )
         self.q.reinforce(td_errors)
