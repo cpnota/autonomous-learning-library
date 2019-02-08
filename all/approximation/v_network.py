@@ -13,7 +13,7 @@ class ValueNetwork(ValueFunction):
     def __call__(self, states):
         if isinstance(states, list):
             states = torch.cat(states)
-        result = self.model(states.float())
+        result = self.model(states.float()).squeeze(1)
         self.cache = result
         return result
 
@@ -29,6 +29,8 @@ class ValueNetwork(ValueFunction):
                 result = torch.zeros((len(states), values.shape[1]))
                 result[non_terminal_indexes] = values
                 return result.squeeze(1)
+            if states is None:
+                return torch.zeros(1)
             return self.model(states.float()).squeeze(1)
 
     def reinforce(self, errors):

@@ -5,9 +5,11 @@ from .abstract import Policy
 
 
 class SoftmaxPolicy(Policy):
-    def __init__(self, model, optimizer=optim.Adam):
+    def __init__(self, model, optimizer=None):
         self.model = model
-        self.optimizer = optimizer(self.model.parameters())
+        self.optimizer = (optimizer
+                          if optimizer is not None
+                          else optim.Adam(model.parameters()))
         self._cache = torch.tensor([])
 
     def __call__(self, state, action=None, prob=None):
@@ -18,9 +20,8 @@ class SoftmaxPolicy(Policy):
         self.cache(-distribution.log_prob(action))
         return action
 
-
     def reinforce(self, errors):
-        loss = self._cache.dot(errors)
+        loss = self._cache.dot(errors.detach())
         loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()
