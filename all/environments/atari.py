@@ -3,15 +3,6 @@ import numpy as np
 import torch
 from .abstract import Environment
 
-def to_grayscale(frame):
-    return np.mean(frame, axis=2).astype(np.uint8)
-
-def downsample(frame):
-    return frame[::2, ::2]
-
-def preprocess(frame):
-    return to_grayscale(downsample(frame))
-
 # pylint: disable=too-many-instance-attributes
 class AtariEnvironment(Environment):
     def __init__(self, env):
@@ -28,25 +19,14 @@ class AtariEnvironment(Environment):
 
     def reset(self):
         state = self._env.reset()
-        self._state = self.process([state] * 4)
+        self._state = torch.cat([self.process(state)] * 4).unsqueeze(0)
         self._done = False
         self._reward = 0
         return self._state
 
     def step(self, action):
-        state = []
-        reward = 0
-        done = False
-
-        for _ in range(4):
-            _state, _reward, _done, info = self._env.step(action.item())
-            state.append(_state)
-            reward += _reward
-            done = _done
-            if done:
-                break
-
-        self._state = self.process(state) if not done else None
+        frame, reward, done, info = self._env.step(action.item())
+        self._state = self.update_state(frame) if not done else None
         self._action = action
         self._reward = reward
         self._done = done
@@ -62,11 +42,13 @@ class AtariEnvironment(Environment):
     def seed(self, seed):
         self._env.seed(seed)
 
-    def process(self, state):
-        preprocessed = [preprocess(frame) for frame in state]
+    def update_state(self, frame):
+        return torch.cat((self._state[0, 1:], self.process(frame))).unsqueeze(0)
+
+    def process(self, frame):
         return torch.from_numpy(
             np.array(
-                preprocessed,
+                preprocess(frame),
                 dtype=self.state_space.dtype
             )
         ).unsqueeze(0)
@@ -102,3 +84,12 @@ class AtariEnvironment(Environment):
     @property
     def env(self):
         return self._env
+
+def to_grayscale(frame):
+    return np.mean(frame, axis=2).astype(np.uint8)
+
+def downsample(frame):
+    return frame[::2, ::2]
+
+def preprocess(frame):
+    return to_grayscale(downsample(frame))
