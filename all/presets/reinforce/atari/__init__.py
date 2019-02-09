@@ -1,5 +1,4 @@
-from torch import nn
-from torch.optim import Adam
+from torch import nn, optim
 from all.layers import Flatten
 from all.agents import REINFORCE
 from all.approximation import ValueNetwork
@@ -20,16 +19,25 @@ def conv_net(outputs):
 
 
 def reinforce_atari(
-        lr_v=1e-5,
+        lr_v=2e-5,
         lr_pi=1e-5
         ):
     def _reinforce_atari(env):
         value_model = conv_net(1)
-        value_optimizer = Adam(value_model.parameters(), lr=lr_v)
+        value_optimizer = optim.Adam(value_model.parameters(), lr=lr_v)
         v = ValueNetwork(value_model, value_optimizer)
         policy_model = conv_net(env.action_space.n)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
+        policy_optimizer = optim.Adam(policy_model.parameters(), lr=lr_pi)
         policy = SoftmaxPolicy(policy_model, policy_optimizer)
+
+        def weights_init(layer):
+            if isinstance(layer, nn.Linear):
+                if layer.out_features == env.action_space.n:
+                    nn.init.zeros_(layer.weight.data)
+                    nn.init.zeros_(layer.bias.data)
+
+        policy_model.apply(weights_init)
+
         return REINFORCE(v, policy)
     return _reinforce_atari
 
