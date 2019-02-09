@@ -12,7 +12,7 @@ def conv_net(outputs):
         nn.Conv2d(16, 32, 4, stride=2),
         nn.ReLU(),
         Flatten(),
-        nn.Linear(2592, 256),
+        nn.Linear(2816, 256),
         nn.ReLU(),
         nn.Linear(256, outputs)
     )
