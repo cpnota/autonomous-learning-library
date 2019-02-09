@@ -20,8 +20,10 @@ class Sarsa(Agent):
     def act(self):
         self.env.step(self.action)
         self.next_state = self.env.state
-        if not self.env.done:
-            self.next_action = self.policy(self.next_state)
+        self.next_action = (
+            None if self.env.done
+            else self.policy(self.next_state)
+        )
         self.update()
         self.state = self.next_state
         self.action = self.next_action
