@@ -3,16 +3,8 @@ import numpy as np
 import torch
 from .abstract import Environment
 
-def preprocess(preprocessors):
-    def _(frame):
-        if not preprocessors:
-            return frame
-        return preprocess(preprocessors[1:])(preprocessors[0](frame))
-    return _
-
-# pylint: disable=too-many-instance-attributes
-class GymWrapper(Environment):
-    def __init__(self, env, preprocessors=None):
+class GymEnvironment(Environment):
+    def __init__(self, env):
         if isinstance(env, str):
             self._env = gym.make(env)
         else:
@@ -23,8 +15,6 @@ class GymWrapper(Environment):
         self._reward = None
         self._done = None
         self._info = None
-        preprocessors = [] if preprocessors is None else preprocessors
-        self.preprocess = preprocess(preprocessors)
 
     def reset(self):
         state = self._env.reset()
@@ -67,16 +57,16 @@ class GymWrapper(Environment):
     def state(self, value):
         if value is None:
             self._state = None
-        else:
-            # Somewhat tortured method of
-            # ensuring that the tensor
-            # is of the correct type.
-            self._state = torch.from_numpy(
-                np.array(
-                    self.preprocess(value),
-                    dtype=self.state_space.dtype
-                )
-            ).unsqueeze(0)
+            return
+        # Somewhat tortured method of
+        # ensuring that the tensor
+        # is of the correct type.
+        self._state = torch.from_numpy(
+            np.array(
+                value,
+                dtype=self.state_space.dtype
+            )
+        ).unsqueeze(0)
 
     @property
     def action(self):

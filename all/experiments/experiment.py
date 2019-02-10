@@ -2,13 +2,13 @@ import json
 import numpy as np
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
-from all.environments import GymWrapper
+from all.environments import GymEnvironment
 from .plots import learning_curve
 
 class Experiment:
     def __init__(self, env, episodes=200, trials=100):
         if isinstance(env, str):
-            self.env = GymWrapper(env)
+            self.env = GymEnvironment(env)
             self.env_name = env
         else:
             self.env = env
