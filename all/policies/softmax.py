@@ -20,6 +20,11 @@ class SoftmaxPolicy(Policy):
         self.cache(-distribution.log_prob(action))
         return action
 
+    def eval(self, state):
+        with torch.no_grad():
+            scores = self.model(state.float())
+            return functional.softmax(scores, dim=-1)
+
     def reinforce(self, errors):
         loss = self._cache.dot(errors)
         loss.backward()
