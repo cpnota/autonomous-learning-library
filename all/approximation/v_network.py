@@ -1,5 +1,6 @@
 import torch
 from torch import optim
+from torch.nn.functional import smooth_l1_loss
 from .v_function import ValueFunction
 
 class ValueNetwork(ValueFunction):
@@ -19,8 +20,9 @@ class ValueNetwork(ValueFunction):
         with torch.no_grad():
             return self._eval(states)
 
-    def reinforce(self, errors):
-        self.cache.backward(-errors)
+    def train(self, targets):
+        loss = smooth_l1_loss(self.cache, targets)
+        loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()
 

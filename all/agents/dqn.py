@@ -53,9 +53,6 @@ class DQN(Agent):
 
     def train(self):
         (states, actions, next_states, rewards) = self.replay_buffer.sample(self.minibatch_size)
-        td_errors = (
-            rewards
-            + self.gamma * torch.max(self.q.eval(next_states), dim=1)[0]
-            - self.q(states, actions)
-        )
-        self.q.reinforce(td_errors)
+        self.q(states, actions)
+        targets = rewards + self.gamma * torch.max(self.q.eval(next_states), dim=1)[0]
+        self.q.train(targets)

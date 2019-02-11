@@ -10,5 +10,5 @@ class ValueFunction(ABC):
         pass
 
     @abstractmethod
-    def reinforce(self, errors):
+    def train(self, targets):
         pass

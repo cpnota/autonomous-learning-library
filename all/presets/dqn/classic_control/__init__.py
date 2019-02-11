@@ -21,7 +21,7 @@ def dqn_cc(
         target_update_frequency=1000,
         annealing_time=10000,
         prefetch_size=32 * 8,
-        minibatch_size=32,
+        minibatch_size=64,
         update_frequency=1,
 ):
     def _dqn_cc(env):

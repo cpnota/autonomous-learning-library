@@ -1,8 +1,8 @@
 import copy
 import torch
 from torch import optim
+from torch.nn.functional import smooth_l1_loss
 from .q_function import QFunction
-
 
 class QTabular(QFunction):
     def __init__(self, model, optimizer=None, target_update_frequency=None):
@@ -28,8 +28,9 @@ class QTabular(QFunction):
         with torch.no_grad():
             return self._eval(states, actions, self.target_model)
 
-    def reinforce(self, errors):
-        self.cache.backward(-errors)
+    def train(self, targets):
+        loss = smooth_l1_loss(self.cache, targets)
+        loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()
         self.updates += 1
