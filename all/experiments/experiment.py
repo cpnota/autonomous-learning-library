@@ -50,8 +50,8 @@ class Experiment:
 
         return self.data[agent_name]
 
-    def plot(self, plot=learning_curve, filename=None):
-        plot(self.results, filename=filename)
+    def plot(self, plot=learning_curve, frequency=1, filename=None):
+        plot(self.results, frequency=frequency, filename=filename)
 
     def monitor(self, trial, episode, returns, frames, print_every, plot_every, plot):
         episode_number = trial * self.episodes + episode + 1
@@ -60,7 +60,7 @@ class Experiment:
                   (trial + 1, self.trials, episode + 1, self.episodes, frames, returns))
         if episode_number % plot_every == 0:
             plt.ion()
-            self.plot(plot)
+            self.plot(plot, plot_every)
             plt.pause(0.0001)
             plt.ioff()
 

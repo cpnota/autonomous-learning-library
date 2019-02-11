@@ -9,7 +9,7 @@ def run():
     experiment = Experiment(env, episodes=20000, trials=1)
     experiment.run(
         reinforce_atari(),
-        plot_every=50,
+        plot_every=100,
         print_every=1,
         render=True
     )
