@@ -7,35 +7,35 @@ from all.agents import DQN
 from all.policies import GreedyPolicy
 
 
-def conv_net(env, frames=4):
-    return nn.Sequential(
-        nn.Conv2d(frames, 16, 8, stride=4),
-        nn.ReLU(),
-        nn.Conv2d(16, 32, 4, stride=2),
-        nn.ReLU(),
-        Flatten(),
-        nn.Linear(2816, 256),
-        nn.ReLU(),
-        nn.Linear(256, env.action_space.n)
-    )
-
 # def conv_net(env, frames=4):
 #     return nn.Sequential(
-#         nn.Conv2d(frames, 32, kernel_size=8, stride=4),
+#         nn.Conv2d(frames, 16, 8, stride=4),
 #         nn.ReLU(),
-#         nn.Conv2d(32, 64, kernel_size=4, stride=2),
-#         nn.ReLU(),
-#         nn.Conv2d(64, 64, kernel_size=3, stride=1),
+#         nn.Conv2d(16, 32, 4, stride=2),
 #         nn.ReLU(),
 #         Flatten(),
-#         nn.Linear(2592, 512),
+#         nn.Linear(2816, 256),
 #         nn.ReLU(),
-#         nn.Linear(512, env.action_space.n)
+#         nn.Linear(256, env.action_space.n)
 #     )
+
+def conv_net(env, frames=4):
+    return nn.Sequential(
+        nn.Conv2d(frames, 32, kernel_size=8, stride=4),
+        nn.ReLU(),
+        nn.Conv2d(32, 64, kernel_size=4, stride=2),
+        nn.ReLU(),
+        nn.Conv2d(64, 64, kernel_size=3, stride=1),
+        nn.ReLU(),
+        Flatten(),
+        nn.Linear(3456, 512),
+        nn.ReLU(),
+        nn.Linear(512, env.action_space.n)
+    )
 
 
 def dqn(
-        lr=1e-4,
+        lr=1e-5,
         target_update_frequency=1000,
         annealing_time=100000,
         initial_epsilon=1.00,
