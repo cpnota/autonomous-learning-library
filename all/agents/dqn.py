@@ -1,5 +1,4 @@
 import torch
-from all.utils import ReplayBuffer
 from .abstract import Agent
 
 
@@ -7,7 +6,7 @@ class DQN(Agent):
     def __init__(self,
                  q,
                  policy,
-                 replay_buffer_size=100000,
+                 replay_buffer,
                  minibatch_size=32,
                  gamma=0.99,
                  prefetch_size=5000,
@@ -16,7 +15,7 @@ class DQN(Agent):
         # objects
         self.q = q
         self.policy = policy
-        self.replay_buffer = ReplayBuffer(replay_buffer_size)
+        self.replay_buffer = replay_buffer
         # hyperparameters
         self.prefetch_size = prefetch_size
         self.update_frequency = update_frequency

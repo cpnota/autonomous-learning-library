@@ -5,6 +5,7 @@ from all.layers import Flatten
 from all.approximation import QTabular
 from all.agents import DQN
 from all.policies import GreedyPolicy
+from all.utils import ReplayBuffer
 
 
 def fc_net(env, frames=1):
@@ -30,7 +31,8 @@ def dqn_cc(
         q = QTabular(model, optimizer,
                      target_update_frequency=target_update_frequency)
         policy = GreedyPolicy(q, annealing_time=annealing_time)
-        return DQN(q, policy,
+        replay_buffer = ReplayBuffer(100000)
+        return DQN(q, policy, replay_buffer,
                    prefetch_size=prefetch_size,
                    update_frequency=update_frequency,
                    minibatch_size=minibatch_size)

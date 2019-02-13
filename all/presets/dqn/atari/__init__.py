@@ -5,6 +5,7 @@ from all.layers import Flatten
 from all.approximation import QTabular
 from all.agents import DQN
 from all.policies import GreedyPolicy
+from all.utils import ReplayBuffer
 
 def conv_net(env, frames=4):
     return nn.Sequential(
@@ -38,6 +39,7 @@ def dqn(
         annealing_time=100000,
         initial_epsilon=1.00,
         final_epsilon=0.02,
+        buffer_size=100000,
         build_model=conv_net
         ):
     def _dqn(env):
@@ -47,7 +49,8 @@ def dqn(
                      target_update_frequency=target_update_frequency)
         policy = GreedyPolicy(q, annealing_time=annealing_time,
                               initial_epsilon=initial_epsilon, final_epsilon=final_epsilon)
-        return DQN(q, policy)
+        replay_buffer = ReplayBuffer(buffer_size)
+        return DQN(q, policy, replay_buffer)
     return _dqn
 
 __all__ = ["dqn", "conv_net", "big_conv_net"]
