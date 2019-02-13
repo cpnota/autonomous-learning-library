@@ -44,8 +44,7 @@ class DQN(Agent):
     def store_transition(self):
         self.frames_seen += 1
         next_state = self.env.state if not self.env.done else None
-        self.replay_buffer.store(
-            self.state, self.action, next_state, self.env.reward)
+        self.replay_buffer.store(self.state, self.action, next_state, self.env.reward)
 
     def should_train(self):
         return (self.frames_seen > self.prefetch_size
