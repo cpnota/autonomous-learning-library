@@ -28,7 +28,7 @@ class GreedyPolicy(Policy):
 
     def anneal(self):
         self.executions += 1
-        if (self.executions > self.annealing_time):
+        if self.executions > self.annealing_time:
             self.epsilon = self.final_epsilon
         else:
             self.epsilon -= self.annealing_rate

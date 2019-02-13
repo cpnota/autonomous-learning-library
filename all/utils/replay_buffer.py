@@ -31,8 +31,7 @@ class ReplayBuffer:
     def __len__(self):
         if self.end < self.start:
             return self.end + len(self.data) - self.start
-        else:
-            return self.end - self.start
+        return self.end - self.start
 
     def __iter__(self):
         for i in range(len(self)):

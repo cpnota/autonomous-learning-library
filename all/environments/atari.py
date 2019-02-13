@@ -40,9 +40,9 @@ class AtariEnvironment(Environment):
         self._info = info
         self._should_reset = done
 
-        if (self.episodic_lives):
+        if self.episodic_lives:
             lives = self.env.unwrapped.ale.lives()
-            if lives < self._lives and lives > 0:
+            if 0 < lives < self._lives:
                 self._done = True
             self._lives = lives
 

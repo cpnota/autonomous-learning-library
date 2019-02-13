@@ -38,7 +38,7 @@ def run_experiment(experiment):
 def check_results(results):
     np.testing.assert_equal(
         results["data"]["sarsa"],
-        np.array([[22., 15., 41.], [21.,  9., 21.]])
+        np.array([[22., 15., 41.], [21., 9., 21.]])
     )
     np.testing.assert_equal(
         results["data"]["actor_critic"],

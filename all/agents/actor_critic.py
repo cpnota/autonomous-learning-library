@@ -2,7 +2,7 @@ from .abstract import Agent
 
 
 class ActorCritic(Agent):
-    def __init__(self, v, policy, gamma = 1):
+    def __init__(self, v, policy, gamma=1):
         self.v = v
         self.policy = policy
         self.gamma = gamma

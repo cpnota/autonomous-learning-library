@@ -1,6 +1,6 @@
 import json
-import numpy as np
 from timeit import default_timer as timer
+import numpy as np
 import matplotlib.pyplot as plt
 from all.environments import GymEnvironment
 from .plots import learning_curve
@@ -83,7 +83,7 @@ def run_episode(agent, env, render=False):
     returns = 0
     frames = 0
     while not env.should_reset:
-        if (env.done):
+        if env.done:
             agent.new_episode(env)
         if render:
             env.render()

@@ -7,7 +7,7 @@ class PongEnvironment(Environment):
     """
     An easier to learn version of the Atari Pong environment.
 
-    The agent is sent a done signal at the end of each volley. 
+    The agent is sent a done signal at the end of each volley.
     This makes the value function much easier to learn.
     In the ALE version, the agent has to choose from 6 action,
     where each of the 3 "real" actions is duplicated once.

@@ -14,7 +14,6 @@ setup(
         "pylint",
         "matplotlib",
         "torch",
-        "torchvision",
-        "opencv-python"
+        "torchvision"
     ],
 )
