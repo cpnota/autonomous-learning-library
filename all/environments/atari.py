@@ -5,7 +5,7 @@ from .abstract import Environment
 
 # pylint: disable=too-many-instance-attributes
 class AtariEnvironment(Environment):
-    def __init__(self, env):
+    def __init__(self, env, episodic_lives=True):
         if isinstance(env, str):
             self._env = gym.make(env + 'Deterministic-v4')
         else:
@@ -16,12 +16,19 @@ class AtariEnvironment(Environment):
         self._reward = None
         self._done = None
         self._info = None
+        self._should_reset = None
+
+        # for episodic life
+        self.episodic_lives = episodic_lives
+        self._lives = None
 
     def reset(self):
         state = self._env.reset()
         self._state = torch.cat([self.process(state)] * 4).unsqueeze(0)
         self._done = False
         self._reward = 0
+        self._should_reset = False
+        self._lives = self._env.unwrapped.ale.lives()
         return self._state
 
     def step(self, action):
@@ -31,6 +38,14 @@ class AtariEnvironment(Environment):
         self._reward = reward
         self._done = done
         self._info = info
+        self._should_reset = done
+
+        if (self.episodic_lives):
+            lives = self.env.unwrapped.ale.lives()
+            if lives < self._lives and lives > 0:
+                self._done = True
+            self._lives = lives
+
         return self._state, self._reward, self._done, self._info
 
     def render(self):
@@ -80,6 +95,10 @@ class AtariEnvironment(Environment):
     @property
     def info(self):
         return self._info
+
+    @property
+    def should_reset(self):
+        return self._should_reset
 
     @property
     def env(self):
