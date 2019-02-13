@@ -5,11 +5,12 @@ from torch.nn.functional import smooth_l1_loss
 from .q_function import QFunction
 
 class QTabular(QFunction):
-    def __init__(self, model, optimizer=None, target_update_frequency=None):
+    def __init__(self, model, optimizer=None, loss=smooth_l1_loss, target_update_frequency=None):
         self.model = model
         self.optimizer = (optimizer
                           if optimizer is not None
                           else optim.Adam(model.parameters()))
+        self.loss = loss
         self.cache = None
         self.updates = 0
         self.target_update_frequency = target_update_frequency
@@ -30,7 +31,7 @@ class QTabular(QFunction):
 
     def reinforce(self, td_errors):
         targets = td_errors + self.cache.detach()
-        loss = smooth_l1_loss(self.cache, targets)
+        loss = self.loss(self.cache, targets)
         loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()

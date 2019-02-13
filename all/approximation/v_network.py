@@ -4,11 +4,12 @@ from torch.nn.functional import smooth_l1_loss
 from .v_function import ValueFunction
 
 class ValueNetwork(ValueFunction):
-    def __init__(self, model, optimizer=None):
+    def __init__(self, model, optimizer=None, loss=smooth_l1_loss):
         self.model = model
         self.optimizer = (optimizer
                           if optimizer is not None
                           else optim.Adam(model.parameters()))
+        self.loss = loss
         self.cache = None
 
     def __call__(self, states):
@@ -22,7 +23,7 @@ class ValueNetwork(ValueFunction):
 
     def reinforce(self, td_errors):
         targets = td_errors + self.cache.detach()
-        loss = smooth_l1_loss(self.cache, targets)
+        loss = self.loss(self.cache, targets)
         loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()
