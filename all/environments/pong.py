@@ -3,8 +3,17 @@ import numpy as np
 import torch
 from .abstract import Environment
 
-# Easy version of pong.
 class PongEnvironment(Environment):
+    """
+    An easier to learn version of the Atari Pong environment.
+
+    The agent is sent a done signal at the end of each volley. 
+    This makes the value function much easier to learn.
+    In the ALE version, the agent has to choose from 6 action,
+    where each of the 3 "real" actions is duplicated once.
+    In this version, the agent must choose from
+    only the three underlying action (UP, DOWN, NOOP).
+    """
     def __init__(self):
         self._env = gym.make('PongDeterministic-v4')
         self._state = None
