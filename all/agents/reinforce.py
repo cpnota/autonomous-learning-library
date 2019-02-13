@@ -36,7 +36,6 @@ class REINFORCE(Agent):
         ordered = torch.flip(rewards, dims=(0,))
         returns = torch.flip(torch.cumsum(ordered, dim=0), dims=(0,))
         advantages = returns - values
-        print('debug', values[0], values[-1], self.policy.eval(self.states[0]), self.policy.eval(self.states[-1]))
 
-        self.v.train(returns)
+        self.v.reinforce(advantages)
         self.policy.reinforce(advantages)

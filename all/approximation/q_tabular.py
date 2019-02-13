@@ -28,7 +28,8 @@ class QTabular(QFunction):
         with torch.no_grad():
             return self._eval(states, actions, self.target_model)
 
-    def train(self, targets):
+    def reinforce(self, td_errors):
+        targets = td_errors + self.cache.detach()
         loss = smooth_l1_loss(self.cache, targets)
         loss.backward()
         self.optimizer.step()

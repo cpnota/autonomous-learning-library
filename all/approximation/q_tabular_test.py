@@ -72,7 +72,7 @@ class TestTabular(unittest.TestCase):
         q.reinforce(errors)
         policy_value = q(inputs).item()
         target_value = q.eval(inputs).item()
-        np.testing.assert_equal(policy_value, -0.8085842132568359)
+        np.testing.assert_equal(policy_value, -0.8085841536521912)
         np.testing.assert_equal(target_value, -0.6085841655731201)
 
 if __name__ == '__main__':

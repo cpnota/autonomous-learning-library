@@ -29,7 +29,9 @@ class Sarsa(Agent):
         self.action = self.next_action
 
     def update(self):
-        td_error = (self.env.reward
-                    + self.gamma * self.q.eval(self.next_state, self.next_action)
-                    - self.q(self.state, self.action))
+        td_error = (
+            self.env.reward
+            + self.gamma * self.q.eval(self.next_state, self.next_action)
+            - self.q(self.state, self.action)
+        )
         self.q.reinforce(td_error)
