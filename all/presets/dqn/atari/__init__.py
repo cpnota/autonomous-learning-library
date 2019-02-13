@@ -6,8 +6,7 @@ from all.approximation import QTabular
 from all.agents import DQN
 from all.policies import GreedyPolicy
 
-
-def fast_conv_net(env, frames=4):
+def conv_net(env, frames=4):
     return nn.Sequential(
         nn.Conv2d(frames, 16, 8, stride=4),
         nn.ReLU(),
@@ -19,7 +18,7 @@ def fast_conv_net(env, frames=4):
         nn.Linear(256, env.action_space.n)
     )
 
-def conv_net(env, frames=4):
+def big_conv_net(env, frames=4):
     return nn.Sequential(
         nn.Conv2d(frames, 32, kernel_size=8, stride=4),
         nn.ReLU(),
@@ -51,4 +50,4 @@ def dqn(
         return DQN(q, policy)
     return _dqn
 
-__all__ = ["dqn"]
+__all__ = ["dqn", "conv_net", "big_conv_net"]

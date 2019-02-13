@@ -82,7 +82,9 @@ def run_episode(agent, env, render=False):
     agent.new_episode(env)
     returns = 0
     frames = 0
-    while not env.done:
+    while not env.should_reset:
+        if (env.done):
+            agent.new_episode(env)
         if render:
             env.render()
         agent.act()

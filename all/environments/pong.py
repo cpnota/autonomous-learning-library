@@ -12,26 +12,29 @@ class PongEnvironment(Environment):
         self._reward = None
         self._done = None
         self._info = None
+        self._should_reset = None
 
     def reset(self):
         state = self._env.reset()
         self._state = torch.cat([self.process(state)] * 4).unsqueeze(0)
-        self._done = False
         self._reward = 0
+        self._done = False
+        self._should_reset = False
         return self._state
 
     def step(self, action):
-        frame, reward, done, info = self._env.step(self.map_action(action))
+        frame, reward, should_reset, info = self._env.step(self.map_action(action))
 
-        # end on every score, to make game much easier
-        if reward != 0:
-            done = True
-
-        self._state = self.update_state(frame) if not done else None
+        # Tell the agent to treat
+        # every volley as a new episode.
+        # Can greatly speed learning.
+        done = reward != 0
+        self._state = self.update_state(frame)
         self._action = action
         self._reward = reward
         self._done = done
         self._info = info
+        self._should_reset = should_reset
         return self._state, self._reward, self._done, self._info
 
     def render(self):
@@ -94,6 +97,10 @@ class PongEnvironment(Environment):
     @property
     def info(self):
         return self._info
+
+    @property
+    def should_reset(self):
+        return self._should_reset
 
     @property
     def env(self):
