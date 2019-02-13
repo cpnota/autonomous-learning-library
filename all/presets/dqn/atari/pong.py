@@ -4,7 +4,7 @@ from all.presets.dqn import dqn
 
 def run():
     env = PongEnvironment()
-    experiment = Experiment(env, episodes=20000, trials=1)
+    experiment = Experiment(env, episodes=2000, trials=1)
     experiment.run(
         dqn(),
         plot_every=50,
