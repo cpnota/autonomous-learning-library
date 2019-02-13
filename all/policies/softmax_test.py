@@ -12,8 +12,7 @@ class TestSoftmax(unittest.TestCase):
         self.model = nn.Sequential(
             nn.Linear(STATE_DIM, ACTIONS)
         )
-        def optimizer(params):
-            return torch.optim.SGD(params, lr=0.1)
+        optimizer = torch.optim.SGD(self.model.parameters(), lr=0.1)
         self.policy = SoftmaxPolicy(self.model, optimizer)
 
     def test_run(self):

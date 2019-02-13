@@ -1,11 +1,11 @@
-from .abstract import Approximation
-from .action_value import ActionValue, TabularActionValue
-from .state_value import StateValue, ContinuousStateValue
+from .q_function import QFunction
+from .q_tabular import QTabular
+from .v_function import ValueFunction
+from .v_network import ValueNetwork
 
 __all__ = [
-    "Approximation",
-    "ActionValue",
-    "TabularActionValue",
-    "StateValue",
-    "ContinuousStateValue"
+    "QFunction",
+    "QTabular",
+    "ValueFunction",
+    "ValueNetwork"
 ]

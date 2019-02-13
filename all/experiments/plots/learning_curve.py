@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def learning_curve(results, filename=None):
+def learning_curve(results, frequency=1, filename=None):
     env = results["env"]
     data = results["data"]
 
@@ -11,6 +11,9 @@ def learning_curve(results, filename=None):
         _, episodes = result.shape
         x = np.arange(1, episodes + 1)
         y = np.mean(result, axis=0)
+        if episodes >= 1000:
+            x = np.mean(x.reshape(-1, frequency), axis=1)
+            y = np.mean(y.reshape(-1, frequency), axis=1)
         plt.plot(x, y, label=agent_name)
         plt.xlabel("episode")
         plt.ylabel("returns")

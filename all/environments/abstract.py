@@ -126,3 +126,15 @@ class Environment(ABC):
         Debugging info for the current time step.
         """
         return None
+
+    @property
+    def should_reset(self):
+        """
+        Special property to determine whether the runner should call reset.
+        Related to done, except in some environments, it helps to distinguish
+        between what the algorithm considers an episode, and what the runner
+        considers an episode. For example, in Pong, it is easier if the agent
+        treats a single volley as an episode. However, we would still like to
+        evaluate the agent relative to the entire match.
+        """
+        return self.done

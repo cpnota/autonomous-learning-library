@@ -1,4 +1,6 @@
 from .abstract import Environment
-from .gym_wrapper import GymWrapper
+from .gym import GymEnvironment
+from .atari import AtariEnvironment
+from .pong import PongEnvironment
 
-__all__ = ["Environment", "GymWrapper"]
+__all__ = ["Environment", "GymEnvironment", "AtariEnvironment", "PongEnvironment"]

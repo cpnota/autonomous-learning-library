@@ -5,19 +5,25 @@ from .abstract import Policy
 
 
 class SoftmaxPolicy(Policy):
-    def __init__(self, model, optimizer=optim.Adam):
+    def __init__(self, model, optimizer=None):
         self.model = model
-        self.optimizer = optimizer(self.model.parameters())
+        self.optimizer = (optimizer
+                          if optimizer is not None
+                          else optim.Adam(model.parameters()))
         self._cache = torch.tensor([])
 
     def __call__(self, state, action=None, prob=None):
-        scores = self.model(state)
+        scores = self.model(state.float())
         probs = functional.softmax(scores, dim=-1)
         distribution = torch.distributions.Categorical(probs)
         action = distribution.sample()
         self.cache(-distribution.log_prob(action))
         return action
 
+    def eval(self, state):
+        with torch.no_grad():
+            scores = self.model(state.float())
+            return functional.softmax(scores, dim=-1)
 
     def reinforce(self, errors):
         loss = self._cache.dot(errors)
