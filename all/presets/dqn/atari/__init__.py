@@ -7,17 +7,17 @@ from all.agents import DQN
 from all.policies import GreedyPolicy
 
 
-# def conv_net(env, frames=4):
-#     return nn.Sequential(
-#         nn.Conv2d(frames, 16, 8, stride=4),
-#         nn.ReLU(),
-#         nn.Conv2d(16, 32, 4, stride=2),
-#         nn.ReLU(),
-#         Flatten(),
-#         nn.Linear(2816, 256),
-#         nn.ReLU(),
-#         nn.Linear(256, env.action_space.n)
-#     )
+def fast_conv_net(env, frames=4):
+    return nn.Sequential(
+        nn.Conv2d(frames, 16, 8, stride=4),
+        nn.ReLU(),
+        nn.Conv2d(16, 32, 4, stride=2),
+        nn.ReLU(),
+        Flatten(),
+        nn.Linear(2816, 256),
+        nn.ReLU(),
+        nn.Linear(256, env.action_space.n)
+    )
 
 def conv_net(env, frames=4):
     return nn.Sequential(
@@ -33,16 +33,16 @@ def conv_net(env, frames=4):
         nn.Linear(512, env.action_space.n)
     )
 
-
 def dqn(
         lr=1e-5,
         target_update_frequency=1000,
         annealing_time=100000,
         initial_epsilon=1.00,
         final_epsilon=0.02,
+        build_model=conv_net
         ):
     def _dqn(env):
-        model = conv_net(env)
+        model = build_model(env)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QTabular(model, optimizer,
                      target_update_frequency=target_update_frequency)
@@ -50,6 +50,5 @@ def dqn(
                               initial_epsilon=initial_epsilon, final_epsilon=final_epsilon)
         return DQN(q, policy)
     return _dqn
-
 
 __all__ = ["dqn"]
