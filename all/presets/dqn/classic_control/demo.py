@@ -9,7 +9,7 @@ def run():
         print_every=1,
         render=True
     )
-    experiment.plot(filename="dqn_cartpole")
+    experiment.plot(filename="dqn_cartpole", frequency=50)
 
 if __name__ == '__main__':
     run()

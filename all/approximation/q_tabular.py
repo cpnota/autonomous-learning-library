@@ -22,7 +22,8 @@ class QTabular(QFunction):
 
     def __call__(self, states, actions=None):
         result = self._eval(states, actions, self.model)
-        self.cache = result
+        if result.requires_grad:
+            self.cache = result
         return result.detach()
 
     def eval(self, states, actions=None):
