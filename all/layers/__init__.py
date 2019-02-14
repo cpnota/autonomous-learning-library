@@ -12,7 +12,7 @@ class Aggregation(nn.Module):
     advantage so that we can propertly 
     '''
     def forward(self, value, advantages):
-        return value + advantages - torch.mean(advantages, dim=1)
+        return value + advantages - torch.mean(advantages, dim=1, keepdim=True)
 
 class Dueling(nn.Module):
     '''
@@ -30,7 +30,7 @@ class Dueling(nn.Module):
         self.aggregation = Aggregation()
 
     def forward(self, features):
-        value = self.value_net(features)
+        value = self.value_model(features)
         advantages = self.advantage_model(features)
         return self.aggregation(value, advantages)
 
