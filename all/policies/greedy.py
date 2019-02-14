@@ -13,7 +13,8 @@ class GreedyPolicy(Policy):
 
     def __call__(self, state, action=None, prob=False):
         self.anneal()
-        action_scores = self.q.eval(state).squeeze(0)
+        with torch.no_grad():
+            action_scores = self.q(state).squeeze(0)
         if np.random.rand() < self.epsilon:
             return torch.tensor(np.random.randint(action_scores.shape[0]))
 
