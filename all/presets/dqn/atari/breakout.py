@@ -11,8 +11,8 @@ def run():
         print_every=1,
         render=True
     )
-    experiment.plot(filename="dqn-breakout.png", frequency=100)
-    experiment.save("dqn_breakout")
+    experiment.plot(filename="dqn-breakout-dueling.png", frequency=100)
+    experiment.save("dqn_breakout-dueling")
 
 
 if __name__ == '__main__':
