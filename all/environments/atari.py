@@ -44,8 +44,6 @@ class AtariEnvironment(Environment):
             lives = self.env.unwrapped.ale.lives()
             if 0 < lives < self._lives:
                 self._done = True
-            if lives < self._lives:
-                self._reward = -1
             self._lives = lives
 
         return self._state, self._reward, self._done, self._info
