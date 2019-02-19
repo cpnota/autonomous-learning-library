@@ -55,12 +55,12 @@ def big_conv_net(env, frames=4):
     )
 
 def dqn(
-        lr=1e-4,
+        lr=2e-5,
         target_update_frequency=1000,
         annealing_time=250000,
         initial_epsilon=1.00,
-        final_epsilon=0.1,
-        buffer_size=1000000,
+        final_epsilon=0.02,
+        buffer_size=200000,
         build_model=dueling_conv_net
         ):
     def _dqn(env):
