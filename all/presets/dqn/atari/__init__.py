@@ -87,7 +87,7 @@ def dqn(
         initial_exploration=1.00,
         final_exploration=0.1,
         final_exploration_frame=250000, # originally 1e6
-        replay_start_size=5000,
+        replay_start_size=50000,
         build_model=dueling_conv_net
         ):
     def _dqn(env):
