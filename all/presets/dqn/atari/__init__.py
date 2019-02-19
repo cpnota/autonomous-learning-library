@@ -53,7 +53,7 @@ def dueling_conv_net(env, frames=4):
             nn.Sequential(
                 nn.Linear(3456, 512),
                 nn.ReLU(),
-                nn.Linear(256, 1)
+                nn.Linear(512, 1)
             ),
             nn.Sequential(
                 nn.Linear(3456, 512),
