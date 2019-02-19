@@ -9,7 +9,7 @@ class Aggregation(nn.Module):
     This layer computes a Q function by combining
     an estimate of V with an estimate of the advantage.
     The advantage is normalized by substracting the average
-    advantage so that we can propertly 
+    advantage so that we can propertly
     '''
     def forward(self, value, advantages):
         return value + advantages - torch.mean(advantages, dim=1, keepdim=True)
