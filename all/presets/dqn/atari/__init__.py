@@ -51,14 +51,14 @@ def dueling_conv_net(env, frames=4):
         Flatten(),
         Dueling(
             nn.Sequential(
-                nn.Linear(3456, 256),
+                nn.Linear(3456, 512),
                 nn.ReLU(),
                 nn.Linear(256, 1)
             ),
             nn.Sequential(
-                nn.Linear(3456, 256),
+                nn.Linear(3456, 512),
                 nn.ReLU(),
-                nn.Linear(256, env.action_space.n)
+                nn.Linear(512, env.action_space.n)
             ),
         )
     )
