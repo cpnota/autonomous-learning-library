@@ -63,20 +63,6 @@ def dueling_conv_net(env, frames=4):
         )
     )
 
-def big_conv_net(env, frames=4):
-    return nn.Sequential(
-        nn.Conv2d(frames, 32, kernel_size=8, stride=4),
-        nn.ReLU(),
-        nn.Conv2d(32, 64, kernel_size=4, stride=2),
-        nn.ReLU(),
-        nn.Conv2d(64, 64, kernel_size=3, stride=1),
-        nn.ReLU(),
-        Flatten(),
-        nn.Linear(3456, 512),
-        nn.ReLU(),
-        nn.Linear(512, env.action_space.n)
-    )
-
 def dqn(
         minibatch_size=32,
         replay_buffer_size=250000, # originally 1e6
