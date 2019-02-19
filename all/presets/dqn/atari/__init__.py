@@ -96,4 +96,4 @@ def dqn(
                   )
     return _dqn
 
-__all__ = ["dqn", "conv_net", "big_conv_net"]
+__all__ = ["dqn", "conv_net", "dueling_conv_net"]
