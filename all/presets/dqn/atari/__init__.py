@@ -7,37 +7,60 @@ from all.agents import DQN
 from all.policies import GreedyPolicy
 from all.utils import ReplayBuffer
 
+# From the original deep mind paper (https://www.nature.com/articles/nature14236):
+#
+# "The exact architecture, shown schematically in Fig. 1, is as follows. The input to
+# the neural network consists of an 843 843 4 image produced by the preprocessing map w. 
+#
+# The first hidden layer convolves 32 filters of 8 3 8 with stride 4 with the
+# input image and applies a rectifier nonlinearity 31,32. 
+#
+# The second hidden layer convolves 64 filters of 4 3 4 with stride 2, 
+# again followed by a rectifier nonlinearity.
+#
+# This is followed by a third convolutional layer that convolves 64filters of 3 3 3 with
+# stride 1 followed by a rectifier. 
+#
+# The final hidden layer is fully-connected and consists of 512 rectifier units. 
+#
+# The output layer is a fully-connected linear layer with a single output for each valid action.
+def conv_net(env, frames=4):
+    return nn.Sequential(
+        nn.Conv2d(frames, 32, 8, stride=4),
+        nn.ReLU(),
+        nn.Conv2d(32, 32, 4, stride=2),
+        nn.ReLU(),
+        nn.Conv2d(32, 64, 3, stride=1),
+        nn.ReLU(),
+        Flatten(),
+        nn.Linear(3456, 512),
+        nn.ReLU(),
+        nn.Linear(512, env.action_space.n)
+    )
+
+# "Dueling" architecture modification.
+# https://arxiv.org/abs/1511.06581
 def dueling_conv_net(env, frames=4):
     return nn.Sequential(
-        nn.Conv2d(frames, 16, 8, stride=4),
+        nn.Conv2d(frames, 32, 8, stride=4),
         nn.ReLU(),
-        nn.Conv2d(16, 32, 4, stride=2),
+        nn.Conv2d(32, 32, 4, stride=2),
+        nn.ReLU(),
+        nn.Conv2d(32, 64, 3, stride=1),
         nn.ReLU(),
         Flatten(),
         Dueling(
             nn.Sequential(
-                nn.Linear(2816, 256),
+                nn.Linear(3456, 256),
                 nn.ReLU(),
                 nn.Linear(256, 1)
             ),
             nn.Sequential(
-                nn.Linear(2816, 256),
+                nn.Linear(3456, 256),
                 nn.ReLU(),
                 nn.Linear(256, env.action_space.n)
             ),
         )
-    )
-
-def conv_net(env, frames=4):
-    return nn.Sequential(
-        nn.Conv2d(frames, 16, 8, stride=4),
-        nn.ReLU(),
-        nn.Conv2d(16, 32, 4, stride=2),
-        nn.ReLU(),
-        Flatten(),
-        nn.Linear(2816, 256),
-        nn.ReLU(),
-        nn.Linear(256, env.action_space.n)
     )
 
 def big_conv_net(env, frames=4):
@@ -55,7 +78,7 @@ def big_conv_net(env, frames=4):
     )
 
 def dqn(
-        lr=2e-5,
+        lr=1e-4,
         target_update_frequency=1000,
         annealing_time=250000,
         initial_epsilon=1.00,
