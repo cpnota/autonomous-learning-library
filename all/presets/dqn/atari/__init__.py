@@ -78,23 +78,36 @@ def big_conv_net(env, frames=4):
     )
 
 def dqn(
+        minibatch_size=32,
+        replay_buffer_size=250000, # originally 1e6
+        target_update_frequency=10000,
+        discount_factor=0.99,
+        update_frequency=4,
         lr=1e-4,
-        target_update_frequency=1000,
-        annealing_time=250000,
-        initial_epsilon=1.00,
-        final_epsilon=0.02,
-        buffer_size=200000,
+        initial_exploration=1.00,
+        final_exploration=0.1,
+        final_exploration_frame=250000, # originally 1e6
+        replay_start_size=5000,
         build_model=dueling_conv_net
         ):
     def _dqn(env):
         model = build_model(env)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QTabular(model, optimizer,
-                     target_update_frequency=target_update_frequency)
-        policy = GreedyPolicy(q, annealing_time=annealing_time,
-                              initial_epsilon=initial_epsilon, final_epsilon=final_epsilon)
-        replay_buffer = ReplayBuffer(buffer_size)
-        return DQN(q, policy, replay_buffer)
+                     target_update_frequency=target_update_frequency
+                    )
+        policy = GreedyPolicy(q,
+                              annealing_time=final_exploration_frame,
+                              initial_epsilon=initial_exploration,
+                              final_epsilon=final_exploration
+                             )
+        replay_buffer = ReplayBuffer(replay_buffer_size)
+        return DQN(q, policy, replay_buffer,
+                   discount_factor=discount_factor,
+                   minibatch_size=minibatch_size,
+                   replay_start_size=replay_start_size,
+                   update_frequency=update_frequency,
+                  )
     return _dqn
 
 __all__ = ["dqn", "conv_net", "big_conv_net"]

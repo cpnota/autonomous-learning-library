@@ -7,9 +7,9 @@ class DQN(Agent):
                  q,
                  policy,
                  replay_buffer,
+                 discount_factor=0.99,
                  minibatch_size=32,
-                 gamma=0.99,
-                 prefetch_size=5000,
+                 replay_start_size=5000,
                  update_frequency=1
                  ):
         # objects
@@ -17,10 +17,10 @@ class DQN(Agent):
         self.policy = policy
         self.replay_buffer = replay_buffer
         # hyperparameters
-        self.prefetch_size = prefetch_size
+        self.replay_start_size = replay_start_size
         self.update_frequency = update_frequency
         self.minibatch_size = minibatch_size
-        self.gamma = gamma
+        self.discount_factor = discount_factor
         # data
         self.frames_seen = 0
         self.env = None
@@ -47,14 +47,14 @@ class DQN(Agent):
         self.replay_buffer.store(self.state, self.action, next_state, self.env.reward)
 
     def should_train(self):
-        return (self.frames_seen > self.prefetch_size
+        return (self.frames_seen > self.replay_start_size
                 and self.frames_seen % self.update_frequency == 0)
 
     def train(self):
         (states, actions, next_states, rewards) = self.replay_buffer.sample(self.minibatch_size)
         td_error = (
             rewards
-            + self.gamma * torch.max(self.q.eval(next_states), dim=1)[0]
+            + self.discount_factor * torch.max(self.q.eval(next_states), dim=1)[0]
             - self.q(states, actions)
         )
         self.q.reinforce(td_error)
