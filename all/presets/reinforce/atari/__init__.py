@@ -4,30 +4,44 @@ from all.agents import REINFORCE
 from all.approximation import ValueNetwork
 from all.policies import SoftmaxPolicy
 
-
-def conv_net(outputs):
+def conv_features():
     return nn.Sequential(
-        nn.Conv2d(4, 16, 8, stride=4),
+        nn.Conv2d(4, 32, 8, stride=4),
         nn.ReLU(),
-        nn.Conv2d(16, 32, 4, stride=2),
+        nn.Conv2d(32, 32, 4, stride=2),
         nn.ReLU(),
-        Flatten(),
-        nn.Linear(2816, 256),
+        nn.Conv2d(32, 64, 3, stride=1),
         nn.ReLU(),
-        nn.Linear(256, outputs)
+        Flatten()
     )
 
+def value_net(features):
+    return nn.Sequential(
+        features,
+        nn.Linear(3456, 512),
+        nn.ReLU(),
+        nn.Linear(512, 1)
+    )
+
+def policy_net(env, features):
+    return nn.Sequential(
+        features,
+        nn.Linear(3456, 512),
+        nn.ReLU(),
+        nn.Linear(512, env.action_space.n)
+    )
 
 def reinforce_atari(
-        lr_v=1e-7,
-        lr_pi=3e-7
+        lr_v=1e-5,
+        lr_pi=1e-5
         ):
     def _reinforce_atari(env):
-        value_model = conv_net(1)
+        features = conv_features()
+        value_model = value_net(features)
+        policy_model = policy_net(env, features)
         value_optimizer = optim.Adam(value_model.parameters(), lr=lr_v)
-        v = ValueNetwork(value_model, value_optimizer)
-        policy_model = conv_net(env.action_space.n)
         policy_optimizer = optim.Adam(policy_model.parameters(), lr=lr_pi)
+        v = ValueNetwork(value_model, value_optimizer)
         policy = SoftmaxPolicy(policy_model, policy_optimizer)
 
         def weights_init(layer):
