@@ -32,8 +32,8 @@ def policy_net(env, features):
     )
 
 def reinforce_atari(
-        lr_v=1e-5,
-        lr_pi=1e-5
+        lr_v=1e-6,
+        lr_pi=1e-6
         ):
     def _reinforce_atari(env):
         features = conv_features()
