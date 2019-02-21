@@ -35,7 +35,7 @@ class AtariEnvironment(Environment):
         frame, reward, done, info = self._env.step(action.item())
         self._state = self.update_state(frame) if not done else None
         self._action = action
-        self._reward = reward
+        self._reward = np.sign(reward)
         self._done = done
         self._info = info
         self._should_reset = done
