@@ -3,7 +3,7 @@ from all.environments import AtariEnvironment
 from all.presets.reinforce import reinforce_atari
 
 def run():
-    env = AtariEnvironment('Breakout')
+    env = AtariEnvironment('Breakout', episodic_lives=False)
     experiment = Experiment(env, episodes=100000, trials=1)
     experiment.run(
         reinforce_atari(),
