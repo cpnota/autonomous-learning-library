@@ -8,7 +8,10 @@ def run():
     env = PongEnvironment()
     experiment = Experiment(env, episodes=100000, trials=1)
     experiment.run(
-        reinforce_atari(),
+        reinforce_atari(
+            lr_pi=1e-5,
+            lr_v=1e-5
+        ),
         plot_every=1000,
         print_every=1,
         render=True
