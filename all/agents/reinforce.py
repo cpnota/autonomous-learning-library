@@ -2,8 +2,6 @@ import torch
 from .abstract import Agent
 
 # pylint: disable=W0201
-
-
 class REINFORCE(Agent):
     def __init__(self, v, policy):
         self.v = v

@@ -22,7 +22,7 @@ def dqn_cc(
         lr=2e-4,
         target_update_frequency=1000,
         annealing_time=10000,
-        prefetch_size=32 * 8,
+        replay_start_size=32 * 8,
         minibatch_size=64,
         update_frequency=1,
         replay_buffer_size=20000
@@ -36,7 +36,7 @@ def dqn_cc(
         policy = GreedyPolicy(q, annealing_time=annealing_time)
         replay_buffer = ReplayBuffer(replay_buffer_size)
         return DQN(q, policy, replay_buffer,
-                   prefetch_size=prefetch_size,
+                   replay_start_size=replay_start_size,
                    update_frequency=update_frequency,
                    minibatch_size=minibatch_size)
     return _dqn_cc
