@@ -1,5 +1,4 @@
 import torch
-import numpy as np
 from .abstract import Agent
 
 
@@ -45,7 +44,7 @@ class DQN(Agent):
     def store_transition(self):
         self.frames_seen += 1
         next_state = self.env.state if not self.env.done else None
-        self.replay_buffer.store(self.state, self.action, next_state, np.sign(self.env.reward))
+        self.replay_buffer.store(self.state, self.action, next_state, self.env.reward)
 
     def should_train(self):
         return (self.frames_seen > self.replay_start_size

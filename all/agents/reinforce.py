@@ -1,10 +1,7 @@
 import torch
-import numpy as np
 from .abstract import Agent
 
 # pylint: disable=W0201
-
-
 class REINFORCE(Agent):
     def __init__(self, v, policy):
         self.v = v
@@ -24,7 +21,7 @@ class REINFORCE(Agent):
         self.env.step(action)
 
         self.states.append(state)
-        self.rewards.append(np.sign(self.env.reward))
+        self.rewards.append(self.env.reward)
 
         if self.env.done:
             self.update()

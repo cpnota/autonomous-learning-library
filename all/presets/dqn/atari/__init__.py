@@ -10,18 +10,18 @@ from all.utils import ReplayBuffer
 # From the original deep mind paper (https://www.nature.com/articles/nature14236):
 #
 # "The exact architecture, shown schematically in Fig. 1, is as follows. The input to
-# the neural network consists of an 843 843 4 image produced by the preprocessing map w. 
+# the neural network consists of an 843 843 4 image produced by the preprocessing map w.
 #
 # The first hidden layer convolves 32 filters of 8 3 8 with stride 4 with the
-# input image and applies a rectifier nonlinearity 31,32. 
+# input image and applies a rectifier nonlinearity 31,32.
 #
-# The second hidden layer convolves 64 filters of 4 3 4 with stride 2, 
+# The second hidden layer convolves 64 filters of 4 3 4 with stride 2,
 # again followed by a rectifier nonlinearity.
 #
 # This is followed by a third convolutional layer that convolves 64filters of 3 3 3 with
-# stride 1 followed by a rectifier. 
+# stride 1 followed by a rectifier.
 #
-# The final hidden layer is fully-connected and consists of 512 rectifier units. 
+# The final hidden layer is fully-connected and consists of 512 rectifier units.
 #
 # The output layer is a fully-connected linear layer with a single output for each valid action.
 def conv_net(env, frames=4):
