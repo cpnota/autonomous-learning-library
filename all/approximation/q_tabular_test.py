@@ -1,12 +1,12 @@
 import unittest
 import torch
 from torch import nn
+from torch.nn.functional import smooth_l1_loss
 import numpy as np
 from all.approximation.q_tabular import QTabular
 
 STATE_DIM = 2
 ACTIONS = 3
-
 
 class TestTabular(unittest.TestCase):
     def setUp(self):
@@ -42,7 +42,7 @@ class TestTabular(unittest.TestCase):
             nn.Linear(1, 1)
         )
         optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
-        q = QTabular(model, optimizer, target_update_frequency=3)
+        q = QTabular(model, optimizer, loss=smooth_l1_loss, target_update_frequency=3)
         inputs = torch.tensor([1.])
         errors = torch.tensor([-1.])
 
