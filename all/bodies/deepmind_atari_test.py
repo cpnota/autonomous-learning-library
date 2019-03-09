@@ -49,7 +49,8 @@ class DeepmindAtariBodyTest(unittest.TestCase):
         self.env.reset()
         self.env.step(self.body.initial(self.env.state))
         for _ in range(10):
-            action = self.body.act(self.env.state, -1)
+            reward = -5 # should be clipped
+            action = self.body.act(self.env.state, reward)
             self.env.step(action)
         tt.assert_equal(action, torch.tensor([0]))
         self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
@@ -59,8 +60,8 @@ class DeepmindAtariBodyTest(unittest.TestCase):
         self.env.reset()
         self.env.step(self.body.initial(self.env.state))
         for _ in range(12):
-            # custom rewards
-            action = self.body.act(self.env.state, -1)
+            reward = -5 # should be clipped
+            action = self.body.act(self.env.state, reward)
             self.env.step(action)
         self.body.terminal(-1)
         tt.assert_equal(action, torch.tensor([0]))
