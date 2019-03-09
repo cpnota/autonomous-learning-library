@@ -1,6 +1,5 @@
 from .abstract import Agent
 
-
 class ActorCritic(Agent):
     def __init__(self, v, policy, gamma=1):
         self.v = v
@@ -11,9 +10,9 @@ class ActorCritic(Agent):
         self.action = None
         self.next_state = None
 
-    def new_episode(self, env):
-        self.env = env
-        self.next_state = self.env.state
+    def new_episode(self, state):
+        self.state = state
+        return self.policy(self.state)
 
     def act(self):
         self.state = self.next_state

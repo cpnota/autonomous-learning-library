@@ -12,7 +12,7 @@ class Agent(ABC):
     """
 
     @abstractmethod
-    def initial(self, state, info={}):
+    def initial(self, state, info=None):
         """
         Choose an action in the initial state of a new episode.
 
@@ -32,7 +32,7 @@ class Agent(ABC):
         """
 
     @abstractmethod
-    def act(self, state, reward, info={})
+    def act(self, state, reward, info=None):
         """
         Select an action for the current timestep and update internal parameters.
 
@@ -56,7 +56,7 @@ class Agent(ABC):
         """
 
     @abstractmethod
-    def terminal(self, reward, info={})
+    def terminal(self, reward, info=None):
         """
         Accept the final reward of the episode and perform final updates.
 
