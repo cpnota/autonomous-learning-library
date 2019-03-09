@@ -12,26 +12,23 @@ class Sarsa(Agent):
         self.next_state = None
         self.next_action = None
 
-    def new_episode(self, env):
-        self.env = env
-        self.state = self.env.state
+    def initial(self, state, info=None):
+        self.state = state
         self.action = self.policy(self.state)
+        return self.action
 
-    def act(self):
-        self.env.step(self.action)
-        self.next_state = self.env.state
-        self.next_action = (
-            None if self.env.done
-            else self.policy(self.next_state)
-        )
-        self.update()
-        self.state = self.next_state
-        self.action = self.next_action
-
-    def update(self):
+    def act(self, next_state, reward, info=None):
+        next_action = self.policy(next_state)
         td_error = (
-            self.env.reward
-            + self.gamma * self.q.eval(self.next_state, self.next_action)
+            reward
+            + self.gamma * self.q.eval(next_state, next_action)
             - self.q(self.state, self.action)
         )
+        self.q.reinforce(td_error)
+        self.state = next_state
+        self.action = next_action
+        return self.action
+
+    def terminal(self, reward, info=None):
+        td_error = reward - self.q(self.state, self.action)
         self.q.reinforce(td_error)

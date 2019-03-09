@@ -75,7 +75,7 @@ def dqn(
         final_exploration_frame=250000, # originally 1e6
         replay_start_size=50000,
         build_model=dueling_conv_net
-        ):
+):
     def _dqn(env):
         model = build_model(env)
         optimizer = Adam(model.parameters(), lr=lr)

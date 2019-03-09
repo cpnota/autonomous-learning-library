@@ -9,6 +9,7 @@ def validate_agent(make_agent, env):
     # in most cases.
     for _ in range(2):
         env.reset()
-        agent.new_episode(env)
+        env.step(agent.initial(env.state))
         while not env.done:
-            agent.act()
+            env.step(agent.act(env.state, env.reward))
+        agent.terminal(env.reward)

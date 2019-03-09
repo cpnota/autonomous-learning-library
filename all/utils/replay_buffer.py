@@ -34,5 +34,5 @@ class ReplayBuffer:
         return self.end - self.start
 
     def __iter__(self):
-        for i in range(len(self)):
-            yield self[i]
+        for _, v in enumerate(self):
+            yield v

@@ -79,17 +79,18 @@ class Experiment:
 def run_episode(agent, env, render=False):
     start = timer()
     env.reset()
-    agent.new_episode(env)
-    returns = 0
-    frames = 0
+    if render:
+        env.render()
+    env.step(agent.initial(env.state))
+    returns = env.reward
+    frames = 1
     while not env.should_reset:
-        if env.done:
-            agent.new_episode(env)
         if render:
             env.render()
-        agent.act()
+        env.step(agent.act(env.state, env.reward))
         returns += env.reward
         frames += 1
+    agent.terminal(env.reward)
     end = timer()
     print('episode fps:', frames / (end - start))
     return returns, frames
