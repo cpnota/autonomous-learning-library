@@ -27,24 +27,27 @@ class DQN(Agent):
         self.state = None
         self.action = None
 
-    def new_episode(self, env):
-        self.env = env
+    def initial(self, state, info=None):
+        self.state = state
+        self.action = self.policy(self.state)
+        return self.action
 
-    def act(self):
-        self.take_action()
-        self.store_transition()
+    def act(self, state, reward, info=None):
+        self.store_transition(state, reward)
+        if self.should_train():
+            self.train()
+        self.action = self.policy(state)
+        return self.action
+
+    def terminal(self, reward):
+        self.store_transition(None, reward)
         if self.should_train():
             self.train()
 
-    def take_action(self):
-        self.state = self.env.state
-        self.action = self.policy(self.state)
-        self.env.step(self.action)
-
-    def store_transition(self):
+    def store_transition(self, state, reward):
         self.frames_seen += 1
-        next_state = self.env.state if not self.env.done else None
-        self.replay_buffer.store(self.state, self.action, next_state, self.env.reward)
+        self.replay_buffer.store(self.state, self.action, state, reward)
+        self.state = state
 
     def should_train(self):
         return (self.frames_seen > self.replay_start_size
