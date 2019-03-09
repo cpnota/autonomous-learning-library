@@ -18,10 +18,10 @@ class DeepmindAtariBody(Body):
         self._reward = 0
 
     def initial(self, state, info=None):
-        self._skipped_frames = 1
         self._state = [preprocess(state)] * self.frameskip
         self._action = self.agent.initial(self._stack_state(), info)
-        self._skipped_frames = 1
+        self._state = []
+        self._skipped_frames = 0
         return self._action
 
     def act(self, state, reward, info=None):

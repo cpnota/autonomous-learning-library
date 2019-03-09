@@ -1,9 +1,9 @@
 from all.experiments import Experiment
-from all.environments import AtariEnvironment
+from all.environments import GymEnvironment
 from all.presets.dqn import dqn
 
 def run():
-    env = AtariEnvironment('Breakout')
+    env = GymEnvironment("BreakoutNoFrameskip-v4")
     experiment = Experiment(env, episodes=40000, trials=1)
     experiment.run(
         dqn(),

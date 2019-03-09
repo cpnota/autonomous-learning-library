@@ -1,9 +1,10 @@
 from all.experiments import Experiment
-from all.environments import PongEnvironment
+from all.environments import GymEnvironment
 from all.presets.dqn import dqn
 
 def run():
-    env = PongEnvironment()
+    # env = PongEnvironment()
+    env = GymEnvironment("PongNoFrameskip-v4")
     experiment = Experiment(env, episodes=2000, trials=1)
     experiment.run(
         dqn(),

@@ -4,6 +4,7 @@ from torch.optim import Adam
 from all.layers import Flatten, Dueling
 from all.approximation import QTabular
 from all.agents import DQN
+from all.bodies import DeepmindAtariBody
 from all.policies import GreedyPolicy
 from all.utils import ReplayBuffer
 
@@ -88,12 +89,15 @@ def dqn(
                               final_epsilon=final_exploration
                              )
         replay_buffer = ReplayBuffer(replay_buffer_size)
-        return DQN(q, policy, replay_buffer,
-                   discount_factor=discount_factor,
-                   minibatch_size=minibatch_size,
-                   replay_start_size=replay_start_size,
-                   update_frequency=update_frequency,
-                  )
+        return DeepmindAtariBody(
+            DQN(q, policy, replay_buffer,
+                discount_factor=discount_factor,
+                minibatch_size=minibatch_size,
+                replay_start_size=replay_start_size,
+                update_frequency=update_frequency,
+                ),
+            env
+        )
     return _dqn
 
 __all__ = ["dqn", "conv_net", "dueling_conv_net"]
