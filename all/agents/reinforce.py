@@ -17,7 +17,7 @@ class REINFORCE(Agent):
         self.rewards.append(reward)
         return self.policy(state)
 
-    def terminal(self, reward):
+    def terminal(self, reward, info=None):
         self.rewards.append(reward)
         states = torch.cat(self.states)
         rewards = torch.tensor(self.rewards)
