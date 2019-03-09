@@ -26,8 +26,8 @@ def fc_policy(env):
 
 
 def ac_cc(
-        lr_v=1e-4,
-        lr_pi=1e-4
+        lr_v=5e-4,
+        lr_pi=2e-4
 ):
     def _ac_cc(env):
         value_model = fc_value(env)

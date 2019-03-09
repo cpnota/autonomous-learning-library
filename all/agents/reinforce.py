@@ -7,26 +7,18 @@ class REINFORCE(Agent):
         self.v = v
         self.policy = policy
 
-    def new_episode(self, env):
-        self.env = env
-        self.next_state = self.env.state
-        self.states = []
-        self.values = []
-        self.values = []
+    def initial(self, state, info=None):
+        self.states = [state]
         self.rewards = []
+        return self.policy(state)
 
-    def act(self):
-        state = self.env.state
-        action = self.policy(state)
-        self.env.step(action)
-
+    def act(self, state, reward, info=None):
         self.states.append(state)
-        self.rewards.append(self.env.reward)
+        self.rewards.append(reward)
+        return self.policy(state)
 
-        if self.env.done:
-            self.update()
-
-    def update(self):
+    def terminal(self, reward):
+        self.rewards.append(reward)
         states = torch.cat(self.states)
         rewards = torch.tensor(self.rewards)
 
