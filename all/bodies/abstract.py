@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from ..agents import Agent
+from all.agents import Agent
 
 class Body(Agent):
     """

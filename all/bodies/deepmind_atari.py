@@ -1,7 +1,7 @@
 import torch
 from .abstract import Body
 
-class DeepMindAtariBody(Body):
+class DeepmindAtariBody(Body):
     def __init__(
             self,
             agent,

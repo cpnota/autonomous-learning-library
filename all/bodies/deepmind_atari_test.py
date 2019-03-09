@@ -3,7 +3,7 @@ import torch
 import torch_testing as tt
 from all.agents import Agent
 from all.environments import GymEnvironment
-from all.bodies.deepmind_atari import DeepMindAtariBody
+from all.bodies.deepmind_atari import DeepmindAtariBody
 
 class MockAgent(Agent):
     def __init__(self):
@@ -26,11 +26,11 @@ class MockAgent(Agent):
         self.reward = reward
         self.info = info
 
-class DeepMindAtariBodyTest(unittest.TestCase):
+class DeepmindAtariBodyTest(unittest.TestCase):
     def setUp(self):
         self.agent = MockAgent()
         self.env = GymEnvironment('PongNoFrameskip-v4')
-        self.body = DeepMindAtariBody(self.agent, self.env)
+        self.body = DeepmindAtariBody(self.agent, self.env)
 
     def test_initial_state(self):
         self.env.reset()
