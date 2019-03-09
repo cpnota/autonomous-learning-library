@@ -1,11 +1,11 @@
 import copy
 import torch
 from torch import optim
-from torch.nn.functional import smooth_l1_loss
+from torch.nn.functional import mse_loss
 from .q_function import QFunction
 
 class QTabular(QFunction):
-    def __init__(self, model, optimizer=None, loss=smooth_l1_loss, target_update_frequency=None):
+    def __init__(self, model, optimizer=None, loss=mse_loss, target_update_frequency=None):
         self.model = model
         self.optimizer = (optimizer
                           if optimizer is not None

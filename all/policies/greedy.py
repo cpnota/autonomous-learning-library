@@ -3,7 +3,7 @@ import torch
 from .abstract import Policy
 
 class GreedyPolicy(Policy):
-    def __init__(self, q, initial_epsilon=1., final_epsilon=0.1, annealing_time=1000000):
+    def __init__(self, q, initial_epsilon=1., final_epsilon=0.1, annealing_time=1):
         self.q = q
         self.epsilon = initial_epsilon
         self.final_epsilon = final_epsilon

@@ -6,27 +6,24 @@ from all.agents import Sarsa
 from all.approximation import QTabular
 from all.policies import GreedyPolicy
 
-
 def fc_net(env, frames=1):
     return nn.Sequential(
         Flatten(),
         nn.Linear(env.state_space.shape[0] * frames, 256),
-        nn.ReLU(),
+        nn.Tanh(),
         nn.Linear(256, env.action_space.n)
     )
 
 def sarsa_cc(
         lr=1e-3,
-        annealing_time=10000,
-        final_epsilon=0.02
+        epsilon=0.1
 ):
     def _sarsa_cc(env):
         model = fc_net(env)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QTabular(model, optimizer)
-        policy = GreedyPolicy(q, annealing_time=annealing_time, final_epsilon=final_epsilon)
+        policy = GreedyPolicy(q, annealing_time=1, final_epsilon=epsilon)
         return Sarsa(q, policy)
     return _sarsa_cc
-
 
 __all__ = ["sarsa_cc"]
