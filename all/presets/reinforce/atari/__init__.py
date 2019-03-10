@@ -1,7 +1,8 @@
 from torch import nn, optim
-from all.layers import Flatten
 from all.agents import REINFORCE
 from all.approximation import ValueNetwork
+from all.bodies import DeepmindAtariBody
+from all.layers import Flatten
 from all.policies import SoftmaxPolicy
 
 def conv_features():
@@ -52,7 +53,7 @@ def reinforce_atari(
 
         policy_model.apply(weights_init)
 
-        return REINFORCE(v, policy)
+        return DeepmindAtariBody(REINFORCE(v, policy), env)
     return _reinforce_atari
 
 

@@ -1,14 +1,14 @@
 from all.experiments import Experiment
-from all.environments import GymEnvironment
+from all.environments import AtariEnvironment
 from all.presets.dqn import dqn
 
 def run():
     # env = PongEnvironment()
-    env = GymEnvironment("PongNoFrameskip-v4")
+    env = AtariEnvironment("Pong")
     experiment = Experiment(env, episodes=2000, trials=1)
     experiment.run(
         dqn(
-            # parameters from: 
+            # parameters from:
             # https://medium.com/mlreview/speeding-up-dqn-on-pytorch-solving-pong-in-30-minutes-81a1bd2dff55
             replay_buffer_size=100000,
             replay_start_size=10000,
