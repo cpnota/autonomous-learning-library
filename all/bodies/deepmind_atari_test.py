@@ -59,7 +59,7 @@ class DeepmindAtariBodyTest(unittest.TestCase):
     def test_terminal_state(self):
         self.env.reset()
         self.env.step(self.body.initial(self.env.state))
-        for _ in range(12):
+        for _ in range(13):
             reward = -5 # should be clipped
             action = self.body.act(self.env.state, reward)
             self.env.step(action)
