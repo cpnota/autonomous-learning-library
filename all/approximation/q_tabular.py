@@ -44,7 +44,7 @@ class QTabular(QFunction):
         values = self._eval_states(states, model)
         return (
             values if actions is None
-            else values.transpose(0, 1)[actions]
+            else values.gather(1, torch.tensor(actions).view(-1, 1)).squeeze(1)
         )
 
     def _eval_states(self, states, model):

@@ -6,7 +6,7 @@ from all.presets.dqn import dqn
 
 class TestDqnAtari(unittest.TestCase):
     def test_pong(self):
-        validate_agent(dqn(), GymEnvironment('PongNoFrameskip-v4'))
+        validate_agent(dqn(replay_start_size=64), GymEnvironment('BreakoutNoFrameskip-v4'))
 
 
 if __name__ == '__main__':

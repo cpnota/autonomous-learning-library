@@ -32,9 +32,9 @@ class ExperienceReplayBuffer(ReplayBuffer):
     def sample(self, batch_size):
         keys = np.random.choice(len(self.buffer), batch_size, replace=True)
         minibatch = [self.buffer[key] for key in keys]
-        return self._reshape(minibatch)
+        return self._reshape(minibatch), torch.ones(batch_size)
 
-    def update_priorities(self, indexes, td_errors):
+    def update_priorities(self, td_errors):
         pass
 
     def _add(self, sample):
@@ -80,6 +80,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
         self._beta = beta
         self._final_beta_frame = final_beta_frame
         self._frames = 0
+        self._cache = None
 
     def sample(self, batch_size):
         beta = min(1.0, self._beta + self._frames *
@@ -104,7 +105,8 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
     def update_priorities(self, td_errors):
         idxes = self._cache
         _td_errors = td_errors.detach().numpy()
-        priorities = np.abs(td_errors)
+        print(_td_errors.shape)
+        priorities = list(np.abs(_td_errors))
         assert len(idxes) == len(priorities)
         for idx, priority in zip(idxes, priorities):
             assert priority > 0
