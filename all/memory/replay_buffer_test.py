@@ -2,7 +2,7 @@ import unittest
 import random
 import torch
 import numpy
-from all.utils import ReplayBuffer
+from all.memory import ReplayBuffer
 
 class TestReplayBuffer(unittest.TestCase):
     def setUp(self):

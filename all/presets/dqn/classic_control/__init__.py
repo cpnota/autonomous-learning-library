@@ -2,12 +2,11 @@
 from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import mse_loss
-from all.layers import Flatten
-from all.approximation import QTabular
 from all.agents import DQN
+from all.approximation import QTabular
+from all.layers import Flatten
+from all.memory import ReplayBuffer
 from all.policies import GreedyPolicy
-from all.utils import ReplayBuffer
-
 
 def fc_net(env, frames=1):
     return nn.Sequential(
@@ -16,7 +15,6 @@ def fc_net(env, frames=1):
         nn.ReLU(),
         nn.Linear(256, env.action_space.n)
     )
-
 
 def dqn_cc(
         lr=2e-4,
@@ -40,6 +38,5 @@ def dqn_cc(
                    update_frequency=update_frequency,
                    minibatch_size=minibatch_size)
     return _dqn_cc
-
 
 __all__ = ["dqn_cc"]

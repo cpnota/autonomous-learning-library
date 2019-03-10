@@ -6,7 +6,7 @@ from all.approximation import QTabular
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
 from all.policies import GreedyPolicy
-from all.utils import ReplayBuffer
+from all.memory import ReplayBuffer
 
 # From the original deep mind paper (https://www.nature.com/articles/nature14236):
 #
