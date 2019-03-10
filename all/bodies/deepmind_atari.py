@@ -18,8 +18,8 @@ class DeepmindAtariBody(Body):
         self._reward = 0
 
     def initial(self, state, info=None):
-        self._state = [preprocess(state)] * self.frameskip
-        self._action = self.agent.initial(self._stack_state(), info)
+        stacked = stack([preprocess(state)] * self.frameskip)
+        self._action = self.agent.initial(stacked, info)
         self._state = []
         self._skipped_frames = 0
         return self._action
@@ -30,7 +30,7 @@ class DeepmindAtariBody(Body):
         self._skipped_frames += 1
         if self._skipped_frames == self.frameskip:
             self._action = self.agent.act(
-                self._stack_state(),
+                stack(self._state),
                 self._reward,
                 info
             )
@@ -43,8 +43,8 @@ class DeepmindAtariBody(Body):
         self._reward += clip(reward)
         return self.agent.terminal(self._reward, info)
 
-    def _stack_state(self):
-        return torch.cat(self._state).unsqueeze(0)
+def stack(frames):
+    return torch.cat(frames).unsqueeze(0)
 
 def to_grayscale(frame):
     return torch.mean(frame.float(), dim=3).byte()
