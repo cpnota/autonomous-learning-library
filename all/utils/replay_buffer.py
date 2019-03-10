@@ -1,4 +1,4 @@
-import random
+import numpy
 import torch
 
 # https://becominghuman.ai/lets-build-an-atari-ai-part-1-dqn-df57e8ff3b26
@@ -12,7 +12,8 @@ class ReplayBuffer:
         self._append((states, action, next_states, reward))
 
     def sample(self, sample_size):
-        minibatch = [random.choice(self) for _ in range(0, sample_size)]
+        indexes = numpy.random.randint(len(self), size=sample_size)
+        minibatch = [self[i] for i in indexes]
         states = [sample[0] for sample in minibatch]
         actions = [sample[1] for sample in minibatch]
         next_states = [sample[2] for sample in minibatch]

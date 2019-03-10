@@ -4,6 +4,7 @@ from torch.optim import Adam
 from all.layers import Flatten, Dueling
 from all.approximation import QTabular
 from all.agents import DQN
+from all.bodies import DeepmindAtariBody
 from all.policies import GreedyPolicy
 from all.utils import ReplayBuffer
 
@@ -28,9 +29,9 @@ def conv_net(env, frames=4):
     return nn.Sequential(
         nn.Conv2d(frames, 32, 8, stride=4),
         nn.ReLU(),
-        nn.Conv2d(32, 32, 4, stride=2),
+        nn.Conv2d(32, 64, 4, stride=2),
         nn.ReLU(),
-        nn.Conv2d(32, 64, 3, stride=1),
+        nn.Conv2d(64, 64, 3, stride=1),
         nn.ReLU(),
         Flatten(),
         nn.Linear(3456, 512),
@@ -44,9 +45,9 @@ def dueling_conv_net(env, frames=4):
     return nn.Sequential(
         nn.Conv2d(frames, 32, 8, stride=4),
         nn.ReLU(),
-        nn.Conv2d(32, 32, 4, stride=2),
+        nn.Conv2d(32, 64, 4, stride=2),
         nn.ReLU(),
-        nn.Conv2d(32, 64, 3, stride=1),
+        nn.Conv2d(64, 64, 3, stride=1),
         nn.ReLU(),
         Flatten(),
         Dueling(
@@ -88,12 +89,15 @@ def dqn(
                               final_epsilon=final_exploration
                              )
         replay_buffer = ReplayBuffer(replay_buffer_size)
-        return DQN(q, policy, replay_buffer,
-                   discount_factor=discount_factor,
-                   minibatch_size=minibatch_size,
-                   replay_start_size=replay_start_size,
-                   update_frequency=update_frequency,
-                  )
+        return DeepmindAtariBody(
+            DQN(q, policy, replay_buffer,
+                discount_factor=discount_factor,
+                minibatch_size=minibatch_size,
+                replay_start_size=replay_start_size,
+                update_frequency=update_frequency,
+                ),
+            env
+        )
     return _dqn
 
 __all__ = ["dqn", "conv_net", "dueling_conv_net"]

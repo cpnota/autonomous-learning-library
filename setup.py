@@ -14,6 +14,7 @@ setup(
         "pylint",
         "matplotlib",
         "torch",
-        "torchvision"
+        "torchvision",
+        "torch-testing"
     ],
 )
