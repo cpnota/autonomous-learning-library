@@ -1,8 +1,8 @@
 import unittest
 import torch
-import torch_testing as tt
 from torch import nn
 from torch.nn.functional import smooth_l1_loss
+import torch_testing as tt
 import numpy as np
 from all.approximation.q_network import QNetwork
 
