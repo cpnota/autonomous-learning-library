@@ -1,5 +1,6 @@
 import unittest
 import torch
+import torch_testing as tt
 from torch import nn
 from torch.nn.functional import smooth_l1_loss
 import numpy as np
@@ -35,6 +36,18 @@ class TestTabular(unittest.TestCase):
                       [-0.02961645, -0.7566322, -0.46243042],
                       [0., 0., 0.]], dtype=np.float32)
         )
+
+    def test_eval_actions(self):
+        states = [
+            torch.randn(1, STATE_DIM),
+            torch.randn(1, STATE_DIM),
+            torch.randn(1, STATE_DIM),
+        ]
+        actions = [1, 2, 0]
+        result = self.q.eval(states, actions)
+        self.assertEqual(result.shape, torch.Size([3]))
+        tt.assert_almost_equal(result, torch.tensor([-0.7262873, 0.3484948, -0.0296164]))
+
 
     def test_target_net(self):
         torch.manual_seed(2)
