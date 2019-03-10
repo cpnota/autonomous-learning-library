@@ -4,7 +4,7 @@ from torch import optim
 from torch.nn.functional import mse_loss
 from .q_function import QFunction
 
-class QTabular(QFunction):
+class QNetwork(QFunction):
     def __init__(self, model, optimizer=None, loss=mse_loss, target_update_frequency=None):
         self.model = model
         self.optimizer = (optimizer

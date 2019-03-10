@@ -2,7 +2,7 @@
 from torch import nn
 from torch.optim import Adam
 from all.layers import Flatten, Dueling
-from all.approximation import QTabular
+from all.approximation import QNetwork
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
 from all.policies import GreedyPolicy
@@ -80,7 +80,7 @@ def dqn(
     def _dqn(env):
         model = build_model(env)
         optimizer = Adam(model.parameters(), lr=lr)
-        q = QTabular(model, optimizer,
+        q = QNetwork(model, optimizer,
                      target_update_frequency=target_update_frequency
                     )
         policy = GreedyPolicy(q,
