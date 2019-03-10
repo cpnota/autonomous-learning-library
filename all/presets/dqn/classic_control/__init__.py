@@ -3,7 +3,7 @@ from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import mse_loss
 from all.layers import Flatten
-from all.approximation import QTabular
+from all.approximation import QNetwork
 from all.agents import DQN
 from all.policies import GreedyPolicy
 from all.utils import ReplayBuffer
@@ -30,7 +30,7 @@ def dqn_cc(
     def _dqn_cc(env):
         model = fc_net(env)
         optimizer = Adam(model.parameters(), lr=lr)
-        q = QTabular(model, optimizer,
+        q = QNetwork(model, optimizer,
                      target_update_frequency=target_update_frequency,
                      loss=mse_loss)
         policy = GreedyPolicy(q, annealing_time=annealing_time)
