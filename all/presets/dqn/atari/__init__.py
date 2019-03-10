@@ -6,7 +6,7 @@ from all.approximation import QTabular
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
 from all.policies import GreedyPolicy
-from all.memory import ReplayBuffer
+from all.memory import ExperienceReplayBuffer
 
 # From the original deep mind paper (https://www.nature.com/articles/nature14236):
 #
@@ -88,7 +88,7 @@ def dqn(
                               initial_epsilon=initial_exploration,
                               final_epsilon=final_exploration
                              )
-        replay_buffer = ReplayBuffer(replay_buffer_size)
+        replay_buffer = ExperienceReplayBuffer(replay_buffer_size)
         return DeepmindAtariBody(
             DQN(q, policy, replay_buffer,
                 discount_factor=discount_factor,

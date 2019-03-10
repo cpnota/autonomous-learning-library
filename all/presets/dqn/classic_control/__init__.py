@@ -5,7 +5,7 @@ from torch.nn.functional import mse_loss
 from all.agents import DQN
 from all.approximation import QTabular
 from all.layers import Flatten
-from all.memory import ReplayBuffer
+from all.memory import ExperienceReplayBuffer
 from all.policies import GreedyPolicy
 
 def fc_net(env, frames=1):
@@ -32,7 +32,7 @@ def dqn_cc(
                      target_update_frequency=target_update_frequency,
                      loss=mse_loss)
         policy = GreedyPolicy(q, annealing_time=annealing_time)
-        replay_buffer = ReplayBuffer(replay_buffer_size)
+        replay_buffer = ExperienceReplayBuffer(replay_buffer_size)
         return DQN(q, policy, replay_buffer,
                    replay_start_size=replay_start_size,
                    update_frequency=update_frequency,

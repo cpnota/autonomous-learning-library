@@ -1,3 +1,3 @@
-from .replay_buffer import ReplayBuffer
+from .replay_buffer import ReplayBuffer, ExperienceReplayBuffer
 
-__all__ = ["ReplayBuffer"]
+__all__ = ["ReplayBuffer", "ExperienceReplayBuffer"]

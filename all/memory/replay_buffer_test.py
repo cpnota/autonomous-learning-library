@@ -1,14 +1,12 @@
 import unittest
-import random
 import torch
 import numpy as np
-from all.memory import ReplayBuffer
+from all.memory import ExperienceReplayBuffer
 
 class TestReplayBuffer(unittest.TestCase):
     def setUp(self):
-        random.seed(1)
         np.random.seed(1)
-        self.replay_buffer = ReplayBuffer(5)
+        self.replay_buffer = ExperienceReplayBuffer(5)
 
     def test_run(self):
         states = torch.arange(0, 20)

@@ -1,9 +1,19 @@
+from abc import ABC, abstractmethod
 import numpy as np
 import torch
 
+class ReplayBuffer(ABC):
+    @abstractmethod
+    def store(self, state, action, next_state, reward):
+        '''Store the transition in the buffer'''
+
+    @abstractmethod
+    def sample(self, batch_size):
+        '''Sample from the stored transitions'''
+
 # Adapted from:
 # https://github.com/Shmuma/ptan/blob/master/ptan/experience.py
-class ReplayBuffer:
+class ExperienceReplayBuffer(ReplayBuffer):
     def __init__(self, size):
         self.buffer = []
         self.capacity = size
@@ -36,3 +46,4 @@ class ReplayBuffer:
 
     def __iter__(self):
         return iter(self.buffer)
+
