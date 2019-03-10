@@ -4,7 +4,7 @@ from torch import optim
 from torch.nn.functional import mse_loss
 from .q_function import QFunction
 
-class QTabular(QFunction):
+class QNetwork(QFunction):
     def __init__(self, model, optimizer=None, loss=mse_loss, target_update_frequency=None):
         self.model = model
         self.optimizer = (optimizer
@@ -44,7 +44,7 @@ class QTabular(QFunction):
         values = self._eval_states(states, model)
         return (
             values if actions is None
-            else values.transpose(0, 1)[actions]
+            else values.gather(1, torch.tensor(actions).view(-1, 1)).squeeze(1)
         )
 
     def _eval_states(self, states, model):

@@ -3,7 +3,7 @@ from torch import nn
 from torch.optim import Adam
 from all.layers import Flatten
 from all.agents import Sarsa
-from all.approximation import QTabular
+from all.approximation import QNetwork
 from all.policies import GreedyPolicy
 
 def fc_net(env, frames=1):
@@ -21,7 +21,7 @@ def sarsa_cc(
     def _sarsa_cc(env):
         model = fc_net(env)
         optimizer = Adam(model.parameters(), lr=lr)
-        q = QTabular(model, optimizer)
+        q = QNetwork(model, optimizer)
         policy = GreedyPolicy(q, annealing_time=1, final_epsilon=epsilon)
         return Sarsa(q, policy)
     return _sarsa_cc
