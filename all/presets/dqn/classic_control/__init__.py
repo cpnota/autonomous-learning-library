@@ -36,7 +36,7 @@ def dqn_cc(
                      target_update_frequency=target_update_frequency,
                      loss=mse_loss)
         policy = GreedyPolicy(
-            q, 
+            q,
             initial_epsilon=initial_exploration,
             final_epsilon=final_exploration,
             annealing_time=final_exploration_frame
@@ -48,5 +48,6 @@ def dqn_cc(
                    update_frequency=update_frequency,
                    minibatch_size=minibatch_size)
     return _dqn_cc
+
 
 __all__ = ["dqn_cc"]

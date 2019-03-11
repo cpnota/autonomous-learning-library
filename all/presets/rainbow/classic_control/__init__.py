@@ -25,7 +25,7 @@ def dueling_fc_net(env, frames=1):
         )
     )
 
-def dqn_cc(
+def rainbow_cc(
         minibatch_size=32,
         replay_buffer_size=20000,
         target_update_frequency=1000,
@@ -40,7 +40,7 @@ def dqn_cc(
 ):
     '''
     Partial implementation of the Rainbow variant of DQN, scaled for classic control environments.
-    
+
     So far, the enhancements that have been added are:
     1. Dueling architecture
     2. Prioritized experience replay
@@ -52,7 +52,7 @@ def dqn_cc(
                      target_update_frequency=target_update_frequency,
                      loss=mse_loss)
         policy = GreedyPolicy(
-            q, 
+            q,
             initial_epsilon=initial_exploration,
             final_epsilon=final_exploration,
             annealing_time=final_exploration_frame
@@ -65,4 +65,5 @@ def dqn_cc(
                    minibatch_size=minibatch_size)
     return _dqn_cc
 
-__all__ = ["dqn_cc"]
+
+__all__ = ["rainbow_cc"]

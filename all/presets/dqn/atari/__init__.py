@@ -25,14 +25,14 @@ def conv_net(env, frames=4):
 
 def dqn(
         minibatch_size=32,
-        replay_buffer_size=250000, # originally 1e6
+        replay_buffer_size=250000,  # originally 1e6
         target_update_frequency=10000,
         discount_factor=0.99,
         update_frequency=4,
         lr=1e-4,
         initial_exploration=1.00,
         final_exploration=0.1,
-        final_exploration_frame=250000, # originally 1e6
+        final_exploration_frame=250000,  # originally 1e6
         replay_start_size=50000,
         build_model=conv_net
 ):
@@ -40,13 +40,13 @@ def dqn(
         model = build_model(env)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(model, optimizer,
-            target_update_frequency=target_update_frequency
-        )
+                     target_update_frequency=target_update_frequency
+                     )
         policy = GreedyPolicy(q,
-            annealing_time=final_exploration_frame,
-            initial_epsilon=initial_exploration,
-            final_epsilon=final_exploration
-        )
+                              annealing_time=final_exploration_frame,
+                              initial_epsilon=initial_exploration,
+                              final_epsilon=final_exploration
+                              )
         replay_buffer = ExperienceReplayBuffer(replay_buffer_size)
         return DeepmindAtariBody(
             DQN(q, policy, replay_buffer,
@@ -58,5 +58,6 @@ def dqn(
             env
         )
     return _dqn
+
 
 __all__ = ["dqn", "conv_net"]

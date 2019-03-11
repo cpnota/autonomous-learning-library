@@ -83,8 +83,8 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
         self._cache = None
 
     def sample(self, batch_size):
-        beta = min(1.0, self._beta + self._frames *
-                      (1.0 - self._beta) / self._final_beta_frame)
+        beta = min(1.0, self._beta + self._frames
+                   * (1.0 - self._beta) / self._final_beta_frame)
         self._frames += 1
         idxes = self._sample_proportional(batch_size)
 

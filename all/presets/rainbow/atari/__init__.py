@@ -35,20 +35,20 @@ def dueling_conv_net(env, frames=4):
 
 def rainbow(
         minibatch_size=32,
-        replay_buffer_size=250000, # originally 1e6
+        replay_buffer_size=250000,  # originally 1e6
         target_update_frequency=10000,
         discount_factor=0.99,
         update_frequency=4,
         lr=1e-4,
         initial_exploration=1.00,
         final_exploration=0.1,
-        final_exploration_frame=250000, # originally 1e6
+        final_exploration_frame=250000,  # originally 1e6
         replay_start_size=50000,
         build_model=dueling_conv_net
 ):
     '''
     Partial implementation of the Rainbow variant of DQN.
-    
+
     So far, the enhancements that have been added are:
     1. Dueling architecture
     2. Prioritized experience replay
@@ -57,7 +57,7 @@ def rainbow(
         model = build_model(env)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(
-            model, 
+            model,
             optimizer,
             target_update_frequency=target_update_frequency
         )
@@ -74,9 +74,10 @@ def rainbow(
                 minibatch_size=minibatch_size,
                 replay_start_size=replay_start_size,
                 update_frequency=update_frequency,
-            ),
+                ),
             env
         )
     return rainbow
+
 
 __all__ = ["rainbow", "dueling_conv_net"]
