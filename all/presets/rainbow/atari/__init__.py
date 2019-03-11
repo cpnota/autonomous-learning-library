@@ -1,6 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 from torch import nn
 from torch.optim import Adam
+from torch.nn.functional import smooth_l1_loss
 from all.layers import Flatten, Dueling
 from all.approximation import QNetwork
 from all.agents import DQN
@@ -34,17 +35,24 @@ def dueling_conv_net(env, frames=4):
     )
 
 def rainbow(
+        # Vanilla DQN
         minibatch_size=32,
         replay_buffer_size=250000,  # originally 1e6
-        target_update_frequency=10000,
         discount_factor=0.99,
         update_frequency=4,
         lr=1e-4,
+        replay_start_size=50000,
+        build_model=dueling_conv_net,
+        # Exploration Schedule
         initial_exploration=1.00,
         final_exploration=0.1,
         final_exploration_frame=250000,  # originally 1e6
-        replay_start_size=50000,
-        build_model=dueling_conv_net
+        # Double Q-Learning
+        target_update_frequency=10000,
+        # Prioritized Replay
+        alpha=0.6,
+        beta=0.4,
+        final_beta_frame=100000
 ):
     '''
     Partial implementation of the Rainbow variant of DQN.
@@ -62,18 +70,22 @@ def rainbow(
     def _rainbow(env):
         model = build_model(env)
         optimizer = Adam(model.parameters(), lr=lr)
-        q = QNetwork(
-            model,
-            optimizer,
-            target_update_frequency=target_update_frequency
-        )
+        q = QNetwork(model, optimizer,
+                     target_update_frequency=target_update_frequency,
+                     loss=smooth_l1_loss)
         policy = GreedyPolicy(
             q,
             initial_epsilon=initial_exploration,
             final_epsilon=final_exploration,
             annealing_time=final_exploration_frame
         )
-        replay_buffer = PrioritizedReplayBuffer(replay_buffer_size)
+        # replay_buffer = ExperienceReplayBuffer(replay_buffer_size)
+        replay_buffer = PrioritizedReplayBuffer(
+            replay_buffer_size,
+            alpha=alpha,
+            beta=beta,
+            final_beta_frame=final_beta_frame
+        )
         return DeepmindAtariBody(
             DQN(q, policy, replay_buffer,
                 discount_factor=discount_factor,
