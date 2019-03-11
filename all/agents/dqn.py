@@ -54,7 +54,7 @@ class DQN(Agent):
                 self.frames_seen % self.update_frequency == 0)
 
     def train(self):
-        (states, actions, next_states, rewards), weights = self.replay_buffer.sample(
+        (states, actions, next_states, rewards, weights) = self.replay_buffer.sample(
             self.minibatch_size)
         td_errors = (
             rewards +

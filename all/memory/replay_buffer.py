@@ -32,7 +32,7 @@ class ExperienceReplayBuffer(ReplayBuffer):
     def sample(self, batch_size):
         keys = np.random.choice(len(self.buffer), batch_size, replace=True)
         minibatch = [self.buffer[key] for key in keys]
-        return self._reshape(minibatch), torch.ones(batch_size)
+        return self._reshape(minibatch, torch.ones(batch_size))
 
     def update_priorities(self, td_errors):
         pass
@@ -44,12 +44,12 @@ class ExperienceReplayBuffer(ReplayBuffer):
             self.buffer[self.pos] = sample
             self.pos = (self.pos + 1) % self.capacity
 
-    def _reshape(sefl, minibatch):
+    def _reshape(sefl, minibatch, weights):
         states = [sample[0] for sample in minibatch]
         actions = [sample[1] for sample in minibatch]
         next_states = [sample[2] for sample in minibatch]
         rewards = torch.tensor([sample[3] for sample in minibatch]).float()
-        return (states, actions, next_states, rewards)
+        return (states, actions, next_states, rewards, weights)
 
     def __len__(self):
         return len(self.buffer)
@@ -100,7 +100,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
         weights = np.array(weights, dtype=np.float32)
         samples = [self.buffer[idx] for idx in idxes]
         self._cache = idxes
-        return self._reshape(samples), torch.from_numpy(weights)
+        return self._reshape(samples, torch.from_numpy(weights))
 
     def update_priorities(self, td_errors):
         idxes = self._cache

@@ -33,10 +33,10 @@ class TestExperienceReplayBuffer(unittest.TestCase):
         for i in range(10):
             self.replay_buffer.store(
                 states[i], actions[i], states[i + 1], rewards[i])
-            sample, weights = self.replay_buffer.sample(3)
+            sample = self.replay_buffer.sample(3)
             sample_states = torch.tensor(sample[0]).detach().numpy()
             actual_samples.append(sample_states)
-            actual_weights.append(weights)
+            actual_weights.append(sample[-1])
         np.testing.assert_array_equal(expected_samples, np.vstack(actual_samples))
         np.testing.assert_array_equal(expected_weights, np.vstack(actual_weights))
 
@@ -71,11 +71,11 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
             self.replay_buffer.store(
                 states[i], actions[i], states[i + 1], rewards[i])
             if i > 2:
-                sample, weights = self.replay_buffer.sample(3)
+                sample = self.replay_buffer.sample(3)
                 sample_states = torch.tensor(sample[0]).detach().numpy()
                 self.replay_buffer.update_priorities(torch.randn(3))
                 actual_samples.append(sample_states)
-                actual_weights.append(weights)
+                actual_weights.append(sample[-1])
         np.testing.assert_array_equal(
             expected_samples, np.vstack(actual_samples))
         np.testing.assert_array_almost_equal(
