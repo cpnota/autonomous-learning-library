@@ -1,6 +1,6 @@
 import unittest
-import torch
 import random
+import torch
 import numpy as np
 from all.memory import ExperienceReplayBuffer, PrioritizedReplayBuffer
 
