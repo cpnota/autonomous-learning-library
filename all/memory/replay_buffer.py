@@ -63,7 +63,8 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
             buffer_size,
             alpha=0.6,
             beta=0.4,
-            final_beta_frame=100000
+            final_beta_frame=100000,
+            epsilon=0.1
     ):
         super().__init__(buffer_size)
 
@@ -79,6 +80,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
         self._max_priority = 1.0
         self._beta = beta
         self._final_beta_frame = final_beta_frame
+        self._epsilon = epsilon
         self._frames = 0
         self._cache = None
 
@@ -105,7 +107,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
     def update_priorities(self, td_errors):
         idxes = self._cache
         _td_errors = td_errors.detach().numpy()
-        priorities = list(np.abs(_td_errors))
+        priorities = list(np.abs(_td_errors) + self._epsilon)
         assert len(idxes) == len(priorities)
         for idx, priority in zip(idxes, priorities):
             assert priority > 0

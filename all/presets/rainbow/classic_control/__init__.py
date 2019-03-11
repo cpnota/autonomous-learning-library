@@ -51,7 +51,7 @@ def rainbow_cc(
     5. Distributional RL
     6. NoisyNets
     '''
-    def _dqn_cc(env):
+    def _rainbow_cc(env):
         model = build_model(env)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(model, optimizer,
@@ -69,7 +69,7 @@ def rainbow_cc(
                    replay_start_size=replay_start_size,
                    update_frequency=update_frequency,
                    minibatch_size=minibatch_size)
-    return _dqn_cc
+    return _rainbow_cc
 
 
 __all__ = ["rainbow_cc"]

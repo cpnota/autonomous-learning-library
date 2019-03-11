@@ -83,7 +83,7 @@ def rainbow(
                 ),
             env
         )
-    return rainbow
+    return _rainbow
 
 
 __all__ = ["rainbow", "dueling_conv_net"]
