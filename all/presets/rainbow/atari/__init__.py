@@ -50,8 +50,14 @@ def rainbow(
     Partial implementation of the Rainbow variant of DQN.
 
     So far, the enhancements that have been added are:
-    1. Dueling architecture
-    2. Prioritized experience replay
+    1. Double Q-Learning
+    2. Prioritized Replay
+    3. Dueling Networks
+
+    Still to be added are:
+    4. Multi-step Learning
+    5. Distributional RL
+    6. NoisyNets
     '''
     def _rainbow(env):
         model = build_model(env)
