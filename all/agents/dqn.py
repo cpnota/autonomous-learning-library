@@ -50,14 +50,16 @@ class DQN(Agent):
         self.state = state
 
     def should_train(self):
-        return (self.frames_seen > self.replay_start_size
-                and self.frames_seen % self.update_frequency == 0)
+        return (self.frames_seen > self.replay_start_size and
+                self.frames_seen % self.update_frequency == 0)
 
     def train(self):
-        (states, actions, next_states, rewards) = self.replay_buffer.sample(self.minibatch_size)
-        td_error = (
-            rewards
-            + self.discount_factor * torch.max(self.q.eval(next_states), dim=1)[0]
-            - self.q(states, actions)
+        (states, actions, next_states, rewards, weights) = self.replay_buffer.sample(
+            self.minibatch_size)
+        td_errors = (
+            rewards +
+            self.discount_factor * torch.max(self.q.eval(next_states), dim=1)[0] -
+            self.q(states, actions)
         )
-        self.q.reinforce(td_error)
+        self.q.reinforce(weights * td_errors)
+        self.replay_buffer.update_priorities(td_errors)

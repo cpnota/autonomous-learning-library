@@ -4,19 +4,28 @@ from torch.optim import Adam
 from torch.nn.functional import mse_loss
 from all.agents import DQN
 from all.approximation import QNetwork
-from all.layers import Flatten
-from all.memory import ExperienceReplayBuffer
+from all.layers import Dueling, Flatten
+from all.memory import PrioritizedReplayBuffer
 from all.policies import GreedyPolicy
 
-def fc_net(env, frames=1):
+def dueling_fc_net(env, frames=1):
     return nn.Sequential(
         Flatten(),
-        nn.Linear(env.state_space.shape[0] * frames, 256),
-        nn.ReLU(),
-        nn.Linear(256, env.action_space.n)
+        Dueling(
+            nn.Sequential(
+                nn.Linear(env.state_space.shape[0] * frames, 256),
+                nn.ReLU(),
+                nn.Linear(256, env.action_space.n)
+            ),
+            nn.Sequential(
+                nn.Linear(env.state_space.shape[0] * frames, 256),
+                nn.ReLU(),
+                nn.Linear(256, 1)
+            )
+        )
     )
 
-def dqn_cc(
+def rainbow_cc(
         minibatch_size=32,
         replay_buffer_size=20000,
         target_update_frequency=1000,
@@ -27,8 +36,15 @@ def dqn_cc(
         final_exploration=0.02,
         final_exploration_frame=10000,
         replay_start_size=32 * 8,
-        build_model=fc_net
+        build_model=dueling_fc_net
 ):
+    '''
+    Partial implementation of the Rainbow variant of DQN, scaled for classic control environments.
+
+    So far, the enhancements that have been added are:
+    1. Dueling architecture
+    2. Prioritized experience replay
+    '''
     def _dqn_cc(env):
         model = build_model(env)
         optimizer = Adam(model.parameters(), lr=lr)
@@ -41,7 +57,7 @@ def dqn_cc(
             final_epsilon=final_exploration,
             annealing_time=final_exploration_frame
         )
-        replay_buffer = ExperienceReplayBuffer(replay_buffer_size)
+        replay_buffer = PrioritizedReplayBuffer(replay_buffer_size)
         return DQN(q, policy, replay_buffer,
                    discount_factor=discount_factor,
                    replay_start_size=replay_start_size,
@@ -50,4 +66,4 @@ def dqn_cc(
     return _dqn_cc
 
 
-__all__ = ["dqn_cc"]
+__all__ = ["rainbow_cc"]
