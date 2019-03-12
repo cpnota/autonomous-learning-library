@@ -37,11 +37,11 @@ def dueling_conv_net(env, sigma_init):
 def rainbow(
         # Vanilla DQN
         minibatch_size=32,
-        replay_buffer_size=250000,  # originally 1e6
+        replay_buffer_size=250000, # originally 1e6
         discount_factor=0.99,
         update_frequency=4,
-        lr=1.5e-4,
-        replay_start_size=50000,
+        lr=6.25e-5,
+        replay_start_size=5e5, # originally 8e5
         build_model=dueling_conv_net,
         # Double Q-Learning
         target_update_frequency=10000,
@@ -64,6 +64,7 @@ def rainbow(
     Still to be added are:
     5. Multi-step Learning
     6. Distributional RL
+    7. Double Q-Learning
     '''
     def _rainbow(env):
         model = build_model(env, sigma_init)

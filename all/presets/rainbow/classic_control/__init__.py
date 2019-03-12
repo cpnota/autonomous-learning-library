@@ -50,11 +50,12 @@ def rainbow_cc(
     1. Double Q-Learning
     2. Prioritized Replay
     3. Dueling Networks
+    4. NoisyNets
 
     Still to be added are:
-    4. Multi-step Learning
-    5. Distributional RL
-    6. NoisyNets
+    5. Multi-step Learning
+    6. Distributional RL
+    7. Double Q-Learning
     '''
     def _rainbow_cc(env):
         model = build_model(env, sigma_init)
