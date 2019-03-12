@@ -23,8 +23,8 @@ def run():
         print_every=1,
         render=True
     )
-    experiment.plot(filename="dqn-pong.png")
-    experiment.save("dqn_pong")
+    experiment.plot(filename="rainbow-pong.png")
+    experiment.save("rainbow_pong")
 
 
 if __name__ == '__main__':
