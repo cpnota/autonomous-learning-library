@@ -41,14 +41,14 @@ def rainbow(
         discount_factor=0.99,
         update_frequency=4,
         lr=6.25e-5,
-        replay_start_size=5e5, # originally 8e5
+        replay_start_size=8e5,
         build_model=dueling_conv_net,
         # Double Q-Learning
         target_update_frequency=10000,
         # Prioritized Replay
         alpha=0.5,
         beta=0.4,
-        final_beta_frame=100000,
+        final_beta_frame=200e6,
         # NoisyNets
         sigma_init=0.5
 ):
@@ -66,6 +66,9 @@ def rainbow(
     6. Distributional RL
     7. Double Q-Learning
     '''
+    # Adjust for frames per update
+    replay_start_size /= 4
+    final_beta_frame /= 4
     def _rainbow(env):
         model = build_model(env, sigma_init)
         optimizer = Adam(model.parameters(), lr=lr)
