@@ -52,8 +52,8 @@ class NoisyLinear(nn.Linear):
 
     def reset_parameters(self):
         std = np.sqrt(3 / self.in_features)
-        nn.init.uniform(self.weight, -std, std)
-        nn.init.uniform(self.bias, -std, std)
+        nn.init.uniform_(self.weight, -std, std)
+        nn.init.uniform_(self.bias, -std, std)
 
     def forward(self, x):
         torch.randn(self.epsilon_weight.size(), out=self.epsilon_weight)
