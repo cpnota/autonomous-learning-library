@@ -1,6 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 from torch import nn
 from torch.optim import Adam
+from torch.nn.functional import smooth_l1_loss
 from all.layers import Flatten, Dueling
 from all.approximation import QNetwork
 from all.agents import DQN
@@ -40,7 +41,8 @@ def dqn(
         model = build_model(env)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(model, optimizer,
-                     target_update_frequency=target_update_frequency
+                     target_update_frequency=target_update_frequency,
+                     loss=smooth_l1_loss
                      )
         policy = GreedyPolicy(q,
                               annealing_time=final_exploration_frame,

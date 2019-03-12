@@ -42,7 +42,7 @@ class ExperienceReplayBuffer(ReplayBuffer):
             self.buffer.append(sample)
         else:
             self.buffer[self.pos] = sample
-            self.pos = (self.pos + 1) % self.capacity
+        self.pos = (self.pos + 1) % self.capacity
 
     def _reshape(sefl, minibatch, weights):
         states = [sample[0] for sample in minibatch]
@@ -63,11 +63,12 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
             buffer_size,
             alpha=0.6,
             beta=0.4,
-            final_beta_frame=100000
+            final_beta_frame=100000,
+            epsilon=1e-5
     ):
         super().__init__(buffer_size)
 
-        assert alpha > 0
+        assert alpha >= 0
         self._alpha = alpha
 
         it_capacity = 1
@@ -79,8 +80,12 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
         self._max_priority = 1.0
         self._beta = beta
         self._final_beta_frame = final_beta_frame
+        self._epsilon = epsilon
         self._frames = 0
         self._cache = None
+
+    def store(self, states, action, next_states, reward):
+        self._add((states, action, next_states, reward))
 
     def sample(self, batch_size):
         beta = min(1.0, self._beta + self._frames
@@ -105,7 +110,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
     def update_priorities(self, td_errors):
         idxes = self._cache
         _td_errors = td_errors.detach().numpy()
-        priorities = list(np.abs(_td_errors))
+        priorities = list(np.abs(_td_errors) + self._epsilon)
         assert len(idxes) == len(priorities)
         for idx, priority in zip(idxes, priorities):
             assert priority > 0
