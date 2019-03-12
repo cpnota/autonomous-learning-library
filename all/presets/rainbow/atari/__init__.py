@@ -22,12 +22,12 @@ def dueling_conv_net(env, sigma_init):
         Flatten(),
         Dueling(
             nn.Sequential(
-                NoisyLinear(3456, 512, sigma_init=sigma_init),
+                nn.Linear(3456, 512),
                 nn.ReLU(),
                 NoisyLinear(512, 1, sigma_init=sigma_init)
             ),
             nn.Sequential(
-                NoisyLinear(3456, 512, sigma_init=sigma_init),
+                nn.Linear(3456, 512),
                 nn.ReLU(),
                 NoisyLinear(512, env.action_space.n, sigma_init=sigma_init)
             ),
