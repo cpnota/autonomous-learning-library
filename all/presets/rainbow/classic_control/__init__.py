@@ -15,12 +15,12 @@ def dueling_fc_net(env, sigma_init):
             nn.Sequential(
                 nn.Linear(env.state_space.shape[0], 256),
                 nn.ReLU(),
-                nn.Linear(256, env.action_space.n)
+                nn.Linear(256, 1)
             ),
             nn.Sequential(
                 nn.Linear(env.state_space.shape[0], 256),
                 nn.ReLU(),
-                NoisyLinear(256, 1, sigma_init=sigma_init)
+                NoisyLinear(256, env.action_space.n, sigma_init=sigma_init)
             )
         )
     )
