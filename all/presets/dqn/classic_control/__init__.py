@@ -26,7 +26,7 @@ def dqn_cc(
         initial_exploration=1.00,
         final_exploration=0.02,
         final_exploration_frame=10000,
-        replay_start_size=32 * 8,
+        replay_start_size=1000,
         build_model=fc_net
 ):
     def _dqn_cc(env):

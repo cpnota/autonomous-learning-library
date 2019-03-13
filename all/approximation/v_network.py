@@ -19,7 +19,10 @@ class ValueNetwork(ValueFunction):
 
     def eval(self, states):
         with torch.no_grad():
-            return self._eval(states)
+            training = self.model.training
+            result = self._eval(states)
+            self.model.train(training)
+            return result
 
     def reinforce(self, td_errors):
         targets = td_errors + self.cache.detach()

@@ -37,8 +37,10 @@ class TestExperienceReplayBuffer(unittest.TestCase):
             sample_states = torch.tensor(sample[0]).detach().numpy()
             actual_samples.append(sample_states)
             actual_weights.append(sample[-1])
-        np.testing.assert_array_equal(expected_samples, np.vstack(actual_samples))
-        np.testing.assert_array_equal(expected_weights, np.vstack(actual_weights))
+        np.testing.assert_array_equal(
+            expected_samples, np.vstack(actual_samples))
+        np.testing.assert_array_equal(
+            expected_weights, np.vstack(actual_weights))
 
 class TestPrioritizedReplayBuffer(unittest.TestCase):
     def setUp(self):
@@ -50,21 +52,21 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         actions = torch.arange(0, 20)
         rewards = torch.arange(0, 20)
         expected_samples = [
-            [0, 0, 0],
-            [0, 0, 0],
-            [5, 5, 5],
-            [5, 6, 5],
-            [7, 5, 6],
+            [0, 2, 2],
+            [0, 1, 1],
+            [3, 3, 5],
+            [5, 3, 6],
+            [3, 5, 7],
             [8, 5, 8],
             [8, 5, 5],
         ]
-        expected_weights = [[1., 1., 1., ],
-                            [1., 1., 1., ],
-                            [1., 1., 1., ],
-                            [1., 0.9099231, 1., ],
-                            [0.45689753, 1., 0.5194369],
-                            [0.6109873, 0.6815734, 0.6109873, ],
-                            [0.79416645, 0.83175826, 0.83175826]]
+        expected_weights = [[1., 1., 1.],
+                            [0.56589746, 0.5124394, 0.5124394],
+                            [0.5124343, 0.5124343, 0.5124343],
+                            [0.5090894, 0.6456939, 0.46323255],
+                            [0.51945686, 0.5801515, 0.45691562],
+                            [0.45691025, 0.5096957, 0.45691025],
+                            [0.5938914, 0.6220026, 0.6220026]]
         actual_samples = []
         actual_weights = []
         for i in range(10):
