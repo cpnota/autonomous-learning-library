@@ -13,12 +13,12 @@ def dueling_fc_net(env, sigma_init):
         Flatten(),
         Dueling(
             nn.Sequential(
-                NoisyLinear(env.state_space.shape[0], 256, sigma_init=sigma_init),
+                nn.Linear(env.state_space.shape[0], 256),
                 nn.ReLU(),
                 NoisyLinear(256, env.action_space.n, sigma_init=sigma_init)
             ),
             nn.Sequential(
-                NoisyLinear(env.state_space.shape[0], 256, sigma_init=sigma_init),
+                nn.Linear(env.state_space.shape[0], 256),
                 nn.ReLU(),
                 NoisyLinear(256, 1, sigma_init=sigma_init)
             )
@@ -32,16 +32,16 @@ def rainbow_cc(
         discount_factor=0.99,
         update_frequency=1,
         lr=1e-4,
-        replay_start_size=32 * 8,
+        replay_start_size=1000,
         build_model=dueling_fc_net,
         # Double Q-Learning
         target_update_frequency=1000,
         # Prioritized Replay
         alpha=0.2,  # priority scaling
-        beta=0.4,  # importance sampling adjustment
-        final_beta_frame=50000,
+        beta=0.6,  # importance sampling adjustment
+        final_beta_frame=20000,
         # NoisyNets
-        sigma_init=0.01
+        sigma_init=0.1
 ):
     '''
     Partial implementation of the Rainbow variant of DQN, scaled for classic control environments.
