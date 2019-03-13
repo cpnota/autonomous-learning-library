@@ -28,7 +28,10 @@ class QNetwork(QFunction):
 
     def eval(self, states, actions=None):
         with torch.no_grad():
-            return self._eval(states, actions, self.target_model)
+            training = self.target_model.training
+            result = self._eval(states, actions, self.target_model.eval())
+            self.target_model.train(training)
+            return result
 
     def reinforce(self, td_errors):
         targets = td_errors + self.cache.detach()

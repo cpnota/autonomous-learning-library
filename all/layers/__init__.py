@@ -46,9 +46,9 @@ class NoisyLinear(nn.Linear):
 
     https://arxiv.org/abs/1706.10295
     NoisyNets are a replacement for epsilon greedy exploration.
-    Gaussian noise is added to the output layer, resulting in
-    a stochastic policy. Exploration is implicitly learned
-    at a per-state and per-action level, resulting smarter exploration.
+    Gaussian noise is added to the weights of the output layer, resulting in
+    a stochastic policy. Exploration is implicitly learned at a per-state
+    and per-action level, resulting in smarter exploration.
     '''
     def __init__(self, in_features, out_features, sigma_init=0.017, bias=True):
         super(NoisyLinear, self).__init__(in_features, out_features, bias=bias)
@@ -65,9 +65,13 @@ class NoisyLinear(nn.Linear):
         nn.init.uniform_(self.bias, -std, std)
 
     def forward(self, x):
-        torch.randn(self.epsilon_weight.size(), out=self.epsilon_weight)
         bias = self.bias
-        if bias is not None:
+
+        if not self.training:
+            return F.linear(x, self.weight, bias)
+
+        torch.randn(self.epsilon_weight.size(), out=self.epsilon_weight)
+        if self.bias is not None:
             torch.randn(self.epsilon_bias.size(), out=self.epsilon_bias)
             bias = bias + self.sigma_bias * self.epsilon_bias
         return F.linear(x, self.weight + self.sigma_weight * self.epsilon_weight, bias)
