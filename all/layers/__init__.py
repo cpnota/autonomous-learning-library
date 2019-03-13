@@ -1,7 +1,7 @@
 import torch
-import numpy as np
 from torch import nn
 from torch.nn import functional as F
+import numpy as np
 
 class Aggregation(nn.Module):
     '''
@@ -72,4 +72,4 @@ class NoisyLinear(nn.Linear):
             bias = bias + self.sigma_bias * self.epsilon_bias
         return F.linear(x, self.weight + self.sigma_weight * self.epsilon_weight, bias)
 
-__all__ = ["Aggregation", "Dueling",  "Flatten"]
+__all__ = ["Aggregation", "Dueling", "Flatten", "NoisyLinear"]
