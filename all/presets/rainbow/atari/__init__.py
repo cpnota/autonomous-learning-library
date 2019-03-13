@@ -24,7 +24,7 @@ def dueling_conv_net(env, sigma_init):
             nn.Sequential(
                 nn.Linear(3456, 512),
                 nn.ReLU(),
-                NoisyLinear(512, 1, sigma_init=sigma_init)
+                nn.Linear(512, 1)
             ),
             nn.Sequential(
                 nn.Linear(3456, 512),
