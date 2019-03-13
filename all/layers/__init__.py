@@ -41,6 +41,15 @@ class Flatten(nn.Module):
         return x.view(x.size()[0], -1)
 
 class NoisyLinear(nn.Linear):
+    '''
+    Implementation of Linear layer for NoisyNets
+
+    https://arxiv.org/abs/1706.10295
+    NoisyNets are a replacement for epsilon greedy exploration.
+    Gaussian noise is added to the output layer, resulting in
+    a stochastic policy. Exploration is implicitly learned
+    at a per-state and per-action level, resulting smarter exploration.
+    '''
     def __init__(self, in_features, out_features, sigma_init=0.017, bias=True):
         super(NoisyLinear, self).__init__(in_features, out_features, bias=bias)
         self.sigma_weight = nn.Parameter(torch.Tensor(out_features, in_features).fill_(sigma_init))
