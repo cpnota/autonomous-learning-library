@@ -4,7 +4,7 @@ from all.presets.rainbow import rainbow
 
 def run():
     env = AtariEnvironment("Breakout")
-    experiment = Experiment(env, episodes=10000, trials=1)
+    experiment = Experiment(env, episodes=50000, trials=1)
     experiment.run(
         rainbow(),
         plot_every=10,
