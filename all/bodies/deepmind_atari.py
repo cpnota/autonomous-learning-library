@@ -6,7 +6,7 @@ NOOP_ACTION = torch.tensor([0])
 
 class NoopBody(Body):
     def __init__(self, agent, noop_max):
-        self.agent = agent
+        super().__init__(agent)
         self.noop_max = noop_max
         self.noops = 0
         self.actions_taken = 0
@@ -31,7 +31,7 @@ class NoopBody(Body):
 
 class AtariVisionPreprocessor(Body):
     def __init__(self, agent, deflicker=True):
-        self.agent = agent
+        super().__init__(agent)
         self.deflicker = deflicker
         self._previous_frame = None
 
@@ -58,6 +58,13 @@ def to_grayscale(frame):
 def downsample(frame):
     return frame[:, ::2, ::2]
 
+class RewardClipping(Body):
+    def act(self, state, reward, info=None):
+        return self.agent.act(state, clip(reward), info)
+
+    def terminal(self, reward, info=None):
+        return self.agent.terminal(clip(reward), info)
+
 def clip(reward):
     return np.sign(reward)
 
@@ -68,7 +75,7 @@ class DeepmindAtariBodyInner(Body):
             env,
             frameskip=4,
     ):
-        self.agent = agent
+        super().__init__(agent)
         self.env = env
         self.frameskip = frameskip
         self._state = None
@@ -105,7 +112,7 @@ class DeepmindAtariBodyInner(Body):
         return self._action
 
     def terminal(self, reward, info=None):
-        self._reward += clip(reward)
+        self._reward += reward
         self._info = info
         return self.agent.terminal(self._reward, self._info)
 
@@ -115,7 +122,7 @@ class DeepmindAtariBodyInner(Body):
 
     def _update_state(self, state, reward, info):
         self._state.append(state)
-        self._reward += clip(reward)
+        self._reward += reward
         self._info = info
         self._skipped_frames += 1
 
@@ -155,7 +162,8 @@ class DeepmindAtariBody(Body):
     '''
     def __init__(self, agent, env, deflicker=True, noop_max=30):
         agent = DeepmindAtariBodyInner(agent, env)
+        agent = RewardClipping(agent)
         agent = AtariVisionPreprocessor(agent, deflicker=deflicker)
         if noop_max > 0:
             agent = NoopBody(agent, noop_max)
-        self.agent = agent
+        super().__init__(agent)

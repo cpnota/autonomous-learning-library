@@ -8,7 +8,8 @@ class Body(Agent):
     The Body API is identical to the Agent API from the perspective of the
     rest of the system. This base class is provided only for semantic clarity.
     """
-    _agent = None
+    def __init__(self, agent):
+        self._agent = agent
     
     @property
     def agent(self):
