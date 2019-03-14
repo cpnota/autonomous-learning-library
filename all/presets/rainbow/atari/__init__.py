@@ -41,7 +41,7 @@ def rainbow(
         discount_factor=0.99,
         update_frequency=4,
         lr=6.25e-5,
-        replay_start_size=8e5,
+        replay_start_size=8e4,
         build_model=dueling_conv_net,
         # Double Q-Learning
         target_update_frequency=10000,
