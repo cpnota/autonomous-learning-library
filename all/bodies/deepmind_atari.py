@@ -11,8 +11,8 @@ class DeepmindAtariBody(Body):
     2. Frame stacking
     3. Reward clipping (-1, 0, 1)
     4. Episodic lives
-    5. No-op on reset (not implemented)
-    5. Fire on reset (not implemented)
+    5. Fire on reset
+    6. No-op on reset (not implemented)
     '''
 
     def __init__(
@@ -35,15 +35,28 @@ class DeepmindAtariBody(Body):
         self._lives = 0
 
     def initial(self, state, info=None):
-        self._set_initial_state(state, info)
-        self._choose_action()
+        _state = [self._preprocess_initial(state)] * self.frameskip
+        self._state = []
+        self._action = self.agent.initial(stack(_state), info)
+        self._reward = 0
+        self._info = info
+        self._skipped_frames = 0
+        self._lives = self._get_lives()
+    
+        # fire to start if necessary
+        if self._should_fire():
+            self._action = torch.tensor([2])
+            return torch.tensor([1])
+
         return self._action
 
     def act(self, state, reward, info=None):
-        self._update_state(state, reward, info)
         if self._lost_life():
-            self._reset(state, info)
-        elif self._should_choose_action():
+            self.terminal(self._reward, self._info)
+            return self.initial(state, info)
+
+        self._update_state(state, reward, info)
+        if self._should_choose_action():
             self._choose_action()
         return self._action
 
@@ -52,16 +65,9 @@ class DeepmindAtariBody(Body):
         self._info = info
         return self.agent.terminal(self._reward, self._info)
 
-    def _reset(self, state, info):
-        self.agent.terminal(self._reward, self._info)
-        self._set_initial_state(state, info)
-        self._choose_action()
-
-    def _set_initial_state(self, state, info):
-        self._state = [self._preprocess_initial(state)] * self.frameskip
-        self._reward = 0
-        self._info = info
-        self._lives = self._get_lives()
+    def _should_fire(self):
+        # pylint: disable=protected-access
+        return self.env._env.unwrapped.get_action_meanings()[1] == 'FIRE'
 
     def _update_state(self, state, reward, info):
         self._state.append(self._preprocess(state))
@@ -89,6 +95,7 @@ class DeepmindAtariBody(Body):
         self._state = []
         self._reward = 0
         self._skipped_frames = 0
+        return self._action
 
     def _preprocess_initial(self, frame):
         self._previous_frame = frame
