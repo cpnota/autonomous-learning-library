@@ -2,30 +2,58 @@ import torch
 import numpy as np
 from .abstract import Body
 
-class DeepmindAtariBody(Body):
-    '''
-    Enable the Agent to play Atari games DeepMind Style
+NOOP_ACTION = torch.tensor([0])
 
-    Implements the following features:
-    1. Frame preprocessing (deflicker + downsample + grayscale)
-    2. Frame stacking
-    3. Reward clipping (-1, 0, 1)
-    4. Episodic lives
-    5. Fire on reset
-    6. No-op on reset (not implemented)
-    '''
+def stack(frames):
+    return torch.cat(frames).unsqueeze(0)
 
+def to_grayscale(frame):
+    return torch.mean(frame.float(), dim=3).byte()
+
+def downsample(frame):
+    return frame[:, ::2, ::2]
+
+def deflicker(frame1, frame2):
+    return torch.max(frame1, frame2)
+
+def clip(reward):
+    return np.sign(reward)
+
+class NoopBody(Body):
+    def __init__(self, agent, noop_max):
+        self.agent = agent
+        self.noop_max = noop_max
+        self.noops = 0
+        self.actions_taken = 0
+
+    def initial(self, state, info=None):
+        self.noops = np.random.randint(self.noop_max)
+        self.actions_taken = 0
+        return NOOP_ACTION
+
+    def act(self, state, reward, info=None):
+        self.actions_taken += 1
+        if self.actions_taken < self.noops:
+            return NOOP_ACTION
+        if self.actions_taken == self.noops:
+            return self.agent.initial(state, info)
+        return self.agent.act(state, reward)
+
+    def terminal(self, reward, info=None):
+        if self.actions_taken >= self.noops:
+            return self.agent.terminal(reward, info)
+        return # the poor agent never stood a chance
+
+class DeepmindAtariBodyInner(Body):
     def __init__(
             self,
             agent,
             env,
             frameskip=4,
-            noop_max=30
     ):
         self.agent = agent
         self.env = env
         self.frameskip = frameskip
-        self.noop_max = noop_max
         self._state = None
         self._action = None
         self._reward = 0
@@ -106,17 +134,20 @@ class DeepmindAtariBody(Body):
         self._previous_frame = frame
         return to_grayscale(downsample(deflickered_frame))
 
-def stack(frames):
-    return torch.cat(frames).unsqueeze(0)
+class DeepmindAtariBody(Body):
+    '''
+    Enable the Agent to play Atari games DeepMind Style
 
-def to_grayscale(frame):
-    return torch.mean(frame.float(), dim=3).byte()
-
-def downsample(frame):
-    return frame[:, ::2, ::2]
-
-def deflicker(frame1, frame2):
-    return torch.max(frame1, frame2)
-
-def clip(reward):
-    return np.sign(reward)
+    Implements the following features:
+    1. Frame preprocessing (deflicker + downsample + grayscale)
+    2. Frame stacking
+    3. Reward clipping (-1, 0, 1)
+    4. Episodic lives
+    5. Fire on reset
+    6. No-op on reset
+    '''
+    def __init__(self, agent, env, noop_max=30):
+        agent = DeepmindAtariBodyInner(agent, env)
+        if noop_max > 0:
+            agent = NoopBody(agent, noop_max)
+        self.agent = agent
