@@ -29,35 +29,47 @@ class DeepmindAtariBody(Body):
         self.noop_max = noop_max
         self._state = None
         self._action = None
-        self._skipped_frames = 0
         self._reward = 0
+        self._info = None
+        self._skipped_frames = 0
         self._previous_frame = None
+        self._lives = 0
 
     def initial(self, state, info=None):
-        stacked = stack([self._preprocess_initial(state)] * self.frameskip)
-        self._action = self.agent.initial(stacked, info)
-        self._state = []
-        self._skipped_frames = 0
+        self._state = [self._preprocess_initial(state)] * self.frameskip
+        self._info = info
+        self._choose_action()
         return self._action
 
     def act(self, state, reward, info=None):
-        self._state.append(self._preprocess(state))
-        self._reward += clip(reward)
-        self._skipped_frames += 1
-        if self._skipped_frames == self.frameskip:
-            self._action = self.agent.act(
-                stack(self._state),
-                self._reward,
-                info
-            )
-            self._state = []
-            self._reward = 0
-            self._skipped_frames = 0
+        self._update_state(state, reward, info)
+        if self._should_choose_action():
+            self._choose_action()
         return self._action
 
     def terminal(self, reward, info=None):
         self._reward += clip(reward)
-        return self.agent.terminal(self._reward, info)
+        self._info = info
+        return self.agent.terminal(self._reward, self._info)
+
+    def _update_state(self, state, reward, info):
+        self._state.append(self._preprocess(state))
+        self._reward += clip(reward)
+        self._info = info
+        self._skipped_frames += 1
+
+    def _should_choose_action(self):
+        return self._skipped_frames == self.frameskip
+
+    def _choose_action(self):
+        self._action = self.agent.act(
+            stack(self._state),
+            self._reward,
+            self._info
+        )
+        self._state = []
+        self._reward = 0
+        self._skipped_frames = 0
 
     def _preprocess_initial(self, frame):
         self._previous_frame = frame
@@ -67,6 +79,9 @@ class DeepmindAtariBody(Body):
         deflickered_frame = deflicker(frame, self._previous_frame)
         self._previous_frame = frame
         return to_grayscale(downsample(deflickered_frame))
+
+    def _get_lives(self):
+        return self.env._env.unwrapped.ale.lives()
 
 def stack(frames):
     return torch.cat(frames).unsqueeze(0)
