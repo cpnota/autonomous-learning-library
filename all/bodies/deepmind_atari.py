@@ -13,17 +13,20 @@ class DeepmindAtariBody(Body):
     3. Episodic lives (not implemented)
     4. Fire on reset (not implemented)
     3. Frame preprocessing (downsample + grayscale)
-    4. 
+    4.
     '''
+
     def __init__(
             self,
             agent,
             env,
-            frameskip=4
+            frameskip=4,
+            noop_max=30
     ):
         self.agent = agent
         self.env = env
         self.frameskip = frameskip
+        self.noop_max = noop_max
         self._state = None
         self._action = None
         self._skipped_frames = 0

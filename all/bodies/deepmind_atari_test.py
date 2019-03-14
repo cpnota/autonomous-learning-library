@@ -51,7 +51,7 @@ class DeepmindAtariBodyTest(unittest.TestCase):
         self.body.act(frame2, 0)
         self.body.act(frame2, 0)
         expected = torch.cat((
-            torch.ones(1, 2, 2), 
+            torch.ones(1, 2, 2),
             torch.ones(2, 2, 2) * 2,
             torch.ones(1, 2, 2)
         )).unsqueeze(0)
@@ -80,7 +80,7 @@ class DeepmindAtariBodyPongTest(unittest.TestCase):
         self.env.reset()
         self.env.step(self.body.initial(self.env.state))
         for _ in range(10):
-            reward = -5 # should be clipped
+            reward = -5  # should be clipped
             action = self.body.act(self.env.state, reward)
             self.env.step(action)
         tt.assert_equal(action, torch.tensor([0]))
@@ -91,14 +91,13 @@ class DeepmindAtariBodyPongTest(unittest.TestCase):
         self.env.reset()
         self.env.step(self.body.initial(self.env.state))
         for _ in range(13):
-            reward = -5 # should be clipped
+            reward = -5  # should be clipped
             action = self.body.act(self.env.state, reward)
             self.env.step(action)
         self.body.terminal(-1)
         tt.assert_equal(action, torch.tensor([0]))
         self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
         self.assertEqual(self.agent.reward, -2)
-
 
 
 if __name__ == '__main__':

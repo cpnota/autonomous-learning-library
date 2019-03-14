@@ -1,6 +1,6 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 from torch import nn
-from torch.optim import Adam
+from torch.optim import RMSprop
 from torch.nn.functional import smooth_l1_loss
 from all.layers import Flatten, Dueling
 from all.approximation import QNetwork
@@ -25,21 +25,38 @@ def conv_net(env, frames=4):
     )
 
 def dqn(
+        # Taken from Extended Data Table 1
         minibatch_size=32,
         replay_buffer_size=250000,  # originally 1e6
+        # agent_history_length=4, # not configurable
         target_update_frequency=10000,
         discount_factor=0.99,
+        # action_repeat=4, # not configurable
         update_frequency=4,
-        lr=1e-4,
-        initial_exploration=1.00,
+        lr=0.00025,
+        gradient_momentum=0.95,
+        squared_gradient_momentum=0.95,
+        min_squared_gradient=0.01,
+        initial_exploration=1.,
         final_exploration=0.1,
-        final_exploration_frame=250000,  # originally 1e6
+        final_exploration_frame=1000000,
         replay_start_size=50000,
-        build_model=conv_net
+        build_model=conv_net,
+        noop_max=30
 ):
+    # counted by number of updates rather than number of frame
+    final_exploration_frame /= 4
+    replay_start_size /= 4
+
     def _dqn(env):
         model = build_model(env)
-        optimizer = Adam(model.parameters(), lr=lr)
+        optimizer = RMSprop(
+            model.parameters(),
+            lr=lr,
+            momentum=gradient_momentum,
+            alpha=squared_gradient_momentum,
+            eps=min_squared_gradient
+        )
         q = QNetwork(model, optimizer,
                      target_update_frequency=target_update_frequency,
                      loss=smooth_l1_loss
@@ -57,7 +74,8 @@ def dqn(
                 replay_start_size=replay_start_size,
                 update_frequency=update_frequency,
                 ),
-            env
+            env,
+            noop_max=noop_max
         )
     return _dqn
 
