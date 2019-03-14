@@ -7,13 +7,12 @@ class DeepmindAtariBody(Body):
     Enable the Agent to play Atari games DeepMind Style
 
     Implements the following features:
-    1. Frame preprocessing (downsample + grayscale)
+    1. Frame preprocessing (deflicker + downsample + grayscale)
     2. Frame stacking
     3. Reward clipping (-1, 0, 1)
-    3. Episodic lives (not implemented)
-    4. Fire on reset (not implemented)
-    3. Frame preprocessing (downsample + grayscale)
-    4.
+    4. Episodic lives
+    5. No-op on reset (not implemented)
+    5. Fire on reset (not implemented)
     '''
 
     def __init__(
