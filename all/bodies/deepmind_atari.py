@@ -4,21 +4,6 @@ from .abstract import Body
 
 NOOP_ACTION = torch.tensor([0])
 
-def stack(frames):
-    return torch.cat(frames).unsqueeze(0)
-
-def to_grayscale(frame):
-    return torch.mean(frame.float(), dim=3).byte()
-
-def downsample(frame):
-    return frame[:, ::2, ::2]
-
-def deflicker(frame1, frame2):
-    return torch.max(frame1, frame2)
-
-def clip(reward):
-    return np.sign(reward)
-
 class NoopBody(Body):
     def __init__(self, agent, noop_max):
         self.agent = agent
@@ -42,7 +27,39 @@ class NoopBody(Body):
     def terminal(self, reward, info=None):
         if self.actions_taken >= self.noops:
             return self.agent.terminal(reward, info)
-        return # the poor agent never stood a chance
+        return  # the poor agent never stood a chance
+
+class AtariVisionPreprocessor(Body):
+    def __init__(self, agent, deflicker=True):
+        self.agent = agent
+        self.deflicker = deflicker
+        self._previous_frame = None
+
+    def initial(self, frame, info=None):
+        if self.deflicker:
+            self._previous_frame = frame
+        return self.agent.initial(preprocess(frame), info)
+
+    def act(self, frame, reward, info=None):
+        if self.deflicker:
+            frame, self._previous_frame = torch.max(
+                frame, self._previous_frame), frame
+        return self.agent.act(preprocess(frame), reward, info)
+
+def preprocess(frame):
+    return to_grayscale(downsample(frame))
+
+def stack(frames):
+    return torch.cat(frames).unsqueeze(0)
+
+def to_grayscale(frame):
+    return torch.mean(frame.float(), dim=3).byte()
+
+def downsample(frame):
+    return frame[:, ::2, ::2]
+
+def clip(reward):
+    return np.sign(reward)
 
 class DeepmindAtariBodyInner(Body):
     def __init__(
@@ -59,18 +76,17 @@ class DeepmindAtariBodyInner(Body):
         self._reward = 0
         self._info = None
         self._skipped_frames = 0
-        self._previous_frame = None
         self._lives = 0
 
     def initial(self, state, info=None):
-        _state = [self._preprocess_initial(state)] * self.frameskip
+        _state = [state] * self.frameskip
         self._state = []
         self._action = self.agent.initial(stack(_state), info)
         self._reward = 0
         self._info = info
         self._skipped_frames = 0
         self._lives = self._get_lives()
-    
+
         # fire to start if necessary
         if self._should_fire():
             self._action = torch.tensor([2])
@@ -98,7 +114,7 @@ class DeepmindAtariBodyInner(Body):
         return self.env._env.unwrapped.get_action_meanings()[1] == 'FIRE'
 
     def _update_state(self, state, reward, info):
-        self._state.append(self._preprocess(state))
+        self._state.append(state)
         self._reward += clip(reward)
         self._info = info
         self._skipped_frames += 1
@@ -125,15 +141,6 @@ class DeepmindAtariBodyInner(Body):
         self._skipped_frames = 0
         return self._action
 
-    def _preprocess_initial(self, frame):
-        self._previous_frame = frame
-        return self._preprocess(frame)
-
-    def _preprocess(self, frame):
-        deflickered_frame = deflicker(frame, self._previous_frame)
-        self._previous_frame = frame
-        return to_grayscale(downsample(deflickered_frame))
-
 class DeepmindAtariBody(Body):
     '''
     Enable the Agent to play Atari games DeepMind Style
@@ -146,8 +153,10 @@ class DeepmindAtariBody(Body):
     5. Fire on reset
     6. No-op on reset
     '''
-    def __init__(self, agent, env, noop_max=30):
+
+    def __init__(self, agent, env, deflicker=True, noop_max=30):
         agent = DeepmindAtariBodyInner(agent, env)
+        agent = AtariVisionPreprocessor(agent, deflicker=deflicker)
         if noop_max > 0:
             agent = NoopBody(agent, noop_max)
         self.agent = agent
