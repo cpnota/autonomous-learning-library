@@ -16,13 +16,14 @@ def run():
             update_frequency=2,
             minibatch_size=2 * 32,
             # hand tuned
-            final_beta_frame=2e6 # approximate number of training frames
+            final_beta_frame=2e6, # approximate number of training frames
+            sigma_init=0.03
         ),
-        plot_every=50,
+        plot_every=5,
         print_every=1,
         render=True
     )
-    experiment.plot(filename="rainbow-pong.png")
+    experiment.plot(filename="rainbow-pong.png", frequency=5)
     experiment.save("rainbow_pong")
 
 
