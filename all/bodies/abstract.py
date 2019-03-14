@@ -8,15 +8,21 @@ class Body(Agent):
     The Body API is identical to the Agent API from the perspective of the
     rest of the system. This base class is provided only for semantic clarity.
     """
+    _agent = None
+    
+    @property
+    def agent(self):
+        return self._agent
 
-    @abstractmethod
+    @agent.setter
+    def agent(self, agent):
+        self._agent = agent
+
     def initial(self, state, info=None):
-        """See Agent"""
+        return self.agent.initial(state, info)
 
-    @abstractmethod
     def act(self, state, reward, info=None):
-        """See Agent"""
+        return self.agent.act(state, reward, info)
 
-    @abstractmethod
     def terminal(self, reward, info=None):
-        """See Agent"""
+        return self.agent.terminal(reward, info)

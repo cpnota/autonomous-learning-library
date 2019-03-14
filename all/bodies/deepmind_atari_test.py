@@ -26,8 +26,20 @@ class MockAgent(Agent):
         self.reward = reward
         self.info = info
 
+class ALE():
+    def lives(self):
+        return 1
+
+class Unwrapped():
+    ale = ALE()
+    def get_action_meanings(self):
+        return ['TEST', 'ACTIONS']
+
+class InnerEnv():
+    unwrapped = Unwrapped()
+
 class MockEnv():
-    pass
+    _env = InnerEnv()
 
 class DeepmindAtariBodyTest(unittest.TestCase):
     def setUp(self):
@@ -66,14 +78,14 @@ class DeepmindAtariBodyPongTest(unittest.TestCase):
     def test_initial_state(self):
         self.env.reset()
         action = self.body.initial(self.env.state)
-        tt.assert_equal(action, torch.tensor([0]))
+        tt.assert_equal(action, torch.tensor([1])) # fire on reset 1
         self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
 
     def test_second_state(self):
         self.env.reset()
         self.env.step(self.body.initial(self.env.state))
         action = self.body.act(self.env.state, self.env.reward)
-        tt.assert_equal(action, torch.tensor([0]))
+        tt.assert_equal(action, torch.tensor([2])) # fire on reset 2
         self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
 
     def test_several_steps(self):
