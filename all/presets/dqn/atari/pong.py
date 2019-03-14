@@ -5,7 +5,7 @@ from all.presets.dqn import dqn
 def run():
     # env = PongEnvironment()
     env = AtariEnvironment("Pong")
-    experiment = Experiment(env, episodes=2000, trials=1)
+    experiment = Experiment(env, episodes=500, trials=1)
     experiment.run(
         dqn(
             # parameters from:
@@ -19,7 +19,7 @@ def run():
             update_frequency=2,
             minibatch_size=2 * 32
         ),
-        plot_every=50,
+        plot_every=1,
         print_every=1,
         render=True
     )
