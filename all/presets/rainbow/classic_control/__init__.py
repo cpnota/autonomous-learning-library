@@ -4,23 +4,23 @@ from torch.optim import Adam
 from torch.nn.functional import mse_loss
 from all.agents import DQN
 from all.approximation import QNetwork
-from all.layers import Dueling, Flatten
+from all.layers import Dueling, Flatten, NoisyLinear
 from all.memory import PrioritizedReplayBuffer, ExperienceReplayBuffer
 from all.policies import GreedyPolicy
 
-def dueling_fc_net(env, frames=1):
+def dueling_fc_net(env, sigma_init):
     return nn.Sequential(
         Flatten(),
         Dueling(
             nn.Sequential(
-                nn.Linear(env.state_space.shape[0] * frames, 256),
-                nn.ReLU(),
-                nn.Linear(256, env.action_space.n)
-            ),
-            nn.Sequential(
-                nn.Linear(env.state_space.shape[0] * frames, 256),
+                nn.Linear(env.state_space.shape[0], 256),
                 nn.ReLU(),
                 nn.Linear(256, 1)
+            ),
+            nn.Sequential(
+                nn.Linear(env.state_space.shape[0], 256),
+                nn.ReLU(),
+                NoisyLinear(256, env.action_space.n, sigma_init=sigma_init)
             )
         )
     )
@@ -32,18 +32,16 @@ def rainbow_cc(
         discount_factor=0.99,
         update_frequency=1,
         lr=1e-4,
-        replay_start_size=32 * 8,
+        replay_start_size=1000,
         build_model=dueling_fc_net,
-        # Exploration Schedule
-        initial_exploration=1.00,
-        final_exploration=0.02,
-        final_exploration_frame=10000,
         # Double Q-Learning
         target_update_frequency=1000,
         # Prioritized Replay
         alpha=0.2,  # priority scaling
-        beta=0.4,  # importance sampling adjustment
-        final_beta_frame=50000,
+        beta=0.6,  # importance sampling adjustment
+        final_beta_frame=20000,
+        # NoisyNets
+        sigma_init=0.1
 ):
     '''
     Partial implementation of the Rainbow variant of DQN, scaled for classic control environments.
@@ -52,23 +50,24 @@ def rainbow_cc(
     1. Double Q-Learning
     2. Prioritized Replay
     3. Dueling Networks
+    4. NoisyNets
 
     Still to be added are:
-    4. Multi-step Learning
-    5. Distributional RL
-    6. NoisyNets
+    5. Multi-step Learning
+    6. Distributional RL
+    7. Double Q-Learning
     '''
     def _rainbow_cc(env):
-        model = build_model(env)
+        model = build_model(env, sigma_init)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(model, optimizer,
                      target_update_frequency=target_update_frequency,
                      loss=mse_loss)
         policy = GreedyPolicy(
             q,
-            initial_epsilon=initial_exploration,
-            final_epsilon=final_exploration,
-            annealing_time=final_exploration_frame
+            initial_epsilon=0,
+            final_epsilon=0,
+            annealing_time=1
         )
         # replay_buffer = ExperienceReplayBuffer(replay_buffer_size)
         replay_buffer = PrioritizedReplayBuffer(
