@@ -42,9 +42,8 @@ class DeepmindAtariBody(Body):
     def act(self, state, reward, info=None):
         self._update_state(state, reward, info)
         if self._lost_life():
-            self.terminal(0, info)
-            self.initial(state, info)
-        if self._should_choose_action():
+            self._reset(state, info)
+        elif self._should_choose_action():
             self._choose_action()
         return self._action
 
@@ -52,6 +51,11 @@ class DeepmindAtariBody(Body):
         self._reward += clip(reward)
         self._info = info
         return self.agent.terminal(self._reward, self._info)
+
+    def _reset(self, state, info):
+        self.agent.terminal(self._reward, self._info)
+        self._set_initial_state(state, info)
+        self._choose_action()
 
     def _set_initial_state(self, state, info):
         self._state = [self._preprocess_initial(state)] * self.frameskip
