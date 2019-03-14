@@ -153,7 +153,6 @@ class DeepmindAtariBody(Body):
     5. Fire on reset
     6. No-op on reset
     '''
-
     def __init__(self, agent, env, deflicker=True, noop_max=30):
         agent = DeepmindAtariBodyInner(agent, env)
         agent = AtariVisionPreprocessor(agent, deflicker=deflicker)
