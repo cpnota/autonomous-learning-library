@@ -3,6 +3,18 @@ import numpy as np
 from .abstract import Body
 
 class DeepmindAtariBody(Body):
+    '''
+    Enable the Agent to play Atari games DeepMind Style
+
+    Implements the following features:
+    1. Frame preprocessing (downsample + grayscale)
+    2. Frame stacking
+    3. Reward clipping (-1, 0, 1)
+    3. Episodic lives (not implemented)
+    4. Fire on reset (not implemented)
+    3. Frame preprocessing (downsample + grayscale)
+    4. 
+    '''
     def __init__(
             self,
             agent,
@@ -14,18 +26,20 @@ class DeepmindAtariBody(Body):
         self.frameskip = frameskip
         self._state = None
         self._action = None
+        self._previous_frame = None
         self._skipped_frames = 0
         self._reward = 0
 
     def initial(self, state, info=None):
-        stacked = stack([preprocess(state)] * self.frameskip)
+        self._previous_frame = None
+        stacked = stack([self._preprocess(state)] * self.frameskip)
         self._action = self.agent.initial(stacked, info)
         self._state = []
         self._skipped_frames = 0
         return self._action
 
     def act(self, state, reward, info=None):
-        self._state.append(preprocess(state))
+        self._state.append(self._preprocess(state))
         self._reward += clip(reward)
         self._skipped_frames += 1
         if self._skipped_frames == self.frameskip:
@@ -43,6 +57,13 @@ class DeepmindAtariBody(Body):
         self._reward += clip(reward)
         return self.agent.terminal(self._reward, info)
 
+    def _preprocess(self, frame):
+        deflickered = frame
+        if self._previous_frame is not None:
+            deflickered = deflicker(frame, self._previous_frame)
+        self._previous_frame = frame
+        return to_grayscale(downsample(deflickered))
+
 def stack(frames):
     return torch.cat(frames).unsqueeze(0)
 
@@ -52,8 +73,8 @@ def to_grayscale(frame):
 def downsample(frame):
     return frame[:, ::2, ::2]
 
-def preprocess(frame):
-    return to_grayscale(downsample(frame))
+def deflicker(frame1, frame2):
+    return torch.max(frame1, frame2)
 
 def clip(reward):
     return np.sign(reward)

@@ -26,7 +26,38 @@ class MockAgent(Agent):
         self.reward = reward
         self.info = info
 
+class MockEnv():
+    pass
+
 class DeepmindAtariBodyTest(unittest.TestCase):
+    def setUp(self):
+        self.agent = MockAgent()
+        self.env = MockEnv()
+        self.body = DeepmindAtariBody(self.agent, self.env)
+
+    def test_initial_state(self):
+        frame = torch.ones((1, 3, 4, 4))
+        action = self.body.initial(frame)
+        tt.assert_equal(action, torch.tensor([0]))
+        tt.assert_equal(self.agent.state, torch.ones(1, 4, 2, 2))
+
+    def test_deflicker(self):
+        frame1 = torch.ones((1, 3, 4, 4))
+        frame2 = torch.ones((1, 3, 4, 4))
+        frame3 = torch.ones((1, 3, 4, 4)) * 2
+        self.body.initial(frame1)
+        self.body.act(frame2, 0)
+        self.body.act(frame3, 0)
+        self.body.act(frame2, 0)
+        self.body.act(frame2, 0)
+        expected = torch.cat((
+            torch.ones(1, 2, 2), 
+            torch.ones(2, 2, 2) * 2,
+            torch.ones(1, 2, 2)
+        )).unsqueeze(0)
+        tt.assert_equal(self.agent.state, expected)
+
+class DeepmindAtariBodyPongTest(unittest.TestCase):
     def setUp(self):
         self.agent = MockAgent()
         self.env = GymEnvironment('PongNoFrameskip-v4')
@@ -67,6 +98,8 @@ class DeepmindAtariBodyTest(unittest.TestCase):
         tt.assert_equal(action, torch.tensor([0]))
         self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
         self.assertEqual(self.agent.reward, -2)
+
+
 
 if __name__ == '__main__':
     unittest.main()
