@@ -7,7 +7,7 @@ def run():
     experiment = Experiment(env, episodes=10000, trials=1)
     experiment.run(
         rainbow(),
-        plot_every=100,
+        plot_every=10,
         print_every=1,
         render=True
     )
