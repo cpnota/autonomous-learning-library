@@ -1,4 +1,4 @@
 from .abstract import Body
-from .deepmind_atari import DeepmindAtariBody
+from .atari import DeepmindAtariBody
 
 __all__ = ["Body", "DeepmindAtariBody"]

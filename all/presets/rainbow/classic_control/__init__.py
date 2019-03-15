@@ -65,8 +65,9 @@ def rainbow_cc(
                      loss=mse_loss)
         policy = GreedyPolicy(
             q,
-            initial_epsilon=0,
+            initial_epsilon=1,
             final_epsilon=0,
+            annealing_start=replay_start_size,
             annealing_time=1
         )
         # replay_buffer = ExperienceReplayBuffer(replay_buffer_size)
