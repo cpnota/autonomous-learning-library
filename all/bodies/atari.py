@@ -30,25 +30,27 @@ class NoopBody(Body):
             self.agent.terminal(reward, info)
         # otherwise, the poor agent never stood a chance
 
-class AtariVisionPreprocessor(Body):
-    def __init__(self, agent, deflicker=True):
-        super().__init__(agent)
-        self.deflicker = deflicker
-        self._previous_frame = None
+class Deflicker(Body):
+    _previous_frame = None
 
     def initial(self, frame, info=None):
-        if self.deflicker:
-            self._previous_frame = frame
-        return self.agent.initial(preprocess(frame), info)
+        self._previous_frame = frame
+        return self.agent.initial(frame, info)
 
     def act(self, frame, reward, info=None):
-        if self.deflicker:
-            frame, self._previous_frame = torch.max(
-                frame, self._previous_frame), frame
-        return self.agent.act(preprocess(frame), reward, info)
+        frame, self._previous_frame = torch.max(
+            frame, self._previous_frame), frame
+        return self.agent.act(frame, reward, info)
 
-def preprocess(frame):
-    return to_grayscale(downsample(frame)).unsqueeze(1)
+class AtariVisionPreprocessor(Body):
+    def initial(self, frame, info=None):
+        return self.agent.initial(self._preprocess(frame), info)
+
+    def act(self, frame, reward, info=None):
+        return self.agent.act(self._preprocess(frame), reward, info)
+
+    def _preprocess(self, frame):
+        return to_grayscale(downsample(frame)).unsqueeze(1)
 
 def to_grayscale(frame):
     return torch.mean(frame.float(), dim=3).byte()
@@ -188,7 +190,9 @@ class DeepmindAtariBody(Body):
         if frame_stack > 1:
             agent = FrameStack(agent, size=frame_stack)
         if preprocess:
-            agent = AtariVisionPreprocessor(agent, deflicker=deflicker)
+            agent = AtariVisionPreprocessor(agent)
+        if deflicker:
+            agent = Deflicker(agent)
         if noop_max > 0:
             agent = NoopBody(agent, noop_max)
         super().__init__(agent)
