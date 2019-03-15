@@ -4,7 +4,7 @@ import torch_testing as tt
 import numpy as np
 from all.agents import Agent
 from all.environments import GymEnvironment
-from all.bodies.deepmind_atari import DeepmindAtariBody
+from all.bodies.atari import DeepmindAtariBody
 
 NOOP_ACTION = torch.tensor([0])
 INITIAL_ACTION = torch.tensor([3])
@@ -119,6 +119,20 @@ class DeepmindAtariBodyPongTest(unittest.TestCase):
         tt.assert_equal(action, ACT_ACTION)
         self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
         self.assertEqual(self.agent.reward, -2)
+
+class NoFramestackTest(unittest.TestCase):
+    def setUp(self):
+        self.agent = MockAgent()
+        self.env = GymEnvironment('PongNoFrameskip-v4')
+        self.body = DeepmindAtariBody(self.agent, self.env, noop_max=0, frame_stack=1)
+
+    def test_several_steps(self):
+        self.env.reset()
+        self.env.step(self.body.initial(self.env.state))
+        self.env.step(self.body.act(self.env.state, -5))
+        for _ in range(10):
+            self.body.act(self.env.state, -5)
+            self.assertEqual(self.agent.state.shape, (1, 1, 105, 80))
 
 class NoopTest(unittest.TestCase):
     def setUp(self):

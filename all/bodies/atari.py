@@ -2,6 +2,7 @@ import torch
 import numpy as np
 from .abstract import Body
 
+# pylint: disable=protected-access
 NOOP_ACTION = torch.tensor([0])
 
 class NoopBody(Body):
@@ -47,7 +48,7 @@ class AtariVisionPreprocessor(Body):
         return self.agent.act(preprocess(frame), reward, info)
 
 def preprocess(frame):
-    return to_grayscale(downsample(frame))
+    return to_grayscale(downsample(frame)).unsqueeze(1)
 
 def to_grayscale(frame):
     return torch.mean(frame.float(), dim=3).byte()
@@ -70,7 +71,7 @@ class FrameStack(Body):
         return self.agent.act(stack(self._state), reward, info)
 
 def stack(frames):
-    return torch.cat(frames).unsqueeze(0)
+    return torch.cat(frames, dim=1)
 
 class EpisodicLives(Body):
     def __init__(self, agent, env):
@@ -168,18 +169,26 @@ class DeepmindAtariBody(Body):
             agent,
             env,
             action_repeat=4,
-            frame_stack=4,
+            clip_rewards=True,
             deflicker=True,
-            noop_max=30
+            episodic_lives=True,
+            fire_on_reset=True,
+            frame_stack=4,
+            noop_max=30,
+            preprocess=True,
     ):
-        agent = RepeatActions(agent, repeats=action_repeat)
-        agent = RewardClipping(agent)
-        # pylint: disable=protected-access
-        if env._env.unwrapped.get_action_meanings()[1] == 'FIRE':
+        if action_repeat > 1:
+            agent = RepeatActions(agent, repeats=action_repeat)
+        if clip_rewards:
+            agent = RewardClipping(agent)
+        if fire_on_reset and env._env.unwrapped.get_action_meanings()[1] == 'FIRE':
             agent = FireOnReset(agent)
-        agent = EpisodicLives(agent, env)
-        agent = FrameStack(agent, size=frame_stack)
-        agent = AtariVisionPreprocessor(agent, deflicker=deflicker)
+        if episodic_lives:
+            agent = EpisodicLives(agent, env)
+        if frame_stack > 1:
+            agent = FrameStack(agent, size=frame_stack)
+        if preprocess:
+            agent = AtariVisionPreprocessor(agent, deflicker=deflicker)
         if noop_max > 0:
             agent = NoopBody(agent, noop_max)
         super().__init__(agent)
