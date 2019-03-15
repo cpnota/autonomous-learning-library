@@ -72,7 +72,7 @@ class FrameStack(Body):
     def __init__(self, agent, size=4):
         super().__init__(agent)
         self._state = []
-        self._size = 4
+        self._size = size
 
     def initial(self, state, info=None):
         self._state = [state] * self._size
@@ -83,7 +83,7 @@ class FrameStack(Body):
         return self.agent.act(stack(self._state), reward, info)
 
 class FireOnReset(Body):
-    def __init__(self, agent, env):
+    def __init__(self, agent):
         super().__init__(agent)
         self._frames = 0
 
@@ -99,6 +99,35 @@ class FireOnReset(Body):
             self._frames += 1
             return self.agent.initial(state, info)
         return self.agent.act(state, reward, info)
+        
+class EpisodicLives(Body):
+    def __init__(
+        self,
+        agent,
+        env
+    ):
+        super().__init__(agent)
+        self._env = env
+        self._lives = 0
+
+    def initial(self, state, info=None):
+        self._lives = self._get_lives()
+        return self.agent.initial(state, info)
+
+    def act(self, state, reward, info=None):
+        if self._lost_life():
+            self.terminal(reward, info)
+            self._lives = self._get_lives()
+            return self.initial(state, info)
+        return self.agent.act(state, reward, info)
+    
+    def _lost_life(self):
+        lives = self._get_lives()
+        return lives < self._lives and lives > 0
+
+    def _get_lives(self):
+        # pylint: disable=protected-access
+        return self._env._env.unwrapped.ale.lives()
         
 
 class DeepmindAtariBodyInner(Body):
@@ -122,14 +151,9 @@ class DeepmindAtariBodyInner(Body):
         self._reward = 0
         self._info = info
         self._skipped_frames = 0
-        self._lives = self._get_lives()
         return self._action
 
     def act(self, state, reward, info=None):
-        if self._lost_life():
-            self.terminal(self._reward, self._info)
-            return self.initial(state, info)
-
         self._update_state(state, reward, info)
         if self._should_choose_action():
             self._choose_action(state)
@@ -144,14 +168,6 @@ class DeepmindAtariBodyInner(Body):
         self._reward += reward
         self._info = info
         self._skipped_frames += 1
-
-    def _lost_life(self):
-        lives = self._get_lives()
-        return lives < self._lives and lives > 0
-
-    def _get_lives(self):
-        # pylint: disable=protected-access
-        return self.env._env.unwrapped.ale.lives()
 
     def _should_choose_action(self):
         return self._skipped_frames == self.frameskip
@@ -185,7 +201,8 @@ class DeepmindAtariBody(Body):
         agent = RewardClipping(agent)
         # pylint: disable=protected-access
         if env._env.unwrapped.get_action_meanings()[1] == 'FIRE':
-            agent = FireOnReset(agent, env)
+            agent = FireOnReset(agent)
+        agent = EpisodicLives(agent, env)
         agent = FrameStack(agent, size=frame_stack)
         agent = AtariVisionPreprocessor(agent, deflicker=deflicker)
         if noop_max > 0:
