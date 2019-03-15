@@ -26,8 +26,8 @@ class NoopBody(Body):
 
     def terminal(self, reward, info=None):
         if self.actions_taken >= self.noops:
-            return self.agent.terminal(reward, info)
-        return  # the poor agent never stood a chance
+            self.agent.terminal(reward, info)
+        # otherwise, the poor agent never stood a chance
 
 class AtariVisionPreprocessor(Body):
     def __init__(self, agent, deflicker=True):
@@ -101,11 +101,7 @@ class FireOnReset(Body):
         return self.agent.act(state, reward, info)
 
 class EpisodicLives(Body):
-    def __init__(
-        self,
-        agent,
-        env
-    ):
+    def __init__(self, agent, env):
         super().__init__(agent)
         self._env = env
         self._lives = 0
@@ -123,18 +119,14 @@ class EpisodicLives(Body):
 
     def _lost_life(self):
         lives = self._get_lives()
-        return lives < self._lives and lives > 0
+        return 0 < lives < self._lives
 
     def _get_lives(self):
         # pylint: disable=protected-access
         return self._env._env.unwrapped.ale.lives()
 
 class RepeatActions(Body):
-    def __init__(
-        self,
-        agent,
-        repeats=4
-    ):
+    def __init__(self, agent, repeats=4):
         super().__init__(agent)
         self._repeats = repeats
         self._count = 0
@@ -173,7 +165,16 @@ class DeepmindAtariBody(Body):
     6. Reward clipping (All are -1, 0, or 1)
     7. Action repeat (Repeat each chosen actions for four frames)
     '''
-    def __init__(self, agent, env, action_repeat=4, frame_stack=4, deflicker=True, noop_max=30):
+
+    def __init__(
+            self,
+            agent,
+            env,
+            action_repeat=4,
+            frame_stack=4,
+            deflicker=True,
+            noop_max=30
+    ):
         agent = RepeatActions(agent, repeats=action_repeat)
         agent = RewardClipping(agent)
         # pylint: disable=protected-access

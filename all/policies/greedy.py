@@ -4,12 +4,12 @@ from .abstract import Policy
 
 class GreedyPolicy(Policy):
     def __init__(
-        self,
-        q,
-        initial_epsilon=1.,
-        final_epsilon=0.1,
-        annealing_start=0,
-        annealing_time=1
+            self,
+            q,
+            initial_epsilon=1.,
+            final_epsilon=0.1,
+            annealing_start=0,
+            annealing_time=1
     ):
         self.q = q
         self.epsilon = initial_epsilon
