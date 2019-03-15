@@ -2,7 +2,7 @@
 from torch import nn
 from torch.optim import RMSprop
 from torch.nn.functional import smooth_l1_loss
-from all.layers import Flatten, Dueling
+from all.layers import Flatten, Dueling, Linear0
 from all.approximation import QNetwork
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
@@ -21,7 +21,7 @@ def conv_net(env, frames=4):
         Flatten(),
         nn.Linear(3456, 512),
         nn.ReLU(),
-        nn.Linear(512, env.action_space.n)
+        Linear0(512, env.action_space.n)
     )
 
 def dqn(

@@ -2,7 +2,7 @@
 from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
-from all.layers import Flatten, Dueling, NoisyLinear
+from all.layers import Flatten, Dueling, Linear0
 from all.approximation import QNetwork
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
@@ -24,12 +24,12 @@ def dueling_conv_net(env, frames=4):
             nn.Sequential(
                 nn.Linear(3456, 512),
                 nn.ReLU(),
-                nn.Linear(512, 1)
+                Linear0(512, 1)
             ),
             nn.Sequential(
                 nn.Linear(3456, 512),
                 nn.ReLU(),
-                nn.Linear(512, env.action_space.n)
+                Linear0(512, env.action_space.n)
             ),
         )
     )
