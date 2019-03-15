@@ -49,24 +49,11 @@ class AtariVisionPreprocessor(Body):
 def preprocess(frame):
     return to_grayscale(downsample(frame))
 
-def stack(frames):
-    return torch.cat(frames).unsqueeze(0)
-
 def to_grayscale(frame):
     return torch.mean(frame.float(), dim=3).byte()
 
 def downsample(frame):
     return frame[:, ::2, ::2]
-
-class RewardClipping(Body):
-    def act(self, state, reward, info=None):
-        return self.agent.act(state, clip(reward), info)
-
-    def terminal(self, reward, info=None):
-        return self.agent.terminal(clip(reward), info)
-
-def clip(reward):
-    return np.sign(reward)
 
 class FrameStack(Body):
     def __init__(self, agent, size=4):
@@ -82,23 +69,8 @@ class FrameStack(Body):
         self._state = self._state[1:] + [state]
         return self.agent.act(stack(self._state), reward, info)
 
-class FireOnReset(Body):
-    def __init__(self, agent):
-        super().__init__(agent)
-        self._frames = 0
-
-    def initial(self, state, info=None):
-        self._frames = 1
-        return torch.tensor([1])
-
-    def act(self, state, reward, info=None):
-        if self._frames == 1:
-            self._frames += 1
-            return torch.tensor([2])
-        if self._frames == 2:
-            self._frames += 1
-            return self.agent.initial(state, info)
-        return self.agent.act(state, reward, info)
+def stack(frames):
+    return torch.cat(frames).unsqueeze(0)
 
 class EpisodicLives(Body):
     def __init__(self, agent, env):
@@ -124,6 +96,31 @@ class EpisodicLives(Body):
     def _get_lives(self):
         # pylint: disable=protected-access
         return self._env._env.unwrapped.ale.lives()
+
+class FireOnReset(Body):
+    def __init__(self, agent):
+        super().__init__(agent)
+        self._frames = 0
+
+    def initial(self, state, info=None):
+        self._frames = 1
+        return torch.tensor([1])
+
+    def act(self, state, reward, info=None):
+        if self._frames == 1:
+            self._frames += 1
+            return torch.tensor([2])
+        if self._frames == 2:
+            self._frames += 1
+            return self.agent.initial(state, info)
+        return self.agent.act(state, reward, info)
+
+class RewardClipping(Body):
+    def act(self, state, reward, info=None):
+        return self.agent.act(state, np.sign(reward), info)
+
+    def terminal(self, reward, info=None):
+        return self.agent.terminal(np.sign(reward), info)
 
 class RepeatActions(Body):
     def __init__(self, agent, repeats=4):
