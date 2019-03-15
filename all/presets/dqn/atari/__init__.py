@@ -25,13 +25,16 @@ def conv_net(env, frames=4):
     )
 
 def dqn(
+        # If None, build defaults
+        model=None,
+        optimizer=None,
         # Taken from Extended Data Table 1
         minibatch_size=32,
         replay_buffer_size=250000,  # originally 1e6
-        # agent_history_length=4, # not configurable
+        agent_history_length=4,
         target_update_frequency=10000,
         discount_factor=0.99,
-        # action_repeat=4, # not configurable
+        action_repeat=4,
         update_frequency=4,
         lr=0.00025,
         gradient_momentum=0.95,
@@ -41,7 +44,6 @@ def dqn(
         final_exploration=0.1,
         final_exploration_frame=1000000,
         replay_start_size=50000,
-        build_model=conv_net,
         noop_max=30
 ):
     # counted by number of updates rather than number of frame
@@ -49,15 +51,19 @@ def dqn(
     replay_start_size /= 4
 
     def _dqn(env):
-        model = build_model(env)
-        optimizer = RMSprop(
-            model.parameters(),
-            lr=lr,
-            momentum=gradient_momentum,
-            alpha=squared_gradient_momentum,
-            eps=min_squared_gradient
-        )
-        q = QNetwork(model, optimizer,
+        _model = model
+        _optimizer = optimizer
+        if _model is None:
+            _model = conv_net(env, frames=agent_history_length)
+        if _optimizer is None:
+            _optimizer = RMSprop(
+                _model.parameters(),
+                lr=lr,
+                momentum=gradient_momentum,
+                alpha=squared_gradient_momentum,
+                eps=min_squared_gradient
+            )
+        q = QNetwork(_model, _optimizer,
                      target_update_frequency=target_update_frequency,
                      loss=smooth_l1_loss
                      )
@@ -75,6 +81,8 @@ def dqn(
                 update_frequency=update_frequency,
                 ),
             env,
+            action_repeat=action_repeat,
+            frame_stack=agent_history_length,
             noop_max=noop_max
         )
     return _dqn
