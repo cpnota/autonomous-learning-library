@@ -74,7 +74,6 @@ def rainbow(
     '''
     # counted by number of updates rather than number of frame
     final_exploration_frame /= action_repeat
-    replay_start_size /= action_repeat
     final_beta_frame /= action_repeat
 
     def _rainbow(env):
