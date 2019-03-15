@@ -68,6 +68,20 @@ class RewardClipping(Body):
 def clip(reward):
     return np.sign(reward)
 
+class FrameStack(Body):
+    def __init__(self, agent, size=4):
+        super().__init__(agent)
+        self._state = []
+        self._size = 4
+
+    def initial(self, state, info=None):
+        self._state = [state] * self._size
+        return self.agent.initial(stack(self._state), info)
+
+    def act(self, state, reward, info=None):
+        self._state = self._state[1:] + [state]
+        return self.agent.act(stack(self._state), reward, info)
+
 class DeepmindAtariBodyInner(Body):
     def __init__(
             self,
@@ -78,7 +92,6 @@ class DeepmindAtariBodyInner(Body):
         super().__init__(agent)
         self.env = env
         self.frameskip = frameskip
-        self._state = None
         self._action = None
         self._reward = 0
         self._info = None
@@ -86,9 +99,7 @@ class DeepmindAtariBodyInner(Body):
         self._lives = 0
 
     def initial(self, state, info=None):
-        _state = [state] * self.frameskip
-        self._state = []
-        self._action = self.agent.initial(stack(_state), info)
+        self._action = self.agent.initial(state, info)
         self._reward = 0
         self._info = info
         self._skipped_frames = 0
@@ -108,7 +119,7 @@ class DeepmindAtariBodyInner(Body):
 
         self._update_state(state, reward, info)
         if self._should_choose_action():
-            self._choose_action()
+            self._choose_action(state)
         return self._action
 
     def terminal(self, reward, info=None):
@@ -121,7 +132,6 @@ class DeepmindAtariBodyInner(Body):
         return self.env._env.unwrapped.get_action_meanings()[1] == 'FIRE'
 
     def _update_state(self, state, reward, info):
-        self._state.append(state)
         self._reward += reward
         self._info = info
         self._skipped_frames += 1
@@ -137,13 +147,12 @@ class DeepmindAtariBodyInner(Body):
     def _should_choose_action(self):
         return self._skipped_frames == self.frameskip
 
-    def _choose_action(self):
+    def _choose_action(self, state):
         self._action = self.agent.act(
-            stack(self._state),
+            state,
             self._reward,
             self._info
         )
-        self._state = []
         self._reward = 0
         self._skipped_frames = 0
         return self._action
@@ -160,9 +169,10 @@ class DeepmindAtariBody(Body):
     5. Fire on reset
     6. No-op on reset
     '''
-    def __init__(self, agent, env, deflicker=True, noop_max=30):
+    def __init__(self, agent, env, frame_stack=4, deflicker=True, noop_max=30):
         agent = DeepmindAtariBodyInner(agent, env)
         agent = RewardClipping(agent)
+        agent = FrameStack(agent, size=frame_stack)
         agent = AtariVisionPreprocessor(agent, deflicker=deflicker)
         if noop_max > 0:
             agent = NoopBody(agent, noop_max)
