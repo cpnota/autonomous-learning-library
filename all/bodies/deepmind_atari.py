@@ -99,7 +99,7 @@ class FireOnReset(Body):
             self._frames += 1
             return self.agent.initial(state, info)
         return self.agent.act(state, reward, info)
-        
+
 class EpisodicLives(Body):
     def __init__(
         self,
@@ -120,7 +120,7 @@ class EpisodicLives(Body):
             self._lives = self._get_lives()
             return self.initial(state, info)
         return self.agent.act(state, reward, info)
-    
+
     def _lost_life(self):
         lives = self._get_lives()
         return lives < self._lives and lives > 0
@@ -128,59 +128,37 @@ class EpisodicLives(Body):
     def _get_lives(self):
         # pylint: disable=protected-access
         return self._env._env.unwrapped.ale.lives()
-        
 
-class DeepmindAtariBodyInner(Body):
+class RepeatActions(Body):
     def __init__(
-            self,
-            agent,
-            env,
-            frameskip=4,
+        self,
+        agent,
+        repeats=4
     ):
         super().__init__(agent)
-        self.env = env
-        self.frameskip = frameskip
+        self._repeats = repeats
+        self._count = 0
         self._action = None
         self._reward = 0
-        self._info = None
-        self._skipped_frames = 0
-        self._lives = 0
 
     def initial(self, state, info=None):
         self._action = self.agent.initial(state, info)
         self._reward = 0
-        self._info = info
-        self._skipped_frames = 0
+        self._count = 0
         return self._action
 
     def act(self, state, reward, info=None):
-        self._update_state(state, reward, info)
-        if self._should_choose_action():
-            self._choose_action(state)
+        self._count += 1
+        self._reward += reward
+        if self._count == self._repeats:
+            self._action = self.agent.act(state, self._reward, info)
+            self._reward = 0
+            self._count = 0
         return self._action
 
     def terminal(self, reward, info=None):
         self._reward += reward
-        self._info = info
-        return self.agent.terminal(self._reward, self._info)
-
-    def _update_state(self, state, reward, info):
-        self._reward += reward
-        self._info = info
-        self._skipped_frames += 1
-
-    def _should_choose_action(self):
-        return self._skipped_frames == self.frameskip
-
-    def _choose_action(self, state):
-        self._action = self.agent.act(
-            state,
-            self._reward,
-            self._info
-        )
-        self._reward = 0
-        self._skipped_frames = 0
-        return self._action
+        return self.agent.terminal(self._reward, info)
 
 class DeepmindAtariBody(Body):
     '''
@@ -189,15 +167,14 @@ class DeepmindAtariBody(Body):
     Implements the following features:
     1. Frame preprocessing (deflicker + downsample + grayscale)
     2. Frame stacking
-    3. Action Repeat (TODO)
-    4. Reward clipping (-1, 0, 1)
+    3. Action Repeat
+    4. Reward clipping
     5. Episodic lives
     6. Fire on reset
     7. No-op on reset
     '''
-
-    def __init__(self, agent, env, frame_stack=4, deflicker=True, noop_max=30):
-        agent = DeepmindAtariBodyInner(agent, env)
+    def __init__(self, agent, env, action_repeat=4, frame_stack=4, deflicker=True, noop_max=30):
+        agent = RepeatActions(agent, repeats=action_repeat)
         agent = RewardClipping(agent)
         # pylint: disable=protected-access
         if env._env.unwrapped.get_action_meanings()[1] == 'FIRE':
