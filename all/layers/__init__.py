@@ -76,4 +76,10 @@ class NoisyLinear(nn.Linear):
             bias = bias + self.sigma_bias * self.epsilon_bias
         return F.linear(x, self.weight + self.sigma_weight * self.epsilon_weight, bias)
 
-__all__ = ["Aggregation", "Dueling", "Flatten", "NoisyLinear"]
+class Linear0(nn.Linear):
+    def reset_parameters(self):
+        nn.init.constant_(self.weight, 0.)
+        if self.bias is not None:
+            nn.init.constant_(self.bias, 0.)
+
+__all__ = ["Aggregation", "Dueling", "Flatten", "NoisyLinear", "Linear0"]
