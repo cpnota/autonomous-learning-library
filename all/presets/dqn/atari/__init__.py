@@ -47,8 +47,8 @@ def dqn(
         noop_max=30
 ):
     # counted by number of updates rather than number of frame
-    final_exploration_frame /= 4
-    replay_start_size /= 4
+    final_exploration_frame /= action_repeat
+    replay_start_size /= action_repeat
 
     def _dqn(env):
         _model = model

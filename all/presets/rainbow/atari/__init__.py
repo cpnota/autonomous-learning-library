@@ -11,9 +11,9 @@ from all.memory import PrioritizedReplayBuffer
 
 # "Dueling" architecture modification.
 # https://arxiv.org/abs/1511.06581
-def dueling_conv_net(env, sigma_init):
+def dueling_conv_net(env, frames=4):
     return nn.Sequential(
-        nn.Conv2d(4, 32, 8, stride=4),
+        nn.Conv2d(frames, 32, 8, stride=4),
         nn.ReLU(),
         nn.Conv2d(32, 64, 4, stride=2),
         nn.ReLU(),
@@ -29,61 +29,77 @@ def dueling_conv_net(env, sigma_init):
             nn.Sequential(
                 nn.Linear(3456, 512),
                 nn.ReLU(),
-                NoisyLinear(512, env.action_space.n, sigma_init=sigma_init)
+                nn.Linear(512, env.action_space.n)
             ),
         )
     )
 
 def rainbow(
-        # Vanilla DQN
+        # If None, build defaults
+        model=None,
+        optimizer=None,
+        # vanilla DQN parameters
         minibatch_size=32,
-        replay_buffer_size=250000, # originally 1e6
-        discount_factor=0.99,
-        update_frequency=4,
-        lr=6.25e-5,
-        replay_start_size=8e4,
-        build_model=dueling_conv_net,
-        # Double Q-Learning
+        replay_buffer_size=250000,  # originally 1e6
+        agent_history_length=4,
         target_update_frequency=10000,
+        discount_factor=0.99,
+        action_repeat=4,
+        update_frequency=4,
+        lr=1e-4, # Adam instead of RM prop
+        eps=1.5e-4, # Adam epsilon
+        initial_exploration=1.,
+        final_exploration=0.1,
+        final_exploration_frame=1000000,
+        replay_start_size=50000,
+        noop_max=30,
         # Prioritized Replay
         alpha=0.5,
         beta=0.4,
         final_beta_frame=200e6,
-        # NoisyNets
-        sigma_init=0.5
 ):
     '''
     Partial implementation of the Rainbow variant of DQN.
 
     So far, the enhancements that have been added are:
-    1. Double Q-Learning
-    2. Prioritized Replay
-    3. Dueling Networks
-    4. NoisyNets
+    1. Prioritized Replay
+    2. Dueling Networks
 
     Still to be added are:
+    3. Double Q-Learning
+    4. NoisyNets
     5. Multi-step Learning
     6. Distributional RL
     7. Double Q-Learning
     '''
-    # Adjust for frames per update
-    replay_start_size /= 4
-    final_beta_frame /= 4
+    # counted by number of updates rather than number of frame
+    final_exploration_frame /= action_repeat
+    replay_start_size /= action_repeat
+    final_beta_frame /= action_repeat
+
     def _rainbow(env):
-        model = build_model(env, sigma_init)
-        optimizer = Adam(model.parameters(), lr=lr)
-        q = QNetwork(model, optimizer,
+        _model = model
+        _optimizer = optimizer
+        if _model is None:
+            _model = dueling_conv_net(env, frames=agent_history_length)
+        if _optimizer is None:
+            _optimizer = Adam(
+                _model.parameters(),
+                lr=lr,
+                eps=eps
+            )
+        q = QNetwork(_model, _optimizer,
                      target_update_frequency=target_update_frequency,
-                     loss=smooth_l1_loss)
-        policy = GreedyPolicy(
-            q,
-            initial_epsilon=0,
-            final_epsilon=0,
-            annealing_time=1
-        )
-        # replay_buffer = ExperienceReplayBuffer(replay_buffer_size)
+                     loss=smooth_l1_loss
+                     )
+        policy = GreedyPolicy(q,
+                              annealing_start=replay_start_size,
+                              annealing_time=final_exploration_frame - replay_start_size,
+                              initial_epsilon=initial_exploration,
+                              final_epsilon=final_exploration
+                              )
         replay_buffer = PrioritizedReplayBuffer(
-            replay_buffer_size,
+            replay_buffer_size, 
             alpha=alpha,
             beta=beta,
             final_beta_frame=final_beta_frame
@@ -95,7 +111,10 @@ def rainbow(
                 replay_start_size=replay_start_size,
                 update_frequency=update_frequency,
                 ),
-            env
+            env,
+            action_repeat=action_repeat,
+            frame_stack=agent_history_length,
+            noop_max=noop_max
         )
     return _rainbow
 
