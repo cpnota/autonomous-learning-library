@@ -164,14 +164,14 @@ class DeepmindAtariBody(Body):
     '''
     Enable the Agent to play Atari games DeepMind Style
 
-    Implements the following features:
-    1. Frame preprocessing (deflicker + downsample + grayscale)
-    2. Frame stacking
-    3. Action Repeat
-    4. Reward clipping
-    5. Episodic lives
-    6. Fire on reset
-    7. No-op on reset
+    Performs the following transformations in order:
+    1. No-op on environment reset (random-ish starts)
+    2. Frame preprocessing (deflicker + downsample + grayscale)
+    3. Frame stacking (to perceive motion)
+    4. Episodic lives (treat each life as an episode to shorten horizon)
+    5. Fire on reset (Press the fire button to start on some games)
+    6. Reward clipping (All are -1, 0, or 1)
+    7. Action repeat (Repeat each chosen actions for four frames)
     '''
     def __init__(self, agent, env, action_repeat=4, frame_stack=4, deflicker=True, noop_max=30):
         agent = RepeatActions(agent, repeats=action_repeat)
