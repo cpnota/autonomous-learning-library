@@ -92,13 +92,14 @@ def rainbow(
                      loss=smooth_l1_loss
                      )
         policy = GreedyPolicy(q,
+                              env.action_space.n,
                               annealing_start=replay_start_size,
                               annealing_time=final_exploration_frame - replay_start_size,
                               initial_epsilon=initial_exploration,
                               final_epsilon=final_exploration
                               )
         replay_buffer = PrioritizedReplayBuffer(
-            replay_buffer_size, 
+            replay_buffer_size,
             alpha=alpha,
             beta=beta,
             final_beta_frame=final_beta_frame

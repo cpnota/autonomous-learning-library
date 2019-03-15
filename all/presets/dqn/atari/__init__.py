@@ -68,6 +68,7 @@ def dqn(
                      loss=smooth_l1_loss
                      )
         policy = GreedyPolicy(q,
+                              env.action_space.n,
                               annealing_start=replay_start_size,
                               annealing_time=final_exploration_frame - replay_start_size,
                               initial_epsilon=initial_exploration,

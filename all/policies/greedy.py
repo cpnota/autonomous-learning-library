@@ -6,12 +6,14 @@ class GreedyPolicy(Policy):
     def __init__(
             self,
             q,
+            num_actions,
             initial_epsilon=1.,
             final_epsilon=0.1,
             annealing_start=0,
             annealing_time=1
     ):
         self.q = q
+        self.num_actions = num_actions
         self.epsilon = initial_epsilon
         self.initial_epsilon = initial_epsilon
         self.final_epsilon = final_epsilon
@@ -22,16 +24,11 @@ class GreedyPolicy(Policy):
 
     def __call__(self, state, action=None, prob=False):
         self.epsilon = self.anneal()
+        if np.random.rand() < self.epsilon:
+            return torch.randint(self.num_actions, (1,))
         with torch.no_grad():
             action_scores = self.q(state).squeeze(0)
-        if np.random.rand() < self.epsilon:
-            return torch.tensor(np.random.randint(action_scores.shape[0]))
-
-        # select randomly from the best
-        # not sure how to do in pure torch
-        scores = action_scores.detach().numpy()
-        best = np.argwhere(scores == np.max(scores)).flatten()
-        return torch.tensor(np.random.choice(best), dtype=torch.long)
+        return torch.argmax(action_scores)
 
     def reinforce(self, errors):
         return  # not possible
