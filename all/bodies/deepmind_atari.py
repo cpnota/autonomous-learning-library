@@ -82,6 +82,25 @@ class FrameStack(Body):
         self._state = self._state[1:] + [state]
         return self.agent.act(stack(self._state), reward, info)
 
+class FireOnReset(Body):
+    def __init__(self, agent, env):
+        super().__init__(agent)
+        self._frames = 0
+
+    def initial(self, state, info=None):
+        self._frames = 1
+        return torch.tensor([1])
+
+    def act(self, state, reward, info=None):
+        if self._frames == 1:
+            self._frames += 1
+            return torch.tensor([2])
+        if self._frames == 2:
+            self._frames += 1
+            return self.agent.initial(state, info)
+        return self.agent.act(state, reward, info)
+        
+
 class DeepmindAtariBodyInner(Body):
     def __init__(
             self,
@@ -104,12 +123,6 @@ class DeepmindAtariBodyInner(Body):
         self._info = info
         self._skipped_frames = 0
         self._lives = self._get_lives()
-
-        # fire to start if necessary
-        if self._should_fire():
-            self._action = torch.tensor([2])
-            return torch.tensor([1])
-
         return self._action
 
     def act(self, state, reward, info=None):
@@ -126,10 +139,6 @@ class DeepmindAtariBodyInner(Body):
         self._reward += reward
         self._info = info
         return self.agent.terminal(self._reward, self._info)
-
-    def _should_fire(self):
-        # pylint: disable=protected-access
-        return self.env._env.unwrapped.get_action_meanings()[1] == 'FIRE'
 
     def _update_state(self, state, reward, info):
         self._reward += reward
@@ -164,14 +173,19 @@ class DeepmindAtariBody(Body):
     Implements the following features:
     1. Frame preprocessing (deflicker + downsample + grayscale)
     2. Frame stacking
-    3. Reward clipping (-1, 0, 1)
-    4. Episodic lives
-    5. Fire on reset
-    6. No-op on reset
+    3. Action Repeat (TODO)
+    4. Reward clipping (-1, 0, 1)
+    5. Episodic lives
+    6. Fire on reset
+    7. No-op on reset
     '''
+
     def __init__(self, agent, env, frame_stack=4, deflicker=True, noop_max=30):
         agent = DeepmindAtariBodyInner(agent, env)
         agent = RewardClipping(agent)
+        # pylint: disable=protected-access
+        if env._env.unwrapped.get_action_meanings()[1] == 'FIRE':
+            agent = FireOnReset(agent, env)
         agent = FrameStack(agent, size=frame_stack)
         agent = AtariVisionPreprocessor(agent, deflicker=deflicker)
         if noop_max > 0:

@@ -84,30 +84,34 @@ class DeepmindAtariBodyPongTest(unittest.TestCase):
         self.env.reset()
         action = self.body.initial(self.env.state)
         tt.assert_equal(action, torch.tensor([1])) # fire on reset 1
-        self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
 
     def test_second_state(self):
         self.env.reset()
         self.env.step(self.body.initial(self.env.state))
         action = self.body.act(self.env.state, self.env.reward)
         tt.assert_equal(action, torch.tensor([2])) # fire on reset 2
-        self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
 
     def test_several_steps(self):
         self.env.reset()
         self.env.step(self.body.initial(self.env.state))
+        self.env.step(self.body.act(self.env.state, -5))
+        for _ in range(4):
+            action = self.body.act(self.env.state, -5)
+            self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
+            tt.assert_equal(action, INITIAL_ACTION)
+            self.env.step(action)
         for _ in range(10):
             reward = -5  # should be clipped
+            self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
             action = self.body.act(self.env.state, reward)
+            tt.assert_equal(action, ACT_ACTION)
             self.env.step(action)
-        tt.assert_equal(action, torch.tensor([4]))
-        self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
         self.assertEqual(self.agent.reward, -4)
 
     def test_terminal_state(self):
         self.env.reset()
         self.env.step(self.body.initial(self.env.state))
-        for _ in range(13):
+        for _ in range(11):
             reward = -5  # should be clipped
             action = self.body.act(self.env.state, reward)
             self.env.step(action)
