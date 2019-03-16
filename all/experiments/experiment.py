@@ -22,14 +22,9 @@ class Experiment:
             make_agent,
             agent_name=None,
             print_every=np.inf,
-            render=False,
-            writer=None
+            render=False
     ):
-        if writer is None:
-            self._writer = self._make_writer()
-        else:
-            self._writer = writer
-
+        self._writer = self._make_writer()
         agent_name = make_agent.__name__ if agent_name is None else agent_name
         self.data[agent_name] = np.zeros((0, self.episodes))
         frames = 0

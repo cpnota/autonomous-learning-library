@@ -17,22 +17,25 @@ class MockWriter():
         self.data[key]["values"].append(value)
         self.data[key]["steps"].append(step)
 
+class MockExperiment(Experiment):
+    def _make_writer(self):
+        return MockWriter()
+
 class TestExperiment(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
         torch.manual_seed(0)
-        self.experiment = Experiment('CartPole-v0', episodes=3, trials=2)
+        self.experiment = MockExperiment('CartPole-v0', episodes=3, trials=2)
         self.experiment.env.seed(0)
 
     def test_run(self):
-        writer = MockWriter()
-        self.experiment.run(sarsa_cc(), agent_name="sarsa", writer=writer)
+        self.experiment.run(sarsa_cc(), agent_name="sarsa")
         np.testing.assert_equal(
-            writer.data["returns"]["values"],
+            self.experiment._writer.data["returns"]["values"],
             np.array([9., 10., 10., 18., 10., 11.])
         )
         np.testing.assert_equal(
-            writer.data["returns"]["steps"],
+            self.experiment._writer.data["returns"]["steps"],
             np.array([0, 1, 2, 0, 1, 2])
         )
 
