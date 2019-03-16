@@ -49,6 +49,7 @@ def dqn(
     # counted by number of updates rather than number of frame
     final_exploration_frame /= action_repeat
     replay_start_size /= action_repeat
+    target_update_frequency /= update_frequency
 
     def _dqn(env):
         _model = model

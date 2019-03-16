@@ -5,7 +5,7 @@ from all.presets.rainbow import rainbow
 def run():
     # env = PongEnvironment()
     env = AtariEnvironment("Pong")
-    experiment = Experiment(env, episodes=250, trials=1)
+    experiment = Experiment(env, episodes=500, trials=1)
     experiment.run(
         rainbow(
             # parameters from:
