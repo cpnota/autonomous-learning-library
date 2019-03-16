@@ -1,6 +1,7 @@
 import json
 from timeit import default_timer as timer
 import numpy as np
+from tensorboardX import SummaryWriter
 import matplotlib.pyplot as plt
 from all.environments import GymEnvironment
 from .plots import learning_curve
@@ -35,6 +36,7 @@ class Experiment:
             plot=learning_curve,
             render=False
     ):
+        self._writer = SummaryWriter()
         agent_name = make_agent.__name__ if agent_name is None else agent_name
         self.data[agent_name] = np.zeros((0, self.episodes))
         frames = 0
@@ -46,35 +48,17 @@ class Experiment:
                 returns, _frames = run_episode(agent, self.env, render)
                 frames += _frames
                 self.data[agent_name][trial][episode] = returns
-                self.monitor(trial, episode, returns, frames, print_every, plot_every, plot)
+                self._log(trial, episode, returns, frames, print_every)
 
         return self.data[agent_name]
 
-    def plot(self, plot=learning_curve, frequency=1, filename=None):
-        plot(self.results, frequency=frequency, filename=filename)
-
-    def monitor(self, trial, episode, returns, frames, print_every, plot_every, plot):
+    def _log(self, trial, episode, returns, frames, print_every):
         episode_number = trial * self.episodes + episode + 1
+        self._writer.add_scalar('returns', returns, episode)
         if episode_number % print_every == 0:
             print("trial: %i/%i, episode: %i/%i, frames: %i, returns: %d" %
                   (trial + 1, self.trials, episode + 1, self.episodes, frames, returns))
-        if episode_number % plot_every == 0:
-            plt.ion()
-            self.plot(plot, plot_every)
-            plt.pause(0.0001)
-            plt.ioff()
 
-    def save(self, filename):
-        results = self.results
-        results["data"] = {k:v.tolist() for (k, v) in results["data"].items()}
-        with open(filename, 'w') as outfile:
-            json.dump(results, outfile)
-
-    def load(filename):
-        with open(filename) as infile:
-            results = json.load(infile)
-        results["data"] = {k:np.array(v) for (k, v) in results["data"].items()}
-        return results
 
 def run_episode(agent, env, render=False):
     start = timer()
