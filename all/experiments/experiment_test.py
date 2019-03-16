@@ -3,9 +3,19 @@ import os
 import numpy as np
 import torch
 from all.presets.sarsa import sarsa_cc
-from all.presets.actor_critic import ac_cc
-from . import Experiment
+from all.experiments import Experiment
 
+class MockWriter():
+    data = {}
+
+    def add_scalar(self, key, value, step):
+        if not key in self.data:
+            self.data[key] = {
+                "values": [],
+                "steps": []
+            }
+        self.data[key]["values"].append(value)
+        self.data[key]["steps"].append(step)
 
 class TestExperiment(unittest.TestCase):
     def setUp(self):
@@ -15,37 +25,16 @@ class TestExperiment(unittest.TestCase):
         self.experiment.env.seed(0)
 
     def test_run(self):
-        run_experiment(self.experiment)
-        check_results(self.experiment.results)
-
-    def test_save_and_load(self):
-        run_experiment(self.experiment)
-
-        # save and load
-        self.experiment.save('test_experiment.json')
-        results = Experiment.load('test_experiment.json')
-        os.remove('test_experiment.json')
-
-        check_results(results)
-
-
-def run_experiment(experiment):
-    experiment.run(sarsa_cc(), agent_name="sarsa")
-    experiment.run(ac_cc(), agent_name="actor_critic")
-    return experiment
-
-
-def check_results(results):
-    np.testing.assert_equal(
-        results["data"]["sarsa"],
-        np.array([[9., 10., 10.], [18., 10., 11.]])
-    )
-    np.testing.assert_equal(
-        results["data"]["actor_critic"],
-        np.array([[14., 13., 29.],
-                  [14., 32., 10.]])
-    )
-
+        writer = MockWriter()
+        self.experiment.run(sarsa_cc(), agent_name="sarsa", writer=writer)
+        np.testing.assert_equal(
+            writer.data["returns"]["values"],
+            np.array([9., 10., 10., 18., 10., 11.])
+        )
+        np.testing.assert_equal(
+            writer.data["returns"]["steps"],
+            np.array([0, 1, 2, 0, 1, 2])
+        )
 
 if __name__ == '__main__':
     unittest.main()

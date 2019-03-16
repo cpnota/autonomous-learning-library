@@ -2,9 +2,7 @@ import json
 from timeit import default_timer as timer
 import numpy as np
 from tensorboardX import SummaryWriter
-import matplotlib.pyplot as plt
 from all.environments import GymEnvironment
-from .plots import learning_curve
 
 class Experiment:
     def __init__(self, env, episodes=200, trials=100):
@@ -17,26 +15,21 @@ class Experiment:
         self.episodes = episodes
         self.trials = trials
         self.data = {}
-
-    @property
-    def results(self):
-        return {
-            "env": self.env_name,
-            "episodes": self.episodes,
-            "trials": self.trials,
-            "data": self.data
-        }
+        self._writer = None
 
     def run(
             self,
             make_agent,
             agent_name=None,
             print_every=np.inf,
-            plot_every=np.inf,
-            plot=learning_curve,
-            render=False
+            render=False,
+            writer=None
     ):
-        self._writer = SummaryWriter()
+        if writer is None:
+            self._writer = self._make_writer()
+        else:
+            self._writer = writer
+
         agent_name = make_agent.__name__ if agent_name is None else agent_name
         self.data[agent_name] = np.zeros((0, self.episodes))
         frames = 0
@@ -58,6 +51,9 @@ class Experiment:
         if episode_number % print_every == 0:
             print("trial: %i/%i, episode: %i/%i, frames: %i, returns: %d" %
                   (trial + 1, self.trials, episode + 1, self.episodes, frames, returns))
+
+    def _make_writer(self):
+        return SummaryWriter()
 
 
 def run_episode(agent, env, render=False):
