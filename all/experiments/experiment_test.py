@@ -30,16 +30,19 @@ class TestExperiment(unittest.TestCase):
         self.experiment = MockExperiment('CartPole-v0', episodes=3, trials=2)
         self.experiment.env.seed(0)
 
-    def test_run(self):
-        self.experiment.run(sarsa_cc())
+    def test_adds_label(self):
+        self.experiment.run(sarsa_cc(), console=False)
         self.assertEqual(self.experiment._writer.label, "_sarsa_cc")
+
+    def test_writes_returns_eps(self):
+        self.experiment.run(sarsa_cc(), console=False)
         np.testing.assert_equal(
-            self.experiment._writer.data["returns"]["values"],
-            np.array([9., 10., 10., 18., 10., 11.])
+            self.experiment._writer.data["CartPole-v0/returns/eps"]["values"],
+            np.array([18., 10., 11.])
         )
         np.testing.assert_equal(
-            self.experiment._writer.data["returns"]["steps"],
-            np.array([0, 1, 2, 0, 1, 2])
+            self.experiment._writer.data["CartPole-v0/returns/eps"]["steps"],
+            np.array([0, 1, 2])
         )
 
 if __name__ == '__main__':
