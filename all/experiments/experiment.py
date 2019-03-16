@@ -50,28 +50,37 @@ class Experiment:
         env = self.env
 
         start = timer()
+
+        # initial state
         env.reset()
         if render:
             env.render()
         env.step(agent.initial(env.state))
         returns = env.reward
         frames = 1
+
+        # rest of episode 
         while not env.should_reset:
             if render:
                 env.render()
             env.step(agent.act(env.state, env.reward))
             returns += env.reward
             frames += 1
+
+        # terminal state
         agent.terminal(env.reward)
+
+        # log info
         end = timer()
         fps = frames / (end - start)
         self._log(returns, fps)
         if console:
             print("trial: %i/%i, episode: %i, frames: %i, fps: %d, returns: %d" %
                 (self._trial + 1, self._trials, self._episode, self._frames, fps, returns))
+
+        # update state
         self._episode += 1
         self._frames += frames
-        return returns, frames
 
     def _log(self, returns, fps):
         self._writer.add_scalar(self.env.name + '/returns/eps', returns, self._episode)
