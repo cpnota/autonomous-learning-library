@@ -24,12 +24,9 @@ def run():
             # NoisyNets
             sigma_init=0.5
         ),
-        plot_every=5,
         print_every=1,
         render=True
     )
-    experiment.plot(filename="rainbow-pong.png", frequency=5)
-    experiment.save("rainbow_pong")
 
 
 if __name__ == '__main__':

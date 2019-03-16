@@ -5,5 +5,6 @@ class AtariEnvironment(GymEnvironment):
         self._name = env
         super().__init__(env + 'NoFrameskip-v4')
 
+    @property
     def name(self):
         return self._name

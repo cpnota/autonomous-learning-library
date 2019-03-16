@@ -10,12 +10,9 @@ def run():
             lr_pi=1e-5,
             lr_v=1e-5
         ),
-        plot_every=100,
         print_every=1,
         render=True
     )
-    experiment.plot(filename="reinforce-pong.png", frequency=100)
-    experiment.save("reinforce_pong")
 
 if __name__ == '__main__':
     run()

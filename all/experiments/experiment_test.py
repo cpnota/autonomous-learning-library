@@ -1,12 +1,13 @@
 import unittest
-import os
 import numpy as np
 import torch
 from all.presets.sarsa import sarsa_cc
 from all.experiments import Experiment
 
 class MockWriter():
-    data = {}
+    def __init__(self, label):
+        self.data = {}
+        self.label = label
 
     def add_scalar(self, key, value, step):
         if not key in self.data:
@@ -18,9 +19,10 @@ class MockWriter():
         self.data[key]["steps"].append(step)
 
 class MockExperiment(Experiment):
-    def _make_writer(self):
-        return MockWriter()
+    def _make_writer(self, label):
+        return MockWriter(label)
 
+# pylint: disable=protected-access
 class TestExperiment(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
@@ -29,7 +31,8 @@ class TestExperiment(unittest.TestCase):
         self.experiment.env.seed(0)
 
     def test_run(self):
-        self.experiment.run(sarsa_cc(), agent_name="sarsa")
+        self.experiment.run(sarsa_cc())
+        self.assertEqual(self.experiment._writer.label, "_sarsa_cc")
         np.testing.assert_equal(
             self.experiment._writer.data["returns"]["values"],
             np.array([9., 10., 10., 18., 10., 11.])

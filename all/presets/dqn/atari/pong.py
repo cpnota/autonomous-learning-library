@@ -19,12 +19,9 @@ def run():
             update_frequency=2,
             minibatch_size=2 * 32
         ),
-        plot_every=1,
         print_every=1,
         render=True
     )
-    experiment.plot(filename="dqn-pong.png")
-    experiment.save("dqn_pong")
 
 
 if __name__ == '__main__':

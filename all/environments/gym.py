@@ -20,6 +20,7 @@ class GymEnvironment(Environment):
         self._done = None
         self._info = None
 
+    @property
     def name(self):
         return self._name
 
