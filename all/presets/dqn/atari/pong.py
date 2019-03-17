@@ -19,7 +19,6 @@ def run():
             update_frequency=2,
             minibatch_size=2 * 32
         ),
-        print_every=1,
         render=True
     )
 

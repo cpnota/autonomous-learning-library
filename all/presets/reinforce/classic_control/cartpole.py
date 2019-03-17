@@ -5,7 +5,6 @@ def run():
     experiment = Experiment('CartPole-v0', episodes=1000, trials=1)
     experiment.run(
         reinforce_cc(),
-        print_every=1,
         render=True
     )
 

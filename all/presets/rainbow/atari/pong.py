@@ -24,7 +24,6 @@ def run():
             # NoisyNets
             sigma_init=0.5
         ),
-        print_every=1,
         render=True
     )
 

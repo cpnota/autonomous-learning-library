@@ -10,7 +10,6 @@ def run():
             lr_pi=1e-5,
             lr_v=1e-5
         ),
-        print_every=1,
         render=True
     )
 

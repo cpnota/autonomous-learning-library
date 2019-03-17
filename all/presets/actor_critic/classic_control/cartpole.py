@@ -5,7 +5,7 @@ def run():
     experiment = Experiment('CartPole-v0', episodes=1000, trials=1)
     experiment.run(
         ac_cc(),
-        print_every=1,
+        label="actor-critic",
         render=True
     )
 

@@ -7,7 +7,6 @@ def run():
     experiment = Experiment(env, episodes=100000, trials=1)
     experiment.run(
         reinforce_atari(),
-        print_every=1,
         render=True
     )
 
