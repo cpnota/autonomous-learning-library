@@ -6,3 +6,6 @@ lint:
 
 test:
 	python -m unittest discover -s all -p "*test.py"
+
+tensorboard:
+	tensorboard --logdir runs

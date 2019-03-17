@@ -7,12 +7,8 @@ def run():
     experiment = Experiment(env, episodes=50000, trials=1)
     experiment.run(
         rainbow(),
-        plot_every=10,
-        print_every=1,
         render=True
     )
-    experiment.plot(filename="rainbow-breakout.png", frequency=100)
-    experiment.save("rainbow-breakout")
 
 
 if __name__ == '__main__':

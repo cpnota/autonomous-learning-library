@@ -13,6 +13,7 @@ setup(
         "gym",
         "pylint",
         "matplotlib",
+        "tensorboardX",
         "torch",
         "torchvision",
         "torch-testing"
