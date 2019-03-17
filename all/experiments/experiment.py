@@ -59,7 +59,7 @@ class Experiment:
         returns = env.reward
         frames = 1
 
-        # rest of episode 
+        # rest of episode
         while not env.should_reset:
             if render:
                 env.render()
@@ -76,15 +76,17 @@ class Experiment:
         self._log(returns, fps)
         if console:
             print("trial: %i/%i, episode: %i, frames: %i, fps: %d, returns: %d" %
-                (self._trial + 1, self._trials, self._episode, self._frames, fps, returns))
+                  (self._trial + 1, self._trials, self._episode, self._frames, fps, returns))
 
         # update state
         self._episode += 1
         self._frames += frames
 
     def _log(self, returns, fps):
-        self._writer.add_scalar(self.env.name + '/returns/eps', returns, self._episode)
-        self._writer.add_scalar(self.env.name + '/returns/frames', returns, self._frames)
+        self._writer.add_scalar(
+            self.env.name + '/returns/eps', returns, self._episode)
+        self._writer.add_scalar(
+            self.env.name + '/returns/frames', returns, self._frames)
         self._writer.add_scalar(self.env.name + '/fps', fps, self._frames)
 
     def _make_writer(self, label):
