@@ -11,6 +11,13 @@ class Environment(ABC):
     or to define real problems that the user hopes to solve using reinforcement learning.
     """
 
+    @property
+    @abstractmethod
+    def name(self):
+        """
+        The name of the environment.
+        """
+
     @abstractmethod
     def reset(self):
         """

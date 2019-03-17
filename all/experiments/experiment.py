@@ -1,96 +1,97 @@
-import json
+import os
+from datetime import datetime
 from timeit import default_timer as timer
 import numpy as np
-import matplotlib.pyplot as plt
+from tensorboardX import SummaryWriter
 from all.environments import GymEnvironment
-from .plots import learning_curve
 
 class Experiment:
-    def __init__(self, env, episodes=200, trials=100):
+    def __init__(self, env, frames=None, episodes=None, trials=1):
+        if frames is None:
+            frames = np.inf
+        if episodes is None:
+            episodes = np.inf
         if isinstance(env, str):
             self.env = GymEnvironment(env)
-            self.env_name = env
         else:
             self.env = env
-            self.env_name = env.__class__.__name__
-        self.episodes = episodes
-        self.trials = trials
-        self.data = {}
-
-    @property
-    def results(self):
-        return {
-            "env": self.env_name,
-            "episodes": self.episodes,
-            "trials": self.trials,
-            "data": self.data
-        }
+        self._trials = trials
+        self._max_frames = frames
+        self._max_episodes = episodes
+        self._agent = None
+        self._episode = None
+        self._trial = None
+        self._frames = None
+        self._writer = None
 
     def run(
             self,
             make_agent,
-            agent_name=None,
-            print_every=np.inf,
-            plot_every=np.inf,
-            plot=learning_curve,
-            render=False
+            label=None,
+            render=False,
+            console=True,
     ):
-        agent_name = make_agent.__name__ if agent_name is None else agent_name
-        self.data[agent_name] = np.zeros((0, self.episodes))
-        frames = 0
+        if label is None:
+            label = make_agent.__name__
+        for trial in range(self._trials):
+            self._trial = trial
+            self._init_trial(make_agent, label)
+            while (self._episode < self._max_episodes and self._frames < self._max_frames):
+                self._run_episode(render, console)
 
-        for trial in range(self.trials):
-            agent = make_agent(self.env)
-            self.data[agent_name] = np.vstack((self.data[agent_name], np.zeros(self.episodes)))
-            for episode in range(self.episodes):
-                returns, _frames = run_episode(agent, self.env, render)
-                frames += _frames
-                self.data[agent_name][trial][episode] = returns
-                self.monitor(trial, episode, returns, frames, print_every, plot_every, plot)
+    def _init_trial(self, make_agent, label):
+        self._frames = 0
+        self._episode = 0
+        self._writer = self._make_writer(label)
+        self._agent = make_agent(self.env)
 
-        return self.data[agent_name]
+    def _run_episode(self, render, console):
+        agent = self._agent
+        env = self.env
 
-    def plot(self, plot=learning_curve, frequency=1, filename=None):
-        plot(self.results, frequency=frequency, filename=filename)
+        start = timer()
 
-    def monitor(self, trial, episode, returns, frames, print_every, plot_every, plot):
-        episode_number = trial * self.episodes + episode + 1
-        if episode_number % print_every == 0:
-            print("trial: %i/%i, episode: %i/%i, frames: %i, returns: %d" %
-                  (trial + 1, self.trials, episode + 1, self.episodes, frames, returns))
-        if episode_number % plot_every == 0:
-            plt.ion()
-            self.plot(plot, plot_every)
-            plt.pause(0.0001)
-            plt.ioff()
-
-    def save(self, filename):
-        results = self.results
-        results["data"] = {k:v.tolist() for (k, v) in results["data"].items()}
-        with open(filename, 'w') as outfile:
-            json.dump(results, outfile)
-
-    def load(filename):
-        with open(filename) as infile:
-            results = json.load(infile)
-        results["data"] = {k:np.array(v) for (k, v) in results["data"].items()}
-        return results
-
-def run_episode(agent, env, render=False):
-    start = timer()
-    env.reset()
-    if render:
-        env.render()
-    env.step(agent.initial(env.state))
-    returns = env.reward
-    frames = 1
-    while not env.should_reset:
+        # initial state
+        env.reset()
         if render:
             env.render()
-        env.step(agent.act(env.state, env.reward))
-        returns += env.reward
-        frames += 1
-    agent.terminal(env.reward)
-    end = timer()
-    print('episode fps:', frames / (end - start))
-    return returns, frames
+        env.step(agent.initial(env.state))
+        returns = env.reward
+        frames = 1
+
+        # rest of episode
+        while not env.should_reset:
+            if render:
+                env.render()
+            env.step(agent.act(env.state, env.reward))
+            returns += env.reward
+            frames += 1
+
+        # terminal state
+        agent.terminal(env.reward)
+
+        # log info
+        end = timer()
+        fps = frames / (end - start)
+        self._log(returns, fps)
+        if console:
+            print("trial: %i/%i, episode: %i, frames: %i, fps: %d, returns: %d" %
+                  (self._trial + 1, self._trials, self._episode, self._frames, fps, returns))
+
+        # update state
+        self._episode += 1
+        self._frames += frames
+
+    def _log(self, returns, fps):
+        self._writer.add_scalar(
+            self.env.name + '/returns/eps', returns, self._episode)
+        self._writer.add_scalar(
+            self.env.name + '/returns/frames', returns, self._frames)
+        self._writer.add_scalar(self.env.name + '/fps', fps, self._frames)
+
+    def _make_writer(self, label):
+        current_time = datetime.now().strftime('%b%d_%H-%M-%S')
+        log_dir = os.path.join(
+            'runs', label + "_" + current_time
+        )
+        return SummaryWriter(log_dir=log_dir)
