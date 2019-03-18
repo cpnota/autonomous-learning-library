@@ -30,12 +30,12 @@ def dqn(
         optimizer=None,
         # Taken from Extended Data Table 1
         minibatch_size=32,
-        replay_buffer_size=250000,  # originally 1e6
+        replay_buffer_size=1e6,
         agent_history_length=4,
         target_update_frequency=10000,
         discount_factor=0.99,
         action_repeat=4,
-        update_frequency=4,
+        update_frequency=1,
         lr=0.00025,
         gradient_momentum=0.95,
         squared_gradient_momentum=0.95,
@@ -49,7 +49,6 @@ def dqn(
     # counted by number of updates rather than number of frame
     final_exploration_frame /= action_repeat
     replay_start_size /= action_repeat
-    target_update_frequency /= update_frequency
 
     def _dqn(env):
         _model = model
