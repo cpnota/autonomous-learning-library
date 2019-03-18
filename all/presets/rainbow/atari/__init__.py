@@ -40,7 +40,7 @@ def rainbow(
         optimizer=None,
         # vanilla DQN parameters
         minibatch_size=32,
-        replay_buffer_size=int(1e6),
+        replay_buffer_size=1000000,
         agent_history_length=4,
         target_update_frequency=10000,
         discount_factor=0.99,
