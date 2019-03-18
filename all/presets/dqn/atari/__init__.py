@@ -35,7 +35,7 @@ def dqn(
         target_update_frequency=10000,
         discount_factor=0.99,
         action_repeat=4,
-        update_frequency=1,
+        update_frequency=4,
         lr=0.00025,
         gradient_momentum=0.95,
         squared_gradient_momentum=0.95,
