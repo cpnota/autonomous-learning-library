@@ -1,6 +1,6 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 from torch import nn
-from torch.optim import RMSprop
+from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
 from all.layers import Flatten, Dueling, Linear0
 from all.approximation import QNetwork
@@ -36,10 +36,8 @@ def dqn(
         discount_factor=0.99,
         action_repeat=4,
         update_frequency=4,
-        lr=0.00025,
-        gradient_momentum=0.95,
-        squared_gradient_momentum=0.95,
-        min_squared_gradient=0.01,
+        lr=1e-4,
+        eps=1.5e-4, # Adam epsilon
         initial_exploration=1.,
         final_exploration=0.1,
         final_exploration_frame=1000000,
@@ -56,12 +54,9 @@ def dqn(
         if _model is None:
             _model = conv_net(env, frames=agent_history_length)
         if _optimizer is None:
-            _optimizer = RMSprop(
+            _optimizer = Adam(
                 _model.parameters(),
-                lr=lr,
-                momentum=gradient_momentum,
-                alpha=squared_gradient_momentum,
-                eps=min_squared_gradient
+                lr=lr
             )
         q = QNetwork(_model, _optimizer,
                      target_update_frequency=target_update_frequency,
