@@ -56,7 +56,8 @@ def dqn(
         if _optimizer is None:
             _optimizer = Adam(
                 _model.parameters(),
-                lr=lr
+                lr=lr,
+                eps=eps
             )
         q = QNetwork(_model, _optimizer,
                      target_update_frequency=target_update_frequency,
