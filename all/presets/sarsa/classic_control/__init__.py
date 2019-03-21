@@ -22,7 +22,7 @@ def sarsa_cc(
         model = fc_net(env)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(model, optimizer)
-        policy = GreedyPolicy(q, annealing_time=1, final_epsilon=epsilon)
+        policy = GreedyPolicy(q, env.action_space.n, annealing_time=1, final_epsilon=epsilon)
         return Sarsa(q, policy)
     return _sarsa_cc
 

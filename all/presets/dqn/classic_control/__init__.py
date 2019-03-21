@@ -37,6 +37,7 @@ def dqn_cc(
                      loss=mse_loss)
         policy = GreedyPolicy(
             q,
+            env.action_space.n,
             initial_epsilon=initial_exploration,
             final_epsilon=final_exploration,
             annealing_time=final_exploration_frame

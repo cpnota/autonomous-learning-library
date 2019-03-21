@@ -2,7 +2,8 @@ import unittest
 import numpy as np
 import torch
 from torch import nn
-from all.layers import Dueling
+import torch_testing as tt
+from all.layers import Dueling, Linear0
 
 class TestLayers(unittest.TestCase):
     def test_dueling(self):
@@ -19,6 +20,11 @@ class TestLayers(unittest.TestCase):
                 [-1.253222, 1.509323, 2.502186]
             ], dtype=np.float32)
         )
+
+    def test_linear0(self):
+        model = Linear0(3, 3)
+        result = model(torch.tensor([[3., -2., 10]]))
+        tt.assert_equal(result, torch.tensor([[0., 0., 0.]]))
 
 if __name__ == '__main__':
     unittest.main()
