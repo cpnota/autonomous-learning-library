@@ -5,7 +5,7 @@ from all.presets.dqn import dqn
 def run():
     # env = PongEnvironment()
     env = AtariEnvironment("Pong")
-    experiment = Experiment(env, frames=50e6, trials=1)
+    experiment = Experiment(env, frames=20e6, trials=1)
     experiment.run(
         dqn(),
         render=True
