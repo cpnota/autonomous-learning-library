@@ -5,7 +5,7 @@ from torch.nn.functional import mse_loss
 from all.agents import DQN
 from all.approximation import QNetwork
 from all.layers import Dueling, Flatten, NoisyLinear
-from all.memory import PrioritizedReplayBuffer, ExperienceReplayBuffer
+from all.memory import PrioritizedReplayBuffer
 from all.policies import GreedyPolicy
 
 def dueling_fc_net(env, sigma_init):
