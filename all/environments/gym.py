@@ -4,10 +4,14 @@ import torch
 from .abstract import Environment
 
 class GymEnvironment(Environment):
-    def __init__(self, env):
+    def __init__(self, env, name=None):
         if isinstance(env, str):
+            self._name = env
             self._env = gym.make(env)
         else:
+            if name is None:
+                raise Exception(
+                    "Please provide a name for custom environments.")
             self._env = env
 
         self._state = None
@@ -15,6 +19,10 @@ class GymEnvironment(Environment):
         self._reward = None
         self._done = None
         self._info = None
+
+    @property
+    def name(self):
+        return self._name
 
     def reset(self):
         state = self._env.reset()

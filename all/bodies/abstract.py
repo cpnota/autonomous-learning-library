@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from all.agents import Agent
 
 class Body(Agent):
@@ -9,14 +8,22 @@ class Body(Agent):
     rest of the system. This base class is provided only for semantic clarity.
     """
 
-    @abstractmethod
+    def __init__(self, agent):
+        self._agent = agent
+
+    @property
+    def agent(self):
+        return self._agent
+
+    @agent.setter
+    def agent(self, agent):
+        self._agent = agent
+
     def initial(self, state, info=None):
-        """See Agent"""
+        return self.agent.initial(state, info)
 
-    @abstractmethod
     def act(self, state, reward, info=None):
-        """See Agent"""
+        return self.agent.act(state, reward, info)
 
-    @abstractmethod
     def terminal(self, reward, info=None):
-        """See Agent"""
+        return self.agent.terminal(reward, info)

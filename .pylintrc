@@ -148,6 +148,7 @@ disable=print-statement,
         E0213, # allow static methods
         E1102, # not callable (pytorch.tensor)
         R0902, # too many instance attributes
+        too-many-locals,
         no-self-use,
         arguments-differ
 
