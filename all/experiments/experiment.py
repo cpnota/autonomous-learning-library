@@ -90,8 +90,8 @@ class Experiment:
         self._writer.add_scalar(self.env.name + '/fps', fps, self._frames)
 
     def _make_writer(self, label):
-        current_time = datetime.now().strftime('%b%d_%H-%M-%S')
+        current_time = str(datetime.now())
         log_dir = os.path.join(
-            'runs', label + "_" + current_time
+            'runs', label + " " + current_time
         )
         return SummaryWriter(log_dir=log_dir)
