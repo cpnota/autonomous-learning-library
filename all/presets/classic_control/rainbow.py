@@ -25,7 +25,7 @@ def dueling_fc_net(env, sigma_init):
         )
     )
 
-def rainbow_cc(
+def rainbow(
         # Vanilla DQN
         minibatch_size=32,
         replay_buffer_size=20000,
@@ -47,17 +47,16 @@ def rainbow_cc(
     Partial implementation of the Rainbow variant of DQN, scaled for classic control environments.
 
     So far, the enhancements that have been added are:
-    1. Double Q-Learning
-    2. Prioritized Replay
-    3. Dueling Networks
-    4. NoisyNets
+    1. Prioritized Replay
+    2. Dueling Networks
+    3. NoisyNets
 
     Still to be added are:
-    5. Multi-step Learning
-    6. Distributional RL
-    7. Double Q-Learning
+    4. Multi-step Learning
+    5. Distributional RL
+    6. Double Q-Learning
     '''
-    def _rainbow_cc(env):
+    def _rainbow(env):
         model = build_model(env, sigma_init)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(model, optimizer,
@@ -83,7 +82,7 @@ def rainbow_cc(
                    replay_start_size=replay_start_size,
                    update_frequency=update_frequency,
                    minibatch_size=minibatch_size)
-    return _rainbow_cc
+    return _rainbow
 
 
-__all__ = ["rainbow_cc"]
+__all__ = ["rainbow"]

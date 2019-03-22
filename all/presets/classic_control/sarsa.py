@@ -14,16 +14,16 @@ def fc_net(env, frames=1):
         nn.Linear(256, env.action_space.n)
     )
 
-def sarsa_cc(
+def sarsa(
         lr=1e-3,
         epsilon=0.1
 ):
-    def _sarsa_cc(env):
+    def _sarsa(env):
         model = fc_net(env)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(model, optimizer)
         policy = GreedyPolicy(q, env.action_space.n, annealing_time=1, final_epsilon=epsilon)
         return Sarsa(q, policy)
-    return _sarsa_cc
+    return _sarsa
 
-__all__ = ["sarsa_cc"]
+__all__ = ["sarsa"]

@@ -6,7 +6,6 @@ from all.agents import REINFORCE
 from all.approximation import ValueNetwork
 from all.policies import SoftmaxPolicy
 
-
 def fc_value(env):
     return nn.Sequential(
         Flatten(),
@@ -14,7 +13,6 @@ def fc_value(env):
         nn.ReLU(),
         nn.Linear(256, 1)
     )
-
 
 def fc_policy(env):
     return nn.Sequential(
@@ -24,12 +22,11 @@ def fc_policy(env):
         nn.Linear(256, env.action_space.n)
     )
 
-
-def reinforce_cc(
+def reinforce(
         lr_v=1e-3,
         lr_pi=1e-3
 ):
-    def _reinforce_cc(env):
+    def _reinforce(env):
         value_model = fc_value(env)
         value_optimizer = Adam(value_model.parameters(), lr=lr_v)
         v = ValueNetwork(value_model, value_optimizer)
@@ -37,7 +34,7 @@ def reinforce_cc(
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
         policy = SoftmaxPolicy(policy_model, policy_optimizer)
         return REINFORCE(v, policy)
-    return _reinforce_cc
+    return _reinforce
 
 
-__all__ = ["reinforce_cc"]
+__all__ = ["reinforce"]

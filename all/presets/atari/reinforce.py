@@ -32,7 +32,7 @@ def policy_net(env, features):
         nn.Linear(512, env.action_space.n)
     )
 
-def reinforce_atari(
+def reinforce(
         lr_v=1e-6,
         lr_pi=1e-6
 ):
@@ -57,4 +57,4 @@ def reinforce_atari(
     return _reinforce_atari
 
 
-__all__ = ["reinforce_atari"]
+__all__ = ["reinforce"]

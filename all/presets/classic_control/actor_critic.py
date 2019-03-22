@@ -15,7 +15,6 @@ def fc_value(env):
         nn.Linear(256, 1)
     )
 
-
 def fc_policy(env):
     return nn.Sequential(
         Flatten(),
@@ -24,12 +23,11 @@ def fc_policy(env):
         nn.Linear(256, env.action_space.n)
     )
 
-
-def ac_cc(
+def actor_critic(
         lr_v=5e-4,
         lr_pi=2e-4
 ):
-    def _ac_cc(env):
+    def _actor_critic(env):
         value_model = fc_value(env)
         value_optimizer = Adam(value_model.parameters(), lr=lr_v)
         v = ValueNetwork(value_model, value_optimizer)
@@ -37,7 +35,7 @@ def ac_cc(
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
         policy = SoftmaxPolicy(policy_model, policy_optimizer)
         return ActorCritic(v, policy)
-    return _ac_cc
+    return _actor_critic
 
 
-__all__ = ["ac_cc"]
+__all__ = ["actor_critic"]

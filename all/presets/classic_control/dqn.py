@@ -16,7 +16,7 @@ def fc_net(env, frames=1):
         nn.Linear(256, env.action_space.n)
     )
 
-def dqn_cc(
+def dqn(
         minibatch_size=32,
         replay_buffer_size=20000,
         target_update_frequency=1000,
@@ -29,7 +29,7 @@ def dqn_cc(
         replay_start_size=1000,
         build_model=fc_net
 ):
-    def _dqn_cc(env):
+    def _dqn(env):
         model = build_model(env)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(model, optimizer,
@@ -48,7 +48,7 @@ def dqn_cc(
                    replay_start_size=replay_start_size,
                    update_frequency=update_frequency,
                    minibatch_size=minibatch_size)
-    return _dqn_cc
+    return _dqn
 
 
-__all__ = ["dqn_cc"]
+__all__ = ["dqn"]
