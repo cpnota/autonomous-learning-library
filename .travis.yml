@@ -4,6 +4,7 @@ python:
 branches:
   only:
   - master
+  - develop
 install:
   - make install
 script:
