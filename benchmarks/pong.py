@@ -26,7 +26,7 @@ def run():
         AtariEnvironment('Pong'),
         frames=20e6
     )
-    experiment.run(agent(), label=agent_name + "_" + rev)
+    experiment.run(agent(), label=agent_name + " " + rev)
 
 if __name__ == '__main__':
     run()

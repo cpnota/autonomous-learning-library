@@ -25,7 +25,7 @@ def run():
         GymEnvironment('CartPole-v0'),
         episodes=1000
     )
-    experiment.run(agent(), label=agent_name + "_" + rev)
+    experiment.run(agent(), label=agent_name + " " + rev)
 
 if __name__ == '__main__':
     run()
