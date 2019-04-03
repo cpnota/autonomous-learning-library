@@ -13,13 +13,21 @@ class ListNetwork(nn.Module):
     def __init__(self, model, out):
         super().__init__()
         self.model = model
-        self.out = out
+        self.out = list(out)
 
     def forward(self, x):
+        if isinstance(x, list):
+            return self._forward_list(x)
+        if x is None:
+            return torch.zeros(self.out)
+        return self.model(x.float())
+
+
+    def _forward_list(self, x):
         non_null_x = [x_i for x_i in x if x_i is not None]
         non_null_i = [i for i, x_i in enumerate(x) if x_i is not None]
-        non_null_o = torch.cat(non_null_x).float()
-        result = torch.zeros((len(x), self.out))
+        non_null_o = self.model(torch.cat(non_null_x).float())
+        result = torch.zeros([len(x)] + self.out)
         result[non_null_i] = non_null_o
         return result
 
