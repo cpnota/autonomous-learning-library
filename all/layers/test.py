@@ -35,10 +35,10 @@ class TestLayers(unittest.TestCase):
         net = ListNetwork(model, (2,))
         x = [torch.randn(1, 2), torch.randn(1, 2), None, torch.randn(1, 2)]
         out = net(x)
-        tt.assert_almost_equal(out, torch.tensor([[-2.1408734, -0.553434],
-                                                  [-0.499953, -0.0814794],
+        tt.assert_almost_equal(out, torch.tensor([[0.0479387, -0.2268031],
+                                                  [0.2346841, 0.0743403],
                                                   [0.,  0.],
-                                                  [-0.1632867, 1.5276502]]))
+                                                  [0.0185191, 0.0815052]]))
 
         x = torch.randn(3, 2)
         out = net(x)
