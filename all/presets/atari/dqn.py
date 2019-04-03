@@ -59,7 +59,7 @@ def dqn(
                 lr=lr,
                 eps=eps
             )
-        q = QNetwork(_model, _optimizer,
+        q = QNetwork(_model, _optimizer, env.action_space.n,
                      target_update_frequency=target_update_frequency,
                      loss=smooth_l1_loss
                      )
