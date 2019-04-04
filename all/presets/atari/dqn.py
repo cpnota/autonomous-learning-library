@@ -31,7 +31,7 @@ def dqn(
         optimizer=None,
         # Taken from Extended Data Table 1
         minibatch_size=32,
-        replay_buffer_size=150000, # fits on 8 GB card
+        replay_buffer_size=10000, # fits on 8 GB card
         agent_history_length=4,
         target_update_frequency=10000,
         discount_factor=0.99,
@@ -54,7 +54,7 @@ def dqn(
         _model = model
         _optimizer = optimizer
         if _model is None:
-            _model = conv_net(env, frames=agent_history_length).to(device)
+            _model = conv_net(env, frames=agent_history_length).half().to(device)
         if _optimizer is None:
             _optimizer = Adam(
                 _model.parameters(),
