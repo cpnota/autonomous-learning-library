@@ -37,7 +37,7 @@ class TestLayers(unittest.TestCase):
         out = net(x)
         tt.assert_almost_equal(out, torch.tensor([[0.0479387, -0.2268031],
                                                   [0.2346841, 0.0743403],
-                                                  [0.,  0.],
+                                                  [0., 0.],
                                                   [0.0185191, 0.0815052]]))
 
         x = torch.randn(3, 2)
