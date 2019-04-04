@@ -9,3 +9,6 @@ test:
 
 tensorboard:
 	tensorboard --logdir runs
+
+benchmark:
+	tensorboard --logdir benchmarks/runs --port=6007

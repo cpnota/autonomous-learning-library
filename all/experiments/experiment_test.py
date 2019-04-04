@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import torch
-from all.presets.sarsa import sarsa_cc
+from all.presets.classic_control import sarsa
 from all.experiments import Experiment
 
 class MockWriter():
@@ -31,14 +31,14 @@ class TestExperiment(unittest.TestCase):
         self.experiment.env.seed(0)
 
     def test_adds_label(self):
-        self.experiment.run(sarsa_cc(), console=False)
-        self.assertEqual(self.experiment._writer.label, "_sarsa_cc")
+        self.experiment.run(sarsa(), console=False)
+        self.assertEqual(self.experiment._writer.label, "_sarsa")
 
     def test_writes_returns_eps(self):
-        self.experiment.run(sarsa_cc(), console=False)
+        self.experiment.run(sarsa(), console=False)
         np.testing.assert_equal(
             self.experiment._writer.data["CartPole-v0/returns/eps"]["values"],
-            np.array([18., 10., 11.])
+            np.array([11., 10., 9.])
         )
         np.testing.assert_equal(
             self.experiment._writer.data["CartPole-v0/returns/eps"]["steps"],
