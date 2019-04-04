@@ -1,8 +1,8 @@
 import torch
 from torch import optim
 from torch.nn.functional import mse_loss
+from all.layers import ListNetwork
 from .v_function import ValueFunction
-from ..layers import ListNetwork
 
 class ValueNetwork(ValueFunction):
     def __init__(self, model, optimizer=None, loss=mse_loss):

@@ -1,7 +1,7 @@
 import torch
 from torch.nn import functional
+from all.layers import ListNetwork
 from .abstract import Policy
-from ..layers import ListNetwork
 
 
 class SoftmaxPolicy(Policy):

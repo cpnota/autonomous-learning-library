@@ -2,8 +2,8 @@ import copy
 import torch
 from torch import optim
 from torch.nn.functional import mse_loss
+from all.layers import ListNetwork
 from .q_function import QFunction
-from ..layers import ListNetwork
 
 class QNetwork(QFunction):
     def __init__(self, model, optimizer, actions, loss=mse_loss, target_update_frequency=None):
