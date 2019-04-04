@@ -1,4 +1,5 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
+import torch
 from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import mse_loss
@@ -27,10 +28,11 @@ def dqn(
         final_exploration=0.02,
         final_exploration_frame=10000,
         replay_start_size=1000,
-        build_model=fc_net
+        build_model=fc_net,
+        device=torch.device('cpu')
 ):
     def _dqn(env):
-        model = build_model(env)
+        model = build_model(env).to(device)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(model, optimizer, env.action_space.n,
                      target_update_frequency=target_update_frequency,
@@ -42,7 +44,7 @@ def dqn(
             final_epsilon=final_exploration,
             annealing_time=final_exploration_frame
         )
-        replay_buffer = ExperienceReplayBuffer(replay_buffer_size)
+        replay_buffer = ExperienceReplayBuffer(replay_buffer_size, device=device)
         return DQN(q, policy, replay_buffer,
                    discount_factor=discount_factor,
                    replay_start_size=replay_start_size,

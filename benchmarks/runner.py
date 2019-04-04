@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import torch
 from all.experiments import Experiment
 
 def run(presets, env, episodes=None, frames=None):
@@ -19,9 +20,13 @@ def run(presets, env, episodes=None, frames=None):
     result = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], stdout=subprocess.PIPE)
     rev = result.stdout.decode('utf-8')
 
+    device = torch.device('cuda')
+
+    env._device = device
+
     experiment = Experiment(
         env,
         frames=frames,
         episodes=episodes
     )
-    experiment.run(agent(), label=agent_name + " " + rev)
+    experiment.run(agent(device=device), label=agent_name + " " + rev)
