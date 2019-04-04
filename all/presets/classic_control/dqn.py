@@ -32,7 +32,7 @@ def dqn(
     def _dqn(env):
         model = build_model(env)
         optimizer = Adam(model.parameters(), lr=lr)
-        q = QNetwork(model, optimizer,
+        q = QNetwork(model, optimizer, env.action_space.n,
                      target_update_frequency=target_update_frequency,
                      loss=mse_loss)
         policy = GreedyPolicy(
