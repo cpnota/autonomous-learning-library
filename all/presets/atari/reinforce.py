@@ -43,7 +43,7 @@ def reinforce(
         value_optimizer = optim.Adam(value_model.parameters(), lr=lr_v)
         policy_optimizer = optim.Adam(policy_model.parameters(), lr=lr_pi)
         v = ValueNetwork(value_model, value_optimizer)
-        policy = SoftmaxPolicy(policy_model, policy_optimizer)
+        policy = SoftmaxPolicy(policy_model, policy_optimizer, env.action_space.n)
 
         def weights_init(layer):
             if isinstance(layer, nn.Linear):

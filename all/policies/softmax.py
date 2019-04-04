@@ -1,19 +1,17 @@
 import torch
-from torch import optim
 from torch.nn import functional
 from .abstract import Policy
+from ..layers import ListNetwork
 
 
 class SoftmaxPolicy(Policy):
-    def __init__(self, model, optimizer=None):
-        self.model = model
-        self.optimizer = (optimizer
-                          if optimizer is not None
-                          else optim.Adam(model.parameters()))
+    def __init__(self, model, optimizer, actions):
+        self.model = ListNetwork(model, (actions,))
+        self.optimizer = optimizer
         self._cache = []
 
     def __call__(self, state, action=None, prob=None):
-        scores = self.model(state.float())
+        scores = self.model(state)
         probs = functional.softmax(scores, dim=-1)
         distribution = torch.distributions.Categorical(probs)
         action = distribution.sample()
@@ -22,7 +20,7 @@ class SoftmaxPolicy(Policy):
 
     def eval(self, state):
         with torch.no_grad():
-            scores = self.model(state.float())
+            scores = self.model(state)
             return functional.softmax(scores, dim=-1)
 
     def reinforce(self, errors):

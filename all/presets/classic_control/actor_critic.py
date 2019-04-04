@@ -33,7 +33,7 @@ def actor_critic(
         v = ValueNetwork(value_model, value_optimizer)
         policy_model = fc_policy(env)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
-        policy = SoftmaxPolicy(policy_model, policy_optimizer)
+        policy = SoftmaxPolicy(policy_model, policy_optimizer, env.action_space.n)
         return ActorCritic(v, policy)
     return _actor_critic
 
