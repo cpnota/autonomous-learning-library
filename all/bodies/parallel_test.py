@@ -5,7 +5,7 @@ import numpy as np
 from all.agents import Agent
 from all.environments import GymEnvironment
 from all.bodies import Body, ParallelBody
-from all.bodies.parallel import ParallelBody
+from all.bodies.parallel import ParallelBody, ParallelRepeatActions
 
 class MockAgent(Agent):
     def __init__(self, n):
@@ -16,42 +16,17 @@ class MockAgent(Agent):
         self._actions += 1
         return [self._actions] * self._n
 
-class RepeatBody(Body):
-    def __init__(self, agent):
-        super().__init__(agent)
-        self._repeat = np.random.randint(1, 4)
-        self._i = -1
-        self._action = None
-
-    def act(self, state, reward, info=None):
-        if self._repeat == 1:
-            if self._i == 1:
-                return None
-            self._action = self.agent.act(state, reward, info)
-            if self._action is None:
-                self._i = 1
-            return self._action
-
-        if self._i >= self._repeat or self._i == -1:
-            self._action = self.agent.act(state, reward, info)
-            self._i = 1
-            return self._action
-
-        if self._action is None:
-            self._action = self.agent.act(state, reward, info)
-        self._i += 1
-        return self._action
-
 class ParallelBodyTest(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
 
     def test_parallel_four(self):
         agent = MockAgent(4)
-        agent = ParallelBody(agent, RepeatBody, 4)
+        agent = ParallelRepeatActions(agent)
+        agent = ParallelBody(agent, Body, 4)
 
         states = ['state'] * 4
-        rewards = [0] * 4
+        rewards = torch.zeros(4)
         infos = [None] * 4
 
         for t in range(10):
