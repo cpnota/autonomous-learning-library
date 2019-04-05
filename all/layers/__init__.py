@@ -20,15 +20,15 @@ class ListNetwork(nn.Module):
         if isinstance(x, list):
             return self._forward_list(x)
         if x is None:
-            return torch.zeros(self.out, dtype=torch.half)
-        return self.model(x.half())
+            return torch.zeros(self.out)
+        return self.model(x.float())
 
 
     def _forward_list(self, x):
         non_null_x = [x_i for x_i in x if x_i is not None]
         non_null_i = [i for i, x_i in enumerate(x) if x_i is not None]
-        non_null_o = self.model(torch.cat(non_null_x).half())
-        result = torch.zeros([len(x)] + self.out, device=self.device, dtype=torch.half)
+        non_null_o = self.model(torch.cat(non_null_x).float())
+        result = torch.zeros([len(x)] + self.out, device=self.device)
         result[non_null_i] = non_null_o
         return result
 
