@@ -12,6 +12,8 @@ from all.memory import PrioritizedReplayBuffer
 
 # "Dueling" architecture modification.
 # https://arxiv.org/abs/1511.06581
+
+
 def dueling_conv_net(env, frames=4):
     return nn.Sequential(
         nn.Conv2d(frames, 32, 8, stride=4),
@@ -35,20 +37,21 @@ def dueling_conv_net(env, frames=4):
         )
     )
 
+
 def rainbow(
         # If None, build defaults
         model=None,
         optimizer=None,
         # vanilla DQN parameters
         minibatch_size=32,
-        replay_buffer_size=1000000,
+        replay_buffer_size=150000,  # fits on 8 GB card
         agent_history_length=4,
         target_update_frequency=10000,
         discount_factor=0.99,
         action_repeat=4,
         update_frequency=4,
-        lr=1e-4, # Adam instead of RM prop
-        eps=1.5e-4, # Adam epsilon
+        lr=1e-4,  # Adam instead of RM prop
+        eps=1.5e-4,  # Adam epsilon
         initial_exploration=1.,
         final_exploration=0.1,
         final_exploration_frame=1000000,
@@ -83,7 +86,8 @@ def rainbow(
         _model = model
         _optimizer = optimizer
         if _model is None:
-            _model = dueling_conv_net(env, frames=agent_history_length).to(device)
+            _model = dueling_conv_net(
+                env, frames=agent_history_length).to(device)
         if _optimizer is None:
             _optimizer = Adam(
                 _model.parameters(),
