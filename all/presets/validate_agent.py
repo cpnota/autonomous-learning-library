@@ -1,5 +1,3 @@
-from all.environments import GymEnvironment
-
 def validate_agent(make_agent, env):
     agent = make_agent(env)
     # Run two episodes, enough to
