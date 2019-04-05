@@ -14,6 +14,7 @@ class ListNetwork(nn.Module):
         super().__init__()
         self.model = model
         self.out = list(out)
+        self.device = next(model.parameters()).device
 
     def forward(self, x):
         if isinstance(x, list):
@@ -27,7 +28,7 @@ class ListNetwork(nn.Module):
         non_null_x = [x_i for x_i in x if x_i is not None]
         non_null_i = [i for i, x_i in enumerate(x) if x_i is not None]
         non_null_o = self.model(torch.cat(non_null_x).float())
-        result = torch.zeros([len(x)] + self.out)
+        result = torch.zeros([len(x)] + self.out, device=self.device)
         result[non_null_i] = non_null_o
         return result
 

@@ -1,3 +1,4 @@
+import torch
 from torch import nn, optim
 from all.agents import REINFORCE
 from all.approximation import ValueNetwork
@@ -34,12 +35,13 @@ def policy_net(env, features):
 
 def reinforce(
         lr_v=1e-6,
-        lr_pi=1e-6
+        lr_pi=1e-6,
+        device=torch.device('cpu')
 ):
     def _reinforce_atari(env):
         features = conv_features()
-        value_model = value_net(features)
-        policy_model = policy_net(env, features)
+        value_model = value_net(features).to(device)
+        policy_model = policy_net(env, features).to(device)
         value_optimizer = optim.Adam(value_model.parameters(), lr=lr_v)
         policy_optimizer = optim.Adam(policy_model.parameters(), lr=lr_pi)
         v = ValueNetwork(value_model, value_optimizer)

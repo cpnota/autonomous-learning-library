@@ -20,6 +20,7 @@ class QNetwork(QFunction):
             if target_update_frequency is not None
             else self.model
         )
+        self.device = next(model.parameters()).device
 
     def __call__(self, states, actions=None):
         result = self._eval(states, actions, self.model)
@@ -48,7 +49,7 @@ class QNetwork(QFunction):
         values = model(states)
         return (
             values if actions is None
-            else values.gather(1, torch.tensor(actions).view(-1, 1)).squeeze(1)
+            else values.gather(1, torch.tensor(actions, device=self.device).view(-1, 1)).squeeze(1)
         )
 
     def should_update_target(self):
