@@ -111,7 +111,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
 
     def update_priorities(self, td_errors):
         idxes = self._cache
-        _td_errors = td_errors.detach().numpy()
+        _td_errors = td_errors.detach().cpu().numpy()
         priorities = list(np.abs(_td_errors) + self._epsilon)
         assert len(idxes) == len(priorities)
         for idx, priority in zip(idxes, priorities):

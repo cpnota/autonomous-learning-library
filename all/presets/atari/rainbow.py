@@ -1,4 +1,5 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
+import torch
 from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
@@ -57,6 +58,7 @@ def rainbow(
         alpha=0.5,
         beta=0.4,
         final_beta_frame=200e6,
+        device=torch.device('cpu')
 ):
     '''
     Partial implementation of the Rainbow variant of DQN.
@@ -81,7 +83,7 @@ def rainbow(
         _model = model
         _optimizer = optimizer
         if _model is None:
-            _model = dueling_conv_net(env, frames=agent_history_length)
+            _model = dueling_conv_net(env, frames=agent_history_length).to(device)
         if _optimizer is None:
             _optimizer = Adam(
                 _model.parameters(),
@@ -103,7 +105,8 @@ def rainbow(
             replay_buffer_size,
             alpha=alpha,
             beta=beta,
-            final_beta_frame=final_beta_frame
+            final_beta_frame=final_beta_frame,
+            device=device
         )
         return DeepmindAtariBody(
             DQN(q, policy, replay_buffer,
