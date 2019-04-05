@@ -5,8 +5,8 @@ from all.presets.validate_agent import validate_agent
 from all.presets.atari import dqn, rainbow, reinforce
 
 
-CPU = torch.device('CPU')
-CUDA = torch.device('CUDA')
+CPU = torch.device('cpu')
+CUDA = torch.device('cuda')
 
 
 class TestAtariPresets(unittest.TestCase):

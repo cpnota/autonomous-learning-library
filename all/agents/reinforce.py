@@ -20,7 +20,7 @@ class REINFORCE(Agent):
     def terminal(self, reward, info=None):
         self.rewards.append(reward)
         states = torch.cat(self.states)
-        rewards = torch.tensor(self.rewards)
+        rewards = torch.tensor(self.rewards, device=states.device)
 
         values = self.v(states)
         ordered = torch.flip(rewards, dims=(0,))
