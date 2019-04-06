@@ -4,7 +4,7 @@ import torch
 from .abstract import Environment
 
 class GymEnvironment(Environment):
-    def __init__(self, env, name=None):
+    def __init__(self, env, name=None, device=torch.device('cpu')):
         if isinstance(env, str):
             self._name = env
             self._env = gym.make(env)
@@ -19,6 +19,7 @@ class GymEnvironment(Environment):
         self._reward = None
         self._done = None
         self._info = None
+        self._device = device
 
     @property
     def name(self):
@@ -74,7 +75,7 @@ class GymEnvironment(Environment):
                 value,
                 dtype=self.state_space.dtype
             )
-        ).unsqueeze(0)
+        ).unsqueeze(0).to(self._device)
 
     @property
     def action(self):

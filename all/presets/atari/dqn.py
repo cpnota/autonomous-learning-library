@@ -1,4 +1,5 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
+import torch
 from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
@@ -30,7 +31,7 @@ def dqn(
         optimizer=None,
         # Taken from Extended Data Table 1
         minibatch_size=32,
-        replay_buffer_size=1000000,
+        replay_buffer_size=150000, # fits on 8 GB card
         agent_history_length=4,
         target_update_frequency=10000,
         discount_factor=0.99,
@@ -42,7 +43,8 @@ def dqn(
         final_exploration=0.1,
         final_exploration_frame=1000000,
         replay_start_size=50000,
-        noop_max=30
+        noop_max=30,
+        device=torch.device('cpu')
 ):
     # counted by number of updates rather than number of frame
     final_exploration_frame /= action_repeat
@@ -52,7 +54,7 @@ def dqn(
         _model = model
         _optimizer = optimizer
         if _model is None:
-            _model = conv_net(env, frames=agent_history_length)
+            _model = conv_net(env, frames=agent_history_length).to(device)
         if _optimizer is None:
             _optimizer = Adam(
                 _model.parameters(),
@@ -70,7 +72,7 @@ def dqn(
                               initial_epsilon=initial_exploration,
                               final_epsilon=final_exploration
                               )
-        replay_buffer = ExperienceReplayBuffer(replay_buffer_size)
+        replay_buffer = ExperienceReplayBuffer(replay_buffer_size, device=device)
         return DeepmindAtariBody(
             DQN(q, policy, replay_buffer,
                 discount_factor=discount_factor,

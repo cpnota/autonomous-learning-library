@@ -21,10 +21,11 @@ class ReplayBuffer(ABC):
 # Adapted from:
 # https://github.com/Shmuma/ptan/blob/master/ptan/experience.py
 class ExperienceReplayBuffer(ReplayBuffer):
-    def __init__(self, size):
+    def __init__(self, size, device=torch.device('cpu')):
         self.buffer = []
         self.capacity = size
         self.pos = 0
+        self.device = device
 
     def store(self, states, action, next_states, reward):
         self._add((states, action, next_states, reward))
@@ -32,7 +33,7 @@ class ExperienceReplayBuffer(ReplayBuffer):
     def sample(self, batch_size):
         keys = np.random.choice(len(self.buffer), batch_size, replace=True)
         minibatch = [self.buffer[key] for key in keys]
-        return self._reshape(minibatch, torch.ones(batch_size))
+        return self._reshape(minibatch, torch.ones(batch_size, device=self.device))
 
     def update_priorities(self, td_errors):
         pass
@@ -44,11 +45,11 @@ class ExperienceReplayBuffer(ReplayBuffer):
             self.buffer[self.pos] = sample
         self.pos = (self.pos + 1) % self.capacity
 
-    def _reshape(sefl, minibatch, weights):
+    def _reshape(self, minibatch, weights):
         states = [sample[0] for sample in minibatch]
         actions = [sample[1] for sample in minibatch]
         next_states = [sample[2] for sample in minibatch]
-        rewards = torch.tensor([sample[3] for sample in minibatch]).float()
+        rewards = torch.tensor([sample[3] for sample in minibatch], device=self.device).float()
         return (states, actions, next_states, rewards, weights)
 
     def __len__(self):
@@ -64,9 +65,10 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
             alpha=0.6,
             beta=0.4,
             final_beta_frame=100000,
-            epsilon=1e-5
+            epsilon=1e-5,
+            device=torch.device('cpu')
     ):
-        super().__init__(buffer_size)
+        super().__init__(buffer_size, device=device)
 
         assert alpha >= 0
         self._alpha = alpha
@@ -105,11 +107,11 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
         weights = np.array(weights, dtype=np.float32)
         samples = [self.buffer[idx] for idx in idxes]
         self._cache = idxes
-        return self._reshape(samples, torch.from_numpy(weights))
+        return self._reshape(samples, torch.from_numpy(weights).to(self.device))
 
     def update_priorities(self, td_errors):
         idxes = self._cache
-        _td_errors = td_errors.detach().numpy()
+        _td_errors = td_errors.detach().cpu().numpy()
         priorities = list(np.abs(_td_errors) + self._epsilon)
         assert len(idxes) == len(priorities)
         for idx, priority in zip(idxes, priorities):
