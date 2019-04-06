@@ -12,9 +12,10 @@ class ActorCritic(Agent):
         return self.policy(state)
 
     def act(self, state, reward, info=None):
-        td_error = reward + self.gamma * self.v.eval(state) - self.v(self.previous_state)
-        self.v.reinforce(td_error)
-        self.policy.reinforce(td_error)
+        if self.previous_state is not None:
+            td_error = reward + self.gamma * self.v.eval(state) - self.v(self.previous_state)
+            self.v.reinforce(td_error)
+            self.policy.reinforce(td_error)
         self.previous_state = state
         return self.policy(state)
 
