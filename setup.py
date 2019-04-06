@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="all",
-    version="0.0.1",
+    version="0.0.2",
     description=("A reinforcement learning library in python"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",
