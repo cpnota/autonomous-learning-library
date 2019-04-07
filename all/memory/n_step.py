@@ -35,7 +35,7 @@ class NStepBuffer():
                 t = self.n - 1 - j
                 state = self.states[t][i]
                 if state is None:
-                    returns = self.rewards[t + 1][i]
+                    returns = 0
                     last_state = state
                 else:
                     returns = self.discount * returns + self.rewards[self.n - j][i]
