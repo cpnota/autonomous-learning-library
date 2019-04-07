@@ -28,10 +28,6 @@ class NStepBufferTest(unittest.TestCase):
         self.assert_array_equal(next_states, expect_next_states)
         tt.assert_allclose(returns, expected_returns)
 
-    def assert_array_equal(self, actual, expected):
-        for i, exp in enumerate(expected):
-            self.assertEqual(actual[i], exp)
-
     def test_rollout_with_nones(self):
         buffer = NStepBuffer(3, discount=0.5)
         states = [
@@ -63,6 +59,36 @@ class NStepBufferTest(unittest.TestCase):
         self.assert_array_equal(states, expected_states)
         self.assert_array_equal(next_states, expect_next_states)
         tt.assert_allclose(returns, expected_returns)
+
+    def test_multi_rollout(self):
+        buffer = NStepBuffer(2, discount=0.5)
+        s = ['state' + str(i) for i in range(12)]
+        buffer.store(s[0:2], torch.ones(2))
+        buffer.store(s[2:4], torch.ones(2))
+        buffer.store(s[4:6], torch.ones(2))
+
+        states, next_states, returns = buffer.sample(-1)
+        self.assert_array_equal(states, ['state' + str(i) for i in range(4)])
+        self.assert_array_equal(next_states, [
+            'state4', 'state5', 'state4', 'state5'
+        ])
+        tt.assert_allclose(returns, torch.tensor([1.5, 1.5, 1, 1]))
+
+        buffer.store(s[6:8], torch.ones(2))
+        buffer.store(s[8:10], torch.ones(2))
+
+        states, next_states, returns = buffer.sample(-1)
+        self.assert_array_equal(states, ['state' + str(i) for i in range(4, 8)])
+        self.assert_array_equal(next_states, [
+            'state8', 'state9', 'state8', 'state9'
+        ])
+        tt.assert_allclose(returns, torch.tensor([1.5, 1.5, 1, 1]))
+
+
+    def assert_array_equal(self, actual, expected):
+        for i, exp in enumerate(expected):
+            self.assertEqual(actual[i], exp)
+
 
 if __name__ == '__main__':
     unittest.main()

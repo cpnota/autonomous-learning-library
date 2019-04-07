@@ -43,4 +43,7 @@ class NStepBuffer():
                 sample_states[index] = state
                 sample_next_states[index] = last_state
                 sample_returns[index] = returns
+        self.states = [self.states[-1]]
+        self.rewards = [self.rewards[-1]]
+        self.i = 1
         return (sample_states, sample_next_states, sample_returns)
