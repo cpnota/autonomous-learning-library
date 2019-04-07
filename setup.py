@@ -9,13 +9,15 @@ setup(
     url="https://github.com/cpnota/autonomous-learning-library.git",
     author="Autonomous Learning Lab",
     install_requires=[
-        "numpy",
         "gym",
+        "gym[atari]",
         "pylint",
-        "matplotlib",
         "tensorboardX",
-        "torch",
-        "torchvision",
-        "torch-testing"
+        "torch-testing",
+        # Install these yourself:
+        # "numpy",      # everyone should have this
+        # "tensorflow", # needed for tensorboard
+        # "torch",      # neded to install carefully for CUDA
+        # "torchvision" # should be installed alongisde torch
     ],
 )
