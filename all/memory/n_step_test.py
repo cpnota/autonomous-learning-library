@@ -28,9 +28,6 @@ class NStepBufferTest(unittest.TestCase):
         self.assert_array_equal(next_states, expect_next_states)
         tt.assert_allclose(returns, expected_returns)
 
-        for i, expected in enumerate(expected_states):
-                self.assertEqual(states[i], expected)
-
     def assert_array_equal(self, actual, expected):
         for i, exp in enumerate(expected):
             self.assertEqual(actual[i], exp)
