@@ -1,9 +1,9 @@
 import torch
 
 class NStepBuffer():
-    def __init__(self, n, discount=1):
+    def __init__(self, n, discount_factor=1):
         self.n = n
-        self.discount = discount
+        self.discount = discount_factor
         self.i = 0
         self.states = []
         self.rewards = []
@@ -47,3 +47,6 @@ class NStepBuffer():
         self.rewards = [self.rewards[-1]]
         self.i = 1
         return (sample_states, sample_next_states, sample_returns)
+
+    def is_full(self):
+        return self.i == self.n + 1

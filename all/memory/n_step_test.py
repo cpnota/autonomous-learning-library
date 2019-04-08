@@ -5,7 +5,7 @@ from all.memory import NStepBuffer
 
 class NStepBufferTest(unittest.TestCase):
     def test_rollout(self):
-        buffer = NStepBuffer(3, discount=0.5)
+        buffer = NStepBuffer(3, discount_factor=0.5)
         buffer.store(['state1', 'state2', 'state3'], torch.zeros(3))
         buffer.store(['state4', 'state5', 'state6'], torch.ones(3))
         buffer.store(['state7', 'state8', 'state9'], 2 * torch.ones(3))
@@ -29,7 +29,7 @@ class NStepBufferTest(unittest.TestCase):
         tt.assert_allclose(returns, expected_returns)
 
     def test_rollout_with_nones(self):
-        buffer = NStepBuffer(3, discount=0.5)
+        buffer = NStepBuffer(3, discount_factor=0.5)
         states = [
             ['state1', 'state2', 'state3'],
             ['state4', 'state5', None],
@@ -61,7 +61,7 @@ class NStepBufferTest(unittest.TestCase):
         tt.assert_allclose(returns, expected_returns)
 
     def test_multi_rollout(self):
-        buffer = NStepBuffer(2, discount=0.5)
+        buffer = NStepBuffer(2, discount_factor=0.5)
         s = ['state' + str(i) for i in range(12)]
         buffer.store(s[0:2], torch.ones(2))
         buffer.store(s[2:4], torch.ones(2))
