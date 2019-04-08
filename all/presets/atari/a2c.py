@@ -36,11 +36,13 @@ def policy_net(env, features):
     )
 
 def a2c(
-        lr_v=1e-4,
-        lr_pi=1e-4,
+        lr_v=1e-3,
+        lr_pi=1e-3,
         eps=1.5e-4, # Adam epsilon
-        n_steps=128,
+        n_steps=64,
         discount_factor=0.99,
+        clip_grad=0.1,
+        entropy_loss_scaling=0.01,
         device=torch.device('cpu')
 ):
     def _a2c(envs):
@@ -50,8 +52,14 @@ def a2c(
         policy_model = policy_net(env, features).to(device)
         value_optimizer = Adam(value_model.parameters(), lr=lr_v, eps=eps)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi, eps=eps)
-        v = ValueNetwork(value_model, value_optimizer)
-        policy = SoftmaxPolicy(policy_model, policy_optimizer, env.action_space.n)
+        v = ValueNetwork(value_model, value_optimizer, clip_grad=clip_grad)
+        policy = SoftmaxPolicy(
+            policy_model,
+            policy_optimizer,
+            env.action_space.n,
+            clip_grad=clip_grad,
+            entropy_loss_scaling=entropy_loss_scaling
+        )
         return ParallelAtariBody(
             A2C(v, policy, n_steps=n_steps, discount_factor=discount_factor),
             envs
