@@ -1,6 +1,5 @@
-import torch
-from .atari import *
 from .abstract import Body
+
 
 class ParallelRepeatActions(Body):
     def __init__(self, agent, repeats=4):
@@ -26,8 +25,10 @@ class ParallelRepeatActions(Body):
                     self._actions[i] = None
         return self._actions
 
+
 class Joiner(Body):
     '''Internal class used by Parallelizer'''
+
     def init(self, state, info=None):
         self.agent.join(state, 0, info)
 
@@ -37,8 +38,10 @@ class Joiner(Body):
     def terminal(self, reward, info=None):
         self.agent.join(None, reward, info)
 
+
 class ParallelBody(Body):
     '''Allows the use of single-environment Body code with multi-environment Agents'''
+
     def __init__(self, agent, envs, make_body):
         super().__init__(agent)
         n = len(envs)
@@ -67,14 +70,15 @@ class ParallelBody(Body):
             self._i = i
             if not self._ready[i]:
                 self._rewards[i] = rewards[i]
-                
+
                 action = None
                 if self._last_states[i] is None:
                     action = self._bodies[i].initial(states[i], infos[i])
                 elif states[i] is None:
                     self._bodies[i].terminal(rewards[i].item(), infos[i])
                 else:
-                    action = self._bodies[i].act(states[i], rewards[i].item(), infos[i])
+                    action = self._bodies[i].act(
+                        states[i], rewards[i].item(), infos[i])
 
                 if action is None:
                     self._ready[i] = True
@@ -92,41 +96,3 @@ class ParallelBody(Body):
         self._states[self._i] = state
         self._rewards[self._i] = reward
         self._info[self._i] = info
-
-class ParallelAtariBody(Body):
-    def __init__(
-            self,
-            agent,
-            envs,
-            action_repeat=4,
-            clip_rewards=True,
-            deflicker=True,
-            episodic_lives=True,
-            fire_on_reset=True,
-            frame_stack=4,
-            noop_max=30,
-            preprocess=True,
-    ):
-        if action_repeat > 1:
-            agent = ParallelRepeatActions(agent, repeats=action_repeat)
-
-        def make_body(agent, env):
-            if clip_rewards:
-                agent = RewardClipping(agent)
-            if fire_on_reset and env._env.unwrapped.get_action_meanings()[1] == 'FIRE':
-                agent = FireOnReset(agent)
-            if episodic_lives:
-                agent = EpisodicLives(agent, env)
-            if frame_stack > 1:
-                agent = FrameStack(agent, size=frame_stack)
-            if preprocess:
-                agent = AtariVisionPreprocessor(agent)
-            if deflicker:
-                agent = Deflicker(agent)
-            if noop_max > 0:
-                agent = NoopBody(agent, noop_max)
-            return agent
-
-        agent = ParallelBody(agent, envs, make_body)
-
-        super().__init__(agent)

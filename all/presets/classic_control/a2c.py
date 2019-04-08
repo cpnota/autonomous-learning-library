@@ -15,6 +15,7 @@ def fc_value(env):
         nn.Linear(256, 1)
     )
 
+
 def fc_policy(env):
     return nn.Sequential(
         Flatten(),
@@ -23,6 +24,7 @@ def fc_policy(env):
         nn.Linear(256, env.action_space.n)
     )
 
+
 def a2c(
         lr_v=1e-3,
         lr_pi=1e-3,
@@ -30,7 +32,7 @@ def a2c(
         batch_size=8,
         discount_factor=0.99,
         entropy_loss_scaling=0.01,
-        clip_grad=0 # disable
+        clip_grad=0  # disable
 ):
     def _a2c(env):
         value_model = fc_value(env)
@@ -45,8 +47,14 @@ def a2c(
             entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad
         )
-        return A2C(v, policy, n_steps=n_steps, batch_size=batch_size, discount_factor=discount_factor)
+        return A2C(
+            v,
+            policy,
+            n_steps=n_steps,
+            batch_size=batch_size,
+            discount_factor=discount_factor
+        )
     return _a2c
 
+
 __all__ = ["a2c"]
- 

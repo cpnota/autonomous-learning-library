@@ -27,7 +27,7 @@ class ListNetwork(nn.Module):
     def _forward_list(self, x):
         non_null_x = [x_i for x_i in x if x_i is not None]
         non_null_i = [i for i, x_i in enumerate(x) if x_i is not None]
-        if len(non_null_x) == 0:
+        if not non_null_x:
             return torch.zeros([len(x)] + self.out, device=self.device, requires_grad=False)
         result = torch.zeros([len(x)] + self.out, device=self.device)
         non_null_o = self.model(torch.cat(non_null_x).float())
@@ -36,7 +36,7 @@ class ListNetwork(nn.Module):
 
 
 class Aggregation(nn.Module):
-    '''
+    '''len()
     Aggregation layer for the Dueling architecture.
 
     https://arxiv.org/abs/1511.06581

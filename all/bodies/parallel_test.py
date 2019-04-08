@@ -4,7 +4,9 @@ import torch_testing as tt
 import numpy as np
 from all.agents import Agent
 from all.environments import AtariEnvironment
-from all.bodies.parallel import ParallelRepeatActions, ParallelAtariBody
+from all.bodies.parallel import ParallelRepeatActions
+from all.bodies import ParallelAtariBody
+
 
 class MockAgent(Agent):
     def __init__(self, n, max_action=6):
@@ -19,6 +21,9 @@ class MockAgent(Agent):
         self._states.append(state)
         self._rewards.append(reward.view(1, -1))
         return self._actions
+
+# pylint: disable=protected-access
+
 
 class ParallelRepeatActionsTest(unittest.TestCase):
     def test_repeat_actions(self):
@@ -64,7 +69,9 @@ class ParallelRepeatActionsTest(unittest.TestCase):
 
     def assert_array_equal(self, actual, expected):
         for i, exp in enumerate(expected):
-            self.assertEqual(actual[i], exp, msg=(("\nactual: %s\nexpected: %s") % (actual, expected)))
+            self.assertEqual(actual[i], exp, msg=(("\nactual: %s\nexpected: %s")
+                                                  % (actual, expected)))
+
 
 class ParallelAtariBodyTest(unittest.TestCase):
     def test_runs(self):
@@ -79,13 +86,14 @@ class ParallelAtariBodyTest(unittest.TestCase):
         agent = MockAgent(n, max_action=4)
         body = ParallelAtariBody(agent, envs, noop_max=30)
 
-        for t in range(200):
+        for _ in range(200):
             states = [env.state for env in envs]
             rewards = torch.tensor([env.reward for env in envs]).float()
             actions = body.act(states, rewards)
             for i, env in enumerate(envs):
-                if (actions[i] is not None):
+                if actions[i] is not None:
                     env.step(actions[i])
+
 
 if __name__ == '__main__':
     unittest.main()

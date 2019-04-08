@@ -1,5 +1,6 @@
 import torch
 
+
 class NStepBuffer():
     def __init__(self, n, batch_size, discount_factor=1):
         self.n = n
@@ -10,12 +11,12 @@ class NStepBuffer():
         self.rewards = []
 
     def store(self, states, rewards):
-        if (self.i == 0):
+        if self.i == 0:
             self.states = [states]
             self.rewards = [rewards]
             self.i = 1
             # do one thing
-        elif (self.i <= self.batch_size):
+        elif self.i <= self.batch_size:
             self.states.append(states)
             self.rewards.append(rewards)
             self.i += 1
@@ -31,7 +32,7 @@ class NStepBuffer():
         sample_states = [None] * sample_n
         sample_next_states = [None] * sample_n
         sample_returns = torch.zeros(sample_n, device=self.rewards[0].device)
-        
+
         # compute the N-step returns the slow way
         for e in range(n_envs):
             for t in range(self.batch_size):
@@ -42,7 +43,8 @@ class NStepBuffer():
                 if state is not None:
                     for k in range(1, self.n + 1):
                         next_state = self.states[t + k][e]
-                        returns += (self.gamma ** (k - 1)) * self.rewards[t + k][e]
+                        returns += (self.gamma ** (k - 1)) * \
+                            self.rewards[t + k][e]
                         if next_state is None or t + k == self.batch_size:
                             break
                 sample_states[i] = state
