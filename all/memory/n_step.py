@@ -24,6 +24,7 @@ class NStepBuffer():
     def sample(self, _):
         if self.i <= self.n:
             raise Exception("Not enough states received!")
+        n_envs = len(self.states[0])
         sample_n = len(self.states[0]) * self.n
         sample_states = [None] * sample_n
         sample_next_states = [None] * sample_n
@@ -39,7 +40,7 @@ class NStepBuffer():
                     last_state = state
                 else:
                     returns = self.discount * returns + self.rewards[self.n - j][i]
-                index = t * self.n + i
+                index = i * n_envs + i
                 sample_states[index] = state
                 sample_next_states[index] = last_state
                 sample_returns[index] = returns

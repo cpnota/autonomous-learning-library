@@ -83,7 +83,6 @@ class ParallelAtariBodyTest(unittest.TestCase):
             states = [env.state for env in envs]
             rewards = torch.tensor([env.reward for env in envs]).float()
             actions = body.act(states, rewards)
-            print(actions)
             for i, env in enumerate(envs):
                 if (actions[i] is not None):
                     env.step(actions[i])

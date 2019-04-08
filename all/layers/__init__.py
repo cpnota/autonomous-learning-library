@@ -27,8 +27,10 @@ class ListNetwork(nn.Module):
     def _forward_list(self, x):
         non_null_x = [x_i for x_i in x if x_i is not None]
         non_null_i = [i for i, x_i in enumerate(x) if x_i is not None]
-        non_null_o = self.model(torch.cat(non_null_x).float())
+        if len(non_null_x) == 0:
+            return torch.zeros([len(x)] + self.out, device=self.device, requires_grad=False)
         result = torch.zeros([len(x)] + self.out, device=self.device)
+        non_null_o = self.model(torch.cat(non_null_x).float())
         result[non_null_i] = non_null_o
         return result
 

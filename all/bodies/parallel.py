@@ -72,9 +72,9 @@ class ParallelBody(Body):
                 if self._last_states[i] is None:
                     action = self._bodies[i].initial(states[i], infos[i])
                 elif states[i] is None:
-                    self._bodies[i].terminal(rewards[i], infos[i])
+                    self._bodies[i].terminal(rewards[i].item(), infos[i])
                 else:
-                    action = self._bodies[i].act(states[i], rewards[i], infos[i])
+                    action = self._bodies[i].act(states[i], rewards[i].item(), infos[i])
 
                 if action is None:
                     self._ready[i] = True
