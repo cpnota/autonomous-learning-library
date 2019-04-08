@@ -1,5 +1,5 @@
 import torch
-from torch.nn import functional
+from torch.nn import functional, utils
 from all.layers import ListNetwork
 from .abstract import Policy
 
@@ -40,6 +40,8 @@ class SoftmaxPolicy(Policy):
         loss.backward()
 
         # take gradient steps
+        if self.clip_grad != 0:
+            utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
         self.optimizer.step()
         self.optimizer.zero_grad()
 

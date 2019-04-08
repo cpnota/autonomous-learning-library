@@ -28,15 +28,22 @@ def a2c(
         lr_pi=1e-3,
         n_steps=16,
         discount_factor=0.99,
-        entropy_loss_scaling=0.01
+        entropy_loss_scaling=0.01,
+        clip_grad=0.1
 ):
     def _a2c(env):
         value_model = fc_value(env)
         value_optimizer = Adam(value_model.parameters(), lr=lr_v)
-        v = ValueNetwork(value_model, value_optimizer)
+        v = ValueNetwork(value_model, value_optimizer, clip_grad=clip_grad)
         policy_model = fc_policy(env)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
-        policy = SoftmaxPolicy(policy_model, policy_optimizer, env.action_space.n, entropy_loss_scaling=entropy_loss_scaling)
+        policy = SoftmaxPolicy(
+            policy_model,
+            policy_optimizer,
+            env.action_space.n,
+            entropy_loss_scaling=entropy_loss_scaling,
+            clip_grad=clip_grad
+        )
         return A2C(v, policy, n_steps=n_steps, discount_factor=discount_factor)
     return _a2c
 
