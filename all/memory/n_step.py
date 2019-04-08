@@ -23,7 +23,7 @@ class NStepBuffer():
             raise Exception("Buffer length exceeded: " + self.n)
 
     def sample(self, _):
-        if self.i <= self.n:
+        if self.i <= self.batch_size:
             raise Exception("Not enough states received!")
 
         n_envs = len(self.states[0])
@@ -33,7 +33,6 @@ class NStepBuffer():
         sample_returns = torch.zeros(sample_n, device=self.rewards[0].device)
         
         # compute the N-step returns the slow way
-        # pylint: disable=All
         for e in range(n_envs):
             for t in range(self.batch_size):
                 i = t * n_envs + e
@@ -56,4 +55,4 @@ class NStepBuffer():
         return (sample_states, sample_next_states, sample_returns)
 
     def is_full(self):
-        return self.i == self.n + 1
+        return self.i == self.batch_size + 1
