@@ -3,38 +3,22 @@ import torch
 import torch_testing as tt
 import numpy as np
 from all.agents import Agent
-from all.environments import GymEnvironment
-from all.bodies import Body, ParallelBody
-from all.bodies.parallel import ParallelBody, ParallelRepeatActions
+from all.environments import AtariEnvironment
+from all.bodies.parallel import ParallelRepeatActions, ParallelAtariBody
 
 class MockAgent(Agent):
-    def __init__(self, n):
-        self._actions = 0
+    def __init__(self, n, max_action=6):
+        self._actions = torch.zeros(n).long()
+        self._max_action = max_action
         self._n = n
         self._states = []
         self._rewards = []
 
     def act(self, state, reward, info=None):
-        self._actions += 1
+        self._actions = (self._actions + 1) % self._max_action
         self._states.append(state)
         self._rewards.append(reward.view(1, -1))
-        return [self._actions] * self._n
-
-class ParallelBodyTest(unittest.TestCase):
-    def setUp(self):
-        np.random.seed(0)
-
-    def test_parallel_four(self):
-        agent = MockAgent(4)
-        agent = ParallelRepeatActions(agent)
-        agent = ParallelBody(agent, Body, 4)
-
-        states = ['state'] * 4
-        rewards = torch.zeros(4)
-        infos = [None] * 4
-
-        for t in range(10):
-            action = agent.act(states, rewards, infos)
+        return self._actions
 
 class ParallelRepeatActionsTest(unittest.TestCase):
     def test_repeat_actions(self):
@@ -81,6 +65,28 @@ class ParallelRepeatActionsTest(unittest.TestCase):
     def assert_array_equal(self, actual, expected):
         for i, exp in enumerate(expected):
             self.assertEqual(actual[i], exp, msg=(("\nactual: %s\nexpected: %s") % (actual, expected)))
+
+class ParallelAtariBodyTest(unittest.TestCase):
+    def test_runs(self):
+        np.random.seed(0)
+        torch.random.manual_seed(0)
+        n = 4
+        envs = []
+        for i in range(n):
+            env = AtariEnvironment('Breakout')
+            env.reset()
+            envs.append(env)
+        agent = MockAgent(n, max_action=4)
+        body = ParallelAtariBody(agent, envs, noop_max=4)
+
+        for t in range(200):
+            states = [env.state for env in envs]
+            rewards = torch.tensor([env.reward for env in envs]).float()
+            actions = agent.act(states, rewards)
+            for i, env in enumerate(envs):
+                env.step(actions[i])
+
+        tt.assert_equal(agent._states[199][0], agent._states[199][2])
 
 if __name__ == '__main__':
     unittest.main()
