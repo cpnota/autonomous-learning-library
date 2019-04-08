@@ -1,5 +1,5 @@
+from all.memory import NStepBuffer
 from .abstract import Agent
-from ..memory import NStepBuffer
 
 class A2C(Agent):
     def __init__(self, v, policy, n_steps=1, batch_size=128, discount_factor=1):
