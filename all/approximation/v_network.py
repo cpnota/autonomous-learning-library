@@ -26,8 +26,9 @@ class ValueNetwork(ValueFunction):
             return result
 
     def reinforce(self, td_errors):
-        targets = td_errors + self.cache.detach()
-        loss = self.loss(self.cache, targets)
-        loss.backward()
-        self.optimizer.step()
-        self.optimizer.zero_grad()
+        if self.cache.requires_grad:
+            targets = td_errors + self.cache.detach()
+            loss = self.loss(self.cache, targets)
+            loss.backward()
+            self.optimizer.step()
+            self.optimizer.zero_grad()
