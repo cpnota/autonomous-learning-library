@@ -24,12 +24,12 @@ def fc_policy(env):
     )
 
 def a2c(
-        lr_v=5e-3,
+        lr_v=2e-3,
         lr_pi=1e-3,
-        n_steps=16,
+        n_steps=10,
         discount_factor=0.99,
         entropy_loss_scaling=0.01,
-        clip_grad=0.1
+        clip_grad=0 # disable
 ):
     def _a2c(env):
         value_model = fc_value(env)

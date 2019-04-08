@@ -8,16 +8,16 @@ from all.presets.classic_control import a2c
 from all.environments import GymEnvironment
 
 def run():
-    n = 16
+    n = 8
     envs = []
     for i in range(n):
-        envs.append(GymEnvironment('CartPole-v1'))
+        envs.append(GymEnvironment('CartPole-v0'))
     agent = a2c()(envs[0])
     frames = 0
     [env.reset() for env in envs]
     returns = torch.zeros((n)).float()
 
-    while(frames < 300000):
+    while(frames < 50000):
         states = [env.state for env in envs]
         rewards = torch.tensor([env.reward for env in envs]).float()
         returns += rewards
