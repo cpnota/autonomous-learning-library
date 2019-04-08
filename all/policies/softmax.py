@@ -8,7 +8,7 @@ class SoftmaxPolicy(Policy):
     def __init__(self, model, optimizer, actions, entropy_loss_scaling=0, clip_grad=0):
         self.model = ListNetwork(model, (actions,))
         self.optimizer = optimizer
-        self.entropy_beta = 0
+        self.entropy_loss_scaling = entropy_loss_scaling
         self.clip_grad = clip_grad
         self._log_probs = []
         self._entropy = []
@@ -27,14 +27,23 @@ class SoftmaxPolicy(Policy):
             return functional.softmax(scores, dim=-1)
 
     def reinforce(self, errors):
+        # shape the data properly
         errors = errors.view(-1)
+        log_probs = torch.cat(self._log_probs).view(-1)
+        entropy = torch.cat(self._entropy).view(-1)
         n = len(errors)
-        log_probs = torch.cat(self._log_probs)
-        policy_loss = -torch.dot(log_probs.view(-1), errors.view(-1)) / n
-        loss = policy_loss
+
+        # compute losses
+        policy_loss = -torch.dot(log_probs, errors) / n
+        entropy_loss = -entropy.mean()
+        loss = policy_loss + self.entropy_loss_scaling * entropy_loss
         loss.backward()
+
+        # take gradient steps
         self.optimizer.step()
         self.optimizer.zero_grad()
+
+        # reset cache
         self._log_probs = []
         self._entropy = []
 
