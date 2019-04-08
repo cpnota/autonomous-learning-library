@@ -6,7 +6,7 @@ branches:
   - master
   - develop
 install:
-  - pip install torch torchvision
+  - pip install -q torch torchvision
   - make install
 script:
   - make lint
