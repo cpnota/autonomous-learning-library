@@ -145,7 +145,7 @@ class NoopTest(unittest.TestCase):
     def test_noops(self):
         action = self.body.initial(self.frame)
         tt.assert_equal(action, torch.tensor([0]))
-        for _ in range(4):
+        for _ in range(5):
             action = self.body.act(self.frame, 0)
             tt.assert_equal(action, torch.tensor([0]))
         for _ in range(4):

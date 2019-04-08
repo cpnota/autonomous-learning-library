@@ -1,17 +1,19 @@
 import torch
 from torch import optim
+from torch.nn import utils
 from torch.nn.functional import mse_loss
 from all.layers import ListNetwork
 from .v_function import ValueFunction
 
 class ValueNetwork(ValueFunction):
-    def __init__(self, model, optimizer=None, loss=mse_loss):
+    def __init__(self, model, optimizer=None, loss=mse_loss, clip_grad=0):
         self.model = ListNetwork(model, (1,))
         self.optimizer = (optimizer
                           if optimizer is not None
                           else optim.Adam(model.parameters()))
         self.loss = loss
         self.cache = None
+        self.clip_grad = clip_grad
 
     def __call__(self, states):
         result = self.model(states).squeeze(1)
@@ -26,8 +28,11 @@ class ValueNetwork(ValueFunction):
             return result
 
     def reinforce(self, td_errors):
-        targets = td_errors + self.cache.detach()
-        loss = self.loss(self.cache, targets)
-        loss.backward()
-        self.optimizer.step()
-        self.optimizer.zero_grad()
+        if self.cache.requires_grad:
+            targets = td_errors + self.cache.detach()
+            loss = self.loss(self.cache, targets)
+            loss.backward()
+            if self.clip_grad != 0:
+                utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
+            self.optimizer.step()
+            self.optimizer.zero_grad()
