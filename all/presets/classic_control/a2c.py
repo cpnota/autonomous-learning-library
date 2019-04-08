@@ -24,9 +24,10 @@ def fc_policy(env):
     )
 
 def a2c(
-        lr_v=2e-3,
+        lr_v=1e-3,
         lr_pi=1e-3,
-        n_steps=10,
+        n_steps=8,
+        batch_size=8,
         discount_factor=0.99,
         entropy_loss_scaling=0.01,
         clip_grad=0 # disable
@@ -44,7 +45,7 @@ def a2c(
             entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad
         )
-        return A2C(v, policy, n_steps=n_steps, discount_factor=discount_factor)
+        return A2C(v, policy, n_steps=n_steps, batch_size=batch_size, discount_factor=discount_factor)
     return _a2c
 
 __all__ = ["a2c"]

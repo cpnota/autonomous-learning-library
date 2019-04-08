@@ -2,10 +2,11 @@ from .abstract import Agent
 from ..memory import NStepBuffer
 
 class A2C(Agent):
-    def __init__(self, v, policy, n_steps=1, discount_factor=1):
+    def __init__(self, v, policy, n_steps=1, batch_size=128, discount_factor=1):
         self.v = v
         self.policy = policy
         self.n_steps = n_steps
+        self.batch_size = batch_size
         self.discount_factor = discount_factor
         self._buffer = self._make_buffer()
 
@@ -26,4 +27,4 @@ class A2C(Agent):
         self.policy.reinforce(td_errors)
 
     def _make_buffer(self):
-        return NStepBuffer(self.n_steps, discount_factor=self.discount_factor)
+        return NStepBuffer(self.n_steps, self.batch_size, discount_factor=self.discount_factor)

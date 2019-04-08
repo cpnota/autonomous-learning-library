@@ -36,13 +36,14 @@ def policy_net(env, features):
     )
 
 def a2c(
-        lr_v=1e-3,
-        lr_pi=1e-3,
-        eps=1.5e-4, # Adam epsilon
-        n_steps=64,
-        discount_factor=0.99,
+        batch_size=64,
         clip_grad=0.1,
+        discount_factor=0.99,
         entropy_loss_scaling=0.01,
+        eps=1.5e-4, # Adam epsilon
+        lr_pi=1e-3,
+        lr_v=1e-3,
+        n_steps=4,
         device=torch.device('cpu')
 ):
     def _a2c(envs):
@@ -61,7 +62,7 @@ def a2c(
             entropy_loss_scaling=entropy_loss_scaling
         )
         return ParallelAtariBody(
-            A2C(v, policy, n_steps=n_steps, discount_factor=discount_factor),
+            A2C(v, policy, n_steps=n_steps, batch_size=batch_size, discount_factor=discount_factor),
             envs
         )
     return _a2c
