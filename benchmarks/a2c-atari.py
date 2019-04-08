@@ -19,6 +19,7 @@ def run():
     [env.reset() for env in envs]
     returns = torch.zeros((n)).float().to(device)
     writer = make_writer('a2c')
+    start = timer()
 
     while(frames < 40e6):
         states = [env.state for env in envs]
@@ -26,11 +27,14 @@ def run():
         actions = agent.act(states, rewards)
         for i in range(len(envs)):
             if envs[i].done:
+                end = timer()
+                fps = frames / (end - start)
                 returns[i] += rewards[i]
-                print('frames:', frames, 'returns:', returns[i].item())
+                print('frames:', frames, 'fps', fps, 'returns:', returns[i].item())
                 envs[i].reset()
                 writer.add_scalar(envs[i].name + '/returns/eps', returns[i], episodes)
                 writer.add_scalar(envs[i].name + '/returns/frames', returns[i], frames)
+                writer.add_scalar(envs[i].name + '/fps', fps, frames)
                 returns[i] = 0
                 episodes += 1
             else:
