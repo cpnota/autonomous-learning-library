@@ -18,14 +18,14 @@ def run():
     [env.reset() for env in envs]
     returns = torch.zeros((n)).float().to(device)
 
-    while(frames < 10e6):
+    while(frames < 20e6):
         states = [env.state for env in envs]
         rewards = torch.tensor([env.reward for env in envs]).float().to(device)
         actions = agent.act(states, rewards)
         for i in range(len(envs)):
             if envs[i].done:
                 returns[i] += rewards[i]
-                print('returns', returns[i].item())
+                print('frames:', frames, 'returns:', returns[i].item())
                 returns[i] = 0
                 envs[i].reset()
             else:
