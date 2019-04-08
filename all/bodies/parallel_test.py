@@ -77,16 +77,16 @@ class ParallelAtariBodyTest(unittest.TestCase):
             env.reset()
             envs.append(env)
         agent = MockAgent(n, max_action=4)
-        body = ParallelAtariBody(agent, envs, noop_max=4)
+        body = ParallelAtariBody(agent, envs, noop_max=30)
 
         for t in range(200):
             states = [env.state for env in envs]
             rewards = torch.tensor([env.reward for env in envs]).float()
-            actions = agent.act(states, rewards)
+            actions = body.act(states, rewards)
+            print(actions)
             for i, env in enumerate(envs):
-                env.step(actions[i])
-
-        tt.assert_equal(agent._states[199][0], agent._states[199][2])
+                if (actions[i] is not None):
+                    env.step(actions[i])
 
 if __name__ == '__main__':
     unittest.main()

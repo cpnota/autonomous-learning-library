@@ -45,6 +45,7 @@ class ParallelBody(Body):
         self._n = n
         self._i = 0
         self._states = [None] * n
+        self._last_states = [None] * n
         self._rewards = None
         self._info = [None] * n
         self._bodies = [None] * n
@@ -56,6 +57,8 @@ class ParallelBody(Body):
             self._actions[i] = None
 
     def act(self, states, rewards, infos):
+        if infos is None:
+            infos = [None] * self._n
         if self._rewards is None:
             self._rewards = rewards.clone()
         actions = [None] * self._n
@@ -64,7 +67,15 @@ class ParallelBody(Body):
             self._i = i
             if not self._ready[i]:
                 self._rewards[i] = rewards[i]
-                action = self._bodies[i].act(states[i], rewards[i], infos[i])
+                
+                action = None
+                if self._last_states[i] is None:
+                    action = self._bodies[i].initial(states[i], infos[i])
+                elif states[i] is None:
+                    self._bodies[i].terminal(rewards[i], infos[i])
+                else:
+                    action = self._bodies[i].act(states[i], rewards[i], infos[i])
+
                 if action is None:
                     self._ready[i] = True
                 else:
@@ -73,6 +84,8 @@ class ParallelBody(Body):
         if ready:
             actions = self.agent.act(self._states, self._rewards, self._info)
             self._ready = [False] * self._n
+            self._states = [None] * self._n
+        self._last_states = states
         return actions
 
     def join(self, state, reward, info):
@@ -95,7 +108,7 @@ class ParallelAtariBody(Body):
             preprocess=True,
     ):
         if action_repeat > 1:
-            ParallelRepeatActions(agent, repeats=action_repeat)
+            agent = ParallelRepeatActions(agent, repeats=action_repeat)
 
         def make_body(agent, env):
             if clip_rewards:
@@ -112,6 +125,7 @@ class ParallelAtariBody(Body):
                 agent = Deflicker(agent)
             if noop_max > 0:
                 agent = NoopBody(agent, noop_max)
+            return agent
 
         agent = ParallelBody(agent, envs, make_body)
 

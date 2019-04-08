@@ -13,7 +13,7 @@ class NoopBody(Body):
         self.actions_taken = 0
 
     def initial(self, state, info=None):
-        self.noops = np.random.randint(self.noop_max)
+        self.noops = np.random.randint(self.noop_max) + 1
         self.actions_taken = 0
         return NOOP_ACTION
 
