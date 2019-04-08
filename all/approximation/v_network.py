@@ -27,11 +27,11 @@ class ValueNetwork(ValueFunction):
             self.model.train(training)
             return result
 
-    def reinforce(self, td_errors):
+    def reinforce(self, td_errors, retain_graph=False):
         if self.cache.requires_grad:
             targets = td_errors + self.cache.detach()
             loss = self.loss(self.cache, targets)
-            loss.backward()
+            loss.backward(retain_graph=retain_graph)
             if self.clip_grad != 0:
                 utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
             self.optimizer.step()

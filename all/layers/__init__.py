@@ -60,7 +60,7 @@ class ListToList(nn.Module):
         result = [None] * len(x)
         non_null_o = self.model(torch.cat(non_null_x).float())
         for i, out in zip(non_null_i, non_null_o):
-            result[i] = out
+            result[i] = out.unsqueeze(0)
         return result
 
 class Aggregation(nn.Module):
