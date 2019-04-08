@@ -5,7 +5,7 @@ from all.memory import NStepBuffer
 
 class NStepBufferTest(unittest.TestCase):
     def test_rollout(self):
-        buffer = NStepBuffer(3, 3, discount_factor=0.5)
+        buffer = NStepBuffer(2, 3, discount_factor=0.5)
         buffer.store(['state1', 'state2', 'state3'], torch.zeros(3))
         buffer.store(['state4', 'state5', 'state6'], torch.ones(3))
         buffer.store(['state7', 'state8', 'state9'], 2 * torch.ones(3))
@@ -14,12 +14,12 @@ class NStepBufferTest(unittest.TestCase):
 
         expected_states = ['state' + str(i + 1) for i in range(9)]
         expect_next_states = [
-            'state10', 'state11', 'state12',
+            'state7', 'state8', 'state9',
             'state10', 'state11', 'state12',
             'state10', 'state11', 'state12',
         ]
         expected_returns = torch.tensor([
-            3, 3, 3,
+            2, 2, 2,
             4, 4, 4,
             4, 4, 4
         ]).float()
