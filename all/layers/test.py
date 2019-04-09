@@ -58,10 +58,10 @@ class TestLayers(unittest.TestCase):
         net = ListToList(model)
         x = [torch.randn(1, 2), torch.randn(1, 2), None, torch.randn(1, 2)]
         out = net(x)
-        self.assert_array_equal(out, [torch.tensor([0.0479387, -0.2268031]),
-                                      torch.tensor([0.2346841, 0.0743403]),
+        self.assert_array_equal(out, [torch.tensor([[0.0479387, -0.2268031]]),
+                                      torch.tensor([[0.2346841, 0.0743403]]),
                                       None,
-                                      torch.tensor([0.0185191, 0.0815052])])
+                                      torch.tensor([[0.0185191, 0.0815052]])])
 
         x = torch.randn(3, 2)
         out = net(x)
@@ -81,7 +81,7 @@ class TestLayers(unittest.TestCase):
             if second is None:
                 self.assertIsNone(first)
             else:
-                tt.assert_almost_equal(first, second)
+                tt.assert_almost_equal(first, second, decimal=3)
 
 
 if __name__ == '__main__':

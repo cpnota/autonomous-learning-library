@@ -23,10 +23,10 @@ class TestFeatureNetwork(unittest.TestCase):
             None
         ]
         self.expected_features = [
-            torch.tensor([-0.2385, -0.7263, -0.0340]),
-            torch.tensor([-0.3569, -0.6612, 0.3485]),
+            torch.tensor([[-0.2385, -0.7263, -0.0340]]),
+            torch.tensor([[-0.3569, -0.6612, 0.3485]]),
             None,
-            torch.tensor([-0.0296, -0.7566, -0.4624]),
+            torch.tensor([[-0.0296, -0.7566, -0.4624]]),
             None
         ]
 
@@ -44,10 +44,10 @@ class TestFeatureNetwork(unittest.TestCase):
         self.features.reinforce()
         features = self.features(self.states)
         self.assert_array_equal(features, [
-            torch.tensor([-0.402, -0.89, -0.197]),
-            torch.tensor([-0.263, -0.567, 0.442]),
+            torch.tensor([[-0.402, -0.89, -0.197]]),
+            torch.tensor([[-0.263, -0.567, 0.442]]),
             None,
-            torch.tensor([-0.505, -1.232, -0.938]),
+            torch.tensor([[-0.505, -1.232, -0.938]]),
             None
         ])
 
