@@ -26,13 +26,14 @@ def fc_policy(env):
 
 
 def a2c(
-        lr_v=1e-3,
-        lr_pi=1e-3,
-        n_steps=8,
         batch_size=8,
+        clip_grad=0,  # disable
         discount_factor=0.99,
         entropy_loss_scaling=0.01,
-        clip_grad=0  # disable
+        lr_pi=1e-3,
+        lr_v=1e-3,
+        n_envs=8,
+        n_steps=8,
 ):
     def _a2c(env):
         value_model = fc_value(env)
@@ -54,7 +55,7 @@ def a2c(
             batch_size=batch_size,
             discount_factor=discount_factor
         )
-    return _a2c
+    return _a2c, n_envs
 
 
 __all__ = ["a2c"]

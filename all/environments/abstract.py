@@ -145,3 +145,9 @@ class Environment(ABC):
         evaluate the agent relative to the entire match.
         """
         return self.done
+
+    @abstractmethod
+    def duplicate(self, n):
+        """
+        Create n copies of this environment.
+        """

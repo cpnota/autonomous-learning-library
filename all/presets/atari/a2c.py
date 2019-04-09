@@ -43,6 +43,7 @@ def a2c(
         eps=1.5e-4, # Adam epsilon
         lr_pi=1e-3,
         lr_v=1e-3,
+        n_envs=50,
         n_steps=4,
         device=torch.device('cpu')
 ):
@@ -65,6 +66,6 @@ def a2c(
             A2C(v, policy, n_steps=n_steps, batch_size=batch_size, discount_factor=discount_factor),
             envs
         )
-    return _a2c
+    return _a2c, n_envs
 
 __all__ = ["a2c"]

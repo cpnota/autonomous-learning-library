@@ -6,7 +6,7 @@ from tensorboardX import SummaryWriter
 from all.environments import GymEnvironment
 
 class Experiment:
-    def __init__(self, env, frames=None, episodes=None, trials=1):
+    def __init__(self, env, frames=None, episodes=None):
         if frames is None:
             frames = np.inf
         if episodes is None:
@@ -15,14 +15,14 @@ class Experiment:
             self.env = GymEnvironment(env)
         else:
             self.env = env
-        self._trials = trials
         self._max_frames = frames
         self._max_episodes = episodes
         self._agent = None
         self._episode = None
-        self._trial = None
         self._frames = None
         self._writer = None
+        self._render = None
+        self._console = None
 
     def run(
             self,
@@ -31,37 +31,47 @@ class Experiment:
             render=False,
             console=True,
     ):
-        if label is None:
-            label = make_agent.__name__
-        for trial in range(self._trials):
-            self._trial = trial
-            self._init_trial(make_agent, label)
-            while (self._episode < self._max_episodes and self._frames < self._max_frames):
-                self._run_episode(render, console)
+        self._init_trial(label, render, console)
+        if isinstance(make_agent, tuple):
+            make, n_envs = make_agent
+            self._run_multi(make, n_envs)
+        else:
+            self._run_single(make_agent)
 
-    def _init_trial(self, make_agent, label):
+    def _init_trial(self, label, render, console):
+        if label is None:
+            label = 'agent'
         self._frames = 0
         self._episode = 0
+        self._render = render
+        self._console = console
         self._writer = self._make_writer(label)
-        self._agent = make_agent(self.env)
 
-    def _run_episode(self, render, console):
-        agent = self._agent
+    def _run_multi(self, make_agent, n_envs):
+        raise Exception('Not implemented.')
+
+    def _run_single(self, make_agent):
+        self._agent = make_agent(self.env)
+        while not self._done():
+            self._run_episode()
+
+    def _run_episode(self):
         env = self.env
+        agent = self._agent
 
         start = timer()
 
         # initial state
         env.reset()
-        if render:
+        if self._render:
             env.render()
         env.step(agent.initial(env.state))
         returns = env.reward
         frames = 1
 
         # rest of episode
-        while not env.should_reset:
-            if render:
+        while not env.done:
+            if self._render:
                 env.render()
             env.step(agent.act(env.state, env.reward))
             returns += env.reward
@@ -74,13 +84,16 @@ class Experiment:
         end = timer()
         fps = frames / (end - start)
         self._log(returns, fps)
-        if console:
-            print("trial: %i/%i, episode: %i, frames: %i, fps: %d, returns: %d" %
-                  (self._trial + 1, self._trials, self._episode, self._frames, fps, returns))
+        if self._console:
+            print("episode: %i, frames: %i, fps: %d, returns: %d" %
+                  (self._episode, self._frames, fps, returns))
 
         # update state
         self._episode += 1
         self._frames += frames
+
+    def _done(self):
+        return self._frames > self._max_frames or self._episode > self._max_episodes
 
     def _log(self, returns, fps):
         self._writer.add_scalar(
