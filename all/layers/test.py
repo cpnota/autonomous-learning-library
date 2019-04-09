@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from torch import nn
 import torch_testing as tt
-from all.layers import Dueling, Linear0, ListNetwork
+from all.layers import Dueling, Linear0, ListNetwork, ListToList
 
 
 class TestLayers(unittest.TestCase):
@@ -52,6 +52,36 @@ class TestLayers(unittest.TestCase):
 
         out = net(None)
         tt.assert_equal(out, torch.tensor([0, 0]))
+
+    def test_list_to_list(self):
+        model = nn.Linear(2, 2)
+        net = ListToList(model)
+        x = [torch.randn(1, 2), torch.randn(1, 2), None, torch.randn(1, 2)]
+        out = net(x)
+        self.assert_array_equal(out, [torch.tensor([[0.0479387, -0.2268031]]),
+                                      torch.tensor([[0.2346841, 0.0743403]]),
+                                      None,
+                                      torch.tensor([[0.0185191, 0.0815052]])])
+
+        x = torch.randn(3, 2)
+        out = net(x)
+        tt.assert_almost_equal(out, torch.tensor([[0.2204496, 0.086818],
+                                                  [0.4234636, 0.1039939],
+                                                  [0.6514298, 0.3354351]]))
+
+        x = torch.randn(2)
+        out = net(x)
+        tt.assert_almost_equal(out, torch.tensor([-0.2543002, -0.2041451]))
+
+        out = net(None)
+        self.assertIsNone(out)
+
+    def assert_array_equal(self, actual, expected):
+        for first, second in zip(actual, expected):
+            if second is None:
+                self.assertIsNone(first)
+            else:
+                tt.assert_almost_equal(first, second, decimal=3)
 
 
 if __name__ == '__main__':

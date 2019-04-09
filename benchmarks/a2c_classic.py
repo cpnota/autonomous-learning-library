@@ -18,7 +18,7 @@ def run():
     returns = torch.zeros((n)).float()
     writer = make_writer('a2c')
 
-    while frames < 50000:
+    while frames < 100000:
         states = [env.state for env in envs]
         rewards = torch.tensor([env.reward for env in envs]).float()
         actions = agent.act(states, rewards)
