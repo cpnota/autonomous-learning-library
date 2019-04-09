@@ -2,8 +2,10 @@ import os
 from datetime import datetime
 from timeit import default_timer as timer
 import numpy as np
+import torch
 from tensorboardX import SummaryWriter
 from all.environments import GymEnvironment
+
 
 class Experiment:
     def __init__(self, env, frames=None, episodes=None):
@@ -47,9 +49,6 @@ class Experiment:
         self._console = console
         self._writer = self._make_writer(label)
 
-    def _run_multi(self, make_agent, n_envs):
-        raise Exception('Not implemented.')
-
     def _run_single(self, make_agent):
         self._agent = make_agent(self.env)
         while not self._done():
@@ -84,18 +83,44 @@ class Experiment:
         end = timer()
         fps = frames / (end - start)
         self._log(returns, fps)
-        if self._console:
-            print("episode: %i, frames: %i, fps: %d, returns: %d" %
-                  (self._episode, self._frames, fps, returns))
 
         # update state
         self._episode += 1
         self._frames += frames
 
+    def _run_multi(self, make_agent, n_envs):
+        envs = self.env.duplicate(n_envs)
+        agent = make_agent(envs)
+        for env in envs:
+            env.reset()
+        returns = torch.zeros((n_envs)).float().to(self.env.device)
+        start = timer()
+        while not self._done():
+            states = [env.state for env in envs]
+            rewards = torch.tensor([env.reward for env in envs]).float().to(self.env.device)
+            actions = agent.act(states, rewards)
+            for i, env in enumerate(envs):
+                if env.done:
+                    end = timer()
+                    fps = self._frames / (end - start)
+                    returns[i] += rewards[i]
+                    self._log(returns[i], fps)
+                    env.reset()
+                    returns[i] = 0
+                    self._episode += 1
+                else:
+                    if actions[i] is not None:
+                        returns[i] += rewards[i]
+                        env.step(actions[i])
+                        self._frames += 1
+
     def _done(self):
         return self._frames > self._max_frames or self._episode > self._max_episodes
 
     def _log(self, returns, fps):
+        if self._console:
+            print("episode: %i, frames: %i, fps: %d, returns: %d" %
+                  (self._episode, self._frames, fps, returns))
         self._writer.add_scalar(
             self.env.name + '/returns/eps', returns, self._episode)
         self._writer.add_scalar(

@@ -44,7 +44,7 @@ class GymEnvironment(Environment):
         self._env.seed(seed)
 
     def duplicate(self, n):
-        return [GymEnvironment(self._name, device=self._device) for _ in range(n)]
+        return [GymEnvironment(self._name, device=self.device) for _ in range(n)]
 
     @property
     def state_space(self):
@@ -92,3 +92,7 @@ class GymEnvironment(Environment):
     @property
     def env(self):
         return self._env
+
+    @property
+    def device(self):
+        return self._device

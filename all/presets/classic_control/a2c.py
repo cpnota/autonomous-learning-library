@@ -35,7 +35,8 @@ def a2c(
         n_envs=8,
         n_steps=8,
 ):
-    def _a2c(env):
+    def _a2c(envs):
+        env = envs[0]
         value_model = fc_value(env)
         value_optimizer = Adam(value_model.parameters(), lr=lr_v)
         v = ValueNetwork(value_model, value_optimizer, clip_grad=clip_grad)
