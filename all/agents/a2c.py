@@ -28,11 +28,10 @@ class A2C(Agent):
         return self.policy(features)
 
     def _train(self):
-        features, next_features, returns = self._buffer.sample(-1)
+        features, next_features, returns, rollout_lengths = self._buffer.sample(-1)
         td_errors = (
             returns
-            + (self.discount_factor ** self.n_steps) *
-            self.v.eval(next_features)
+            + (self.discount_factor ** rollout_lengths) * self.v.eval(next_features)
             - self.v(features)
         )
         self.v.reinforce(td_errors, retain_graph=True)

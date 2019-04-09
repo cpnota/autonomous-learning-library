@@ -32,6 +32,7 @@ class NStepBuffer():
         sample_states = [None] * sample_n
         sample_next_states = [None] * sample_n
         sample_returns = torch.zeros(sample_n, device=self.rewards[0].device)
+        sample_lengths = torch.zeros(sample_n, device=self.rewards[0].device)
 
         # compute the N-step returns the slow way
         for e in range(n_envs):
@@ -40,8 +41,10 @@ class NStepBuffer():
                 state = self.states[t][e]
                 returns = 0.
                 next_state = None
+                sample_length = 0
                 if state is not None:
                     for k in range(1, self.n + 1):
+                        sample_length = k
                         next_state = self.states[t + k][e]
                         returns += (self.gamma ** (k - 1)) * \
                             self.rewards[t + k][e]
@@ -50,11 +53,12 @@ class NStepBuffer():
                 sample_states[i] = state
                 sample_next_states[i] = next_state
                 sample_returns[i] = returns
+                sample_lengths[i] = sample_length
 
         self.states = [self.states[-1]]
         self.rewards = [self.rewards[-1]]
         self.i = 1
-        return (sample_states, sample_next_states, sample_returns)
+        return (sample_states, sample_next_states, sample_returns, sample_lengths)
 
     def is_full(self):
         return self.i == self.buffer_length + 1
