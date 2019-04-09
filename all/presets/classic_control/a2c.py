@@ -20,7 +20,7 @@ def fc_policy(env):
 def a2c(
         lr=1e-3,
         n_steps=8,
-        batch_size=16,
+        update_frequency=8,
         discount_factor=0.99,
         entropy_loss_scaling=0.01,
         clip_grad=0.1
@@ -48,7 +48,7 @@ def a2c(
             v,
             policy,
             n_steps=n_steps,
-            batch_size=batch_size,
+            update_frequency=update_frequency,
             discount_factor=discount_factor
         )
     return _a2c

@@ -38,13 +38,13 @@ def policy_net(env):
 
 
 def a2c(
-        batch_size=64,
         clip_grad=0.1,
         discount_factor=0.99,
         entropy_loss_scaling=0.01,
         eps=1.5e-4,  # Adam epsilon
         lr=1e-3,
-        n_steps=4,
+        n_steps=5,
+        update_frequency=5,
         device=torch.device('cpu')
 ):
     def _a2c(envs):
@@ -73,7 +73,7 @@ def a2c(
                 v,
                 policy,
                 n_steps=n_steps,
-                batch_size=batch_size,
+                update_frequency=update_frequency,
                 discount_factor=discount_factor
             ),
             envs
