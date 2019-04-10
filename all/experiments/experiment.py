@@ -1,10 +1,8 @@
-import os
-from datetime import datetime
 from timeit import default_timer as timer
 import numpy as np
 import torch
-from tensorboardX import SummaryWriter
 from all.environments import GymEnvironment
+from .writer import ExperimentWriter
 
 
 class Experiment:
@@ -67,6 +65,7 @@ class Experiment:
         env.step(agent.initial(env.state))
         returns = env.reward
         frames = 1
+        self._writer.frames = frames
 
         # rest of episode
         while not env.done:
@@ -75,6 +74,7 @@ class Experiment:
             env.step(agent.act(env.state, env.reward))
             returns += env.reward
             frames += 1
+            self._writer.frames = frames
 
         # terminal state
         agent.terminal(env.reward)
@@ -86,6 +86,7 @@ class Experiment:
 
         # update state
         self._episode += 1
+        self._writer.episodes = self._episode
         self._frames += frames
 
     def _run_multi(self, make_agent, n_envs):
@@ -108,11 +109,13 @@ class Experiment:
                     env.reset()
                     returns[i] = 0
                     self._episode += 1
+                    self._writer.episodes = self._episode
                 else:
                     if actions[i] is not None:
                         returns[i] += rewards[i]
                         env.step(actions[i])
                         self._frames += 1
+                        self._writer.frames = self._frames
 
     def _done(self):
         return self._frames > self._max_frames or self._episode > self._max_episodes
@@ -121,15 +124,9 @@ class Experiment:
         if self._console:
             print("episode: %i, frames: %i, fps: %d, returns: %d" %
                   (self._episode, self._frames, fps, returns))
-        self._writer.add_scalar(
-            self.env.name + '/returns/eps', returns, self._episode)
-        self._writer.add_scalar(
-            self.env.name + '/returns/frames', returns, self._frames)
-        self._writer.add_scalar(self.env.name + '/fps', fps, self._frames)
+        self._writer.add_evaluation('returns-by-episode', returns, step="episode")
+        self._writer.add_evaluation('returns-by-frame', returns, step="frame")
+        self._writer.add_scalar('fps', fps, step="frame")
 
     def _make_writer(self, label):
-        current_time = str(datetime.now())
-        log_dir = os.path.join(
-            'runs', label + " " + current_time
-        )
-        return SummaryWriter(log_dir=log_dir)
+        return ExperimentWriter(label, self.env.name)
