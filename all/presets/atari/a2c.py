@@ -2,6 +2,7 @@
 import torch
 from torch import nn
 from torch.optim import Adam
+from torch.nn.functional import smooth_l1_loss
 from all.layers import Flatten, Linear0
 from all.agents import A2C
 from all.bodies import ParallelAtariBody
@@ -42,10 +43,10 @@ def a2c(
         discount_factor=0.99,
         entropy_loss_scaling=0.01,
         eps=1.5e-4,  # Adam epsilon
-        lr=1e-3,
-        n_envs=50,
-        n_steps=5,
-        update_frequency=5,
+        lr=1e-4,
+        n_envs=16,
+        n_steps=16,
+        update_frequency=16,
         device=torch.device('cpu')
 ):
     def _a2c(envs):
@@ -60,7 +61,12 @@ def a2c(
 
         features = FeatureNetwork(
             feature_model, feature_optimizer, clip_grad=clip_grad)
-        v = ValueNetwork(value_model, value_optimizer, clip_grad=clip_grad)
+        v = ValueNetwork(
+            value_model,
+            value_optimizer,
+            clip_grad=clip_grad,
+            loss=smooth_l1_loss
+        )
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,

@@ -2,8 +2,12 @@ import torch
 from torch import optim
 from torch.nn import utils
 from torch.nn.functional import mse_loss
+from tensorboardX import SummaryWriter
 from all.layers import ListNetwork
 from .v_function import ValueFunction
+
+import os
+from datetime import datetime
 
 class ValueNetwork(ValueFunction):
     def __init__(self, model, optimizer=None, loss=mse_loss, clip_grad=0):
@@ -14,6 +18,11 @@ class ValueNetwork(ValueFunction):
         self.loss = loss
         self._cache = []
         self.clip_grad = clip_grad
+        log_dir = os.path.join(
+            'runs', str(datetime.now())
+        )
+        self._writer = SummaryWriter(log_dir=log_dir)
+        self._count = 0
 
     def __call__(self, states):
         result = self.model(states).squeeze(1)
@@ -35,9 +44,10 @@ class ValueNetwork(ValueFunction):
         if cache.requires_grad:
             targets = td_errors + cache.detach()
             loss = self.loss(cache, targets)
+            self._writer.add_scalar('value_loss', loss, self._count)
+            self._count += 1
             # pylint: disable=len-as-condition
-            retain = retain_graph or len(cache) > 0
-            loss.backward(retain_graph=retain)
+            loss.backward(retain_graph=retain_graph)
             if self.clip_grad != 0:
                 utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
             self.optimizer.step()

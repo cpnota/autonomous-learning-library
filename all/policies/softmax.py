@@ -1,8 +1,11 @@
 import torch
 from torch.nn import functional, utils
 from all.layers import ListNetwork
+from tensorboardX import SummaryWriter
 from .abstract import Policy
 
+import os
+from datetime import datetime
 
 class SoftmaxPolicy(Policy):
     def __init__(self, model, optimizer, actions, entropy_loss_scaling=0, clip_grad=0):
@@ -12,6 +15,11 @@ class SoftmaxPolicy(Policy):
         self.clip_grad = clip_grad
         self._log_probs = []
         self._entropy = []
+        log_dir = os.path.join(
+            'runs', str(datetime.now())
+        )
+        self._writer = SummaryWriter(log_dir=log_dir)
+        self._count = 0
 
     def __call__(self, state, action=None, prob=None):
         scores = self.model(state)
@@ -35,6 +43,9 @@ class SoftmaxPolicy(Policy):
         # compute losses
         policy_loss = -torch.dot(log_probs, errors) / batch_size
         entropy_loss = -entropy.mean()
+        self._writer.add_scalar('policy_loss', policy_loss, self._count)
+        self._writer.add_scalar('entropy_loss', entropy_loss, self._count)
+        self._count += 1
         loss = policy_loss + self.entropy_loss_scaling * entropy_loss
         loss.backward(retain_graph=retain_graph)
 
