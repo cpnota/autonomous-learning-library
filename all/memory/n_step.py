@@ -9,6 +9,7 @@ class NStepBuffer():
         self._states = []
         self._rewards = []
         self._next_states = []
+        self._lengths = []
         self._temp = []
 
     def __len__(self):
@@ -36,10 +37,10 @@ class NStepBuffer():
                     reward += discount * rewards[i]
                     last_state = last_state
                     length += 1
-                _temp[i] = (state, reward, last_state)
+                _temp[i] = (state, reward, last_state, length)
 
         self._temp.append([
-            (state, reward, next_state)
+            (state, reward, next_state, 0)
             for state, reward, next_state
             in zip(states, rewards * 0, states)
         ])
@@ -54,16 +55,19 @@ class NStepBuffer():
         next_states = self._next_states[0:batch_size]
         rewards = self._rewards[0:batch_size]
         rewards = torch.tensor(rewards, device=rewards[0].device, dtype=torch.float)
-        lengths = rewards # TODO
+        lengths = self._lengths[0:batch_size] # TODO
+        lengths = torch.tensor(lengths, device=rewards[0].device)
 
         self._states = self._states[batch_size:]
         self._next_states = self._next_states[batch_size:]
         self._rewards = self._rewards[batch_size:]
+        self._lengths = self._lengths[batch_size:]
 
-        return states, next_states, rewards, rewards
+        return states, next_states, rewards, lengths
 
 
-    def _store(self, state, reward, next_state):
+    def _store(self, state, reward, next_state, length):
         self._states.append(state)
         self._rewards.append(reward)
         self._next_states.append(next_state)
+        self._lengths.append(length)
