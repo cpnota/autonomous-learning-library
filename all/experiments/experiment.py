@@ -91,7 +91,7 @@ class Experiment:
 
     def _run_multi(self, make_agent, n_envs):
         envs = self.env.duplicate(n_envs)
-        agent = make_agent(envs)
+        agent = make_agent(envs, writer=self._writer)
         for env in envs:
             env.reset()
         returns = torch.zeros((n_envs)).float().to(self.env.device)

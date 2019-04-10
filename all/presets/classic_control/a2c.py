@@ -4,6 +4,8 @@ from torch.optim import Adam
 from all.agents import A2C
 from all.approximation import ValueNetwork, FeatureNetwork
 from all.policies import SoftmaxPolicy
+from all.experiments import DummyWriter
+
 
 def fc_features(env):
     return nn.Sequential(
@@ -11,11 +13,14 @@ def fc_features(env):
         nn.ReLU()
     )
 
+
 def fc_value(_):
     return nn.Linear(256, 1)
 
+
 def fc_policy(env):
     return nn.Linear(256, env.action_space.n)
+
 
 def a2c(
         clip_grad=0.1,
@@ -26,7 +31,7 @@ def a2c(
         n_steps=8,
         update_frequency=8,
 ):
-    def _a2c(envs):
+    def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
         feature_model = fc_features(env)
         value_model = fc_value(env)
@@ -36,14 +41,21 @@ def a2c(
         value_optimizer = Adam(value_model.parameters(), lr=lr)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr)
 
-        features = FeatureNetwork(feature_model, feature_optimizer, clip_grad=clip_grad)
-        v = ValueNetwork(value_model, value_optimizer, clip_grad=clip_grad)
+        features = FeatureNetwork(
+            feature_model, feature_optimizer, clip_grad=clip_grad)
+        v = ValueNetwork(
+            value_model,
+            value_optimizer,
+            clip_grad=clip_grad,
+            writer=writer
+        )
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
             env.action_space.n,
             entropy_loss_scaling=entropy_loss_scaling,
-            clip_grad=clip_grad
+            clip_grad=clip_grad,
+            writer=writer
         )
         return A2C(
             features,

@@ -1,24 +1,27 @@
-import os
-from datetime import datetime
 import torch
 from torch.nn import functional, utils
-from tensorboardX import SummaryWriter
+from all.experiments import DummyWriter
 from all.layers import ListNetwork
 from .abstract import Policy
 
 
 class SoftmaxPolicy(Policy):
-    def __init__(self, model, optimizer, actions, entropy_loss_scaling=0, clip_grad=0):
+    def __init__(
+            self,
+            model,
+            optimizer,
+            actions,
+            entropy_loss_scaling=0,
+            clip_grad=0,
+            writer=DummyWriter()
+    ):
         self.model = ListNetwork(model, (actions,))
         self.optimizer = optimizer
         self.entropy_loss_scaling = entropy_loss_scaling
         self.clip_grad = clip_grad
         self._log_probs = []
         self._entropy = []
-        log_dir = os.path.join(
-            'runs', str(datetime.now())
-        )
-        self._writer = SummaryWriter(log_dir=log_dir)
+        self._writer = writer
         self._count = 0
 
     def __call__(self, state, action=None, prob=None):
