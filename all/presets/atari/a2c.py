@@ -49,7 +49,7 @@ def a2c(
         update_frequency=2,
         device=torch.device('cpu')
 ):
-    def _a2c(envs):
+    def _a2c(envs, writer=None):
         env = envs[0]
         feature_model = conv_features().to(device)
         value_model = value_net().to(device)
@@ -65,14 +65,16 @@ def a2c(
             value_model,
             value_optimizer,
             clip_grad=clip_grad,
-            loss=smooth_l1_loss
+            loss=smooth_l1_loss,
+            writer=writer
         )
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
             env.action_space.n,
             entropy_loss_scaling=entropy_loss_scaling,
-            clip_grad=clip_grad
+            clip_grad=clip_grad,
+            writer=writer
         )
         return ParallelAtariBody(
             A2C(
