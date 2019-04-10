@@ -2,11 +2,13 @@ import os
 from datetime import datetime
 from timeit import default_timer as timer
 import numpy as np
+import torch
 from tensorboardX import SummaryWriter
 from all.environments import GymEnvironment
 
+
 class Experiment:
-    def __init__(self, env, frames=None, episodes=None, trials=1):
+    def __init__(self, env, frames=None, episodes=None):
         if frames is None:
             frames = np.inf
         if episodes is None:
@@ -15,14 +17,14 @@ class Experiment:
             self.env = GymEnvironment(env)
         else:
             self.env = env
-        self._trials = trials
         self._max_frames = frames
         self._max_episodes = episodes
         self._agent = None
         self._episode = None
-        self._trial = None
         self._frames = None
         self._writer = None
+        self._render = None
+        self._console = None
 
     def run(
             self,
@@ -31,37 +33,44 @@ class Experiment:
             render=False,
             console=True,
     ):
+        self._init_trial(make_agent, label, render, console)
+        if isinstance(make_agent, tuple):
+            make, n_envs = make_agent
+            self._run_multi(make, n_envs)
+        else:
+            self._run_single(make_agent)
+
+    def _init_trial(self, make_agent, label, render, console):
         if label is None:
             label = make_agent.__name__
-        for trial in range(self._trials):
-            self._trial = trial
-            self._init_trial(make_agent, label)
-            while (self._episode < self._max_episodes and self._frames < self._max_frames):
-                self._run_episode(render, console)
-
-    def _init_trial(self, make_agent, label):
         self._frames = 0
-        self._episode = 0
+        self._episode = 1
+        self._render = render
+        self._console = console
         self._writer = self._make_writer(label)
-        self._agent = make_agent(self.env)
 
-    def _run_episode(self, render, console):
-        agent = self._agent
+    def _run_single(self, make_agent):
+        self._agent = make_agent(self.env)
+        while not self._done():
+            self._run_episode()
+
+    def _run_episode(self):
         env = self.env
+        agent = self._agent
 
         start = timer()
 
         # initial state
         env.reset()
-        if render:
+        if self._render:
             env.render()
         env.step(agent.initial(env.state))
         returns = env.reward
         frames = 1
 
         # rest of episode
-        while not env.should_reset:
-            if render:
+        while not env.done:
+            if self._render:
                 env.render()
             env.step(agent.act(env.state, env.reward))
             returns += env.reward
@@ -74,15 +83,44 @@ class Experiment:
         end = timer()
         fps = frames / (end - start)
         self._log(returns, fps)
-        if console:
-            print("trial: %i/%i, episode: %i, frames: %i, fps: %d, returns: %d" %
-                  (self._trial + 1, self._trials, self._episode, self._frames, fps, returns))
 
         # update state
         self._episode += 1
         self._frames += frames
 
+    def _run_multi(self, make_agent, n_envs):
+        envs = self.env.duplicate(n_envs)
+        agent = make_agent(envs)
+        for env in envs:
+            env.reset()
+        returns = torch.zeros((n_envs)).float().to(self.env.device)
+        start = timer()
+        while not self._done():
+            states = [env.state for env in envs]
+            rewards = torch.tensor([env.reward for env in envs]).float().to(self.env.device)
+            actions = agent.act(states, rewards)
+            for i, env in enumerate(envs):
+                if env.done:
+                    end = timer()
+                    fps = self._frames / (end - start)
+                    returns[i] += rewards[i]
+                    self._log(returns[i], fps)
+                    env.reset()
+                    returns[i] = 0
+                    self._episode += 1
+                else:
+                    if actions[i] is not None:
+                        returns[i] += rewards[i]
+                        env.step(actions[i])
+                        self._frames += 1
+
+    def _done(self):
+        return self._frames > self._max_frames or self._episode > self._max_episodes
+
     def _log(self, returns, fps):
+        if self._console:
+            print("episode: %i, frames: %i, fps: %d, returns: %d" %
+                  (self._episode, self._frames, fps, returns))
         self._writer.add_scalar(
             self.env.name + '/returns/eps', returns, self._episode)
         self._writer.add_scalar(

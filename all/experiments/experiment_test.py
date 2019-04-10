@@ -27,7 +27,7 @@ class TestExperiment(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
         torch.manual_seed(0)
-        self.experiment = MockExperiment('CartPole-v0', episodes=3, trials=2)
+        self.experiment = MockExperiment('CartPole-v0', episodes=3)
         self.experiment.env.seed(0)
 
     def test_adds_label(self):
@@ -38,11 +38,11 @@ class TestExperiment(unittest.TestCase):
         self.experiment.run(sarsa(), console=False)
         np.testing.assert_equal(
             self.experiment._writer.data["CartPole-v0/returns/eps"]["values"],
-            np.array([11., 10., 9.])
+            np.array([9., 11., 10.])
         )
         np.testing.assert_equal(
             self.experiment._writer.data["CartPole-v0/returns/eps"]["steps"],
-            np.array([0, 1, 2])
+            np.array([1, 2, 3])
         )
 
 if __name__ == '__main__':

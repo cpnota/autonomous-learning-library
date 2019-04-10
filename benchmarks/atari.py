@@ -11,7 +11,7 @@ def run_atari():
     parser.add_argument('--frames', type=int, default=100e6, help='The number of training frames')
     args = parser.parse_args()
 
-    env = AtariEnvironment(args.env)
+    env = AtariEnvironment(args.env, device=args.device)
     agent_name = args.agent
     agent = getattr(atari, agent_name)
     device = args.device

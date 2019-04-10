@@ -18,12 +18,13 @@ def fc_policy(env):
     return nn.Linear(256, env.action_space.n)
 
 def a2c(
-        lr=1e-3,
-        n_steps=8,
-        update_frequency=8,
+        clip_grad=0.1,
         discount_factor=0.99,
         entropy_loss_scaling=0.01,
-        clip_grad=0.1
+        lr=1e-3,
+        n_envs=8,
+        n_steps=8,
+        update_frequency=8,
 ):
     def _a2c(env):
         feature_model = fc_features(env)
@@ -51,7 +52,7 @@ def a2c(
             update_frequency=update_frequency,
             discount_factor=discount_factor
         )
-    return _a2c
+    return _a2c, n_envs
 
 
 __all__ = ["a2c"]
