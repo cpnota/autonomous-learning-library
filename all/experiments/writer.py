@@ -68,7 +68,7 @@ class ExperimentWriter(SummaryWriter, Writer):
 
     @property
     def episodes(self):
-        return self._frames
+        return self._episodes
 
     @episodes.setter
     def episodes(self, episodes):
