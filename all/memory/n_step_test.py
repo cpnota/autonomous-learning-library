@@ -6,32 +6,26 @@ from all.memory import NStepBuffer
 
 class NStepBufferTest(unittest.TestCase):
     def test_rollout(self):
-        buffer = NStepBuffer(2, 3, discount_factor=0.5)
+        buffer = NStepBuffer(2, discount_factor=0.5)
         buffer.store(['state1', 'state2', 'state3'], torch.zeros(3))
         buffer.store(['state4', 'state5', 'state6'], torch.ones(3))
         buffer.store(['state7', 'state8', 'state9'], 2 * torch.ones(3))
         buffer.store(['state10', 'state11', 'state12'], 4 * torch.ones(3))
-        states, next_states, returns, lengths = buffer.sample(-1)
+        self.assertEqual(len(buffer), 6)
 
-        expected_states = ['state' + str(i + 1) for i in range(9)]
-        expect_next_states = [
-            'state7', 'state8', 'state9',
-            'state10', 'state11', 'state12',
-            'state10', 'state11', 'state12',
-        ]
+        states, next_states, returns, lengths = buffer.sample(6)
+        expected_states = ['state' + str(i) for i in range(1, 7)]
+        expected_next_states = ['state' + str(i) for i in range(7, 13)]
         expected_returns = torch.tensor([
             2, 2, 2,
             4, 4, 4,
-            4, 4, 4
         ]).float()
         expected_lengths = torch.tensor([
             2, 2, 2,
             2, 2, 2,
-            1, 1, 1
         ])
-
         self.assert_array_equal(states, expected_states)
-        self.assert_array_equal(next_states, expect_next_states)
+        self.assert_array_equal(next_states, expected_next_states)
         tt.assert_allclose(returns, expected_returns)
         tt.assert_equal(lengths, expected_lengths)
 

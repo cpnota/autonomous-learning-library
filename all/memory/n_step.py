@@ -2,63 +2,67 @@ import torch
 
 
 class NStepBuffer():
-    def __init__(self, n, buffer_length, discount_factor=1):
+    def __init__(self, n, discount_factor=1):
         self.n = n
-        self.buffer_length = buffer_length
         self.gamma = discount_factor
         self.i = 0
-        self.states = []
-        self.rewards = []
+        self._states = []
+        self._rewards = []
+        self._next_states = []
+        self._temp = []
+
+    def __len__(self):
+        return len(self._states)
 
     def store(self, states, rewards):
-        if self.i == 0:
-            self.states = [states]
-            self.rewards = [rewards]
-            self.i = 1
-            # do one thing
-        elif self.i <= self.buffer_length:
-            self.states.append(states)
-            self.rewards.append(rewards)
-            self.i += 1
-        else:
-            raise Exception("Buffer length exceeded: " + self.n)
+        # move states that are ready out of temp buffer
+        if len(self._temp) == self.n:
+            discount = self.gamma ** (self.n - 1)
+            for i, v in enumerate(self._temp[0]):
+                state, reward, last_state = v
+                if last_state is None:
+                    self._store(state, reward, last_state)
+                else:
+                    reward += discount * rewards[i]
+                    last_state = states[i]
+                    self._store(state, reward, last_state)
+            self._temp = self._temp[1:]
+        
+        for t, _temp in enumerate(self._temp):
+            discount = self.gamma ** (len(self._temp) - 1 - t)
+            for i, v in enumerate(_temp):
+                state, reward, last_state = v
+                if last_state is not None:
+                    reward += discount * rewards[i]
+                    last_state = last_state
+                _temp[i] = (state, reward, last_state)
 
-    def sample(self, _):
-        if self.i <= self.buffer_length:
-            raise Exception("Not enough states received!")
+        self._temp.append([
+            (state, reward, next_state)
+            for state, reward, next_state
+            in zip(states, rewards * 0, states)
+        ])
 
-        n_envs = len(self.states[0])
-        sample_n = n_envs * self.buffer_length
-        sample_states = [None] * sample_n
-        sample_next_states = [None] * sample_n
-        sample_returns = torch.zeros(sample_n, device=self.rewards[0].device)
-        sample_lengths = torch.zeros(sample_n, device=self.rewards[0].device)
+        return self
 
-        # compute the N-step returns the slow way
-        for e in range(n_envs):
-            for t in range(self.buffer_length):
-                i = t * n_envs + e
-                state = self.states[t][e]
-                returns = 0.
-                next_state = None
-                sample_length = 0
-                if state is not None:
-                    for k in range(1, self.n + 1):
-                        sample_length = k
-                        next_state = self.states[t + k][e]
-                        returns += (self.gamma ** (k - 1)) * \
-                            self.rewards[t + k][e]
-                        if next_state is None or t + k == self.buffer_length:
-                            break
-                sample_states[i] = state
-                sample_next_states[i] = next_state
-                sample_returns[i] = returns
-                sample_lengths[i] = sample_length
+    def sample(self, batch_size):
+        if batch_size > len(self):
+            raise Exception("Not enough states for batch size!")
 
-        self.states = [self.states[-1]]
-        self.rewards = [self.rewards[-1]]
-        self.i = 1
-        return (sample_states, sample_next_states, sample_returns, sample_lengths)
+        states = self._states[0:batch_size]
+        next_states = self._next_states[0:batch_size]
+        rewards = self._rewards[0:batch_size]
+        rewards = torch.tensor(rewards, device=rewards[0].device, dtype=torch.float)
+        lengths = rewards # TODO
 
-    def is_full(self):
-        return self.i == self.buffer_length + 1
+        self._states = self._states[batch_size:]
+        self._next_states = self._next_states[batch_size:]
+        self._rewards = self._rewards[batch_size:]
+
+        return states, next_states, rewards, rewards
+
+
+    def _store(self, state, reward, next_state):
+        self._states.append(state)
+        self._rewards.append(reward)
+        self._next_states.append(next_state)
