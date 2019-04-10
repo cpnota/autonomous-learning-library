@@ -34,13 +34,13 @@ class TestSoftmax(unittest.TestCase):
         self.policy.reinforce(torch.tensor([[1, 2, 3]]).float())
 
     def test_multi_batch_reinforce(self):
-        states = torch.randn(10, STATE_DIM)
-        self.policy(states)
-        self.policy.reinforce(torch.tensor([1, 2, 3]).float())
+        self.policy(torch.randn(2, STATE_DIM))
+        self.policy(torch.randn(2, STATE_DIM))
+        self.policy(torch.randn(2, STATE_DIM))
         self.policy.reinforce(torch.tensor([1, 2, 3, 4]).float())
-        self.policy.reinforce(torch.tensor([1, 2, 3]).float())
+        self.policy.reinforce(torch.tensor([1, 2]).float())
         with self.assertRaises(Exception):
-            self.policy.reinforce(torch.tensor([1, 2, 3]).float())
+            self.policy.reinforce(torch.tensor([1, 2]).float())
 
     def test_list(self):
         torch.manual_seed(1)
