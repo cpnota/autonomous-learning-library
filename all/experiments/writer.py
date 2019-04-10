@@ -21,10 +21,10 @@ class Writer(ABC):
 
 
 class DummyWriter(Writer):
-    def add_loss(self):
+    def add_loss(self, name, value, step="frame"):
         pass
 
-    def add_evaluation(self):
+    def add_evaluation(self, name, value, step="frame"):
         pass
 
     def add_scalar(self, name, value, step="frame"):
