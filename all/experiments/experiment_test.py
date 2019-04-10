@@ -2,21 +2,22 @@ import unittest
 import numpy as np
 import torch
 from all.presets.classic_control import sarsa
-from all.experiments import Experiment
+from all.experiments import Experiment, ExperimentWriter
 
-class MockWriter():
+class MockWriter(ExperimentWriter):
     def __init__(self, label):
         self.data = {}
         self.label = label
+        super().__init__(label, "CartPole-v0")
 
-    def add_scalar(self, key, value, step):
+    def add_scalar(self, key, value, step="frame"):
         if not key in self.data:
             self.data[key] = {
                 "values": [],
                 "steps": []
             }
         self.data[key]["values"].append(value)
-        self.data[key]["steps"].append(step)
+        self.data[key]["steps"].append(self._get_step(step))
 
 class MockExperiment(Experiment):
     def _make_writer(self, label):
@@ -37,11 +38,11 @@ class TestExperiment(unittest.TestCase):
     def test_writes_returns_eps(self):
         self.experiment.run(sarsa(), console=False)
         np.testing.assert_equal(
-            self.experiment._writer.data["CartPole-v0/returns/eps"]["values"],
+            self.experiment._writer.data["evaluation/returns-by-episode"]["values"],
             np.array([9., 11., 10.])
         )
         np.testing.assert_equal(
-            self.experiment._writer.data["CartPole-v0/returns/eps"]["steps"],
+            self.experiment._writer.data["evaluation/returns-by-episode"]["steps"],
             np.array([1, 2, 3])
         )
 
