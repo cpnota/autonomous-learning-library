@@ -26,7 +26,8 @@ def a2c(
         n_steps=8,
         update_frequency=8,
 ):
-    def _a2c(env):
+    def _a2c(envs):
+        env = envs[0]
         feature_model = fc_features(env)
         value_model = fc_value(env)
         policy_model = fc_policy(env)
