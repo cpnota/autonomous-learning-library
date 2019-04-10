@@ -55,7 +55,7 @@ class SoftmaxPolicy(Policy):
             items += len(self._log_probs[i])
             i += 1
         if items != batch_size:
-            raise ValueError("Incompatible batch size.")
+            raise ValueError("Incompatible batch size: " + str(batch_size))
         
         log_probs = torch.cat(self._log_probs[:i])
         self._log_probs = self._log_probs[i:]

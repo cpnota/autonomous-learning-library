@@ -38,14 +38,17 @@ class TestQNetwork(unittest.TestCase):
             torch.randn(1, STATE_DIM),
             None,
             torch.randn(1, STATE_DIM),
+            None,
             None
         ]
-        self.v(states)
+        self.v(states[0:2])
+        self.v(states[2:4])
+        self.v(states[4:6])
         self.v.reinforce(torch.tensor([1, 2]).float())
-        self.v.reinforce(torch.tensor([1]).float())
+        self.v.reinforce(torch.tensor([1, 1]).float())
         self.v.reinforce(torch.tensor([1, 2]).float())
         with self.assertRaises(Exception):
-            self.v.reinforce(torch.tensor([1, 2, 3]).float())
+            self.v.reinforce(torch.tensor([1, 2]).float())
 
 if __name__ == '__main__':
     unittest.main()

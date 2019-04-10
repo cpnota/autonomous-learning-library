@@ -30,9 +30,7 @@ class ValueNetwork(ValueFunction):
     def reinforce(self, td_errors, retain_graph=False):
         td_errors = td_errors.view(-1)
         batch_size = len(td_errors)
-        cache = torch.cat(self._cache)
-        self._cache = [cache[batch_size:]]
-        cache = cache[:batch_size]
+        cache = self.decache(batch_size)
 
         if cache.requires_grad:
             targets = td_errors + cache.detach()
@@ -44,3 +42,17 @@ class ValueNetwork(ValueFunction):
                 utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
             self.optimizer.step()
             self.optimizer.zero_grad()
+
+    def decache(self, batch_size):
+        i = 0
+        items = 0
+        while items < batch_size:
+            items += len(self._cache[i])
+            i += 1
+        if items != batch_size:
+            raise ValueError("Incompatible batch size.")
+        
+        cache = torch.cat(self._cache[:i])
+        self._cache = self._cache[i:]
+
+        return cache

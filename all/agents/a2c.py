@@ -23,12 +23,13 @@ class A2C(Agent):
     def act(self, states, rewards, info=None):
         features = self.features(states)
         self._buffer.store(features, rewards)
-        if self._buffer.is_full():
-            self._train()
+        batch_size = len(states) * self.update_frequency
+        if len(self._buffer) >= batch_size:
+            self._train(batch_size)
         return self.policy(features)
 
-    def _train(self):
-        features, next_features, returns, rollout_lengths = self._buffer.sample(-1)
+    def _train(self, batch_size):
+        features, next_features, returns, rollout_lengths = self._buffer.sample(batch_size)
         td_errors = (
             returns
             + (self.discount_factor ** rollout_lengths) * self.v.eval(next_features)
@@ -41,6 +42,5 @@ class A2C(Agent):
     def _make_buffer(self):
         return NStepBuffer(
             self.n_steps,
-            self.update_frequency,
             discount_factor=self.discount_factor
         )
