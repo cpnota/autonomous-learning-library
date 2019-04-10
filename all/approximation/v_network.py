@@ -1,3 +1,5 @@
+import os
+from datetime import datetime
 import torch
 from torch import optim
 from torch.nn import utils
@@ -5,9 +7,6 @@ from torch.nn.functional import mse_loss
 from tensorboardX import SummaryWriter
 from all.layers import ListNetwork
 from .v_function import ValueFunction
-
-import os
-from datetime import datetime
 
 class ValueNetwork(ValueFunction):
     def __init__(self, model, optimizer=None, loss=mse_loss, clip_grad=0):
@@ -61,7 +60,7 @@ class ValueNetwork(ValueFunction):
             i += 1
         if items != batch_size:
             raise ValueError("Incompatible batch size.")
-        
+
         cache = torch.cat(self._cache[:i])
         self._cache = self._cache[i:]
 

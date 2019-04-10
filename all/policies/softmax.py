@@ -1,11 +1,11 @@
-import torch
-from torch.nn import functional, utils
-from all.layers import ListNetwork
-from tensorboardX import SummaryWriter
-from .abstract import Policy
-
 import os
 from datetime import datetime
+import torch
+from torch.nn import functional, utils
+from tensorboardX import SummaryWriter
+from all.layers import ListNetwork
+from .abstract import Policy
+
 
 class SoftmaxPolicy(Policy):
     def __init__(self, model, optimizer, actions, entropy_loss_scaling=0, clip_grad=0):
@@ -71,7 +71,7 @@ class SoftmaxPolicy(Policy):
             i += 1
         if items != batch_size:
             raise ValueError("Incompatible batch size: " + str(batch_size))
-        
+
         log_probs = torch.cat(self._log_probs[:i])
         self._log_probs = self._log_probs[i:]
         entropy = torch.cat(self._entropy[:i])

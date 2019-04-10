@@ -36,7 +36,7 @@ class A2C(Agent):
         next_features = self.features(next_states)
         td_errors = (
             returns
-            + (self.discount_factor ** rollout_lengths) 
+            + (self.discount_factor ** rollout_lengths)
             * self.v.eval(next_features)
             - self.v(features)
         )
