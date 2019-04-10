@@ -21,19 +21,19 @@ class A2C(Agent):
         self._buffer = self._make_buffer()
 
     def act(self, states, rewards, info=None):
-        features = self.features(states)
-        self._buffer.store(features, rewards)
+        self._buffer.store(states, rewards)
         batch_size = len(states) * self.update_frequency
         if len(self._buffer) >= batch_size:
             self._train(batch_size)
-        return self.policy(features)
+        return self.policy(self.features(states))
 
     def _train(self, batch_size):
-        features, next_features, returns, rollout_lengths = self._buffer.sample(batch_size)
+        states, next_states, returns, rollout_lengths = self._buffer.sample(batch_size)
         td_errors = (
             returns
-            + (self.discount_factor ** rollout_lengths) * self.v.eval(next_features)
-            - self.v(features)
+            + (self.discount_factor ** rollout_lengths) 
+            * self.v.eval(self.features(next_states))
+            - self.v(self.features(states))
         )
         self.v.reinforce(td_errors, retain_graph=True)
         self.policy.reinforce(td_errors)
