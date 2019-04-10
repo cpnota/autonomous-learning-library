@@ -68,29 +68,30 @@ class NStepBufferTest(unittest.TestCase):
     def test_multi_rollout(self):
         buffer = NStepBuffer(2, discount_factor=0.5)
         raw_states = ['state' + str(i) for i in range(12)]
-        expected_lengths = torch.tensor([2, 2, 1, 1])
+        expected_lengths = torch.tensor([2, 2, 2, 2])
         buffer.store(raw_states[0:2], torch.ones(2))
         buffer.store(raw_states[2:4], torch.ones(2))
         buffer.store(raw_states[4:6], torch.ones(2))
+        buffer.store(raw_states[6:8], torch.ones(2) * 2)
 
-        states, next_states, returns, lengths = buffer.sample(-1)
+        states, next_states, returns, lengths = buffer.sample(4)
         self.assert_array_equal(states, ['state' + str(i) for i in range(4)])
         self.assert_array_equal(next_states, [
-            'state4', 'state5', 'state4', 'state5'
+            'state4', 'state5', 'state6', 'state7'
         ])
-        tt.assert_allclose(returns, torch.tensor([1.5, 1.5, 1, 1]))
+        tt.assert_allclose(returns, torch.tensor([1.5, 1.5, 2, 2]))
         tt.assert_equal(lengths, expected_lengths)
 
-        buffer.store(raw_states[6:8], torch.ones(2))
         buffer.store(raw_states[8:10], torch.ones(2))
+        buffer.store(raw_states[10:12], torch.ones(2))
 
-        states, next_states, returns, lengths = buffer.sample(-1)
+        states, next_states, returns, lengths = buffer.sample(4)
         self.assert_array_equal(
             states, ['state' + str(i) for i in range(4, 8)])
         self.assert_array_equal(next_states, [
-            'state8', 'state9', 'state8', 'state9'
+            'state8', 'state9', 'state10', 'state11'
         ])
-        tt.assert_allclose(returns, torch.tensor([1.5, 1.5, 1, 1]))
+        tt.assert_allclose(returns, torch.tensor([2.5, 2.5, 1.5, 1.5]))
         tt.assert_equal(lengths, expected_lengths)
 
     def assert_array_equal(self, actual, expected):
