@@ -53,5 +53,17 @@ class TestSoftmax(unittest.TestCase):
         tt.assert_equal(actions, torch.tensor([2, 0, 1]))
         self.policy.reinforce(torch.tensor([[1, 2, 3]]).float())
 
+    def test_action_prob(self):
+        torch.manual_seed(1)
+        states = [
+            torch.randn(1, STATE_DIM),
+            None,
+            torch.randn(1, STATE_DIM)
+        ]
+        with torch.no_grad():
+            actions = self.policy(states)
+        probs = self.policy(states, action=actions)
+        tt.assert_almost_equal(probs, torch.tensor([0.4814, 0.3333, 0.2049]), decimal=3)
+
 if __name__ == '__main__':
     unittest.main()

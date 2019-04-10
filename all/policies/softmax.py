@@ -25,9 +25,12 @@ class SoftmaxPolicy(Policy):
         scores = self.model(state)
         probs = functional.softmax(scores, dim=-1)
         distribution = torch.distributions.Categorical(probs)
-        action = distribution.sample()
+        if action is None:
+            action = distribution.sample()
+            self.cache(distribution, action)
+            return action
         self.cache(distribution, action)
-        return action
+        return distribution.log_prob(action).exp().detach()
 
     def eval(self, state):
         with torch.no_grad():
@@ -56,8 +59,9 @@ class SoftmaxPolicy(Policy):
             self.optimizer.zero_grad()
 
     def cache(self, distribution, action):
-        self._log_probs.append(distribution.log_prob(action))
-        self._entropy.append(distribution.entropy())
+        if distribution.probs.requires_grad:
+            self._log_probs.append(distribution.log_prob(action))
+            self._entropy.append(distribution.entropy())
 
     def decache(self, batch_size):
         i = 0
