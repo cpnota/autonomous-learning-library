@@ -33,18 +33,18 @@ class Experiment:
             render=False,
             console=True,
     ):
-        self._init_trial(label, render, console)
+        self._init_trial(make_agent, label, render, console)
         if isinstance(make_agent, tuple):
             make, n_envs = make_agent
             self._run_multi(make, n_envs)
         else:
             self._run_single(make_agent)
 
-    def _init_trial(self, label, render, console):
+    def _init_trial(self, make_agent, label, render, console):
         if label is None:
-            label = 'agent'
+            label = make_agent.__name__
         self._frames = 0
-        self._episode = 0
+        self._episode = 1
         self._render = render
         self._console = console
         self._writer = self._make_writer(label)
