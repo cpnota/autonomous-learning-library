@@ -49,8 +49,8 @@ class SoftmaxPolicy(Policy):
             # compute losses
             policy_loss = -torch.dot(log_probs, errors) / batch_size
             entropy_loss = -entropy.mean()
-            self._writer.add_scalar('policy_loss', policy_loss, self._count)
-            self._writer.add_scalar('entropy_loss', entropy_loss, self._count)
+            self._writer.add_loss('policy', policy_loss, self._count)
+            self._writer.add_loss('entropy', entropy_loss, self._count)
             self._count += 1
             loss = policy_loss + self.entropy_loss_scaling * entropy_loss
             loss.backward(retain_graph=retain_graph)
