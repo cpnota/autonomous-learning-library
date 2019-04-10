@@ -56,7 +56,7 @@ class NStepBuffer():
         rewards = self._rewards[0:batch_size]
         rewards = torch.tensor(rewards, device=rewards[0].device, dtype=torch.float)
         lengths = self._lengths[0:batch_size]
-        lengths = torch.tensor(lengths, device=rewards[0].device)
+        lengths = torch.tensor(lengths, device=rewards[0].device, dtype=torch.float)
 
         self._states = self._states[batch_size:]
         self._next_states = self._next_states[batch_size:]
