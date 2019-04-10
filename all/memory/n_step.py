@@ -28,14 +28,14 @@ class NStepBuffer():
                     last_state = states[i]
                     self._store(state, reward, last_state, length + 1)
             self._temp = self._temp[1:]
-        
+
         for t, _temp in enumerate(self._temp):
             discount = self.gamma ** (len(self._temp) - 1 - t)
             for i, v in enumerate(_temp):
                 state, reward, last_state, length = v
                 if last_state is not None:
                     reward += discount * rewards[i]
-                    last_state = last_state
+                    last_state = states[i]
                     length += 1
                 _temp[i] = (state, reward, last_state, length)
 
@@ -55,7 +55,7 @@ class NStepBuffer():
         next_states = self._next_states[0:batch_size]
         rewards = self._rewards[0:batch_size]
         rewards = torch.tensor(rewards, device=rewards[0].device, dtype=torch.float)
-        lengths = self._lengths[0:batch_size] # TODO
+        lengths = self._lengths[0:batch_size]
         lengths = torch.tensor(lengths, device=rewards[0].device)
 
         self._states = self._states[batch_size:]
