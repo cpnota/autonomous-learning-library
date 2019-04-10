@@ -32,6 +32,23 @@ class TestQNetwork(unittest.TestCase):
         tt.assert_almost_equal(result, torch.tensor(
             [0.8042525, 0.4606972, 0., 0.0714759, 0.]))
 
+    def test_multi_reinforce(self):
+        states = [
+            torch.randn(1, STATE_DIM),
+            torch.randn(1, STATE_DIM),
+            None,
+            torch.randn(1, STATE_DIM),
+            None,
+            None
+        ]
+        self.v(states[0:2])
+        self.v(states[2:4])
+        self.v(states[4:6])
+        self.v.reinforce(torch.tensor([1, 2]).float())
+        self.v.reinforce(torch.tensor([1, 1]).float())
+        self.v.reinforce(torch.tensor([1, 2]).float())
+        with self.assertRaises(Exception):
+            self.v.reinforce(torch.tensor([1, 2]).float())
 
 if __name__ == '__main__':
     unittest.main()

@@ -20,8 +20,8 @@ def fc_policy(env):
 def a2c(
         clip_grad=0.1,
         discount_factor=0.99,
-        entropy_loss_scaling=0.01,
-        lr=1e-3,
+        entropy_loss_scaling=0.001,
+        lr=3e-4,
         n_envs=8,
         n_steps=8,
         update_frequency=8,
