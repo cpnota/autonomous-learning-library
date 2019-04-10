@@ -24,7 +24,7 @@ def a2c(
         lr=1e-3,
         n_envs=8,
         n_steps=8,
-        update_frequency=8,
+        batch_size=30,
 ):
     def _a2c(envs):
         env = envs[0]
@@ -50,7 +50,7 @@ def a2c(
             v,
             policy,
             n_steps=n_steps,
-            update_frequency=update_frequency,
+            batch_size=batch_size,
             discount_factor=discount_factor
         )
     return _a2c, n_envs
