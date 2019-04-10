@@ -12,12 +12,12 @@ class ValueNetwork(ValueFunction):
                           if optimizer is not None
                           else optim.Adam(model.parameters()))
         self.loss = loss
-        self.cache = None
+        self._cache = []
         self.clip_grad = clip_grad
 
     def __call__(self, states):
         result = self.model(states).squeeze(1)
-        self.cache = result
+        self._cache.append(result)
         return result.detach()
 
     def eval(self, states):
@@ -28,10 +28,18 @@ class ValueNetwork(ValueFunction):
             return result
 
     def reinforce(self, td_errors, retain_graph=False):
-        if self.cache.requires_grad:
-            targets = td_errors + self.cache.detach()
-            loss = self.loss(self.cache, targets)
-            loss.backward(retain_graph=retain_graph)
+        td_errors = td_errors.view(-1)
+        batch_size = len(td_errors)
+        cache = torch.cat(self._cache)
+        self._cache = [cache[batch_size:]]
+        cache = cache[:batch_size]
+
+        if cache.requires_grad:
+            targets = td_errors + cache.detach()
+            loss = self.loss(cache, targets)
+            # pylint: disable=len-as-condition
+            retain = retain_graph or len(cache) > 0
+            loss.backward(retain_graph=retain)
             if self.clip_grad != 0:
                 utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
             self.optimizer.step()
