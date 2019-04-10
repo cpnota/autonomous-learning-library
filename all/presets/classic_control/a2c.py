@@ -1,47 +1,42 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 from torch import nn
 from torch.optim import Adam
-from all.layers import Flatten
 from all.agents import A2C
-from all.approximation import ValueNetwork
+from all.approximation import ValueNetwork, FeatureNetwork
 from all.policies import SoftmaxPolicy
 
-
-def fc_value(env):
+def fc_features(env):
     return nn.Sequential(
-        Flatten(),
         nn.Linear(env.state_space.shape[0], 256),
-        nn.ReLU(),
-        nn.Linear(256, 1)
+        nn.ReLU()
     )
 
+def fc_value(_):
+    return nn.Linear(256, 1)
 
 def fc_policy(env):
-    return nn.Sequential(
-        Flatten(),
-        nn.Linear(env.state_space.shape[0], 256),
-        nn.ReLU(),
-        nn.Linear(256, env.action_space.n)
-    )
-
+    return nn.Linear(256, env.action_space.n)
 
 def a2c(
-        batch_size=8,
-        clip_grad=0,  # disable
+        clip_grad=0.1,
         discount_factor=0.99,
         entropy_loss_scaling=0.01,
-        lr_pi=1e-3,
-        lr_v=1e-3,
+        lr=1e-3,
         n_envs=8,
         n_steps=8,
+        update_frequency=8,
 ):
-    def _a2c(envs):
-        env = envs[0]
+    def _a2c(env):
+        feature_model = fc_features(env)
         value_model = fc_value(env)
-        value_optimizer = Adam(value_model.parameters(), lr=lr_v)
-        v = ValueNetwork(value_model, value_optimizer, clip_grad=clip_grad)
         policy_model = fc_policy(env)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
+
+        feature_optimizer = Adam(feature_model.parameters(), lr=lr)
+        value_optimizer = Adam(value_model.parameters(), lr=lr)
+        policy_optimizer = Adam(policy_model.parameters(), lr=lr)
+
+        features = FeatureNetwork(feature_model, feature_optimizer, clip_grad=clip_grad)
+        v = ValueNetwork(value_model, value_optimizer, clip_grad=clip_grad)
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
@@ -50,10 +45,11 @@ def a2c(
             clip_grad=clip_grad
         )
         return A2C(
+            features,
             v,
             policy,
             n_steps=n_steps,
-            batch_size=batch_size,
+            update_frequency=update_frequency,
             discount_factor=discount_factor
         )
     return _a2c, n_envs
