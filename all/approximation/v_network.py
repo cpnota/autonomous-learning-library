@@ -56,7 +56,7 @@ class ValueNetwork(ValueFunction):
     def decache(self, batch_size):
         i = 0
         items = 0
-        while items < batch_size:
+        while items < batch_size and i < len(self._cache):
             items += len(self._cache[i])
             i += 1
         if items != batch_size:
