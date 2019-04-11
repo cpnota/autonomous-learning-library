@@ -1,15 +1,21 @@
-import os
-from datetime import datetime
 import torch
 from torch import optim
 from torch.nn import utils
 from torch.nn.functional import mse_loss
-from tensorboardX import SummaryWriter
 from all.layers import ListNetwork
+from all.experiments import DummyWriter
 from .v_function import ValueFunction
 
+
 class ValueNetwork(ValueFunction):
-    def __init__(self, model, optimizer=None, loss=mse_loss, clip_grad=0):
+    def __init__(
+            self,
+            model,
+            optimizer=None,
+            loss=mse_loss,
+            clip_grad=0,
+            writer=DummyWriter()
+    ):
         self.model = ListNetwork(model, (1,))
         self.optimizer = (optimizer
                           if optimizer is not None
@@ -17,11 +23,7 @@ class ValueNetwork(ValueFunction):
         self.loss = loss
         self._cache = []
         self.clip_grad = clip_grad
-        log_dir = os.path.join(
-            'runs', str(datetime.now())
-        )
-        self._writer = SummaryWriter(log_dir=log_dir)
-        self._count = 0
+        self._writer = writer
 
     def __call__(self, states):
         result = self.model(states).squeeze(1)
@@ -43,8 +45,7 @@ class ValueNetwork(ValueFunction):
         if cache.requires_grad:
             targets = td_errors + cache.detach()
             loss = self.loss(cache, targets)
-            self._writer.add_scalar('value_loss', loss, self._count)
-            self._count += 1
+            self._writer.add_loss('value', loss)
             # pylint: disable=len-as-condition
             loss.backward(retain_graph=retain_graph)
             if self.clip_grad != 0:
@@ -55,7 +56,7 @@ class ValueNetwork(ValueFunction):
     def decache(self, batch_size):
         i = 0
         items = 0
-        while items < batch_size:
+        while items < batch_size and i < len(self._cache):
             items += len(self._cache[i])
             i += 1
         if items != batch_size:

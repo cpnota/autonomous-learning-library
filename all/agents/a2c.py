@@ -1,4 +1,3 @@
-import torch
 from all.memory import NStepBuffer
 from .abstract import Agent
 
@@ -25,8 +24,7 @@ class A2C(Agent):
         batch_size = len(states) * self.update_frequency
         while len(self._buffer) >= batch_size:
             self._train(batch_size)
-        with torch.no_grad():
-            actions = self.policy(self.features(states))
+        actions = self.policy.eval(self.features(states))
         self._buffer.store(states, actions, rewards)
         return actions
 

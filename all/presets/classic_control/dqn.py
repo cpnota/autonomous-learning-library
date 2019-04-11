@@ -5,9 +5,11 @@ from torch.optim import Adam
 from torch.nn.functional import mse_loss
 from all.agents import DQN
 from all.approximation import QNetwork
+from all.experiments import DummyWriter
 from all.layers import Flatten
 from all.memory import ExperienceReplayBuffer
 from all.policies import GreedyPolicy
+
 
 def fc_net(env, frames=1):
     return nn.Sequential(
@@ -16,6 +18,7 @@ def fc_net(env, frames=1):
         nn.ReLU(),
         nn.Linear(256, env.action_space.n)
     )
+
 
 def dqn(
         minibatch_size=32,
@@ -31,12 +34,17 @@ def dqn(
         build_model=fc_net,
         device=torch.device('cpu')
 ):
-    def _dqn(env):
+    def _dqn(env, writer=DummyWriter()):
         model = build_model(env).to(device)
         optimizer = Adam(model.parameters(), lr=lr)
-        q = QNetwork(model, optimizer, env.action_space.n,
-                     target_update_frequency=target_update_frequency,
-                     loss=mse_loss)
+        q = QNetwork(
+            model,
+            optimizer,
+            env.action_space.n,
+            target_update_frequency=target_update_frequency,
+            loss=mse_loss,
+            writer=writer
+        )
         policy = GreedyPolicy(
             q,
             env.action_space.n,
@@ -44,7 +52,8 @@ def dqn(
             final_epsilon=final_exploration,
             annealing_time=final_exploration_frame
         )
-        replay_buffer = ExperienceReplayBuffer(replay_buffer_size, device=device)
+        replay_buffer = ExperienceReplayBuffer(
+            replay_buffer_size, device=device)
         return DQN(q, policy, replay_buffer,
                    discount_factor=discount_factor,
                    replay_start_size=replay_start_size,

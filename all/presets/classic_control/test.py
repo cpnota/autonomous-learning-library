@@ -1,23 +1,29 @@
 import unittest
 from all.environments import GymEnvironment
 from all.presets.validate_agent import validate_agent
-from all.presets.classic_control import actor_critic, dqn, rainbow, reinforce, sarsa
+from all.presets.classic_control import a2c, actor_critic, dqn, rainbow, reinforce, sarsa
 
 class TestClassicControlPresets(unittest.TestCase):
+    def test_a2c_(self):
+        self.validate(a2c())
+
     def test_actor_critic(self):
-        validate_agent(actor_critic(), GymEnvironment('CartPole-v0'))
+        self.validate(actor_critic())
 
     def test_dqn(self):
-        validate_agent(dqn(), GymEnvironment('CartPole-v0'))
+        self.validate(dqn())
 
     def test_rainbow(self):
-        validate_agent(rainbow(), GymEnvironment('CartPole-v0'))
+        self.validate(rainbow())
 
     def test_reinforce(self):
-        validate_agent(reinforce(), GymEnvironment('CartPole-v0'))
+        self.validate(reinforce())
 
     def test_sarsa(self):
-        validate_agent(sarsa(), GymEnvironment('CartPole-v0'))
+        self.validate(sarsa())
+
+    def validate(self, make_agent):
+        validate_agent(make_agent, GymEnvironment('CartPole-v0'))
 
 
 if __name__ == '__main__':

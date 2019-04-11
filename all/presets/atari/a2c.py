@@ -7,6 +7,7 @@ from all.layers import Flatten, Linear0
 from all.agents import A2C
 from all.bodies import ParallelAtariBody
 from all.approximation import ValueNetwork, FeatureNetwork
+from all.experiments import DummyWriter
 from all.policies import SoftmaxPolicy
 
 
@@ -43,13 +44,13 @@ def a2c(
         discount_factor=0.99,
         entropy_loss_scaling=0.01,
         eps=1.5e-4,  # Adam epsilon
-        lr=1e-3,
-        n_envs=50,
-        n_steps=4,
-        update_frequency=2,
+        lr=2e-4,
+        n_envs=16,
+        n_steps=16,
+        update_frequency=16,
         device=torch.device('cpu')
 ):
-    def _a2c(envs):
+    def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
         feature_model = conv_features().to(device)
         value_model = value_net().to(device)
@@ -65,14 +66,16 @@ def a2c(
             value_model,
             value_optimizer,
             clip_grad=clip_grad,
-            loss=smooth_l1_loss
+            loss=smooth_l1_loss,
+            writer=writer
         )
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
             env.action_space.n,
             entropy_loss_scaling=entropy_loss_scaling,
-            clip_grad=clip_grad
+            clip_grad=clip_grad,
+            writer=writer
         )
         return ParallelAtariBody(
             A2C(

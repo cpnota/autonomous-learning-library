@@ -1,2 +1,3 @@
 from .experiment import Experiment
-__all__ = ["Experiment"]
+from .writer import Writer, ExperimentWriter, DummyWriter
+__all__ = ["Experiment", "Writer", "ExperimentWriter", "DummyWriter"]

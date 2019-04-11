@@ -1,13 +1,13 @@
 import argparse
 from all.environments import AtariEnvironment, GymEnvironment
+from all.experiments import Experiment
 from all.presets import atari, classic_control
-from runner import run
 
 
 def run_release():
     parser = argparse.ArgumentParser(
         description='Run a release benchmark of all the included algorithms.')
-    parser.add_argument('device', default='cpu',
+    parser.add_argument('--device', default='cuda',
                         help='The name of the device to run the agents on (e.g. cpu, cuda, cuda:0)')
     args = parser.parse_args()
 
@@ -17,12 +17,20 @@ def run_release():
     for agent_name in classic_control.__all__:
         env = GymEnvironment('CartPole-v1')
         agent = getattr(classic_control, agent_name)
-        run(agent_name, agent(), env, episodes=1000)
+        experiment = Experiment(
+            env,
+            episodes=args.episodes
+        )
+        experiment.run(agent(), label=agent_name)
 
     for agent_name in atari.__all__:
         env = AtariEnvironment('Pong', device=device)
         agent = getattr(atari, agent_name)
-        run(agent_name, agent(device=device), env, frames=10e6)
+        experiment = Experiment(
+            env,
+            frames=10e6
+        )
+        experiment.run(agent(device=device), label=agent_name)
 
 
 if __name__ == '__main__':

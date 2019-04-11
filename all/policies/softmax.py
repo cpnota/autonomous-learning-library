@@ -1,25 +1,27 @@
-import os
-from datetime import datetime
 import torch
 from torch.nn import functional, utils
-from tensorboardX import SummaryWriter
+from all.experiments import DummyWriter
 from all.layers import ListNetwork
 from .abstract import Policy
 
 
 class SoftmaxPolicy(Policy):
-    def __init__(self, model, optimizer, actions, entropy_loss_scaling=0, clip_grad=0):
+    def __init__(
+            self,
+            model,
+            optimizer,
+            actions,
+            entropy_loss_scaling=0,
+            clip_grad=0,
+            writer=DummyWriter()
+    ):
         self.model = ListNetwork(model, (actions,))
         self.optimizer = optimizer
         self.entropy_loss_scaling = entropy_loss_scaling
         self.clip_grad = clip_grad
         self._log_probs = []
         self._entropy = []
-        log_dir = os.path.join(
-            'runs', str(datetime.now())
-        )
-        self._writer = SummaryWriter(log_dir=log_dir)
-        self._count = 0
+        self._writer = writer
 
     def __call__(self, state, action=None, prob=None):
         scores = self.model(state)
@@ -32,10 +34,15 @@ class SoftmaxPolicy(Policy):
         self.cache(distribution, action)
         return distribution.log_prob(action).exp().detach()
 
-    def eval(self, state):
+    def eval(self, state, action=None):
         with torch.no_grad():
             scores = self.model(state)
-            return functional.softmax(scores, dim=-1)
+            probs = functional.softmax(scores, dim=-1)
+            distribution = torch.distributions.Categorical(probs)
+            if action is None:
+                action = distribution.sample()
+                return action
+            return distribution.log_prob(action).exp().detach()
 
     def reinforce(self, errors, retain_graph=False):
         # shape the data properly
@@ -46,9 +53,8 @@ class SoftmaxPolicy(Policy):
             # compute losses
             policy_loss = -torch.dot(log_probs, errors) / batch_size
             entropy_loss = -entropy.mean()
-            self._writer.add_scalar('policy_loss', policy_loss, self._count)
-            self._writer.add_scalar('entropy_loss', entropy_loss, self._count)
-            self._count += 1
+            self._writer.add_loss('policy', policy_loss)
+            self._writer.add_loss('entropy', entropy_loss)
             loss = policy_loss + self.entropy_loss_scaling * entropy_loss
             loss.backward(retain_graph=retain_graph)
 
@@ -59,14 +65,13 @@ class SoftmaxPolicy(Policy):
             self.optimizer.zero_grad()
 
     def cache(self, distribution, action):
-        if distribution.probs.requires_grad:
-            self._log_probs.append(distribution.log_prob(action))
-            self._entropy.append(distribution.entropy())
+        self._log_probs.append(distribution.log_prob(action))
+        self._entropy.append(distribution.entropy())
 
     def decache(self, batch_size):
         i = 0
         items = 0
-        while items < batch_size:
+        while items < batch_size and i < len(self._log_probs):
             items += len(self._log_probs[i])
             i += 1
         if items != batch_size:
