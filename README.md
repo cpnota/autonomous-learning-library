@@ -12,7 +12,7 @@ This library is built on top of `pytorch`.
 If you don't want your trials to take forever, it is highly recommended that you make sure your installation has CUDA support (and that you have a CUDA compatible GPU).
 You'll also need `tensorflow` in order to use `tensorboard` (used for storing and plotting runs).
 
-There are two ways to install the `autonomous-learning-library`: a "light" installation, which assumes that the major dependencies are already installed, and a "full" installation which installs everything from scratch.
+There are two ways to install the `autonomous-learning-library` : a "light" installation, which assumes that the major dependencies are already installed, and a "full" installation which installs everything from scratch.
 
 ### Light Installation
 
@@ -81,6 +81,6 @@ python benchmark/release.py
 ```
 
 Before every merge to master, we re-run the benchmarking suite and commit the results to this repository.
-The results are labeled with the has of the commit where the benchmark command was run.
+The results are labeled with the hass of the commit where the benchmark command was run.
 Your can view our results by running `make benchmark`, and opening your browser to http://localhost:6007. 
 To replicate these results, you can checkout that specific commit that the run is labeled with and run the above command.
