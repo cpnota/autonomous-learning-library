@@ -59,10 +59,11 @@ class QNetwork(QFunction):
 
     def _eval(self, states, actions, model):
         values = model(states)
-        return (
-            values if actions is None
-            else values.gather(1, torch.tensor(actions, device=self.device).view(-1, 1)).squeeze(1)
-        )
+        if actions is None:
+            return values
+        if isinstance(actions, list):
+            actions = torch.tensor(actions, device=self.device)
+        return values.gather(1, actions.view(-1, 1)).squeeze(1)
 
     def should_update_target(self):
         return (
