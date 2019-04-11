@@ -48,7 +48,7 @@ class ExperimentWriter(SummaryWriter, Writer):
     def add_evaluation(self, name, value, step="frame"):
         self.add_scalar('evaluation/' + name, value, self._get_step(step))
 
-    def add_scalar(self, name, value, step="frgame"):
+    def add_scalar(self, name, value, step="frame"):
         super().add_scalar(self.env_name + "/" + name, value, self._get_step(step))
 
     def _get_step(self, _type):
