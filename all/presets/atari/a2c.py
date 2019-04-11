@@ -7,6 +7,7 @@ from all.layers import Flatten, Linear0
 from all.agents import A2C
 from all.bodies import ParallelAtariBody
 from all.approximation import ValueNetwork, FeatureNetwork
+from all.experiments import DummyWriter
 from all.policies import SoftmaxPolicy
 
 
@@ -49,7 +50,7 @@ def a2c(
         update_frequency=16,
         device=torch.device('cpu')
 ):
-    def _a2c(envs, writer=None):
+    def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
         feature_model = conv_features().to(device)
         value_model = value_net().to(device)
