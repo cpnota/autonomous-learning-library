@@ -48,7 +48,7 @@ class ExperimentWriter(SummaryWriter, Writer):
     def add_evaluation(self, name, value, step="frame"):
         self.add_scalar('evaluation/' + name, value, self._get_step(step))
 
-    def add_scalar(self, name, value, step="frame"):
+    def add_scalar(self, name, value, step="frgame"):
         super().add_scalar(self.env_name + "/" + name, value, self._get_step(step))
 
     def _get_step(self, _type):
@@ -78,7 +78,7 @@ class ExperimentWriter(SummaryWriter, Writer):
 def get_commit_hash():
     result = subprocess.run(
         ['git', 'rev-parse', '--short', 'HEAD'], stdout=subprocess.PIPE)
-    return result.stdout.decode('utf-8')
+    return result.stdout.decode('utf-8').rstrip()
 
 
 COMMIT_HASH = get_commit_hash()
