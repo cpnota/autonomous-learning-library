@@ -46,7 +46,7 @@ def a2c(
         lr=1e-3,
         n_envs=64,
         n_steps=4,
-        update_frequency=4,
+        update_frequency=2,
         device=torch.device('cpu')
 ):
     def _a2c(envs, writer=None):
