@@ -1,5 +1,7 @@
+from all.experiments import DummyWriter
+
 def validate_agent(make_agent, env):
-    agent = make_agent(env)
+    agent = make_agent(env, writer=DummyWriter())
     # Run two episodes, enough to
     # exercise all parts of the agent
     # in most cases.

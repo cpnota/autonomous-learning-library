@@ -2,11 +2,21 @@ import copy
 import torch
 from torch import optim
 from torch.nn.functional import mse_loss
+from all.experiments import DummyWriter
 from all.layers import ListNetwork
 from .q_function import QFunction
 
+
 class QNetwork(QFunction):
-    def __init__(self, model, optimizer, actions, loss=mse_loss, target_update_frequency=None):
+    def __init__(
+        self,
+        model,
+        optimizer,
+        actions,
+        loss=mse_loss,
+        target_update_frequency=None,
+        writer=DummyWriter()
+    ):
         self.model = ListNetwork(model, (actions,))
         self.optimizer = (optimizer
                           if optimizer is not None
@@ -21,6 +31,7 @@ class QNetwork(QFunction):
             else self.model
         )
         self.device = next(model.parameters()).device
+        self.writer = writer
 
     def __call__(self, states, actions=None):
         result = self._eval(states, actions, self.model)
@@ -38,6 +49,7 @@ class QNetwork(QFunction):
     def reinforce(self, td_errors):
         targets = td_errors + self.cache.detach()
         loss = self.loss(self.cache, targets)
+        self.writer.add_loss('q', loss)
         loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()

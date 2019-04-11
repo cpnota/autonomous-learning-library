@@ -4,9 +4,11 @@ from torch.optim import Adam
 from torch.nn.functional import mse_loss
 from all.agents import DQN
 from all.approximation import QNetwork
+from all.experiments import DummyWriter
 from all.layers import Dueling, Flatten, NoisyLinear
 from all.memory import PrioritizedReplayBuffer
 from all.policies import GreedyPolicy
+
 
 def dueling_fc_net(env, sigma_init):
     return nn.Sequential(
@@ -24,6 +26,7 @@ def dueling_fc_net(env, sigma_init):
             )
         )
     )
+
 
 def rainbow(
         # Vanilla DQN
@@ -56,12 +59,17 @@ def rainbow(
     5. Distributional RL
     6. Double Q-Learning
     '''
-    def _rainbow(env):
+    def _rainbow(env, writer=DummyWriter()):
         model = build_model(env, sigma_init)
         optimizer = Adam(model.parameters(), lr=lr)
-        q = QNetwork(model, optimizer, env.action_space.n,
-                     target_update_frequency=target_update_frequency,
-                     loss=mse_loss)
+        q = QNetwork(
+            model,
+            optimizer,
+            env.action_space.n,
+            target_update_frequency=target_update_frequency,
+            loss=mse_loss,
+            writer=writer
+        )
         policy = GreedyPolicy(
             q,
             env.action_space.n,

@@ -3,8 +3,8 @@ from torch import nn
 from torch.optim import Adam
 from all.agents import A2C
 from all.approximation import ValueNetwork, FeatureNetwork
-from all.policies import SoftmaxPolicy
 from all.experiments import DummyWriter
+from all.policies import SoftmaxPolicy
 
 
 def fc_features(env):
