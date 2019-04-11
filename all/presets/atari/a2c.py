@@ -44,9 +44,9 @@ def a2c(
         entropy_loss_scaling=0.01,
         eps=1.5e-4,  # Adam epsilon
         lr=1e-3,
-        n_envs=50,
+        n_envs=64,
         n_steps=4,
-        update_frequency=2,
+        update_frequency=4,
         device=torch.device('cpu')
 ):
     def _a2c(envs, writer=None):
