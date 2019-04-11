@@ -9,13 +9,13 @@ from .q_function import QFunction
 
 class QNetwork(QFunction):
     def __init__(
-        self,
-        model,
-        optimizer,
-        actions,
-        loss=mse_loss,
-        target_update_frequency=None,
-        writer=DummyWriter()
+            self,
+            model,
+            optimizer,
+            actions,
+            loss=mse_loss,
+            target_update_frequency=None,
+            writer=DummyWriter()
     ):
         self.model = ListNetwork(model, (actions,))
         self.optimizer = (optimizer
