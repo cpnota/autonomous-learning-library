@@ -8,32 +8,42 @@ The views expressed or implied in this repository do not necessarily reflect the
 
 ## Installation
 
-First, clone the repository:
+This library is built on top of `pytorch`.
+If you don't want your trials to take forever, it is highly recommended that you make sure your installation has CUDA support (and that you have a CUDA compatible GPU).
+You'll also need `tensorflow` in order to use `tensorboard` (used for storing and plotting runs).
 
+There are two ways to install the `autonomous-learning-library` : a "light" installation, which assumes that the major dependencies are already installed, and a "full" installation which installs everything from scratch.
+
+### Light Installation
+
+Use this if you already have `pytorch` and `tensorflow` installed.
+Simply run:
+
+```bash
+pip install -e .
 ```
-git clone https://github.com/cpnota/autonomous-learning-library.git
-cd autonomous-learning-library
+
+Presto! If you have any trouble with installing the Gym environments, check out their [GitHub page](https://github.com/openai/gym) and try whatever they recommend in [current year].
+
+### Full Installation
+
+If you're on Linux and don't have `pytorch` or `tensorflow` installed, we did you the courtesy of providing a helpful install script:
+
+```bash
+make install
 ```
 
-Next, you must install all of the dependencies.
-Python's dependency management tools are really bad, and CUDA makes everything worse.
-There's not much we can do about this.
-The following instructions should work on most machines, and were tested on Ubuntu 18.04:
+With any luck, the `all` library should now be installed!
 
-1. For GPU support, install [CUDA](https://docs.nvidia.com/cuda/index.html) 10.1 on your machine. Other CUDA versions may work, but I have not tested them. If you haven't installed CUDA before, this step is likely the trickiest.
-2. Install [Anaconda](https://www.anaconda.com) for Python 3.7.
-4. Install pytorch. If you've followed along so far: `conda install pytorch torchvision cudatoolkit=10.0 -c pytorch`.
-5. Install tensorflow. This is necessary for running `tensorboard`, which is used for displaying results: `conda install tensorflow`.
-6. Finally, install the rest of the dependencies and the module itself: `make install`
-7. (Sometimes) This `gym[atari]` dependency doesn't always seem to install property. This can be fixed by running `pip install gym[atari]` after installing thest rest of the repo.
+### Testing Your Installation
 
-To test your installation, run:
+The unit tests may be run using:
 
 ```
 make test
 ```
 
-If the unit tests pass with no errors, you're good to go!
+If the unit tests pass with no errors, it is more than likely that your installation works! The unit test run every agent using both `cpu` and `cuda` for a few timesteps/episodes.
 
 ## Running the Benchmarks
 
@@ -55,7 +65,13 @@ and opening your browser to http://localhost:6006.
 To run an Atari benchmark in CUDA mode (warning: this could take several hours to run, depending on your machine):
 
 ```
-python benchmarks/atari.py Pong dqn cuda
+python benchmarks/atari.py Pong dqn
+```
+
+If you want to run in `cpu` mode (~10x slower on my machine), you can add ```--device cpu```:
+
+```
+python benchmarks/atari.py Pong dqn --device cpu
 ```
 
 Finally, to run the entire benchmarking suite:
@@ -65,6 +81,6 @@ python benchmark/release.py
 ```
 
 Before every merge to master, we re-run the benchmarking suite and commit the results to this repository.
-The results are labeled with the has of the commit where the benchmark command was run.
+The results are labeled with the hass of the commit where the benchmark command was run.
 Your can view our results by running `make benchmark`, and opening your browser to http://localhost:6007. 
 To replicate these results, you can checkout that specific commit that the run is labeled with and run the above command.
