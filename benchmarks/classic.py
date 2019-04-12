@@ -11,9 +11,13 @@ def run_atari():
         'agent', help="Name of the agent (e.g. sarsa). See presets for available agents.")
     parser.add_argument('--episodes', type=int, default=1000,
                         help='The number of training frames')
+    parser.add_argument(
+        '--device', default='cuda',
+        help='The name of the device to run the agent on (e.g. cpu, cuda, cuda:0)'
+    )
     args = parser.parse_args()
 
-    env = GymEnvironment(args.env)
+    env = GymEnvironment(args.env, device=args.device)
     agent_name = args.agent
     agent = getattr(classic_control, agent_name)
 
@@ -21,7 +25,7 @@ def run_atari():
         env,
         episodes=args.episodes
     )
-    experiment.run(agent(), label=agent_name)
+    experiment.run(agent(device=args.device), label=agent_name)
 
 
 if __name__ == '__main__':
