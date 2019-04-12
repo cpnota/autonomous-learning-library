@@ -28,7 +28,7 @@ def run_release():
         agent = getattr(atari, agent_name)
         experiment = Experiment(
             env,
-            frames=10e6
+            frames=20e6
         )
         experiment.run(agent(device=device), label=agent_name)
 
