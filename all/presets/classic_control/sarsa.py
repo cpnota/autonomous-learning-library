@@ -1,4 +1,5 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
+import torch
 from torch import nn
 from torch.optim import Adam
 from all.layers import Flatten
@@ -17,10 +18,11 @@ def fc_net(env, frames=1):
 
 def sarsa(
         lr=1e-3,
-        epsilon=0.1
+        epsilon=0.1,
+        device=torch.device('cpu')
 ):
     def _sarsa(env, writer=DummyWriter()):
-        model = fc_net(env)
+        model = fc_net(env).to(device)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(model, optimizer, env.action_space.n, writer=writer)
         policy = GreedyPolicy(q, env.action_space.n, annealing_time=1, final_epsilon=epsilon)

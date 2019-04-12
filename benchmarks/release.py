@@ -15,13 +15,13 @@ def run_release():
     print("Running release benchmarks on device: " + device)
 
     for agent_name in classic_control.__all__:
-        env = GymEnvironment('CartPole-v0')
+        env = GymEnvironment('CartPole-v0', device=device)
         agent = getattr(classic_control, agent_name)
         experiment = Experiment(
             env,
-            episodes=2000
+            episodes=1000
         )
-        experiment.run(agent(), label=agent_name)
+        experiment.run(agent(device=device), label=agent_name)
 
     for agent_name in atari.__all__:
         env = AtariEnvironment('Pong', device=device)

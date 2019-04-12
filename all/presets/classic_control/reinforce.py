@@ -1,4 +1,5 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
+import torch
 from torch import nn
 from torch.optim import Adam
 from all.layers import Flatten
@@ -28,13 +29,14 @@ def fc_policy(env):
 
 def reinforce(
         lr_v=1e-3,
-        lr_pi=1e-3
+        lr_pi=1e-3,
+        device=torch.device('cpu')
 ):
     def _reinforce(env, writer=DummyWriter()):
-        value_model = fc_value(env)
+        value_model = fc_value(env).to(device)
         value_optimizer = Adam(value_model.parameters(), lr=lr_v)
         v = ValueNetwork(value_model, value_optimizer, writer=writer)
-        policy_model = fc_policy(env)
+        policy_model = fc_policy(env).to(device)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
         policy = SoftmaxPolicy(
             policy_model,

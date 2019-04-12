@@ -1,4 +1,5 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
+import torch
 from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import mse_loss
@@ -44,7 +45,8 @@ def rainbow(
         beta=0.6,  # importance sampling adjustment
         final_beta_frame=20000,
         # NoisyNets
-        sigma_init=0.1
+        sigma_init=0.1,
+        device=torch.device('cpu')
 ):
     '''
     Partial implementation of the Rainbow variant of DQN, scaled for classic control environments.
@@ -60,7 +62,7 @@ def rainbow(
     6. Double Q-Learning
     '''
     def _rainbow(env, writer=DummyWriter()):
-        model = build_model(env, sigma_init)
+        model = build_model(env, sigma_init).to(device)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(
             model,
@@ -83,7 +85,8 @@ def rainbow(
             replay_buffer_size,
             alpha=alpha,
             beta=beta,
-            final_beta_frame=final_beta_frame
+            final_beta_frame=final_beta_frame,
+            device=device
         )
         return DQN(q, policy, replay_buffer,
                    discount_factor=discount_factor,
