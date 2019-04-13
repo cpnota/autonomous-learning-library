@@ -40,9 +40,9 @@ def policy_net(env):
 def vpg(
         clip_grad=0.1,
         discount_factor=0.99,
-        entropy_loss_scaling=0.1,
+        entropy_loss_scaling=0.005,
         eps=1.5e-4,
-        lr=1e-3,
+        lr=1e-5,
         n_episodes=5,
         device=torch.device('cpu')
 ):
