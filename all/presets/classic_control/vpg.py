@@ -29,7 +29,7 @@ def vpg(
         clip_grad=0,
         entropy_loss_scaling=0.001,
         gamma=0.99,
-        lr=1e-2,
+        lr=5e-3,
         n_episodes=5,
         device=torch.device('cpu')
 ):

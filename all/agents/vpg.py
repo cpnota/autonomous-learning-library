@@ -43,6 +43,7 @@ class VPG(Agent):
             ])
             self.v.reinforce(advantages, retain_graph=True)
             self.policy.reinforce(advantages)
+            self.features.reinforce()
             self._trajectories = []
 
     def _compute_advantages(self, states, rewards):
