@@ -5,11 +5,13 @@ from .abstract import Agent
 class VPG(Agent):
     def __init__(
             self,
+            features,
             v,
             policy,
             gamma=0.99,
             n_episodes=1
     ):
+        self.features = features
         self.v = v
         self.policy = policy
         self.gamma = gamma
@@ -17,14 +19,16 @@ class VPG(Agent):
         self._trajectories = []
 
     def initial(self, state, info=None):
-        self.states = [state]
+        features = self.features(state)
+        self.states = [features]
         self.rewards = []
-        return self.policy(state)
+        return self.policy(features)
 
     def act(self, state, reward, info=None):
-        self.states.append(state)
+        features = self.features(state)
+        self.states.append(features)
         self.rewards.append(reward)
-        return self.policy(state)
+        return self.policy(features)
 
     def terminal(self, reward, info=None):
         self.rewards.append(reward)
@@ -37,7 +41,7 @@ class VPG(Agent):
                 for (states, rewards)
                 in self._trajectories
             ])
-            self.v.reinforce(advantages)
+            self.v.reinforce(advantages, retain_graph=True)
             self.policy.reinforce(advantages)
             self._trajectories = []
 
