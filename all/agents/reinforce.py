@@ -3,9 +3,11 @@ from .abstract import Agent
 
 # pylint: disable=W0201
 class REINFORCE(Agent):
-    def __init__(self, v, policy):
+    def __init__(self, v, policy, n_episodes=1):
         self.v = v
         self.policy = policy
+        self.n_episodes = n_episodes
+        self._trajectories = []
 
     def initial(self, state, info=None):
         self.states = [state]
@@ -21,11 +23,19 @@ class REINFORCE(Agent):
         self.rewards.append(reward)
         states = torch.cat(self.states)
         rewards = torch.tensor(self.rewards, device=states.device)
+        self._trajectories.append((states, rewards))
+        if len(self._trajectories) >= self.n_episodes:
+            advantages = torch.cat([
+                self._compute_advantages(states, rewards)
+                for (states, rewards)
+                in self._trajectories
+            ])
+            self.v.reinforce(advantages)
+            self.policy.reinforce(advantages)
+            self._trajectories = []
 
+    def _compute_advantages(self, states, rewards):
         values = self.v(states)
         ordered = torch.flip(rewards, dims=(0,))
         returns = torch.flip(torch.cumsum(ordered, dim=0), dims=(0,))
-        advantages = returns - values
-
-        self.v.reinforce(advantages)
-        self.policy.reinforce(advantages)
+        return returns - values

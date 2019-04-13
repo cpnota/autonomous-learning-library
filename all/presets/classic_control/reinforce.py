@@ -28,8 +28,9 @@ def fc_policy(env):
 
 
 def reinforce(
-        lr_v=1e-3,
-        lr_pi=1e-3,
+        lr_v=1e-2,
+        lr_pi=1e-2,
+        n_episodes=5,
         device=torch.device('cpu')
 ):
     def _reinforce(env, writer=DummyWriter()):
@@ -44,7 +45,7 @@ def reinforce(
             env.action_space.n,
             writer=writer
         )
-        return REINFORCE(v, policy)
+        return REINFORCE(v, policy, n_episodes=n_episodes)
     return _reinforce
 
 
