@@ -2,7 +2,7 @@ import torch
 from .abstract import Agent
 
 # pylint: disable=W0201
-class REINFORCE(Agent):
+class VPG(Agent):
     def __init__(self, v, policy, n_episodes=1):
         self.v = v
         self.policy = policy

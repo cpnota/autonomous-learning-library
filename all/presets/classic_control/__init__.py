@@ -2,7 +2,7 @@ from .a2c import a2c
 from .actor_critic import actor_critic
 from .dqn import dqn
 from .rainbow import rainbow
-from .reinforce import reinforce
+from .vpg import vpg
 from .sarsa import sarsa
 
 __all__ = [
@@ -10,6 +10,6 @@ __all__ = [
     "actor_critic",
     "dqn",
     "rainbow",
-    "reinforce",
+    "vpg",
     "sarsa"
 ]

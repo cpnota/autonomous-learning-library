@@ -1,6 +1,6 @@
 import torch
 from torch import nn, optim
-from all.agents import REINFORCE
+from all.agents import VPG
 from all.approximation import ValueNetwork
 from all.bodies import DeepmindAtariBody
 from all.experiments import DummyWriter
@@ -38,12 +38,12 @@ def policy_net(env, features):
     )
 
 
-def reinforce(
+def vpg(
         lr_v=1e-6,
         lr_pi=1e-6,
         device=torch.device('cpu')
 ):
-    def _reinforce_atari(env, writer=DummyWriter()):
+    def _vpg_atari(env, writer=DummyWriter()):
         features = conv_features()
         value_model = value_net(features).to(device)
         policy_model = policy_net(env, features).to(device)
@@ -65,8 +65,8 @@ def reinforce(
 
         policy_model.apply(weights_init)
 
-        return DeepmindAtariBody(REINFORCE(v, policy), env)
-    return _reinforce_atari
+        return DeepmindAtariBody(VPG(v, policy), env)
+    return _vpg_atari
 
 
-__all__ = ["reinforce"]
+__all__ = ["vpg"]
