@@ -39,8 +39,10 @@ def policy_net(env, features):
 
 
 def vpg(
-        lr_v=1e-6,
-        lr_pi=1e-6,
+        gamma=0.99,
+        lr_v=1e-2,
+        lr_pi=1e-2,
+        n_episodes=5,
         device=torch.device('cpu')
 ):
     def _vpg_atari(env, writer=DummyWriter()):
@@ -65,7 +67,10 @@ def vpg(
 
         policy_model.apply(weights_init)
 
-        return DeepmindAtariBody(VPG(v, policy), env)
+        return DeepmindAtariBody(
+            VPG(v, policy, gamma=gamma, n_episodes=n_episodes),
+            env
+        )
     return _vpg_atari
 
 

@@ -28,6 +28,7 @@ def fc_policy(env):
 
 
 def vpg(
+        gamma=0.99,
         lr_v=1e-2,
         lr_pi=1e-2,
         n_episodes=5,
@@ -45,7 +46,7 @@ def vpg(
             env.action_space.n,
             writer=writer
         )
-        return VPG(v, policy, n_episodes=n_episodes)
+        return VPG(v, policy, gamma=gamma, n_episodes=n_episodes)
     return _vpg
 
 

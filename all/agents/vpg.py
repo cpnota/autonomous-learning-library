@@ -3,9 +3,16 @@ from .abstract import Agent
 
 # pylint: disable=W0201
 class VPG(Agent):
-    def __init__(self, v, policy, n_episodes=1):
+    def __init__(
+            self,
+            v,
+            policy,
+            gamma=0.99,
+            n_episodes=1
+    ):
         self.v = v
         self.policy = policy
+        self.gamma = gamma
         self.n_episodes = n_episodes
         self._trajectories = []
 
@@ -35,7 +42,16 @@ class VPG(Agent):
             self._trajectories = []
 
     def _compute_advantages(self, states, rewards):
+        returns = self._compute_discounted_returns(rewards)
         values = self.v(states)
-        ordered = torch.flip(rewards, dims=(0,))
-        returns = torch.flip(torch.cumsum(ordered, dim=0), dims=(0,))
         return returns - values
+
+    def _compute_discounted_returns(self, rewards):
+        returns = rewards.clone()
+        t = len(returns) - 1
+        discounted_return = 0
+        for reward in torch.flip(rewards, dims=(0,)):
+            discounted_return = reward + self.gamma * discounted_return
+            returns[t] = discounted_return
+            t -= 1
+        return returns
