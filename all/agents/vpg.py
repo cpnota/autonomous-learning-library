@@ -1,7 +1,6 @@
 import torch
 from .abstract import Agent
 
-# pylint: disable=W0201
 class VPG(Agent):
     def __init__(
             self,
@@ -17,23 +16,25 @@ class VPG(Agent):
         self.gamma = gamma
         self.n_episodes = n_episodes
         self._trajectories = []
+        self._states = None
+        self._rewards = None
 
     def initial(self, state, info=None):
         features = self.features(state)
-        self.states = [features]
-        self.rewards = []
+        self._states = [features]
+        self._rewards = []
         return self.policy(features)
 
     def act(self, state, reward, info=None):
         features = self.features(state)
-        self.states.append(features)
-        self.rewards.append(reward)
+        self._states.append(features)
+        self._rewards.append(reward)
         return self.policy(features)
 
     def terminal(self, reward, info=None):
-        self.rewards.append(reward)
-        states = torch.cat(self.states)
-        rewards = torch.tensor(self.rewards, device=states.device)
+        self._rewards.append(reward)
+        states = torch.cat(self._states)
+        rewards = torch.tensor(self._rewards, device=states.device)
         self._trajectories.append((states, rewards))
         if len(self._trajectories) >= self.n_episodes:
             advantages = torch.cat([
