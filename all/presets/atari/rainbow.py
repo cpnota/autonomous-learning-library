@@ -7,8 +7,9 @@ from all.layers import Flatten, Dueling, Linear0
 from all.approximation import QNetwork
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
-from all.policies import GreedyPolicy
+from all.experiments import DummyWriter
 from all.memory import PrioritizedReplayBuffer
+from all.policies import GreedyPolicy
 
 # "Dueling" architecture modification.
 # https://arxiv.org/abs/1511.06581
@@ -82,7 +83,7 @@ def rainbow(
     replay_start_size /= action_repeat
     final_beta_frame /= action_repeat
 
-    def _rainbow(env):
+    def _rainbow(env, writer=DummyWriter()):
         _model = model
         _optimizer = optimizer
         if _model is None:
@@ -94,10 +95,14 @@ def rainbow(
                 lr=lr,
                 eps=eps
             )
-        q = QNetwork(_model, _optimizer, env.action_space.n,
-                     target_update_frequency=target_update_frequency,
-                     loss=smooth_l1_loss
-                     )
+        q = QNetwork(
+            _model,
+            _optimizer,
+            env.action_space.n,
+            target_update_frequency=target_update_frequency,
+            loss=smooth_l1_loss,
+            writer=writer
+        )
         policy = GreedyPolicy(q,
                               env.action_space.n,
                               annealing_start=replay_start_size,

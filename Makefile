@@ -1,5 +1,7 @@
 install:
-	pip install -q -e .
+	pip install https://download.pytorch.org/whl/cu100/torch-1.0.1.post2-cp37-cp37m-linux_x86_64.whl
+	pip install torchvision tensorflow
+	pip install -e .
 
 lint:
 	pylint all --rcfile=.pylintrc

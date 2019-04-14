@@ -7,10 +7,13 @@ from all.layers import Flatten, Linear0
 from all.approximation import QNetwork
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
+from all.experiments import DummyWriter
 from all.policies import GreedyPolicy
 from all.memory import ExperienceReplayBuffer
 
 # Model the original deep mind paper (https://www.nature.com/articles/nature14236):
+
+
 def conv_net(env, frames=4):
     return nn.Sequential(
         nn.Conv2d(frames, 32, 8, stride=4),
@@ -25,20 +28,21 @@ def conv_net(env, frames=4):
         Linear0(512, env.action_space.n)
     )
 
+
 def dqn(
         # If None, build defaults
         model=None,
         optimizer=None,
         # Taken from Extended Data Table 1
         minibatch_size=32,
-        replay_buffer_size=150000, # fits on 8 GB card
+        replay_buffer_size=150000,  # fits on 8 GB card
         agent_history_length=4,
         target_update_frequency=10000,
         discount_factor=0.99,
         action_repeat=4,
         update_frequency=4,
         lr=1e-4,
-        eps=1.5e-4, # Adam epsilon
+        eps=1.5e-4,  # Adam epsilon
         initial_exploration=1.,
         final_exploration=0.1,
         final_exploration_frame=1000000,
@@ -50,7 +54,7 @@ def dqn(
     final_exploration_frame /= action_repeat
     replay_start_size /= action_repeat
 
-    def _dqn(env):
+    def _dqn(env, writer=DummyWriter()):
         _model = model
         _optimizer = optimizer
         if _model is None:
@@ -61,10 +65,14 @@ def dqn(
                 lr=lr,
                 eps=eps
             )
-        q = QNetwork(_model, _optimizer, env.action_space.n,
-                     target_update_frequency=target_update_frequency,
-                     loss=smooth_l1_loss
-                     )
+        q = QNetwork(
+            _model,
+            _optimizer,
+            env.action_space.n,
+            target_update_frequency=target_update_frequency,
+            loss=smooth_l1_loss,
+            writer=writer
+        )
         policy = GreedyPolicy(q,
                               env.action_space.n,
                               annealing_start=replay_start_size,
@@ -72,7 +80,10 @@ def dqn(
                               initial_epsilon=initial_exploration,
                               final_epsilon=final_exploration
                               )
-        replay_buffer = ExperienceReplayBuffer(replay_buffer_size, device=device)
+        replay_buffer = ExperienceReplayBuffer(
+            replay_buffer_size,
+            device=device
+        )
         return DeepmindAtariBody(
             DQN(q, policy, replay_buffer,
                 discount_factor=discount_factor,
