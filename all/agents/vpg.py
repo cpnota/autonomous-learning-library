@@ -46,9 +46,9 @@ class VPG(Agent):
             self.features.reinforce()
             self._trajectories = []
 
-    def _compute_advantages(self, states, rewards):
+    def _compute_advantages(self, features, rewards):
         returns = self._compute_discounted_returns(rewards)
-        values = self.v(states)
+        values = self.v(features)
         return returns - values
 
     def _compute_discounted_returns(self, rewards):
