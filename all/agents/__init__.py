@@ -1,13 +1,15 @@
 from .abstract import Agent
-from .sarsa import Sarsa
+from .a2c import A2C
 from .actor_critic import ActorCritic
-from .reinforce import REINFORCE
 from .dqn import DQN
+from .reinforce import REINFORCE
+from .sarsa import Sarsa
 
 __all__ = [
     "Agent",
-    "Sarsa",
+    "A2C",
     "ActorCritic",
+    "DQN",
     "REINFORCE",
-    "DQN"
+    "Sarsa",
 ]

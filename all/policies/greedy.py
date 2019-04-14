@@ -25,7 +25,7 @@ class GreedyPolicy(Policy):
     def __call__(self, state, action=None, prob=False):
         self.epsilon = self.anneal()
         if np.random.rand() < self.epsilon:
-            return torch.randint(self.num_actions, (1,))
+            return torch.randint(self.num_actions, (1,), device=self.q.device)
         with torch.no_grad():
             action_scores = self.q(state).squeeze(0)
         return torch.argmax(action_scores)

@@ -1,12 +1,15 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
+import torch
 from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import mse_loss
 from all.agents import DQN
 from all.approximation import QNetwork
+from all.experiments import DummyWriter
 from all.layers import Dueling, Flatten, NoisyLinear
 from all.memory import PrioritizedReplayBuffer
 from all.policies import GreedyPolicy
+
 
 def dueling_fc_net(env, sigma_init):
     return nn.Sequential(
@@ -25,6 +28,7 @@ def dueling_fc_net(env, sigma_init):
         )
     )
 
+
 def rainbow(
         # Vanilla DQN
         minibatch_size=32,
@@ -41,7 +45,8 @@ def rainbow(
         beta=0.6,  # importance sampling adjustment
         final_beta_frame=20000,
         # NoisyNets
-        sigma_init=0.1
+        sigma_init=0.1,
+        device=torch.device('cpu')
 ):
     '''
     Partial implementation of the Rainbow variant of DQN, scaled for classic control environments.
@@ -56,12 +61,17 @@ def rainbow(
     5. Distributional RL
     6. Double Q-Learning
     '''
-    def _rainbow(env):
-        model = build_model(env, sigma_init)
+    def _rainbow(env, writer=DummyWriter()):
+        model = build_model(env, sigma_init).to(device)
         optimizer = Adam(model.parameters(), lr=lr)
-        q = QNetwork(model, optimizer, env.action_space.n,
-                     target_update_frequency=target_update_frequency,
-                     loss=mse_loss)
+        q = QNetwork(
+            model,
+            optimizer,
+            env.action_space.n,
+            target_update_frequency=target_update_frequency,
+            loss=mse_loss,
+            writer=writer
+        )
         policy = GreedyPolicy(
             q,
             env.action_space.n,
@@ -75,7 +85,8 @@ def rainbow(
             replay_buffer_size,
             alpha=alpha,
             beta=beta,
-            final_beta_frame=final_beta_frame
+            final_beta_frame=final_beta_frame,
+            device=device
         )
         return DQN(q, policy, replay_buffer,
                    discount_factor=discount_factor,

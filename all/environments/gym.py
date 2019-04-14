@@ -4,20 +4,13 @@ import torch
 from .abstract import Environment
 
 class GymEnvironment(Environment):
-    def __init__(self, env, name=None, device=torch.device('cpu')):
-        if isinstance(env, str):
-            self._name = env
-            self._env = gym.make(env)
-        else:
-            if name is None:
-                raise Exception(
-                    "Please provide a name for custom environments.")
-            self._env = env
-
+    def __init__(self, env, device=torch.device('cpu')):
+        self._name = env
+        self._env = gym.make(env)
         self._state = None
         self._action = None
         self._reward = None
-        self._done = None
+        self._done = True
         self._info = None
         self._device = device
 
@@ -49,6 +42,9 @@ class GymEnvironment(Environment):
 
     def seed(self, seed):
         self._env.seed(seed)
+
+    def duplicate(self, n):
+        return [GymEnvironment(self._name, device=self.device) for _ in range(n)]
 
     @property
     def state_space(self):
@@ -96,3 +92,7 @@ class GymEnvironment(Environment):
     @property
     def env(self):
         return self._env
+
+    @property
+    def device(self):
+        return self._device
