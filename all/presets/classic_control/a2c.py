@@ -27,10 +27,9 @@ def a2c(
         clip_grad=0.1,
         discount_factor=0.99,
         entropy_loss_scaling=0.001,
-        lr=3e-4,
+        lr=1e-3,
         n_envs=8,
         n_steps=8,
-        update_frequency=8,
         device=torch.device('cpu')
 ):
     def _a2c(envs, writer=DummyWriter()):
@@ -65,7 +64,6 @@ def a2c(
             policy,
             n_envs=n_envs,
             n_steps=n_steps,
-            update_frequency=update_frequency,
             discount_factor=discount_factor
         )
     return _a2c, n_envs

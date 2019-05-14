@@ -10,7 +10,6 @@ class A2C(Agent):
             policy,
             n_envs=1,
             n_steps=4,
-            update_frequency=4,
             discount_factor=0.99
     ):
         self.features = features
@@ -18,21 +17,19 @@ class A2C(Agent):
         self.policy = policy
         self.n_envs = n_envs
         self.n_steps = n_steps
-        self.update_frequency = update_frequency
         self.discount_factor = discount_factor
         self._batch_size = n_envs * n_steps
         self._buffer = self._make_buffer()
 
     def act(self, states, rewards, info=None):
-        batch_size = len(states) * self.update_frequency
-        while len(self._buffer) >= batch_size:
-            self._train(batch_size)
+        while len(self._buffer) >= self._batch_size:
+            self._train()
         actions = self.policy(self.features(states))
         self._buffer.store(states, rewards)
         return actions
 
-    def _train(self, batch_size):
-        states, next_states, returns, rollout_lengths = self._buffer.sample(batch_size)
+    def _train(self):
+        states, next_states, returns, rollout_lengths = self._buffer.sample(self._batch_size)
         features = self.features(states)
         next_features = self.features(next_states)
         td_errors = (
