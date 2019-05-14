@@ -1,8 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch import nn
-from torch.optim import Adam
-from torch.nn.functional import smooth_l1_loss
+from torch.optim import RMSprop
 from all.layers import Flatten, Linear0
 from all.agents import A2C
 from all.bodies import ParallelAtariBody
@@ -43,10 +42,11 @@ def a2c(
         clip_grad=0.1,
         discount_factor=0.99,
         entropy_loss_scaling=0.01,
-        eps=1.5e-4,  # Adam epsilon
-        lr=2e-4,
+        alpha=0.99, # RMSprop alpha
+        eps=1e-5, # RMSprop epsilon
+        lr=1e-3,
         n_envs=16,
-        n_steps=16,
+        n_steps=5,
         device=torch.device('cpu')
 ):
     def _a2c(envs, writer=DummyWriter()):
@@ -55,9 +55,9 @@ def a2c(
         value_model = value_net().to(device)
         policy_model = policy_net(env).to(device)
 
-        feature_optimizer = Adam(feature_model.parameters(), lr=lr, eps=eps)
-        value_optimizer = Adam(value_model.parameters(), lr=lr, eps=eps)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr, eps=eps)
+        feature_optimizer = RMSprop(feature_model.parameters(), alpha=alpha, lr=lr, eps=eps)
+        value_optimizer = RMSprop(value_model.parameters(), alpha=alpha, lr=lr, eps=eps)
+        policy_optimizer = RMSprop(policy_model.parameters(), alpha=alpha, lr=lr, eps=eps)
 
         features = FeatureNetwork(
             feature_model, feature_optimizer, clip_grad=clip_grad)
@@ -65,7 +65,6 @@ def a2c(
             value_model,
             value_optimizer,
             clip_grad=clip_grad,
-            loss=smooth_l1_loss,
             writer=writer
         )
         policy = SoftmaxPolicy(
