@@ -63,6 +63,7 @@ def a2c(
             features,
             v,
             policy,
+            n_envs=n_envs,
             n_steps=n_steps,
             update_frequency=update_frequency,
             discount_factor=discount_factor

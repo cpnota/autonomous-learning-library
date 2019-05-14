@@ -83,58 +83,62 @@ class NStepBatchBuffer():
     A batch version of the n-step buffer, such that the first sample is n-step, second is n-1-step, etc.
     This may be better for on-policy methods.
     '''
-    def __init__(self, n, batch_size, discount_factor=1):
-        self.n = n
-        self.batch_size = batch_size
+    def __init__(self, n_steps, n_envs, discount_factor=1):
+        self.n_steps = n_steps
+        self.n_envs = n_envs
         self.gamma = discount_factor
-        self.i = 0
         self._states = []
         self._rewards = []
 
     def __len__(self):
-        return len(self._states)
+        if not self._states:
+            return 0
+        return (len(self._states) - 1) * self.n_envs
 
     def store(self, states, rewards):
-        if self.i == 0:
+        if not self._states:
             self._states = [states]
             self._rewards = [rewards]
-            self.i = 1
-        elif self.i <= self.batch_size:
+        elif len(self._states) <= self.n_steps:
             self._states.append(states)
             self._rewards.append(rewards)
-            self.i += 1
         else:
-            raise Exception("Buffer length exceeded: " + self.n)
+            raise Exception("Buffer length exceeded: " + str(self.n_steps))
 
     def sample(self, _):
-        if self.i <= self.batch_size:
+        if len(self) < self.n_steps * self.n_envs:
             raise Exception("Not enough states received!")
 
-        n_envs = len(self._states[0])
-        sample_n = n_envs * self.batch_size
+        sample_n = self.n_envs * self.n_steps
         sample_states = [None] * sample_n
         sample_next_states = [None] * sample_n
-        sample_returns = torch.zeros(sample_n, device=self._rewards[0].device)
+        sample_lengths = [0] * sample_n
+        sample_returns = [0] * sample_n
 
         # compute the N-step returns the slow way
-        for e in range(n_envs):
-            for t in range(self.batch_size):
-                i = t * n_envs + e
+        for e in range(self.n_envs):
+            for t in range(self.n_steps):
+                i = t * self.n_envs + e
                 state = self._states[t][e]
                 returns = 0.
                 next_state = None
+                sample_length = 0
                 if state is not None:
-                    for k in range(1, self.n + 1):
+                    for k in range(1, self.n_steps + 1):
+                        sample_length += 1
                         next_state = self._states[t + k][e]
                         returns += (self.gamma ** (k - 1)) * \
                             self._rewards[t + k][e]
-                        if next_state is None or t + k == self.batch_size:
+                        if next_state is None or t + k == self.n_steps:
                             break
                 sample_states[i] = state
                 sample_next_states[i] = next_state
                 sample_returns[i] = returns
+                sample_lengths[i] = sample_length
 
         self._states = [self._states[-1]]
         self._rewards = [self._rewards[-1]]
-        self.i = 1
-        return (sample_states, sample_next_states, sample_returns)
+
+        sample_returns = torch.tensor(sample_returns, device=self._rewards[0].device)
+        sample_lengths = torch.tensor(sample_lengths, device=self._rewards[0].device, dtype=torch.float)
+        return (sample_states, sample_next_states, sample_returns, sample_lengths)
