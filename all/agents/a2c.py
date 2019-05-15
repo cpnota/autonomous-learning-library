@@ -25,11 +25,11 @@ class A2C(Agent):
         while len(self._buffer) >= self._batch_size:
             self._train()
         actions = self.policy(self.features(states))
-        self._buffer.store(states, rewards)
+        self._buffer.store(states, actions, rewards)
         return actions
 
     def _train(self):
-        states, next_states, returns, rollout_lengths = self._buffer.sample(self._batch_size)
+        states, _, next_states, returns, rollout_lengths = self._buffer.sample(self._batch_size)
         features = self.features(states)
         next_features = self.features(next_states)
         td_errors = (
