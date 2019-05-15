@@ -24,21 +24,20 @@ class A2C(Agent):
         self._buffer = self._make_buffer()
 
     def act(self, states, rewards, info=None):
+        # store transition and train BEFORE choosing action
+        # Do not need to know actions, so pass in empy array
+        self._buffer.store(states, [None] * self.n_envs, rewards)
         while len(self._buffer) >= self._batch_size:
             self._train()
-        actions = self.policy(self.features(states))
-        self._buffer.store(states, actions, rewards)
-        return actions
+        return self.policy(self.features(states))
 
     def _train(self):
         states, _, next_states, returns, rollout_lengths = self._buffer.sample(self._batch_size)
-        features = self.features(states)
-        next_features = self.features(next_states)
         td_errors = (
             returns
             + (self.discount_factor ** rollout_lengths)
-            * self.v.eval(next_features)
-            - self.v(features)
+            * self.v.eval(self.features.eval(next_states))
+            - self.v(self.features(states))
         )
         self.v.reinforce(td_errors, retain_graph=True)
         self.policy.reinforce(td_errors)

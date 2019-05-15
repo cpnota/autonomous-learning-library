@@ -43,7 +43,7 @@ def a2c(
         discount_factor=0.99,
         entropy_loss_scaling=0.01,
         alpha=0.99, # RMSprop alpha
-        eps=1e-5, # RMSprop epsilon
+        eps=1e-4, # RMSprop epsilon
         lr=1e-3,
         n_envs=16,
         n_steps=5,
@@ -55,7 +55,7 @@ def a2c(
         value_model = value_net().to(device)
         policy_model = policy_net(env).to(device)
 
-        feature_optimizer = RMSprop(feature_model.parameters(), alpha=alpha, lr=lr, eps=eps)
+        feature_optimizer = RMSprop(feature_model.parameters(), alpha=alpha, lr=lr * 0.25, eps=eps)
         value_optimizer = RMSprop(value_model.parameters(), alpha=alpha, lr=lr, eps=eps)
         policy_optimizer = RMSprop(policy_model.parameters(), alpha=alpha, lr=lr, eps=eps)
 
