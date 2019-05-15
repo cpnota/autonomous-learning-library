@@ -1,4 +1,5 @@
-from all.memory import NStepBatchBuffer, NStepBuffer
+import torch
+from all.memory import NStepBuffer
 from .abstract import Agent
 
 
@@ -26,7 +27,7 @@ class A2C(Agent):
     def act(self, states, rewards, info=None):
         # store transition and train BEFORE choosing action
         # Do not need to know actions, so pass in empy array
-        self._buffer.store(states, [None] * self.n_envs, rewards)
+        self._buffer.store(states, torch.zeros(self.n_envs), rewards)
         while len(self._buffer) >= self._batch_size:
             self._train()
         return self.policy(self.features(states))
