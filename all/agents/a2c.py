@@ -1,4 +1,4 @@
-from all.memory import NStepBatchBuffer
+from all.memory import NStepBatchBuffer, NStepBuffer
 from .abstract import Agent
 
 
@@ -44,8 +44,7 @@ class A2C(Agent):
         self.features.reinforce()
 
     def _make_buffer(self):
-        return NStepBatchBuffer(
+        return NStepBuffer(
             self.n_steps,
-            self.n_envs,
             discount_factor=self.discount_factor
         )
