@@ -8,10 +8,12 @@ class A2C(Agent):
             features,
             v,
             policy,
-            n_envs=1,
+            n_envs=None,
             n_steps=4,
             discount_factor=0.99
     ):
+        if n_envs is None:
+            raise RuntimeError("Must specify n_envs.")
         self.features = features
         self.v = v
         self.policy = policy
