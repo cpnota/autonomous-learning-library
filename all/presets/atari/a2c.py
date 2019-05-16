@@ -18,37 +18,31 @@ def conv_features():
         nn.ReLU(),
         nn.Conv2d(64, 64, 3, stride=1),
         nn.ReLU(),
-        Flatten()
+        Flatten(),
     )
 
 
 def value_net():
-    return nn.Sequential(
-        nn.Linear(3456, 512),
-        nn.ReLU(),
-        Linear0(512, 1)
-    )
+    return nn.Sequential(nn.Linear(3456, 512), nn.ReLU(), Linear0(512, 1))
 
 
 def policy_net(env):
     return nn.Sequential(
-        nn.Linear(3456, 512),
-        nn.ReLU(),
-        Linear0(512, env.action_space.n)
+        nn.Linear(3456, 512), nn.ReLU(), Linear0(512, env.action_space.n)
     )
 
 
 def a2c(
-        clip_grad=0.1,
-        discount_factor=0.99,
-        entropy_loss_scaling=0.01,
-        alpha=0.99, # RMSprop alpha
-        eps=1e-4, # RMSprop epsilon
-        lr=1e-3,
-        feature_lr_scaling=0.25,
-        n_envs=16,
-        n_steps=5,
-        device=torch.device('cpu')
+    clip_grad=0.1,
+    discount_factor=0.99,
+    entropy_loss_scaling=0.01,
+    alpha=0.99,  # RMSprop alpha
+    eps=1e-4,  # RMSprop epsilon
+    lr=1e-3,
+    feature_lr_scaling=0.25,
+    n_envs=16,
+    n_steps=5,
+    device=torch.device("cpu"),
 ):
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
@@ -56,17 +50,17 @@ def a2c(
         value_model = value_net().to(device)
         policy_model = policy_net(env).to(device)
 
-        feature_optimizer = RMSprop(feature_model.parameters(), alpha=alpha, lr=lr * feature_lr_scaling, eps=eps)
+        feature_optimizer = RMSprop(
+            feature_model.parameters(), alpha=alpha, lr=lr * feature_lr_scaling, eps=eps
+        )
         value_optimizer = RMSprop(value_model.parameters(), alpha=alpha, lr=lr, eps=eps)
-        policy_optimizer = RMSprop(policy_model.parameters(), alpha=alpha, lr=lr, eps=eps)
+        policy_optimizer = RMSprop(
+            policy_model.parameters(), alpha=alpha, lr=lr, eps=eps
+        )
 
-        features = FeatureNetwork(
-            feature_model, feature_optimizer, clip_grad=clip_grad)
+        features = FeatureNetwork(feature_model, feature_optimizer, clip_grad=clip_grad)
         v = ValueNetwork(
-            value_model,
-            value_optimizer,
-            clip_grad=clip_grad,
-            writer=writer
+            value_model, value_optimizer, clip_grad=clip_grad, writer=writer
         )
         policy = SoftmaxPolicy(
             policy_model,
@@ -74,7 +68,7 @@ def a2c(
             env.action_space.n,
             entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
-            writer=writer
+            writer=writer,
         )
         return ParallelAtariBody(
             A2C(
@@ -83,10 +77,11 @@ def a2c(
                 policy,
                 n_envs=n_envs,
                 n_steps=n_steps,
-                discount_factor=discount_factor
+                discount_factor=discount_factor,
             ),
-            envs
+            envs,
         )
+
     return _a2c, n_envs
 
 
