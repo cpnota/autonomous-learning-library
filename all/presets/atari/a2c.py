@@ -35,11 +35,12 @@ def policy_net(env):
 def a2c(
         clip_grad=0.1,
         discount_factor=0.99,
-        entropy_loss_scaling=0.01,
         alpha=0.99,  # RMSprop alpha
         eps=1e-4,  # RMSprop epsilon
         lr=1e-3,
-        feature_lr_scaling=0.25,
+        entropy_loss_scaling=0.01,
+        value_loss_scaling=0.25,
+        feature_lr_scaling=1,
         n_envs=16,
         n_steps=5,
         device=torch.device("cpu"),
@@ -60,7 +61,11 @@ def a2c(
 
         features = FeatureNetwork(feature_model, feature_optimizer, clip_grad=clip_grad)
         v = ValueNetwork(
-            value_model, value_optimizer, clip_grad=clip_grad, writer=writer
+            value_model,
+            value_optimizer,
+            loss_scaling=value_loss_scaling,
+            clip_grad=clip_grad,
+            writer=writer
         )
         policy = SoftmaxPolicy(
             policy_model,
