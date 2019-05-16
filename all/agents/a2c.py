@@ -1,5 +1,5 @@
 import torch
-from all.memory import NStepBuffer
+from all.memory import NStepBatchBuffer
 from .abstract import Agent
 
 
@@ -45,7 +45,8 @@ class A2C(Agent):
         self.features.reinforce()
 
     def _make_buffer(self):
-        return NStepBuffer(
+        return NStepBatchBuffer(
             self.n_steps,
+            self.n_envs,
             discount_factor=self.discount_factor
         )
