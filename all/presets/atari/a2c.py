@@ -33,16 +33,16 @@ def policy_net(env):
 
 
 def a2c(
-    clip_grad=0.1,
-    discount_factor=0.99,
-    entropy_loss_scaling=0.01,
-    alpha=0.99,  # RMSprop alpha
-    eps=1e-4,  # RMSprop epsilon
-    lr=1e-3,
-    feature_lr_scaling=0.25,
-    n_envs=16,
-    n_steps=5,
-    device=torch.device("cpu"),
+        clip_grad=0.1,
+        discount_factor=0.99,
+        entropy_loss_scaling=0.01,
+        alpha=0.99,  # RMSprop alpha
+        eps=1e-4,  # RMSprop epsilon
+        lr=1e-3,
+        feature_lr_scaling=0.25,
+        n_envs=16,
+        n_steps=5,
+        device=torch.device("cpu"),
 ):
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
