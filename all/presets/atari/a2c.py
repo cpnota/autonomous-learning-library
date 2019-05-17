@@ -1,8 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch import nn
-from torch.optim import Adam
-from torch.nn.functional import smooth_l1_loss
+from torch.optim import RMSprop
 from all.layers import Flatten, Linear0
 from all.agents import A2C
 from all.bodies import ParallelAtariBody
@@ -19,36 +18,32 @@ def conv_features():
         nn.ReLU(),
         nn.Conv2d(64, 64, 3, stride=1),
         nn.ReLU(),
-        Flatten()
+        Flatten(),
     )
 
 
 def value_net():
-    return nn.Sequential(
-        nn.Linear(3456, 512),
-        nn.ReLU(),
-        Linear0(512, 1)
-    )
+    return nn.Sequential(nn.Linear(3456, 512), nn.ReLU(), Linear0(512, 1))
 
 
 def policy_net(env):
     return nn.Sequential(
-        nn.Linear(3456, 512),
-        nn.ReLU(),
-        Linear0(512, env.action_space.n)
+        nn.Linear(3456, 512), nn.ReLU(), Linear0(512, env.action_space.n)
     )
 
 
 def a2c(
         clip_grad=0.1,
         discount_factor=0.99,
+        alpha=0.99,  # RMSprop alpha
+        eps=1e-4,  # RMSprop epsilon
+        lr=1e-3,
         entropy_loss_scaling=0.01,
-        eps=1.5e-4,  # Adam epsilon
-        lr=2e-4,
+        value_loss_scaling=0.25,
+        feature_lr_scaling=1,
         n_envs=16,
-        n_steps=16,
-        update_frequency=16,
-        device=torch.device('cpu')
+        n_steps=5,
+        device=torch.device("cpu"),
 ):
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
@@ -56,17 +51,20 @@ def a2c(
         value_model = value_net().to(device)
         policy_model = policy_net(env).to(device)
 
-        feature_optimizer = Adam(feature_model.parameters(), lr=lr, eps=eps)
-        value_optimizer = Adam(value_model.parameters(), lr=lr, eps=eps)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr, eps=eps)
+        feature_optimizer = RMSprop(
+            feature_model.parameters(), alpha=alpha, lr=lr * feature_lr_scaling, eps=eps
+        )
+        value_optimizer = RMSprop(value_model.parameters(), alpha=alpha, lr=lr, eps=eps)
+        policy_optimizer = RMSprop(
+            policy_model.parameters(), alpha=alpha, lr=lr, eps=eps
+        )
 
-        features = FeatureNetwork(
-            feature_model, feature_optimizer, clip_grad=clip_grad)
+        features = FeatureNetwork(feature_model, feature_optimizer, clip_grad=clip_grad)
         v = ValueNetwork(
             value_model,
             value_optimizer,
+            loss_scaling=value_loss_scaling,
             clip_grad=clip_grad,
-            loss=smooth_l1_loss,
             writer=writer
         )
         policy = SoftmaxPolicy(
@@ -75,19 +73,20 @@ def a2c(
             env.action_space.n,
             entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
-            writer=writer
+            writer=writer,
         )
         return ParallelAtariBody(
             A2C(
                 features,
                 v,
                 policy,
+                n_envs=n_envs,
                 n_steps=n_steps,
-                update_frequency=update_frequency,
-                discount_factor=discount_factor
+                discount_factor=discount_factor,
             ),
-            envs
+            envs,
         )
+
     return _a2c, n_envs
 
 

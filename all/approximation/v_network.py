@@ -13,6 +13,7 @@ class ValueNetwork(ValueFunction):
             model,
             optimizer=None,
             loss=mse_loss,
+            loss_scaling=1,
             clip_grad=0,
             writer=DummyWriter()
     ):
@@ -21,6 +22,7 @@ class ValueNetwork(ValueFunction):
                           if optimizer is not None
                           else optim.Adam(model.parameters()))
         self.loss = loss
+        self.loss_scaling = loss_scaling
         self._cache = []
         self.clip_grad = clip_grad
         self._writer = writer
@@ -44,9 +46,8 @@ class ValueNetwork(ValueFunction):
 
         if cache.requires_grad:
             targets = td_errors + cache.detach()
-            loss = self.loss(cache, targets)
+            loss = self.loss(cache, targets) * self.loss_scaling
             self._writer.add_loss('value', loss)
-            # pylint: disable=len-as-condition
             loss.backward(retain_graph=retain_graph)
             if self.clip_grad != 0:
                 utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
