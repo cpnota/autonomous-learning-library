@@ -78,7 +78,7 @@ class Experiment:
             self._writer.frames = self._frames
 
         # terminal state
-        agent.terminal(env.reward)
+        agent.terminal(env.state, env.reward)
 
         # log info
         end = timer()

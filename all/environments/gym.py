@@ -21,8 +21,7 @@ class GymEnvironment(Environment):
 
     def reset(self):
         state = self._env.reset()
-        self._state = self._make_state(state, False, None)
-        self._done = False
+        self._state = self._make_state(state, 0, None)
         self._reward = 0
         return self._state
 
@@ -31,6 +30,7 @@ class GymEnvironment(Environment):
         self._state = self._make_state(state, done, info)
         self._action = action
         self._reward = reward
+        self._done = done
         return self._state, self._reward
 
     def render(self):
@@ -67,7 +67,7 @@ class GymEnvironment(Environment):
 
     @property
     def done(self):
-        return self._state.done
+        return self._done
 
     @property
     def info(self):
@@ -90,6 +90,10 @@ class GymEnvironment(Environment):
                     dtype=self.state_space.dtype
                 )
             ).unsqueeze(0).to(self._device),
-            done,
+            torch.tensor(
+                [int(not done)],
+                dtype=torch.uint8,
+                device=self._device
+            ),
             info
         )

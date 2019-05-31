@@ -12,12 +12,12 @@ class Sarsa(Agent):
         self.next_state = None
         self.next_action = None
 
-    def initial(self, state, info=None):
+    def initial(self, state):
         self.state = state
         self.action = self.policy(self.state)
         return self.action
 
-    def act(self, next_state, reward, info=None):
+    def act(self, next_state, reward):
         next_action = self.policy(next_state)
         td_error = (
             reward
@@ -29,6 +29,5 @@ class Sarsa(Agent):
         self.action = next_action
         return self.action
 
-    def terminal(self, reward, info=None):
-        td_error = reward - self.q(self.state, self.action)
-        self.q.reinforce(td_error)
+    def terminal(self, state, reward):
+        return self.act(state, reward)

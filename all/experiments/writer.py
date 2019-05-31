@@ -36,7 +36,7 @@ class ExperimentWriter(SummaryWriter, Writer):
         self.env_name = env_name
         current_time = str(datetime.now())
         log_dir = os.path.join(
-            'runs', ("%s %s %s" % (agent_name, COMMIT_HASH, current_time))
+            'runs2', ("%s %s %s" % (agent_name, COMMIT_HASH, current_time))
         )
         self._frames = 0
         self._episodes = 1

@@ -6,8 +6,7 @@ import numpy as np
 
 class ListNetwork(nn.Module):
     '''
-    Wraps a network such that lists can be given as inputs,
-    where null values indicate that zeros should be output.
+    Wraps a network such that States can be given as input.
     '''
 
     def __init__(self, model, out):
@@ -16,23 +15,8 @@ class ListNetwork(nn.Module):
         self.out = list(out)
         self.device = next(model.parameters()).device
 
-    def forward(self, x):
-        if isinstance(x, list):
-            return self._forward_list(x)
-        if x is None:
-            return torch.zeros(self.out)
-        return self.model(x.float())
-
-
-    def _forward_list(self, x):
-        non_null_x = [x_i for x_i in x if x_i is not None]
-        non_null_i = [i for i, x_i in enumerate(x) if x_i is not None]
-        if not non_null_x:
-            return torch.zeros([len(x)] + self.out, device=self.device, requires_grad=False)
-        result = torch.zeros([len(x)] + self.out, device=self.device)
-        non_null_o = self.model(torch.cat(non_null_x).float())
-        result[non_null_i] = non_null_o
-        return result
+    def forward(self, state):
+        return (self.model(state.features.float()).transpose(0, 1) * state.done.float()).transpose(0, 1)
 
 class ListToList(nn.Module):
     '''

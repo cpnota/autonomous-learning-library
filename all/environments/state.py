@@ -1,5 +1,5 @@
 class State:
-    def __init__(self, raw, done, info):
+    def __init__(self, raw, done, info=None):
         self._raw = raw
         self._done = done
         self._info = info

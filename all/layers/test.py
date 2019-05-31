@@ -4,6 +4,7 @@ import torch
 from torch import nn
 import torch_testing as tt
 from all.layers import Dueling, Linear0, ListNetwork, ListToList
+from all.environments import State
 
 
 class TestLayers(unittest.TestCase):
@@ -33,25 +34,20 @@ class TestLayers(unittest.TestCase):
     def test_list(self):
         model = nn.Linear(2, 2)
         net = ListNetwork(model, (2,))
-        x = [torch.randn(1, 2), torch.randn(1, 2), None, torch.randn(1, 2)]
-        out = net(x)
+        features = torch.cat([torch.randn(1, 2), torch.randn(1, 2), torch.zeros(1, 2), torch.randn(1, 2)])
+        done = torch.tensor([1, 1, 0, 1], dtype=torch.uint8)
+        out = net(State(features, done))
         tt.assert_almost_equal(out, torch.tensor([[0.0479387, -0.2268031],
                                                   [0.2346841, 0.0743403],
                                                   [0., 0.],
                                                   [0.0185191, 0.0815052]]))
 
-        x = torch.randn(3, 2)
-        out = net(x)
+        features = torch.randn(3, 2)
+        done = torch.tensor([1, 1, 1], dtype=torch.uint8)
+        out = net(State(features, done))
         tt.assert_almost_equal(out, torch.tensor([[0.2204496, 0.086818],
                                                   [0.4234636, 0.1039939],
                                                   [0.6514298, 0.3354351]]))
-
-        x = torch.randn(2)
-        out = net(x)
-        tt.assert_almost_equal(out, torch.tensor([-0.2543002, -0.2041451]))
-
-        out = net(None)
-        tt.assert_equal(out, torch.tensor([0, 0]))
 
     def test_list_to_list(self):
         model = nn.Linear(2, 2)

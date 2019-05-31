@@ -54,7 +54,7 @@ class Agent(ABC):
         action: The action to take at the current timestep
         """
 
-    def terminal(self, reward, info=None):
+    def terminal(self, state, reward, info=None):
         """
         Accept the final reward of the episode and perform final updates.
 
