@@ -2,7 +2,8 @@
 import torch
 from torch import nn
 from torch.optim import Adam
-from all.agents import A2C
+from all.layers import Flatten
+from all.agents import VPG
 from all.approximation import ValueNetwork, FeatureNetwork
 from all.experiments import DummyWriter
 from all.policies import SoftmaxPolicy
@@ -10,6 +11,7 @@ from all.policies import SoftmaxPolicy
 
 def fc_features(env):
     return nn.Sequential(
+        Flatten(),
         nn.Linear(env.state_space.shape[0], 256),
         nn.ReLU()
     )
@@ -23,17 +25,15 @@ def fc_policy(env):
     return nn.Linear(256, env.action_space.n)
 
 
-def a2c(
-        clip_grad=0.1,
-        discount_factor=0.99,
+def vpg(
+        clip_grad=0,
         entropy_loss_scaling=0.001,
-        lr=1e-3,
-        n_envs=8,
-        n_steps=8,
+        gamma=0.99,
+        lr=5e-3,
+        n_episodes=5,
         device=torch.device('cpu')
 ):
-    def _a2c(envs, writer=DummyWriter()):
-        env = envs[0]
+    def _vpg(env, writer=DummyWriter()):
         feature_model = fc_features(env).to(device)
         value_model = fc_value(env).to(device)
         policy_model = fc_policy(env).to(device)
@@ -58,15 +58,8 @@ def a2c(
             clip_grad=clip_grad,
             writer=writer
         )
-        return A2C(
-            features,
-            v,
-            policy,
-            n_envs=n_envs,
-            n_steps=n_steps,
-            discount_factor=discount_factor
-        )
-    return _a2c, n_envs
+        return VPG(features, v, policy, gamma=gamma, n_episodes=n_episodes)
+    return _vpg
 
 
-__all__ = ["a2c"]
+__all__ = ["vpg"]
