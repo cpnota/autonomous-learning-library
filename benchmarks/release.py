@@ -24,11 +24,11 @@ def run_release():
         experiment.run(agent(device=device), label=agent_name)
 
     for agent_name in atari.__all__:
-        env = AtariEnvironment('Pong', device=device)
+        env = AtariEnvironment('Breakout', device=device)
         agent = getattr(atari, agent_name)
         experiment = Experiment(
             env,
-            frames=20e6
+            frames=10e6
         )
         experiment.run(agent(device=device), label=agent_name)
 
