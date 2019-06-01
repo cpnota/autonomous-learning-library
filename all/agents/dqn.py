@@ -39,8 +39,8 @@ class DQN(Agent):
         self.action = self.policy(state)
         return self.action
 
-    def terminal(self, reward, info=None):
-        self.store_transition(None, reward)
+    def terminal(self, state, reward):
+        self.store_transition(state, reward)
         if self.should_train():
             self.train()
 
