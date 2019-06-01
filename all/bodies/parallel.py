@@ -1,3 +1,4 @@
+from all.environments import State
 from .abstract import Body
 
 
@@ -21,7 +22,7 @@ class ParallelRepeatActions(Body):
             self._count = 0
         else:
             for i, _ in enumerate(states):
-                if states[i] is None:
+                if not states[i].mask:
                     self._actions[i] = None
         return self._actions
 
@@ -29,14 +30,14 @@ class ParallelRepeatActions(Body):
 class Joiner(Body):
     '''Internal class used by Parallelizer'''
 
-    def init(self, state, info=None):
-        self.agent.join(state, 0, info)
+    def init(self, state):
+        self.agent.join(state, 0)
 
-    def act(self, state, reward, info=None):
-        self.agent.join(state, reward, info)
+    def act(self, state, reward):
+        self.agent.join(state, reward)
 
-    def terminal(self, reward, info=None):
-        self.agent.join(None, reward, info)
+    def terminal(self, state, reward):
+        self.agent.join(state, reward)
 
 
 class ParallelBody(Body):
@@ -75,7 +76,7 @@ class ParallelBody(Body):
                 if self._last_states[i] is None:
                     action = self._bodies[i].initial(states[i], infos[i])
                 elif states[i] is None:
-                    self._bodies[i].terminal(rewards[i].item(), infos[i])
+                    self._bodies[i].terminal(states[i], rewards[i].item())
                 else:
                     action = self._bodies[i].act(
                         states[i], rewards[i].item(), infos[i])
@@ -86,7 +87,8 @@ class ParallelBody(Body):
                     ready = False
                 actions[i] = action
         if ready:
-            actions = self.agent.act(self._states, self._rewards, self._info)
+            states = State.from_list(self._states)
+            actions = self.agent.act(states, self._rewards, self._info)
             self._ready = [False] * self._n
             self._states = [None] * self._n
         self._last_states = states

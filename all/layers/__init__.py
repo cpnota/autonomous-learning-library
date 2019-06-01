@@ -16,7 +16,7 @@ class ListNetwork(nn.Module):
         self.device = next(model.parameters()).device
 
     def forward(self, state):
-        return self.model(state.features) * state.done.float().unsqueeze(-1)
+        return self.model(state.features.float()) * state.done.float().unsqueeze(-1)
 
 class ListToList(nn.Module):
     '''
