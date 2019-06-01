@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 import numpy as np
-
+from all.environments import State
 
 class ListNetwork(nn.Module):
     '''
@@ -20,7 +20,7 @@ class ListNetwork(nn.Module):
 
 class ListToList(nn.Module):
     '''
-    Wraps a network such that lists can be given as inputs, and are received as output.
+    Wraps a network such that States can be given as inputs, and are received as output.
     '''
 
     def __init__(self, model):
@@ -28,24 +28,8 @@ class ListToList(nn.Module):
         self.model = model
         self.device = next(model.parameters()).device
 
-    def forward(self, x):
-        if isinstance(x, list):
-            return self._forward_list(x)
-        if x is None:
-            return None
-        return self.model(x.float())
-
-
-    def _forward_list(self, x):
-        non_null_x = [x_i for x_i in x if x_i is not None]
-        non_null_i = [i for i, x_i in enumerate(x) if x_i is not None]
-        if not non_null_x:
-            return x
-        result = [None] * len(x)
-        non_null_o = self.model(torch.cat(non_null_x).float())
-        for i, out in zip(non_null_i, non_null_o):
-            result[i] = out.unsqueeze(0)
-        return result
+    def forward(self, state):
+        return State(self.model(state.features), state.done, state.info)
 
 class Aggregation(nn.Module):
     '''len()
