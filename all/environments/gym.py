@@ -23,6 +23,7 @@ class GymEnvironment(Environment):
         state = self._env.reset()
         self._state = self._make_state(state, 0, None)
         self._reward = 0
+        self._done = False
         return self._state
 
     def step(self, action):

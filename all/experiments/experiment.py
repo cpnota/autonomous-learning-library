@@ -1,7 +1,7 @@
 from timeit import default_timer as timer
 import numpy as np
 import torch
-from all.environments import GymEnvironment
+from all.environments import GymEnvironment, State
 from .writer import ExperimentWriter
 
 
@@ -97,7 +97,7 @@ class Experiment:
         returns = torch.zeros((n_envs)).float().to(self.env.device)
         start = timer()
         while not self._done():
-            states = [env.state for env in envs]
+            states = State.from_list([env.state for env in envs])
             rewards = torch.tensor([env.reward for env in envs]).float().to(self.env.device)
             actions = agent.act(states, rewards)
             for i, env in enumerate(envs):
