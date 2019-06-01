@@ -19,7 +19,7 @@ class ActorCritic(Agent):
         self.previous_state = state
         return self.policy(state)
 
-    def terminal(self, reward, info=None):
+    def terminal(self, state, reward):
         td_error = reward - self.v(self.previous_state)
         self.v.reinforce(td_error)
         self.policy.reinforce(td_error)
