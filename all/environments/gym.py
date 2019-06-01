@@ -15,6 +15,19 @@ class GymEnvironment(Environment):
         self._info = None
         self._device = device
 
+        # predefining these saves performance on tensor creation
+        # it actually makes a noticable difference :p
+        self._done_mask = torch.tensor(
+            [0],
+            dtype=torch.uint8,
+            device=self._device
+        )
+        self._not_done_mask = torch.tensor(
+            [1],
+            dtype=torch.uint8,
+            device=self._device
+        )
+
     @property
     def name(self):
         return self._name
@@ -91,10 +104,6 @@ class GymEnvironment(Environment):
                     dtype=self.state_space.dtype
                 )
             ).unsqueeze(0).to(self._device),
-            torch.tensor(
-                [int(not done)],
-                dtype=torch.uint8,
-                device=self._device
-            ),
+            self._done_mask if done else self._not_done_mask,
             info
         )
