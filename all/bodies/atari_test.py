@@ -3,7 +3,7 @@ import torch
 import torch_testing as tt
 import numpy as np
 from all.agents import Agent
-from all.environments import GymEnvironment
+from all.environments import GymEnvironment, State
 from all.bodies.atari import DeepmindAtariBody
 
 NOOP_ACTION = torch.tensor([0])
@@ -53,15 +53,15 @@ class DeepmindAtariBodyTest(unittest.TestCase):
         self.body = DeepmindAtariBody(self.agent, self.env, noop_max=0)
 
     def test_initial_state(self):
-        frame = torch.ones((1, 3, 4, 4))
+        frame = State(torch.ones((1, 3, 4, 4)))
         action = self.body.initial(frame)
         tt.assert_equal(action, INITIAL_ACTION)
-        tt.assert_equal(self.agent.state, torch.ones(1, 4, 2, 2))
+        tt.assert_equal(self.agent.state.features, torch.ones(1, 4, 2, 2))
 
     def test_deflicker(self):
-        frame1 = torch.ones((1, 3, 4, 4))
-        frame2 = torch.ones((1, 3, 4, 4))
-        frame3 = torch.ones((1, 3, 4, 4)) * 2
+        frame1 = State(torch.ones((1, 3, 4, 4)))
+        frame2 = State(torch.ones((1, 3, 4, 4)))
+        frame3 = State(torch.ones((1, 3, 4, 4)) * 2)
         self.body.initial(frame1)
         self.body.act(frame2, 0)
         self.body.act(frame3, 0)
@@ -72,7 +72,7 @@ class DeepmindAtariBodyTest(unittest.TestCase):
             torch.ones(2, 2, 2) * 2,
             torch.ones(1, 2, 2)
         )).unsqueeze(0)
-        tt.assert_equal(self.agent.state, expected)
+        tt.assert_equal(self.agent.state.features, expected)
 
 class DeepmindAtariBodyPongTest(unittest.TestCase):
     def setUp(self):
@@ -97,12 +97,12 @@ class DeepmindAtariBodyPongTest(unittest.TestCase):
         self.env.step(self.body.act(self.env.state, -5))
         for _ in range(4):
             action = self.body.act(self.env.state, -5)
-            self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
+            self.assertEqual(self.agent.state.features.shape, (1, 4, 105, 80))
             tt.assert_equal(action, INITIAL_ACTION)
             self.env.step(action)
         for _ in range(10):
             reward = -5  # should be clipped
-            self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
+            self.assertEqual(self.agent.state.features.shape, (1, 4, 105, 80))
             action = self.body.act(self.env.state, reward)
             tt.assert_equal(action, ACT_ACTION)
             self.env.step(action)
@@ -115,10 +115,10 @@ class DeepmindAtariBodyPongTest(unittest.TestCase):
             reward = -5  # should be clipped
             action = self.body.act(self.env.state, reward)
             self.env.step(action)
-        self.body.terminal(-1)
+        self.body.terminal(self.env.state, -1)
         tt.assert_equal(action, ACT_ACTION)
-        self.assertEqual(self.agent.state.shape, (1, 4, 105, 80))
-        self.assertEqual(self.agent.reward, -2)
+        self.assertEqual(self.agent.state.features.shape, (1, 4, 105, 80))
+        self.assertEqual(self.agent.reward, -4)
 
 class NoFramestackTest(unittest.TestCase):
     def setUp(self):
@@ -132,14 +132,14 @@ class NoFramestackTest(unittest.TestCase):
         self.env.step(self.body.act(self.env.state, -5))
         for _ in range(10):
             self.body.act(self.env.state, -5)
-            self.assertEqual(self.agent.state.shape, (1, 1, 105, 80))
+            self.assertEqual(self.agent.state.features.shape, (1, 1, 105, 80))
 
 class NoopTest(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
         self.agent = MockAgent()
         self.env = MockEnv()
-        self.frame = torch.ones((1, 3, 4, 4))
+        self.frame = State(torch.ones((1, 3, 4, 4)))
         self.body = DeepmindAtariBody(self.agent, self.env, noop_max=10)
 
     def test_noops(self):
