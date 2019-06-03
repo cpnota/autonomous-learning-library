@@ -10,14 +10,14 @@ class ParallelRepeatActions(Body):
         self._actions = None
         self._rewards = None
 
-    def act(self, states, rewards, info=None):
+    def act(self, states, rewards):
         if self._rewards is None:
             self._rewards = rewards.clone()
         else:
             self._rewards += rewards
         self._count += 1
         if self._count >= self._repeats:
-            self._actions = list(self.agent.act(states, self._rewards, info))
+            self._actions = list(self.agent.act(states, self._rewards))
             self._rewards = self._rewards * 0
             self._count = 0
         else:

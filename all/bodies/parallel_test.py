@@ -16,7 +16,7 @@ class MockAgent(Agent):
         self._states = []
         self._rewards = []
 
-    def act(self, state, reward, info=None):
+    def act(self, state, reward):
         self._actions = (self._actions + 1) % self._max_action
         self._states.append(state)
         self._rewards.append(reward.view(1, -1))
