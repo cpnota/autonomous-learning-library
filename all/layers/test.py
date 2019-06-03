@@ -34,20 +34,20 @@ class TestLayers(unittest.TestCase):
     def test_list(self):
         model = nn.Linear(2, 2)
         net = ListNetwork(model, (2,))
-        features = torch.cat([torch.randn(1, 2), torch.randn(1, 2), torch.zeros(1, 2), torch.randn(1, 2)])
+        features = torch.randn((4, 2))
         done = torch.tensor([1, 1, 0, 1], dtype=torch.uint8)
         out = net(State(features, done))
         tt.assert_almost_equal(out, torch.tensor([[0.0479387, -0.2268031],
                                                   [0.2346841, 0.0743403],
                                                   [0., 0.],
-                                                  [0.0185191, 0.0815052]]))
+                                                  [0.2204496, 0.086818]]))
 
         features = torch.randn(3, 2)
         done = torch.tensor([1, 1, 1], dtype=torch.uint8)
         out = net(State(features, done))
-        tt.assert_almost_equal(out, torch.tensor([[0.2204496, 0.086818],
-                                                  [0.4234636, 0.1039939],
-                                                  [0.6514298, 0.3354351]]))
+        tt.assert_almost_equal(out, torch.tensor([[0.4234636, 0.1039939],
+                                                  [0.6514298, 0.3354351],
+                                                  [-0.2543002, -0.2041451]]))
 
     def test_list_to_list(self):
         model = nn.Linear(2, 2)

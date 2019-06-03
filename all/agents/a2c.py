@@ -24,7 +24,7 @@ class A2C(Agent):
         self._batch_size = n_envs * n_steps
         self._buffer = self._make_buffer()
 
-    def act(self, states, rewards, info=None):
+    def act(self, states, rewards):
         # store transition and train BEFORE choosing action
         # Do not need to know actions, so pass in empy array
         self._buffer.store(states, torch.zeros(self.n_envs), rewards)

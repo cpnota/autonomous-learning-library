@@ -27,12 +27,12 @@ class DQN(Agent):
         self.state = None
         self.action = None
 
-    def initial(self, state, info=None):
+    def initial(self, state):
         self.state = state
         self.action = self.policy(self.state)
         return self.action
 
-    def act(self, state, reward, info=None):
+    def act(self, state, reward):
         self.store_transition(state, reward)
         if self.should_train():
             self.train()

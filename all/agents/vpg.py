@@ -1,6 +1,6 @@
 import torch
-from .abstract import Agent
 from all.environments import State
+from .abstract import Agent
 
 class VPG(Agent):
     def __init__(
@@ -20,13 +20,13 @@ class VPG(Agent):
         self._features = None
         self._rewards = None
 
-    def initial(self, state, info=None):
+    def initial(self, state):
         features = self.features(state)
         self._features = [features.features]
         self._rewards = []
         return self.policy(features)
 
-    def act(self, state, reward, info=None):
+    def act(self, state, reward):
         features = self.features(state)
         self._features.append(features.features)
         self._rewards.append(reward)
