@@ -52,25 +52,26 @@ class TestLayers(unittest.TestCase):
     def test_list_to_list(self):
         model = nn.Linear(2, 2)
         net = ListToList(model)
-        x = [torch.randn(1, 2), torch.randn(1, 2), None, torch.randn(1, 2)]
+        x = State(torch.randn(5, 2), torch.tensor([1, 1, 1, 0, 1]))
         out = net(x)
-        self.assert_array_equal(out, [torch.tensor([[0.0479387, -0.2268031]]),
-                                      torch.tensor([[0.2346841, 0.0743403]]),
-                                      None,
-                                      torch.tensor([[0.0185191, 0.0815052]])])
-
-        x = torch.randn(3, 2)
+        tt.assert_almost_equal(out.features, torch.tensor([
+            [0.0479, -0.2268],
+            [0.2347, 0.0743],
+            [0.0185, 0.0815],
+            [0.2204, 0.0868],
+            [0.4235, 0.1040]
+        ]), decimal=3)
+        x = State(torch.randn(3, 2))
         out = net(x)
-        tt.assert_almost_equal(out, torch.tensor([[0.2204496, 0.086818],
-                                                  [0.4234636, 0.1039939],
-                                                  [0.6514298, 0.3354351]]))
+        tt.assert_almost_equal(out.features, torch.tensor([
+            [0.651, 0.335],
+            [-0.254, -0.204],
+            [0.123, 0.218]
+        ]), decimal=3)
 
-        x = torch.randn(2)
+        x = State(torch.randn(2))
         out = net(x)
-        tt.assert_almost_equal(out, torch.tensor([-0.2543002, -0.2041451]))
-
-        out = net(None)
-        self.assertIsNone(out)
+        tt.assert_almost_equal(out.features, torch.tensor([0.3218211, 0.3707529]), decimal=3)
 
     def assert_array_equal(self, actual, expected):
         for first, second in zip(actual, expected):
