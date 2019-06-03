@@ -11,6 +11,8 @@ class State:
                 device=raw.device
             )
         self._info = info
+        if info is None:
+            self._info = [None] * len(raw)
 
     @classmethod
     def from_list(cls, states):
