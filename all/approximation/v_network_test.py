@@ -35,8 +35,6 @@ class TestVNetwork(unittest.TestCase):
             torch.randn(5, STATE_DIM),
             done=torch.tensor([1, 1, 0, 1, 0, 0])
         )
-        print('hello')
-        print(states.features.shape)
         self.v(states[0:2])
         self.v(states[2:4])
         self.v(states[4:6])
