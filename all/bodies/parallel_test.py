@@ -3,7 +3,7 @@ import torch
 import torch_testing as tt
 import numpy as np
 from all.agents import Agent
-from all.environments import AtariEnvironment
+from all.environments import AtariEnvironment, State
 from all.bodies.parallel import ParallelRepeatActions
 from all.bodies import ParallelAtariBody
 
@@ -27,40 +27,34 @@ class MockAgent(Agent):
 
 class ParallelRepeatActionsTest(unittest.TestCase):
     def test_repeat_actions(self):
-        states = [
-            ['state1', 'state2'],
-            ['state3', None],
-            ['state5', None],
-            ['state7', 'state8'],
-            ['state9', 'state10'],
-            ['state11', 'state12'],
-            ['state13', 'state14']
-        ]
+        done = torch.ones(14)
+        done[3] = 0
+        done[5] = 0
+        states = State(
+            torch.arange(0, 14),
+            done
+        )
         rewards = torch.ones(2)
 
         agent = MockAgent(2)
         body = ParallelRepeatActions(agent, repeats=3)
 
-        actions = body.act(states[0], rewards)
+        actions = body.act(states[0:2], rewards)
         self.assert_array_equal(actions, [1, 1])
-        actions = body.act(states[1], rewards)
+        actions = body.act(states[2:4], rewards)
         self.assert_array_equal(actions, [1, None])
-        actions = body.act(states[2], rewards)
+        actions = body.act(states[4:6], rewards)
         self.assert_array_equal(actions, [1, None])
-        actions = body.act(states[3], rewards)
+        actions = body.act(states[6:8], rewards)
         self.assert_array_equal(actions, [2, 2])
-        actions = body.act(states[4], rewards)
+        actions = body.act(states[8:10], rewards)
         self.assert_array_equal(actions, [2, 2])
-        actions = body.act(states[5], rewards)
+        actions = body.act(states[10:12], rewards)
         self.assert_array_equal(actions, [2, 2])
-        actions = body.act(states[6], rewards)
+        actions = body.act(states[12:14], rewards)
         self.assert_array_equal(actions, [3, 3])
 
-        self.assert_array_equal(agent._states, [
-            states[0],
-            states[3],
-            states[6]
-        ])
+        self.assertEqual(len(agent._states), 3)
         tt.assert_equal(torch.cat(agent._rewards), torch.tensor([
             [1, 1],
             [3, 3],
@@ -71,7 +65,6 @@ class ParallelRepeatActionsTest(unittest.TestCase):
         for i, exp in enumerate(expected):
             self.assertEqual(actual[i], exp, msg=(("\nactual: %s\nexpected: %s")
                                                   % (actual, expected)))
-
 
 class ParallelAtariBodyTest(unittest.TestCase):
     def test_runs(self):
