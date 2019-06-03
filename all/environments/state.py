@@ -46,6 +46,12 @@ class State:
         return self._raw
 
     def __getitem__(self, idx):
+        if isinstance(idx, slice):
+            return State(
+                self._raw[idx],
+                self._done[idx],
+                self._info[idx]
+            )
         return State(
             self._raw[idx].unsqueeze(0),
             self._done[idx].unsqueeze(0),

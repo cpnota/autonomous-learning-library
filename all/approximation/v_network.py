@@ -29,6 +29,7 @@ class ValueNetwork(ValueFunction):
 
     def __call__(self, states):
         result = self.model(states).squeeze(1)
+        print(states.features.shape, result.shape)
         self._cache.append(result)
         return result.detach()
 
@@ -43,6 +44,7 @@ class ValueNetwork(ValueFunction):
         td_errors = td_errors.view(-1)
         batch_size = len(td_errors)
         cache = self.decache(batch_size)
+        print(cache)
 
         if cache.requires_grad:
             targets = td_errors + cache.detach()
@@ -55,6 +57,7 @@ class ValueNetwork(ValueFunction):
             self.optimizer.zero_grad()
 
     def decache(self, batch_size):
+        print('before', len(self._cache))
         i = 0
         items = 0
         while items < batch_size and i < len(self._cache):
@@ -65,5 +68,5 @@ class ValueNetwork(ValueFunction):
 
         cache = torch.cat(self._cache[:i])
         self._cache = self._cache[i:]
-
+        print('after', len(self._cache))
         return cache
