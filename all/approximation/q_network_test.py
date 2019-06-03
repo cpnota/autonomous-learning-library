@@ -4,6 +4,7 @@ from torch import nn
 from torch.nn.functional import smooth_l1_loss
 import torch_testing as tt
 import numpy as np
+from all.environments import State
 from all.approximation.q_network import QNetwork
 
 STATE_DIM = 2
@@ -20,29 +21,25 @@ class TestQNetwork(unittest.TestCase):
         self.q = QNetwork(self.model, optimizer, ACTIONS)
 
     def test_eval_list(self):
-        states = [
-            torch.randn(1, STATE_DIM),
-            torch.randn(1, STATE_DIM),
-            None,
-            torch.randn(1, STATE_DIM),
-            None
-        ]
+        states = State(
+            torch.randn(5, STATE_DIM),
+            done=torch.tensor([1, 1, 0, 1, 0])
+        )
         result = self.q.eval(states)
-        np.testing.assert_array_almost_equal(
-            result.detach().numpy(),
-            np.array([[-0.238509, -0.726287, -0.034026],
-                      [-0.35688755, -0.6612102, 0.34849477],
-                      [0., 0., 0.],
-                      [-0.02961645, -0.7566322, -0.46243042],
-                      [0., 0., 0.]], dtype=np.float32)
+        tt.assert_almost_equal(
+            result,
+            torch.tensor([
+                [-0.238509, -0.726287, -0.034026],
+                [-0.35688755, -0.6612102, 0.34849477],
+                [0., 0., 0.],
+                [0.1944, -0.5536, -0.2345],
+                [0., 0., 0.]
+            ]),
+            decimal=2
         )
 
     def test_eval_actions(self):
-        states = [
-            torch.randn(1, STATE_DIM),
-            torch.randn(1, STATE_DIM),
-            torch.randn(1, STATE_DIM),
-        ]
+        states = State(torch.randn(3, STATE_DIM))
         actions = [1, 2, 0]
         result = self.q.eval(states, actions)
         self.assertEqual(result.shape, torch.Size([3]))
@@ -56,7 +53,7 @@ class TestQNetwork(unittest.TestCase):
         )
         optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
         q = QNetwork(model, optimizer, 1, loss=smooth_l1_loss, target_update_frequency=3)
-        inputs = torch.tensor([1.])
+        inputs = State(torch.tensor([1.]))
         errors = torch.tensor([-1.])
 
         policy_value = q(inputs).item()
