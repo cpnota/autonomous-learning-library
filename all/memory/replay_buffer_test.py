@@ -77,7 +77,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
                 states[i], actions[i], states[i+1], rewards[i])
             if i > 2:
                 sample = self.replay_buffer.sample(3)
-                sample_states = torch.tensor(sample[0].features)
+                sample_states = sample[0].features
                 self.replay_buffer.update_priorities(torch.randn(3))
                 actual_samples.append(sample_states)
                 actual_weights.append(sample[-1])
