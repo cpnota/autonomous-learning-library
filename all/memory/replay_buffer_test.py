@@ -45,14 +45,16 @@ class TestExperienceReplayBuffer(unittest.TestCase):
 
 class TestPrioritizedReplayBuffer(unittest.TestCase):
     def setUp(self):
+        random.seed(1)
         np.random.seed(1)
+        torch.manual_seed(1)
         self.replay_buffer = PrioritizedReplayBuffer(5, 0.6)
 
     def test_run(self):
-        states = torch.arange(0, 20)
+        states = State(torch.arange(0, 20))
         actions = torch.arange(0, 20)
         rewards = torch.arange(0, 20)
-        expected_samples = [
+        expected_samples = State(torch.tensor([
             [0, 2, 2],
             [0, 1, 1],
             [3, 3, 5],
@@ -60,7 +62,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
             [3, 5, 7],
             [8, 5, 8],
             [8, 5, 5],
-        ]
+        ]))
         expected_weights = [[1., 1., 1.],
                             [0.56589746, 0.5124394, 0.5124394],
                             [0.5124343, 0.5124343, 0.5124343],
@@ -71,20 +73,24 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         actual_samples = []
         actual_weights = []
         for i in range(10):
-            state = State(states[i].unsqueeze(0), torch.tensor([1]))
-            next_state = State(states[i + 1].unsqueeze(0), torch.tensor([1]))
             self.replay_buffer.store(
-                state, actions[i], next_state, rewards[i])
+                states[i], actions[i], states[i+1], rewards[i])
             if i > 2:
                 sample = self.replay_buffer.sample(3)
-                sample_states = torch.tensor(sample[0].features).detach().numpy()
+                sample_states = torch.tensor(sample[0].features)
                 self.replay_buffer.update_priorities(torch.randn(3))
                 actual_samples.append(sample_states)
                 actual_weights.append(sample[-1])
-        np.testing.assert_array_equal(
-            expected_samples, np.vstack(actual_samples))
+
+        actual_samples = State(torch.cat(actual_samples).view((-1, 3)))
+        self.assert_states_equal(actual_samples, expected_samples)
         np.testing.assert_array_almost_equal(
-            expected_weights, np.vstack(actual_weights))
+            expected_weights, np.vstack(actual_weights)
+        )
+
+    def assert_states_equal(self, actual, expected):
+        tt.assert_almost_equal(actual.raw, expected.raw)
+        tt.assert_equal(actual.mask, expected.mask)
 
 
 if __name__ == '__main__':
