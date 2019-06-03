@@ -25,7 +25,7 @@ class NStepBuffer:
             discount = self.gamma ** (self.n - 1)
             for i, v in enumerate(self._temp[0]):
                 state, action, reward, last_state, length = v
-                if last_state is None:
+                if last_state.mask == 0:
                     self._store(state, action, reward, last_state, length)
                 else:
                     reward += discount * rewards[i]
@@ -37,7 +37,7 @@ class NStepBuffer:
             discount = self.gamma ** (len(self._temp) - 1 - t)
             for i, v in enumerate(_temp):
                 state, action, reward, last_state, length = v
-                if last_state is not None:
+                if last_state.mask == 1:
                     reward += discount * rewards[i]
                     last_state = states[i]
                     length += 1
@@ -73,6 +73,8 @@ class NStepBuffer:
         self._rewards = self._rewards[batch_size:]
         self._lengths = self._lengths[batch_size:]
 
+        states = State.from_list(states)
+        next_states = State.from_list(next_states)
         return states, actions, next_states, rewards, lengths
 
     def _store(self, state, action, reward, next_state, length):
