@@ -30,7 +30,7 @@ class ParallelRepeatActions(Body):
 class Joiner(Body):
     '''Internal class used by Parallelizer'''
 
-    def init(self, state):
+    def initial(self, state):
         self.agent.join(state, 0)
 
     def act(self, state, reward):
@@ -51,7 +51,6 @@ class ParallelBody(Body):
         self._states = [None] * n
         self._last_states = [None] * n
         self._rewards = None
-        self._info = [None] * n
         self._bodies = [None] * n
         self._ready = [False] * n
         self._actions = [None] * n
@@ -60,9 +59,7 @@ class ParallelBody(Body):
             self._bodies[i] = make_body(joiner, envs[i])
             self._actions[i] = None
 
-    def act(self, states, rewards, infos):
-        if infos is None:
-            infos = [None] * self._n
+    def act(self, states, rewards):
         if self._rewards is None:
             self._rewards = rewards.clone()
         actions = [None] * self._n
@@ -74,27 +71,26 @@ class ParallelBody(Body):
 
                 action = None
                 if self._last_states[i] is None:
-                    action = self._bodies[i].initial(states[i], infos[i])
+                    action = self._bodies[i].initial(states[i])
                 elif states[i] is None:
                     self._bodies[i].terminal(states[i], rewards[i].item())
                 else:
                     action = self._bodies[i].act(
-                        states[i], rewards[i].item(), infos[i])
+                        states[i], rewards[i].item())
 
                 if action is None:
                     self._ready[i] = True
                 else:
                     ready = False
                 actions[i] = action
+        self._last_states = states
         if ready:
             states = State.from_list(self._states)
-            actions = self.agent.act(states, self._rewards, self._info)
+            actions = self.agent.act(states, self._rewards)
             self._ready = [False] * self._n
             self._states = [None] * self._n
-        self._last_states = states
         return actions
 
-    def join(self, state, reward, info):
+    def join(self, state, reward):
         self._states[self._i] = state
         self._rewards[self._i] = reward
-        self._info[self._i] = info
