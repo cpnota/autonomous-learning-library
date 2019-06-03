@@ -29,7 +29,7 @@ class ListToList(nn.Module):
         self.device = next(model.parameters()).device
 
     def forward(self, state):
-        return State(self.model(state.features), state.done, state.info)
+        return State(self.model(state.features.float()), state.done, state.info)
 
 class Aggregation(nn.Module):
     '''len()

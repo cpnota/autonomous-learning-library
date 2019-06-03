@@ -1,4 +1,5 @@
 import torch
+from all.environments import State
 from all.experiments import DummyWriter
 
 def validate_agent(make_agent, env):
@@ -17,7 +18,7 @@ def validate_single_env_agent(make_agent, env):
         env.step(agent.initial(env.state))
         while not env.done:
             env.step(agent.act(env.state, env.reward))
-        agent.terminal(env.reward)
+        agent.terminal(env.state, env.reward)
 
 def validate_multi_env_agent(make_agent, base_env):
     make, n_env = make_agent
@@ -28,7 +29,7 @@ def validate_multi_env_agent(make_agent, base_env):
         env.reset()
 
     for _ in range(10):
-        states = [env.state for env in envs]
+        states = State.from_list([env.state for env in envs])
         rewards = [env.reward for env in envs]
         rewards = torch.tensor(rewards, device=base_env.device).float()
         actions = agent.act(states, rewards)
