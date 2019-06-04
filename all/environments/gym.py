@@ -15,24 +15,17 @@ class GymEnvironment(Environment):
         self._info = None
         self._device = device
 
-        # predefining these saves performance on tensor creation
-        # it actually makes a noticable difference :p
-        self._done_mask = torch.tensor(
-            [0],
-            dtype=torch.uint8,
-            device=self._device
-        )
-        self._not_done_mask = torch.tensor(
-            [1],
-            dtype=torch.uint8,
-            device=self._device
-        )
+        # lazy init for slurm
+        self._init = False
+        self._done_mask = None
+        self._not_done_mask = None
 
     @property
     def name(self):
         return self._name
 
     def reset(self):
+        self._lazy_init()
         state = self._env.reset()
         self._state = self._make_state(state, 0, None)
         self._reward = 0
@@ -94,6 +87,22 @@ class GymEnvironment(Environment):
     @property
     def device(self):
         return self._device
+
+    def _lazy_init(self):
+        if not self._init:
+            # predefining these saves performance on tensor creation
+            # it actually makes a noticable difference :p
+            self._done_mask = torch.tensor(
+                [0],
+                dtype=torch.uint8,
+                device=self._device
+            )
+            self._not_done_mask = torch.tensor(
+                [1],
+                dtype=torch.uint8,
+                device=self._device
+            )
+            self._init = True
 
     def _make_state(self, raw, done, info):
         '''Convert numpy array into State'''
