@@ -61,7 +61,8 @@ class SlurmExperiment:
             'array': '0-' + str(len(self.envs) - 1),
             'partition': '1080ti-short',
             'ntasks': 1,
-            'mem-per-cpu': 4000
+            'mem-per-cpu': 4000,
+            'gres': 'gpu:1'
         }
 
         for key, value in sbatch_args.items():
