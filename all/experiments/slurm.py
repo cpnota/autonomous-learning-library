@@ -21,8 +21,8 @@ class SlurmExperiment:
         self.envs = envs
         self.frames = frames
         self.job_name = job_name
-        self.hyperparameters = hyperparameters
-        self.sbatch_args = sbatch_args
+        self.hyperparameters = hyperparameters or {}
+        self.sbatch_args = sbatch_args or {}
         self.parse_args()
 
         if self.args.reentrant:
@@ -43,7 +43,7 @@ class SlurmExperiment:
         index = int(os.environ['SLURM_ARRAY_TASK_ID'])
         env = self.envs[index]
         experiment = Experiment(env, frames=self.frames)
-        experiment.run(self.agent(self.hyperparameters))
+        experiment.run(self.agent(**self.hyperparameters))
 
     def queue_jobs(self):
         self.create_sbatch_script()
