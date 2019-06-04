@@ -64,7 +64,7 @@ class SlurmExperiment:
 
         script.write('python ' + sys.argv[0] + ' --reentrant\n')
         script.close()
-        print('created sbatch script ', SCRIPT_NAME)
+        print('created sbatch script:', SCRIPT_NAME)
 
     def make_output_directory(self):
         try:
