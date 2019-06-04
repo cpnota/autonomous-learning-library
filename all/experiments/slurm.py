@@ -27,9 +27,10 @@ class SlurmExperiment:
 
     def parse_args(self):
         parser = argparse.ArgumentParser(description='Run an Atari benchmark.')
-        parser.add_argument('--reentrant', help='True if we are launching a script')
+        parser.add_argument('--reentrant', dest='reentrant', action='store_true')
+        parser.set_defaults(reentrant=False)
         self.args = parser.parse_args()
-    
+
     def run_trial(self):
         print('ran trial')
         return # TODO
