@@ -57,7 +57,7 @@ class TestExperiment(unittest.TestCase):
         self.experiment.run(sarsa(), console=False)
         np.testing.assert_equal(
             self.experiment._writer.data["evaluation/returns-by-episode"]["values"],
-            np.array([9., 11., 10.])
+            np.array([9., 12., 10.])
         )
         np.testing.assert_equal(
             self.experiment._writer.data["evaluation/returns-by-episode"]["steps"],

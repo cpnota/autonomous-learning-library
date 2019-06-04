@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import random
 import numpy as np
 import torch
+from all.environments import State
 from .segment_tree import SumSegmentTree, MinSegmentTree
 
 class ReplayBuffer(ABC):
@@ -46,9 +47,9 @@ class ExperienceReplayBuffer(ReplayBuffer):
         self.pos = (self.pos + 1) % self.capacity
 
     def _reshape(self, minibatch, weights):
-        states = [sample[0] for sample in minibatch]
+        states = State.from_list([sample[0] for sample in minibatch])
         actions = [sample[1] for sample in minibatch]
-        next_states = [sample[2] for sample in minibatch]
+        next_states = State.from_list([sample[2] for sample in minibatch])
         rewards = torch.tensor([sample[3] for sample in minibatch], device=self.device).float()
         return (states, actions, next_states, rewards, weights)
 

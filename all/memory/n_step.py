@@ -1,4 +1,5 @@
 import torch
+from all.environments import State
 
 
 class NStepBuffer:
@@ -24,7 +25,7 @@ class NStepBuffer:
             discount = self.gamma ** (self.n - 1)
             for i, v in enumerate(self._temp[0]):
                 state, action, reward, last_state, length = v
-                if last_state is None:
+                if last_state.mask == 0:
                     self._store(state, action, reward, last_state, length)
                 else:
                     reward += discount * rewards[i]
@@ -36,7 +37,7 @@ class NStepBuffer:
             discount = self.gamma ** (len(self._temp) - 1 - t)
             for i, v in enumerate(_temp):
                 state, action, reward, last_state, length = v
-                if last_state is not None:
+                if last_state.mask == 1:
                     reward += discount * rewards[i]
                     last_state = states[i]
                     length += 1
@@ -72,6 +73,8 @@ class NStepBuffer:
         self._rewards = self._rewards[batch_size:]
         self._lengths = self._lengths[batch_size:]
 
+        states = State.from_list(states)
+        next_states = State.from_list(next_states)
         return states, actions, next_states, rewards, lengths
 
     def _store(self, state, action, reward, next_state, length):
@@ -132,14 +135,14 @@ class NStepBatchBuffer:
                 state = self._states[t][e]
                 action = self._actions[t][e]
                 returns = 0.0
-                next_state = None
+                next_state = state
                 sample_length = 0
-                if state is not None:
+                if state.mask:
                     for k in range(1, self.n_steps + 1):
                         sample_length += 1
                         next_state = self._states[t + k][e]
                         returns += (self.gamma ** (k - 1)) * self._rewards[t + k][e]
-                        if next_state is None or t + k == self.n_steps:
+                        if not next_state.mask or t + k == self.n_steps:
                             break
                 sample_states[i] = state
                 sample_actions[i] = action
@@ -156,10 +159,11 @@ class NStepBatchBuffer:
         sample_lengths = torch.tensor(
             sample_lengths, device=self._rewards[0].device, dtype=torch.float
         )
+
         return (
-            sample_states,
+            State.from_list(sample_states),
             sample_actions,
-            sample_next_states,
+            State.from_list(sample_next_states),
             sample_returns,
             sample_lengths,
         )

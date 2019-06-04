@@ -2,6 +2,7 @@ import gym
 import numpy as np
 import torch
 from .abstract import Environment
+from .state import State
 
 class GymEnvironment(Environment):
     def __init__(self, env, device=torch.device('cpu')):
@@ -14,25 +15,37 @@ class GymEnvironment(Environment):
         self._info = None
         self._device = device
 
+        # predefining these saves performance on tensor creation
+        # it actually makes a noticable difference :p
+        self._done_mask = torch.tensor(
+            [0],
+            dtype=torch.uint8,
+            device=self._device
+        )
+        self._not_done_mask = torch.tensor(
+            [1],
+            dtype=torch.uint8,
+            device=self._device
+        )
+
     @property
     def name(self):
         return self._name
 
     def reset(self):
         state = self._env.reset()
-        self.state = state
-        self._done = False
+        self._state = self._make_state(state, 0, None)
         self._reward = 0
+        self._done = False
         return self._state
 
     def step(self, action):
         state, reward, done, info = self._env.step(action.item())
-        self.state = state if not done else None
+        self._state = self._make_state(state, done, info)
         self._action = action
         self._reward = reward
         self._done = done
-        self._info = info
-        return self._state, self._reward, self._done, self._info
+        return self._state, self._reward
 
     def render(self):
         return self._env.render()
@@ -58,21 +71,6 @@ class GymEnvironment(Environment):
     def state(self):
         return self._state
 
-    @state.setter
-    def state(self, value):
-        if value is None:
-            self._state = None
-            return
-        # Somewhat tortured method of
-        # ensuring that the tensor
-        # is of the correct type.
-        self._state = torch.from_numpy(
-            np.array(
-                value,
-                dtype=self.state_space.dtype
-            )
-        ).unsqueeze(0).to(self._device)
-
     @property
     def action(self):
         return self._action
@@ -87,7 +85,7 @@ class GymEnvironment(Environment):
 
     @property
     def info(self):
-        return self._info
+        return self._state.info
 
     @property
     def env(self):
@@ -96,3 +94,16 @@ class GymEnvironment(Environment):
     @property
     def device(self):
         return self._device
+
+    def _make_state(self, raw, done, info):
+        '''Convert numpy array into State'''
+        return State(
+            torch.from_numpy(
+                np.array(
+                    raw,
+                    dtype=self.state_space.dtype
+                )
+            ).unsqueeze(0).to(self._device),
+            self._done_mask if done else self._not_done_mask,
+            info
+        )

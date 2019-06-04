@@ -1,4 +1,5 @@
 import torch
+from all.environments import State
 from .abstract import Agent
 
 class VPG(Agent):
@@ -16,30 +17,30 @@ class VPG(Agent):
         self.gamma = gamma
         self.n_episodes = n_episodes
         self._trajectories = []
-        self._states = None
+        self._features = None
         self._rewards = None
 
-    def initial(self, state, info=None):
+    def initial(self, state):
         features = self.features(state)
-        self._states = [features]
+        self._features = [features.features]
         self._rewards = []
         return self.policy(features)
 
-    def act(self, state, reward, info=None):
+    def act(self, state, reward):
         features = self.features(state)
-        self._states.append(features)
+        self._features.append(features.features)
         self._rewards.append(reward)
         return self.policy(features)
 
-    def terminal(self, reward, info=None):
+    def terminal(self, state, reward):
         self._rewards.append(reward)
-        states = torch.cat(self._states)
-        rewards = torch.tensor(self._rewards, device=states.device)
-        self._trajectories.append((states, rewards))
+        features = torch.cat(self._features)
+        rewards = torch.tensor(self._rewards, device=features.device)
+        self._trajectories.append((features, rewards))
         if len(self._trajectories) >= self.n_episodes:
             advantages = torch.cat([
-                self._compute_advantages(states, rewards)
-                for (states, rewards)
+                self._compute_advantages(features, rewards)
+                for (features, rewards)
                 in self._trajectories
             ])
             self.v.reinforce(advantages, retain_graph=True)
@@ -49,7 +50,7 @@ class VPG(Agent):
 
     def _compute_advantages(self, features, rewards):
         returns = self._compute_discounted_returns(rewards)
-        values = self.v(features)
+        values = self.v(State(features))
         return returns - values
 
     def _compute_discounted_returns(self, rewards):

@@ -11,7 +11,7 @@ class Agent(ABC):
     An Agent implementation should encapsulate some particular reinforcement learning algorihthm.
     """
 
-    def initial(self, state, info=None):
+    def initial(self, state):
         """
         Choose an action in the initial state of a new episode.
 
@@ -31,7 +31,7 @@ class Agent(ABC):
         """
 
     @abstractmethod
-    def act(self, state, reward, info=None):
+    def act(self, state, reward):
         """
         Select an action for the current timestep and update internal parameters.
 
@@ -54,7 +54,7 @@ class Agent(ABC):
         action: The action to take at the current timestep
         """
 
-    def terminal(self, reward, info=None):
+    def terminal(self, state, reward):
         """
         Accept the final reward of the episode and perform final updates.
 

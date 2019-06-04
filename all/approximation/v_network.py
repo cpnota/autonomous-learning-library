@@ -65,5 +65,4 @@ class ValueNetwork(ValueFunction):
 
         cache = torch.cat(self._cache[:i])
         self._cache = self._cache[i:]
-
         return cache
