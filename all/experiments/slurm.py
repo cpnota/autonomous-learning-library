@@ -41,8 +41,8 @@ class SlurmExperiment:
 
         sbatch_args = {
             'job-name': self.job_name,
-            'output': 'all_%A_%a.out',
-            'error': 'all_%A_%a.err',
+            'output': 'out/all_%A_%a.out',
+            'error': 'out/all_%A_%a.err',
             'array': '0-' + str(len(self.envs) - 1),
             'partition': '1080ti-short',
             'ntasks': 1,
