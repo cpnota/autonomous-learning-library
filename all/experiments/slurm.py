@@ -2,6 +2,7 @@ import argparse
 import os
 import subprocess
 import sys
+from .experiment import Experiment
 
 SCRIPT_NAME = 'experiment.sh'
 OUT_DIR = 'out'
@@ -11,19 +12,21 @@ class SlurmExperiment:
             self,
             agent,
             envs,
+            frames,
             job_name='autonomous-learning-library',
             hyperparameters=None,
             sbatch_args=None,
     ):
         self.agent = agent
         self.envs = envs
+        self.frames = frames
         self.job_name = job_name
         self.hyperparameters = hyperparameters
         self.sbatch_args = sbatch_args
         self.parse_args()
 
-        # we are in a call to sbatch
         if self.args.reentrant:
+            # we are in a call to sbatch
             self.run_experiment()
         else:
             # otherwise, we need to create the
@@ -37,7 +40,10 @@ class SlurmExperiment:
         self.args = parser.parse_args()
 
     def run_experiment(self):
-        print('ran experiment')
+        index = int(os.environ['SLURM_ARRAY_TASK_ID'])
+        env = self.envs[index]
+        experiment = Experiment(env, frames=self.frames)
+        experiment.run(self.agent(self.hyperparameters))
 
     def queue_jobs(self):
         self.create_sbatch_script()
