@@ -1,5 +1,10 @@
 import argparse
+import os
+import subprocess
 import sys
+
+SCRIPT_NAME = 'experiment.sh'
+OUT_DIR = 'out'
 
 class SlurmExperiment:
     def __init__(
@@ -19,7 +24,7 @@ class SlurmExperiment:
 
         # we are in a call to sbatch
         if self.args.reentrant:
-            self.run_trial()
+            self.run_experiment()
         else:
             # otherwise, we need to create the
             # bash file and call sbatch
@@ -31,12 +36,16 @@ class SlurmExperiment:
         parser.set_defaults(reentrant=False)
         self.args = parser.parse_args()
 
-    def run_trial(self):
-        print('ran trial')
-        return # TODO
+    def run_experiment(self):
+        print('ran experiment')
 
     def queue_jobs(self):
-        script = open("slurm_experiment.sh", "w")
+        self.create_sbatch_script()
+        self.make_output_directory()
+        self.run_sbatch_script()
+
+    def create_sbatch_script(self):
+        script = open(SCRIPT_NAME, 'w')
         script.write('#!/bin/sh\n\n')
 
         sbatch_args = {
@@ -55,3 +64,18 @@ class SlurmExperiment:
 
         script.write('python ' + sys.argv[0] + ' --reentrant\n')
         script.close()
+        print('created sbatch script ', SCRIPT_NAME)
+
+    def make_output_directory(self):
+        try:
+            os.mkdir(OUT_DIR)
+            print('Output directory ', OUT_DIR, ' created.') 
+        except FileExistsError:
+            print('Output directory ', OUT_DIR, ' already exists.')
+
+    def run_sbatch_script(self):
+        result = subprocess.run(
+            ['sbatch', SCRIPT_NAME],
+            stdout=subprocess.PIPE
+        )
+        print(result.stdout.decode('utf-8').rstrip())
