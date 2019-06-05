@@ -8,9 +8,7 @@ from .parallel import ParallelBody, ParallelRepeatActions
 NOOP_ACTION = torch.tensor([0])
 
 class ToLegacyBody(Body):
-    def __init__(self, agent):
-        super().__init__(agent)
-        self._previous_state = None
+    _previous_state = None
 
     def act(self, state, reward):
         previous_state, self._previous_state = self._previous_state, state
