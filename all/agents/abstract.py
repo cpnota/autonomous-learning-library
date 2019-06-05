@@ -11,25 +11,6 @@ class Agent(ABC):
     An Agent implementation should encapsulate some particular reinforcement learning algorihthm.
     """
 
-    def initial(self, state):
-        """
-        Choose an action in the initial state of a new episode.
-
-        Reinforcement learning problems are often broken down into sequences called "episodes".
-        An episode is a self-contained sequence of states, actions, and rewards.
-        A "trial" consists of multiple episodes, and represents the lifetime of an agent.
-        This method is called at the beginning of an episode.
-
-        Parameters
-        ----------
-        state: The initial state of the new episode
-        info (optional): The info object from the environment
-
-        Returns
-        _______
-        action: The action to take in the initial state
-        """
-
     @abstractmethod
     def act(self, state, reward):
         """
@@ -52,23 +33,4 @@ class Agent(ABC):
         Returns
         _______
         action: The action to take at the current timestep
-        """
-
-    def terminal(self, state, reward):
-        """
-        Accept the final reward of the episode and perform final updates.
-
-        After the final action is selected, it is still necessary to
-        consider the reward given on the final timestep. This method
-        provides a hook where the agent can examine this reward
-        and perform any necessary updates.
-
-        Parameters
-        ----------
-        reward: The reward from the previous timestep
-        info (optional): The info object from the environment
-
-        Returns
-        _______
-        None
         """

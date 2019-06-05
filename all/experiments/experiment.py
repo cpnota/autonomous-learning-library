@@ -54,22 +54,15 @@ class Experiment:
             self._run_episode()
 
     def _run_episode(self):
+        # setup
         env = self.env
         agent = self._agent
-
         start = timer()
         start_frames = self._frames
+        returns = 0
 
-        # initial state
+        # run episode
         env.reset()
-        if self._render:
-            env.render()
-        env.step(agent.initial(env.state))
-        returns = env.reward
-        self._frames += 1
-        self._writer.frames = self._frames
-
-        # rest of episode
         while not env.done:
             if self._render:
                 env.render()
@@ -77,16 +70,12 @@ class Experiment:
             returns += env.reward
             self._frames += 1
             self._writer.frames = self._frames
+        agent.act(env.state, env.reward)
 
-        # terminal state
-        agent.terminal(env.state, env.reward)
-
-        # log info
+        # cleanup and logging
         end = timer()
         fps = (self._frames - start_frames) / (end - start)
         self._log(returns, fps)
-
-        # update state
         self._episode += 1
         self._writer.episodes = self._episode
 
