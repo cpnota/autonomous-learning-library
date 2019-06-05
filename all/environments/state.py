@@ -31,7 +31,7 @@ class State:
 
     @property
     def done(self):
-        return self._done
+        return not self.mask
 
     @property
     def mask(self):
