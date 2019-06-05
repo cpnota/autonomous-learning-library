@@ -64,6 +64,7 @@ class SlurmExperiment:
             'mem-per-cpu': 4000,
             'gres': 'gpu:1'
         }
+        sbatch_args.update(self.sbatch_args)
 
         for key, value in sbatch_args.items():
             script.write('#SBATCH --' + key + '=' + str(value) + '\n')
