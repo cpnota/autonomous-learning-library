@@ -22,5 +22,5 @@ for agent_name in atari.__all__:
     agent = getattr(atari, agent_name)
     envs = [AtariEnvironment('Pong', device=device)]
     SlurmExperiment(agent, envs, 2e7, hyperparameters={'device': device}, sbatch_args={
-        'partition': '1080ti-short'
+        'partition': '1080ti-long'
     })
