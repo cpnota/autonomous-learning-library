@@ -7,6 +7,12 @@ from .experiment import Experiment
 SCRIPT_NAME = 'experiment.sh'
 OUT_DIR = 'out'
 
+# track the number of experiments created
+# in the current process
+ID = {
+    "value": 1
+}
+
 class SlurmExperiment:
     def __init__(
             self,
@@ -25,9 +31,15 @@ class SlurmExperiment:
         self.sbatch_args = sbatch_args or {}
         self.parse_args()
 
-        if self.args.reentrant:
-            # we are in a call to sbatch
-            self.run_experiment()
+        # handles multiple experiments created in single script
+        self._id = ID["value"]
+        ID["value"] += 1
+
+        if self.args.experiment_id:
+            # We are inside a slurm task.
+            # Only run the experiment if the ID matches.
+            if self._id == self.args.experiment_id:
+                self.run_experiment()
         else:
             # otherwise, we need to create the
             # bash file and call sbatch
@@ -35,8 +47,7 @@ class SlurmExperiment:
 
     def parse_args(self):
         parser = argparse.ArgumentParser(description='Run an Atari benchmark.')
-        parser.add_argument('--reentrant', dest='reentrant', action='store_true')
-        parser.set_defaults(reentrant=False)
+        parser.add_argument('--experiment_id', type=int)
         self.args = parser.parse_args()
 
     def run_experiment(self):
@@ -70,7 +81,7 @@ class SlurmExperiment:
             script.write('#SBATCH --' + key + '=' + str(value) + '\n')
         script.write('\n')
 
-        script.write('python ' + sys.argv[0] + ' --reentrant\n')
+        script.write('python ' + sys.argv[0] + ' --experiment_id ' + str(self._id) + '\n')
         script.close()
         print('created sbatch script:', SCRIPT_NAME)
 
