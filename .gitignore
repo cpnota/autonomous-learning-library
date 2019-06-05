@@ -11,3 +11,4 @@ all.egg-info
 local
 legacy
 /runs
+/out

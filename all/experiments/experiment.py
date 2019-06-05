@@ -31,11 +31,12 @@ class Experiment:
             render=False,
             console=True,
     ):
-        self._init_trial(make_agent, label, render, console)
         if isinstance(make_agent, tuple):
             make, n_envs = make_agent
+            self._init_trial(make, label, render, console)
             self._run_multi(make, n_envs)
         else:
+            self._init_trial(make_agent, label, render, console)
             self._run_single(make_agent)
 
     def _init_trial(self, make_agent, label, render, console):
