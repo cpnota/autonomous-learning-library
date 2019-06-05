@@ -43,21 +43,21 @@ class Deflicker(Body):
         frame = state.raw
         frame, self._previous_frame = torch.max(
             frame, self._previous_frame), frame
-        deflickered = State(frame, state.done, state.info)
+        deflickered = State(frame, state.mask, state.info)
         return self.agent.act(deflickered, reward)
 
 class AtariVisionPreprocessor(Body):
     def initial(self, state):
         return self.agent.initial(State(
             self._preprocess(state.raw),
-            state.done,
+            state.mask,
             state.info
         ))
 
     def act(self, state, reward):
         state = State(
             self._preprocess(state.raw),
-            state.done,
+            state.mask,
             state.info
         )
         return self.agent.act(state, reward)
@@ -65,7 +65,7 @@ class AtariVisionPreprocessor(Body):
     def terminal(self, state, reward):
         state = State(
             self._preprocess(state.raw),
-            state.done,
+            state.mask,
             state.info
         )
         return self.agent.terminal(state, reward)
@@ -89,7 +89,7 @@ class FrameStack(Body):
         self._frames = [state.raw] * self._size
         return self.agent.initial(State(
             stack(self._frames),
-            state.done,
+            state.mask,
             state.info
         ))
 
@@ -98,7 +98,7 @@ class FrameStack(Body):
         return self.agent.act(
             State(
                 stack(self._frames),
-                state.done,
+                state.mask,
                 state.info
             ),
             reward
@@ -109,7 +109,7 @@ class FrameStack(Body):
         return self.agent.act(
             State(
                 stack(self._frames),
-                state.done,
+                state.mask,
                 state.info
             ),
             reward

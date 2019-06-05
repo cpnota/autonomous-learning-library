@@ -33,13 +33,13 @@ def policy_net(env):
 
 
 def a2c(
-        clip_grad=0.1,
+        clip_grad=0.5,
         discount_factor=0.99,
         alpha=0.99,  # RMSprop alpha
-        eps=1e-4,  # RMSprop epsilon
-        lr=1e-3,
+        eps=1e-5,  # RMSprop epsilon
+        lr=7e-4,
         entropy_loss_scaling=0.01,
-        value_loss_scaling=0.25,
+        value_loss_scaling=0.5,
         feature_lr_scaling=1,
         n_envs=16,
         n_steps=5,

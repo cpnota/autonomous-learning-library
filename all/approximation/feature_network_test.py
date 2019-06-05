@@ -59,7 +59,7 @@ class TestFeatureNetwork(unittest.TestCase):
 
     def assert_state_equal(self, actual, expected):
         tt.assert_almost_equal(actual.features, expected.features, decimal=2)
-        tt.assert_equal(actual.done, expected.done)
+        tt.assert_equal(actual.mask, expected.mask)
 
 if __name__ == '__main__':
     unittest.main()
