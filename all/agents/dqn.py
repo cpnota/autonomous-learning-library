@@ -22,10 +22,10 @@ class DQN(Agent):
         self.minibatch_size = minibatch_size
         self.discount_factor = discount_factor
         # data
-        self.frames_seen = 0
         self.env = None
         self.state = None
         self.action = None
+        self.frames_seen = 0
 
     def act(self, state, reward):
         self._store_transition(state, reward)
@@ -38,7 +38,7 @@ class DQN(Agent):
         if self.state and not self.state.done:
             self.frames_seen += 1
             self.replay_buffer.store(self.state, self.action, state, reward)
-    
+
     def _train(self):
         if self._should_train():
             (states, actions, next_states, rewards, weights) = self.replay_buffer.sample(
