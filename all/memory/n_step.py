@@ -75,7 +75,7 @@ class NStepBuffer:
 
         states = State.from_list(states)
         next_states = State.from_list(next_states)
-        return states, actions, next_states, rewards, lengths
+        return states, actions, rewards, next_states, lengths
 
     def _store(self, state, action, reward, next_state, length):
         self._states.append(state)
@@ -124,9 +124,9 @@ class NStepBatchBuffer:
         sample_n = self.n_envs * self.n_steps
         sample_states = [None] * sample_n
         sample_actions = [None] * sample_n
+        sample_returns = [0] * sample_n
         sample_next_states = [None] * sample_n
         sample_lengths = [0] * sample_n
-        sample_returns = [0] * sample_n
 
         # compute the N-step returns the slow way
         for e in range(self.n_envs):
@@ -146,8 +146,8 @@ class NStepBatchBuffer:
                             break
                 sample_states[i] = state
                 sample_actions[i] = action
-                sample_next_states[i] = next_state
                 sample_returns[i] = returns
+                sample_next_states[i] = next_state
                 sample_lengths[i] = sample_length
 
         self._states = [self._states[-1]]
@@ -163,7 +163,7 @@ class NStepBatchBuffer:
         return (
             State.from_list(sample_states),
             sample_actions,
-            State.from_list(sample_next_states),
             sample_returns,
+            State.from_list(sample_next_states),
             sample_lengths,
         )
