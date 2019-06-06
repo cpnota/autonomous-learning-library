@@ -7,7 +7,7 @@ from .segment_tree import SumSegmentTree, MinSegmentTree
 
 class ReplayBuffer(ABC):
     @abstractmethod
-    def store(self, state, action, next_state, reward):
+    def store(self, state, action, reward, next_state):
         '''Store the transition in the buffer'''
 
     @abstractmethod
@@ -28,8 +28,8 @@ class ExperienceReplayBuffer(ReplayBuffer):
         self.pos = 0
         self.device = device
 
-    def store(self, states, action, next_states, reward):
-        self._add((states, action, next_states, reward))
+    def store(self, states, action, reward, next_states):
+        self._add((states, action, reward, next_states))
 
     def sample(self, batch_size):
         keys = np.random.choice(len(self.buffer), batch_size, replace=True)
@@ -49,9 +49,9 @@ class ExperienceReplayBuffer(ReplayBuffer):
     def _reshape(self, minibatch, weights):
         states = State.from_list([sample[0] for sample in minibatch])
         actions = [sample[1] for sample in minibatch]
-        next_states = State.from_list([sample[2] for sample in minibatch])
-        rewards = torch.tensor([sample[3] for sample in minibatch], device=self.device).float()
-        return (states, actions, next_states, rewards, weights)
+        rewards = torch.tensor([sample[2] for sample in minibatch], device=self.device).float()
+        next_states = State.from_list([sample[3] for sample in minibatch])
+        return (states, actions, rewards, next_states, weights)
 
     def __len__(self):
         return len(self.buffer)
@@ -87,8 +87,8 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
         self._frames = 0
         self._cache = None
 
-    def store(self, states, action, next_states, reward):
-        self._add((states, action, next_states, reward))
+    def store(self, states, action, reward, next_states):
+        self._add((states, action, reward, next_states))
 
     def sample(self, batch_size):
         beta = min(1.0, self._beta + self._frames

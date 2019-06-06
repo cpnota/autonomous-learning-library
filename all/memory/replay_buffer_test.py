@@ -36,7 +36,7 @@ class TestExperienceReplayBuffer(unittest.TestCase):
             state = State(states[i].unsqueeze(0), torch.tensor([1]))
             next_state = State(states[i + 1].unsqueeze(0), torch.tensor([1]))
             self.replay_buffer.store(
-                state, actions[i], next_state, rewards[i])
+                state, actions[i], rewards[i], next_state)
             sample = self.replay_buffer.sample(3)
             actual_samples.append(sample[0].features)
             actual_weights.append(sample[-1])
@@ -74,7 +74,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         actual_weights = []
         for i in range(10):
             self.replay_buffer.store(
-                states[i], actions[i], states[i+1], rewards[i])
+                states[i], actions[i], rewards[i], states[i+1])
             if i > 2:
                 sample = self.replay_buffer.sample(3)
                 sample_states = sample[0].features
