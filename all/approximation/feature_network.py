@@ -9,12 +9,14 @@ class FeatureNetwork(Features):
         self.optimizer = optimizer
         self.clip_grad = clip_grad
         self._cache = []
+        self._out = []
 
     def __call__(self, states):
-        features = self.model(states.features)
+        features = self.model(states.features.float())
         out = features.detach()
         out.requires_grad = True
         self._cache.append(features)
+        self._out.append(out)
         return State(
             out,
             mask=states.mask,
@@ -24,7 +26,7 @@ class FeatureNetwork(Features):
     def eval(self, states):
         with torch.no_grad():
             training = self.model.training
-            result = self.model(states.features)
+            result = self.model(states.features.float())
             self.model.train(training)
             return State(
                 result,
@@ -32,26 +34,19 @@ class FeatureNetwork(Features):
                 info=states.info
             )
 
-    def reinforce(self, grad):
-        batch_size = len(grad)
-        cache = self._decache(batch_size)
+    def reinforce(self):
+        cache, grads = self._decache()
 
         if cache.requires_grad:
-            cache.backward(grad)
+            cache.backward(grads)
             if self.clip_grad != 0:
                 utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
             self.optimizer.step()
             self.optimizer.zero_grad()
 
-    def _decache(self, batch_size):
-        i = 0
-        items = 0
-        while items < batch_size and i < len(self._cache):
-            items += len(self._cache[i])
-            i += 1
-        if items != batch_size:
-            raise ValueError("Incompatible batch size.")
-
-        cache = torch.cat(self._cache[:i])
-        self._cache = self._cache[i:]
-        return cache
+    def _decache(self):
+        cache = torch.cat(self._cache)
+        grads = torch.cat([out.grad for out in self._out])
+        self._cache = []
+        self._out = []
+        return cache, grads
