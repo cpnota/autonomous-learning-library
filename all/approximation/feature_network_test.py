@@ -18,7 +18,7 @@ class TestFeatureNetwork(unittest.TestCase):
         self.features = FeatureNetwork(self.model, optimizer)
         self.states = State(
             torch.randn(3, STATE_DIM),
-            done=torch.tensor([1, 0, 1])
+            mask=torch.tensor([1, 0, 1])
         )
         self.expected_features = State(
             torch.tensor([
@@ -26,7 +26,7 @@ class TestFeatureNetwork(unittest.TestCase):
                 [-0.3569, -0.6612, 0.3485],
                 [-0.0296, -0.7566, -0.4624]
             ]),
-            done=torch.tensor([1, 0, 1])
+            mask=torch.tensor([1, 0, 1])
         )
 
     def test_forward(self):
@@ -48,7 +48,7 @@ class TestFeatureNetwork(unittest.TestCase):
                 [-0.263, -0.567, 0.442],
                 [-0.505, -1.232, -0.938]
             ]),
-            done=torch.tensor([1, 0, 1])
+            mask=torch.tensor([1, 0, 1])
         )
         self.assert_state_equal(features, expected)
 

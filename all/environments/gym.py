@@ -114,5 +114,5 @@ class GymEnvironment(Environment):
                 )
             ).unsqueeze(0).to(self._device),
             self._done_mask if done else self._not_done_mask,
-            info
+            [info]
         )

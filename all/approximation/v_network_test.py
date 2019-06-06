@@ -20,7 +20,7 @@ class TestVNetwork(unittest.TestCase):
     def test_reinforce_list(self):
         states = State(
             torch.randn(5, STATE_DIM),
-            done=torch.tensor([1, 1, 0, 1, 0])
+            mask=torch.tensor([1, 1, 0, 1, 0])
         )
         result = self.v(states)
         tt.assert_almost_equal(result, torch.tensor(
@@ -33,7 +33,7 @@ class TestVNetwork(unittest.TestCase):
     def test_multi_reinforce(self):
         states = State(
             torch.randn(5, STATE_DIM),
-            done=torch.tensor([1, 1, 0, 1, 0, 0])
+            mask=torch.tensor([1, 1, 0, 1, 0, 0])
         )
         self.v(states[0:2])
         self.v(states[2:4])
