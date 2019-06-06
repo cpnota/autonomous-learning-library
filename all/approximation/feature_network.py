@@ -35,18 +35,31 @@ class FeatureNetwork(Features):
             )
 
     def reinforce(self):
-        cache, grads = self._decache()
-
-        if cache.requires_grad:
-            cache.backward(grads)
-            if self.clip_grad != 0:
-                utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
-            self.optimizer.step()
-            self.optimizer.zero_grad()
+        graphs, grads = self._decache()
+        graphs.backward(grads)
+        if self.clip_grad != 0:
+            utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
+        self.optimizer.step()
+        self.optimizer.zero_grad()
 
     def _decache(self):
-        cache = torch.cat(self._cache)
-        grads = torch.cat([out.grad for out in self._out])
-        self._cache = []
-        self._out = []
-        return cache, grads
+        graphs = []
+        grads = []
+
+        new_cache = []
+        new_out = []
+        if self._out[-1].grad is None:
+            new_cache = [self._cache[-1]]
+            new_out = [self._out[-1]]
+            self._cache = self._cache[0:-1]
+            self._out = self._out[0:-1]
+
+        for graph, out in zip(self._cache, self._out):
+            if out.grad is not None:
+                graphs.append(graph)
+                grads.append(out.grad)
+        graphs = torch.cat(graphs)
+        grads = torch.cat(grads)
+        self._cache = new_cache
+        self._out = new_out
+        return graphs, grads
