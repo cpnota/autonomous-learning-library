@@ -37,11 +37,11 @@ class DQN(Agent):
     def _store_transition(self, state, reward):
         if self.state and not self.state.done:
             self.frames_seen += 1
-            self.replay_buffer.store(self.state, self.action, state, reward)
+            self.replay_buffer.store(self.state, self.action, reward, state)
 
     def _train(self):
         if self._should_train():
-            (states, actions, next_states, rewards, weights) = self.replay_buffer.sample(
+            (states, actions, rewards, next_states, weights) = self.replay_buffer.sample(
                 self.minibatch_size)
             td_errors = (
                 rewards +

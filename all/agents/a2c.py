@@ -33,7 +33,7 @@ class A2C(Agent):
         return self.policy(self.features(states))
 
     def _train(self):
-        states, _, next_states, returns, rollout_lengths = self._buffer.sample(self._batch_size)
+        states, _, returns, next_states, rollout_lengths = self._buffer.sample(self._batch_size)
         td_errors = (
             returns
             + (self.discount_factor ** rollout_lengths)
