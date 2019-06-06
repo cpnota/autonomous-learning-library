@@ -68,7 +68,7 @@ class State:
         return State(
             self._raw[idx].unsqueeze(0),
             self._mask[idx].unsqueeze(0),
-            self._info[idx]
+            [self._info[idx]]
         )
 
     def __len__(self):
