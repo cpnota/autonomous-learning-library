@@ -4,18 +4,23 @@ import torch
 class State:
     def __init__(self, raw, mask=None, info=None):
         self._raw = raw
-        self._mask = mask or torch.ones(
-            len(raw),
-            dtype=torch.uint8,
-            device=raw.device
-        )
+
+        if mask is None:
+            self._mask = torch.ones(
+                len(raw),
+                dtype=torch.uint8,
+                device=raw.device
+            )
+        else:
+            self._mask = mask
+
         self._info = info or [None] * len(raw)
 
     @classmethod
     def from_list(cls, states):
         raw = torch.cat([state.raw for state in states])
         done = torch.cat([state.mask for state in states])
-        info = [state.info for state in states]
+        info = sum([state.info for state in states], [])
         return cls(raw, done, info)
 
     @classmethod
@@ -25,9 +30,9 @@ class State:
                 numpy_arr,
                 dtype=dtype
             )
-        ).unsqueeze(0).to(device),
+        ).unsqueeze(0).to(device)
         mask = DONE.to(device) if done else NOT_DONE.to(device)
-        return cls(raw, mask=mask, info=info)
+        return cls(raw, mask=mask, info=[info])
 
     @property
     def features(self):
@@ -51,7 +56,7 @@ class State:
 
     @property
     def done(self):
-        return not self.mask
+        return not self._mask
 
     def __getitem__(self, idx):
         if isinstance(idx, slice):
