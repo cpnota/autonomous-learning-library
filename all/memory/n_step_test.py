@@ -16,7 +16,7 @@ class NStepBufferTest(unittest.TestCase):
         buffer.store(states[9:12], actions, 4 * torch.ones(3))
         self.assertEqual(len(buffer), 6)
 
-        states, actions, next_states, returns, lengths = buffer.sample(6)
+        states, actions, returns, next_states, lengths = buffer.sample(6)
         expected_states = State(torch.arange(0, 6))
         expected_next_states = State(torch.arange(6, 12))
         expected_returns = torch.tensor([
@@ -52,7 +52,7 @@ class NStepBufferTest(unittest.TestCase):
         buffer.store(states[6:9], actions, 2 * torch.ones(3))
         buffer.store(states[9:12], actions, 4 * torch.ones(3))
         buffer.store(states[12:15], actions, 8 * torch.ones(3))
-        states, actions, next_states, returns, lengths = buffer.sample(6)
+        states, actions, returns, next_states, lengths = buffer.sample(6)
 
         expected_states = State(torch.arange(0, 6), torch.tensor([1, 1, 1, 1, 1, 0]))
         expected_next_states = State(torch.tensor([
@@ -82,7 +82,7 @@ class NStepBufferTest(unittest.TestCase):
         buffer.store(raw_states[4:6], actions, torch.ones(2))
         buffer.store(raw_states[6:8], actions, torch.ones(2) * 2)
 
-        states, actions, next_states, returns, lengths = buffer.sample(4)
+        states, actions, returns, next_states, lengths = buffer.sample(4)
         self.assert_states_equal(states, State(torch.arange(0, 4)))
         self.assert_states_equal(next_states, State(torch.arange(4, 8)))
         tt.assert_allclose(returns, torch.tensor([1.5, 1.5, 2, 2]))
@@ -91,7 +91,7 @@ class NStepBufferTest(unittest.TestCase):
         buffer.store(raw_states[8:10], actions, torch.ones(2))
         buffer.store(raw_states[10:12], actions, torch.ones(2))
 
-        states, actions, next_states, returns, lengths = buffer.sample(4)
+        states, actions, returns, next_states, lengths = buffer.sample(4)
         self.assert_states_equal(states, State(torch.arange(4, 8)))
         self.assert_states_equal(next_states, State(torch.arange(8, 12)))
         tt.assert_allclose(returns, torch.tensor([2.5, 2.5, 1.5, 1.5]))
@@ -114,7 +114,7 @@ class NStepBatchBufferTest(unittest.TestCase):
         buffer.store(states[0:3], actions, torch.zeros(3))
         buffer.store(states[3:6], actions, torch.ones(3))
         buffer.store(states[6:9], actions, 4 * torch.ones(3))
-        states, _, next_states, returns, lengths = buffer.sample(-1)
+        states, _, returns, next_states, lengths = buffer.sample(-1)
 
         expected_states = State(torch.arange(0, 6))
         expect_next_states = State(torch.cat((torch.arange(6, 9), torch.arange(6, 9))))
@@ -144,7 +144,7 @@ class NStepBatchBufferTest(unittest.TestCase):
         buffer.store(states[3:6], actions, torch.ones(3))
         buffer.store(states[6:9], actions, 2 * torch.ones(3))
         buffer.store(states[9:12], actions, 4 * torch.ones(3))
-        states, actions, next_states, returns, lengths = buffer.sample(-1)
+        states, actions, returns, next_states, lengths = buffer.sample(-1)
 
         expected_states = State(torch.arange(0, 9), done[0:9])
         expected_next_done = torch.zeros(9)
@@ -178,7 +178,7 @@ class NStepBatchBufferTest(unittest.TestCase):
         buffer.store(raw_states[2:4], actions, torch.ones(2))
         buffer.store(raw_states[4:6], actions, torch.ones(2))
 
-        states, actions, next_states, returns, lengths = buffer.sample(-1)
+        states, actions, returns, next_states, lengths = buffer.sample(-1)
         self.assert_states_equal(states, State(torch.arange(0, 4)))
         self.assert_states_equal(next_states, State(torch.tensor([4, 5, 4, 5])))
         tt.assert_allclose(returns, torch.tensor([1.5, 1.5, 1, 1]))
@@ -187,7 +187,7 @@ class NStepBatchBufferTest(unittest.TestCase):
         buffer.store(raw_states[6:8], actions, torch.ones(2))
         buffer.store(raw_states[8:10], actions, torch.ones(2))
 
-        states, actions, next_states, returns, lengths = buffer.sample(-1)
+        states, actions, returns, next_states, lengths = buffer.sample(-1)
         self.assert_states_equal(states, State(torch.arange(4, 8)))
         self.assert_states_equal(next_states, State(torch.tensor([8, 9, 8, 9])))
         tt.assert_allclose(returns, torch.tensor([1.5, 1.5, 1, 1]))
