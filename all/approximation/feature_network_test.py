@@ -40,7 +40,7 @@ class TestFeatureNetwork(unittest.TestCase):
             if feature is not None:
                 loss = torch.sum(feature.features)
         loss.backward()
-        self.features.reinforce()
+        self.features.reinforce(features.features.grad)
         features = self.features(self.states)
         expected = State(
             torch.tensor([
