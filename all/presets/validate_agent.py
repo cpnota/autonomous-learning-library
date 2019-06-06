@@ -15,10 +15,9 @@ def validate_single_env_agent(make_agent, env):
     # in most cases.
     for _ in range(2):
         env.reset()
-        env.step(agent.initial(env.state))
         while not env.done:
             env.step(agent.act(env.state, env.reward))
-        agent.terminal(env.state, env.reward)
+        agent.act(env.state, env.reward)
 
 def validate_multi_env_agent(make_agent, base_env):
     make, n_env = make_agent

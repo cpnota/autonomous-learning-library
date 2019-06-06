@@ -17,7 +17,7 @@ class State:
     @classmethod
     def from_list(cls, states):
         raw = torch.cat([state.raw for state in states])
-        done = torch.cat([state.done for state in states])
+        done = torch.cat([state.mask for state in states])
         info = [state.info for state in states]
         return cls(raw, done, info)
 
@@ -31,7 +31,7 @@ class State:
 
     @property
     def done(self):
-        return self._done
+        return not self.mask
 
     @property
     def mask(self):

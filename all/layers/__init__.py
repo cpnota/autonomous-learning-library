@@ -16,7 +16,7 @@ class ListNetwork(nn.Module):
         self.device = next(model.parameters()).device
 
     def forward(self, state):
-        return self.model(state.features.float()) * state.done.float().unsqueeze(-1)
+        return self.model(state.features.float()) * state.mask.float().unsqueeze(-1)
 
 class ListToList(nn.Module):
     '''
@@ -29,7 +29,7 @@ class ListToList(nn.Module):
         self.device = next(model.parameters()).device
 
     def forward(self, state):
-        return State(self.model(state.features.float()), state.done, state.info)
+        return State(self.model(state.features.float()), state.mask, state.info)
 
 class Aggregation(nn.Module):
     '''len()

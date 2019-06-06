@@ -7,6 +7,24 @@ from .parallel import ParallelBody, ParallelRepeatActions
 # pylint: disable=protected-access
 NOOP_ACTION = torch.tensor([0])
 
+class ToLegacyBody(Body):
+    _previous_state = None
+
+    def act(self, state, reward):
+        previous_state, self._previous_state = self._previous_state, state
+        if not previous_state or previous_state.done:
+            return self.agent.initial(state)
+        if state.done:
+            return self.agent.terminal(state, reward)
+        return self.agent.act(state, reward)
+
+class FromLegacyBody(Body):
+    def initial(self, state):
+        return self.agent.act(state, 0)
+
+    def terminal(self, state, reward):
+        return self.agent.act(state, reward)
+
 class NoopBody(Body):
     def __init__(self, agent, noop_max):
         super().__init__(agent)
@@ -43,21 +61,21 @@ class Deflicker(Body):
         frame = state.raw
         frame, self._previous_frame = torch.max(
             frame, self._previous_frame), frame
-        deflickered = State(frame, state.done, state.info)
+        deflickered = State(frame, state.mask, state.info)
         return self.agent.act(deflickered, reward)
 
 class AtariVisionPreprocessor(Body):
     def initial(self, state):
         return self.agent.initial(State(
             self._preprocess(state.raw),
-            state.done,
+            state.mask,
             state.info
         ))
 
     def act(self, state, reward):
         state = State(
             self._preprocess(state.raw),
-            state.done,
+            state.mask,
             state.info
         )
         return self.agent.act(state, reward)
@@ -65,7 +83,7 @@ class AtariVisionPreprocessor(Body):
     def terminal(self, state, reward):
         state = State(
             self._preprocess(state.raw),
-            state.done,
+            state.mask,
             state.info
         )
         return self.agent.terminal(state, reward)
@@ -89,7 +107,7 @@ class FrameStack(Body):
         self._frames = [state.raw] * self._size
         return self.agent.initial(State(
             stack(self._frames),
-            state.done,
+            state.mask,
             state.info
         ))
 
@@ -98,7 +116,7 @@ class FrameStack(Body):
         return self.agent.act(
             State(
                 stack(self._frames),
-                state.done,
+                state.mask,
                 state.info
             ),
             reward
@@ -109,7 +127,7 @@ class FrameStack(Body):
         return self.agent.act(
             State(
                 stack(self._frames),
-                state.done,
+                state.mask,
                 state.info
             ),
             reward
@@ -223,6 +241,7 @@ class DeepmindAtariBody(Body):
             noop_max=30,
             preprocess=True,
     ):
+        agent = FromLegacyBody(agent)
         if action_repeat > 1:
             agent = RepeatActions(agent, repeats=action_repeat)
         if clip_rewards:
@@ -239,6 +258,7 @@ class DeepmindAtariBody(Body):
             agent = Deflicker(agent)
         if noop_max > 0:
             agent = NoopBody(agent, noop_max)
+        agent = ToLegacyBody(agent)
         super().__init__(agent)
 
 
@@ -261,6 +281,7 @@ class ParallelAtariBody(Body):
             agent = ParallelRepeatActions(agent, repeats=action_repeat)
 
         def make_body(agent, env):
+            agent = FromLegacyBody(agent)
             if clip_rewards:
                 agent = RewardClipping(agent)
             if fire_on_reset and env._env.unwrapped.get_action_meanings()[1] == 'FIRE':
@@ -275,7 +296,7 @@ class ParallelAtariBody(Body):
                 agent = Deflicker(agent)
             if noop_max > 0:
                 agent = NoopBody(agent, noop_max)
-            return agent
+            return ToLegacyBody(agent)
 
         agent = ParallelBody(agent, envs, make_body)
 
