@@ -29,8 +29,6 @@ class StateTest(unittest.TestCase):
     def test_done(self):
         raw = torch.randn(1, 4)
         state = State(raw, mask=DONE)
-        print(state.mask)
-        print(not state.mask)
         self.assertTrue(state.done)
 
     def test_from_list(self):

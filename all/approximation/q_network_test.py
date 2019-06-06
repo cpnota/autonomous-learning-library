@@ -23,7 +23,7 @@ class TestQNetwork(unittest.TestCase):
     def test_eval_list(self):
         states = State(
             torch.randn(5, STATE_DIM),
-            done=torch.tensor([1, 1, 0, 1, 0])
+            mask=torch.tensor([1, 1, 0, 1, 0])
         )
         result = self.q.eval(states)
         tt.assert_almost_equal(
