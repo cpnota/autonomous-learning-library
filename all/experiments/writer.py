@@ -43,7 +43,7 @@ class ExperimentWriter(SummaryWriter, Writer):
         super().__init__(log_dir=log_dir)
 
     def add_loss(self, name, value, step="frame"):
-        # self.add_scalar("loss/" + name, value, step)
+        self.add_scalar("loss/" + name, value, step)
         pass
 
     def add_evaluation(self, name, value, step="frame"):
