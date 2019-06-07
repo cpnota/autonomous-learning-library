@@ -6,11 +6,12 @@ from all.experiments import Experiment, Writer
 
 
 class MockWriter(Writer):
-    def __init__(self, label):
+    def __init__(self, label, write_loss):
         self.data = {}
         self.label = label
         self.frames = 0
         self.episodes = 1
+        self.write_loss = write_loss
 
     def add_scalar(self, key, value, step="frame"):
         if not key in self.data:
@@ -36,8 +37,8 @@ class MockWriter(Writer):
 
 
 class MockExperiment(Experiment):
-    def _make_writer(self, label):
-        return MockWriter(label)
+    def _make_writer(self, label, write_loss=True):
+        return MockWriter(label, write_loss)
 
 # pylint: disable=protected-access
 
@@ -64,6 +65,11 @@ class TestExperiment(unittest.TestCase):
             np.array([1, 2, 3])
         )
 
+    def test_writes_loss(self):
+        self.experiment.run(sarsa(), console=False)
+        self.assertTrue(self.experiment._writer.write_loss)
+        self.experiment.run(sarsa(), console=False, write_loss=False)
+        self.assertFalse(self.experiment._writer.write_loss)
 
 if __name__ == '__main__':
     unittest.main()
