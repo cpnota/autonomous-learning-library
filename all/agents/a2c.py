@@ -43,7 +43,7 @@ class A2C(Agent):
                 * self.v.eval(self.features.eval(next_states))
                 - self.v(states)
             )
-            self.v.reinforce(td_errors, retain_graph=True)
+            self.v.reinforce(td_errors)
             self.policy.reinforce(td_errors)
             self.features.reinforce()
             self._features = []
