@@ -33,11 +33,12 @@ def policy_net(env):
 
 
 def a2c(
+        # based on stable baselines hyperparameters
         clip_grad=0.5,
         discount_factor=0.99,
-        alpha=0.99,  # RMSprop alpha
-        eps=1e-5,  # RMSprop epsilon
-        lr=7e-4,
+        lr=7e-4,    # RMSprop learning rate
+        alpha=0.99, # RMSprop momentum decay
+        eps=1e-4,   # RMSprop stability
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.25,
         feature_lr_scaling=1,
@@ -47,19 +48,35 @@ def a2c(
 ):
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
+
         feature_model = conv_features().to(device)
         value_model = value_net().to(device)
         policy_model = policy_net(env).to(device)
 
         feature_optimizer = RMSprop(
-            feature_model.parameters(), alpha=alpha, lr=lr * feature_lr_scaling, eps=eps
+            feature_model.parameters(),
+            alpha=alpha,
+            lr=lr * feature_lr_scaling,
+            eps=eps
         )
-        value_optimizer = RMSprop(value_model.parameters(), alpha=alpha, lr=lr, eps=eps)
+        value_optimizer = RMSprop(
+            value_model.parameters(),
+            alpha=alpha,
+            lr=lr,
+            eps=eps
+        )
         policy_optimizer = RMSprop(
-            policy_model.parameters(), alpha=alpha, lr=lr, eps=eps
+            policy_model.parameters(),
+            alpha=alpha,
+            lr=lr,
+            eps=eps
         )
 
-        features = FeatureNetwork(feature_model, feature_optimizer, clip_grad=clip_grad)
+        features = FeatureNetwork(
+            feature_model,
+            feature_optimizer,
+            clip_grad=clip_grad
+        )
         v = ValueNetwork(
             value_model,
             value_optimizer,
@@ -75,6 +92,7 @@ def a2c(
             clip_grad=clip_grad,
             writer=writer,
         )
+    
         return ParallelAtariBody(
             A2C(
                 features,

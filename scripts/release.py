@@ -20,7 +20,7 @@ for agent_name in classic_control.__all__:
 for agent_name in atari.__all__:
     print('Breakout', agent_name)
     agent = getattr(atari, agent_name)
-    envs = [AtariEnvironment('Pong', device=device)]
+    envs = [AtariEnvironment('Breakout', device=device)]
     SlurmExperiment(agent, envs, 2e7, hyperparameters={'device': device}, sbatch_args={
         'partition': '1080ti-long'
     })
