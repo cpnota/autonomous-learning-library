@@ -39,7 +39,7 @@ def a2c(
         eps=1e-5,  # RMSprop epsilon
         lr=7e-4,
         entropy_loss_scaling=0.01,
-        value_loss_scaling=0.5,
+        value_loss_scaling=0.25,
         feature_lr_scaling=1,
         n_envs=16,
         n_steps=5,
