@@ -22,44 +22,35 @@ class DQN(Agent):
         self.minibatch_size = minibatch_size
         self.discount_factor = discount_factor
         # data
-        self.frames_seen = 0
         self.env = None
         self.state = None
         self.action = None
+        self.frames_seen = 0
 
-    def initial(self, state, info=None):
+    def act(self, state, reward):
+        self._store_transition(state, reward)
+        self._train()
         self.state = state
-        self.action = self.policy(self.state)
-        return self.action
-
-    def act(self, state, reward, info=None):
-        self.store_transition(state, reward)
-        if self.should_train():
-            self.train()
         self.action = self.policy(state)
         return self.action
 
-    def terminal(self, reward, info=None):
-        self.store_transition(None, reward)
-        if self.should_train():
-            self.train()
+    def _store_transition(self, state, reward):
+        if self.state and not self.state.done:
+            self.frames_seen += 1
+            self.replay_buffer.store(self.state, self.action, reward, state)
 
-    def store_transition(self, state, reward):
-        self.frames_seen += 1
-        self.replay_buffer.store(self.state, self.action, state, reward)
-        self.state = state
+    def _train(self):
+        if self._should_train():
+            (states, actions, rewards, next_states, weights) = self.replay_buffer.sample(
+                self.minibatch_size)
+            td_errors = (
+                rewards +
+                self.discount_factor * torch.max(self.q.eval(next_states), dim=1)[0] -
+                self.q(states, actions)
+            )
+            self.q.reinforce(weights * td_errors)
+            self.replay_buffer.update_priorities(td_errors)
 
-    def should_train(self):
+    def _should_train(self):
         return (self.frames_seen > self.replay_start_size and
                 self.frames_seen % self.update_frequency == 0)
-
-    def train(self):
-        (states, actions, next_states, rewards, weights) = self.replay_buffer.sample(
-            self.minibatch_size)
-        td_errors = (
-            rewards +
-            self.discount_factor * torch.max(self.q.eval(next_states), dim=1)[0] -
-            self.q(states, actions)
-        )
-        self.q.reinforce(weights * td_errors)
-        self.replay_buffer.update_priorities(td_errors)

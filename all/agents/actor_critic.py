@@ -7,19 +7,14 @@ class ActorCritic(Agent):
         self.gamma = gamma
         self.previous_state = None
 
-    def initial(self, state, info=None):
-        self.previous_state = state
-        return self.policy(state)
-
-    def act(self, state, reward, info=None):
-        if self.previous_state is not None:
-            td_error = reward + self.gamma * self.v.eval(state) - self.v(self.previous_state)
+    def act(self, state, reward):
+        if self.previous_state:
+            td_error = (
+                reward
+                + self.gamma * self.v.eval(state)
+                - self.v(self.previous_state)
+            )
             self.v.reinforce(td_error)
             self.policy.reinforce(td_error)
         self.previous_state = state
         return self.policy(state)
-
-    def terminal(self, reward, info=None):
-        td_error = reward - self.v(self.previous_state)
-        self.v.reinforce(td_error)
-        self.policy.reinforce(td_error)

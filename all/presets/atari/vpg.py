@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch.optim import Adam
+from torch.optim import RMSprop
 from all.agents import VPG
 from all.approximation import ValueNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
@@ -38,11 +38,15 @@ def policy_net(env):
 
 
 def vpg(
-        clip_grad=0.1,
+        # match a2c hypers
+        clip_grad=0.5,
         discount_factor=0.99,
-        entropy_loss_scaling=0.005,
-        eps=1.5e-4,
-        lr=1e-3,
+        lr=7e-4,    # RMSprop learning rate
+        alpha=0.99, # RMSprop momentum decay
+        eps=1e-4,   # RMSprop stability
+        entropy_loss_scaling=0.01,
+        value_loss_scaling=0.25,
+        feature_lr_scaling=1,
         n_episodes=5,
         device=torch.device('cpu')
 ):
@@ -51,14 +55,34 @@ def vpg(
         value_model = value_net().to(device)
         policy_model = policy_net(env).to(device)
 
-        feature_optimizer = Adam(feature_model.parameters(), lr=lr, eps=eps)
-        value_optimizer = Adam(value_model.parameters(), lr=lr, eps=eps)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr, eps=eps)
+        feature_optimizer = RMSprop(
+            feature_model.parameters(),
+            alpha=alpha,
+            lr=lr * feature_lr_scaling,
+            eps=eps
+        )
+        value_optimizer = RMSprop(
+            value_model.parameters(),
+            alpha=alpha,
+            lr=lr,
+            eps=eps
+        )
+        policy_optimizer = RMSprop(
+            policy_model.parameters(),
+            alpha=alpha,
+            lr=lr,
+            eps=eps
+        )
 
-        features = FeatureNetwork(feature_model, feature_optimizer, clip_grad=clip_grad)
+        features = FeatureNetwork(
+            feature_model,
+            feature_optimizer,
+            clip_grad=clip_grad
+        )
         v = ValueNetwork(
             value_model,
             value_optimizer,
+            loss_scaling=value_loss_scaling,
             clip_grad=clip_grad,
             writer=writer
         )
@@ -68,16 +92,8 @@ def vpg(
             env.action_space.n,
             entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
-            writer=writer
+            writer=writer,
         )
-
-        def weights_init(layer):
-            if isinstance(layer, nn.Linear):
-                if layer.out_features == env.action_space.n:
-                    nn.init.zeros_(layer.weight.data)
-                    nn.init.zeros_(layer.bias.data)
-
-        policy_model.apply(weights_init)
 
         return DeepmindAtariBody(
             VPG(features, v, policy, gamma=discount_factor, n_episodes=n_episodes),

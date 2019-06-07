@@ -34,17 +34,19 @@ def dqn(
         model=None,
         optimizer=None,
         # Taken from Extended Data Table 1
+        # in https://www.nature.com/articles/nature14236
+        # except where noted.
         minibatch_size=32,
-        replay_buffer_size=150000,  # fits on 8 GB card
+        replay_buffer_size=100000, # originally 1e6
         agent_history_length=4,
-        target_update_frequency=10000,
+        target_update_frequency=1000, # originally 1e4
         discount_factor=0.99,
         action_repeat=4,
         update_frequency=4,
-        lr=1e-4,
-        eps=1.5e-4,  # Adam epsilon
+        lr=5e-4, # lr for Adam: Deepmind used RMSprop
+        eps=1.5e-4, # stability parameter for Adam
         initial_exploration=1.,
-        final_exploration=0.1,
+        final_exploration=0.02, # originally 0.1
         final_exploration_frame=1000000,
         replay_start_size=50000,
         noop_max=30,

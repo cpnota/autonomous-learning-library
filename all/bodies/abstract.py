@@ -19,11 +19,11 @@ class Body(Agent):
     def agent(self, agent):
         self._agent = agent
 
-    def initial(self, state, info=None):
-        return self.agent.initial(state, info)
+    def initial(self, state):
+        return self.agent.initial(state)
 
-    def act(self, state, reward, info=None):
-        return self.agent.act(state, reward, info)
+    def act(self, state, reward):
+        return self.agent.act(state, reward)
 
-    def terminal(self, reward, info=None):
-        return self.agent.terminal(reward, info)
+    def terminal(self, state, reward):
+        return self.agent.terminal(state, reward)

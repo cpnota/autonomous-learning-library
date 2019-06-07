@@ -1,4 +1,5 @@
 import torch
+from all.environments import State
 from .abstract import Agent
 
 class VPG(Agent):
@@ -16,40 +17,52 @@ class VPG(Agent):
         self.gamma = gamma
         self.n_episodes = n_episodes
         self._trajectories = []
-        self._states = None
-        self._rewards = None
-
-    def initial(self, state, info=None):
-        features = self.features(state)
-        self._states = [features]
+        self._features = []
         self._rewards = []
-        return self.policy(features)
 
-    def act(self, state, reward, info=None):
+    def act(self, state, reward):
+        if not self._features:
+            return self._initial(state)
+        if not state.done:
+            return self._act(state, reward)
+        return self._terminal(reward)
+
+    def _initial(self, state):
         features = self.features(state)
-        self._states.append(features)
+        self._features = [features.features]
+        return self.policy(features)
+
+    def _act(self, state, reward):
+        features = self.features(state)
+        self._features.append(features.features)
         self._rewards.append(reward)
         return self.policy(features)
 
-    def terminal(self, reward, info=None):
+    def _terminal(self, reward):
         self._rewards.append(reward)
-        states = torch.cat(self._states)
-        rewards = torch.tensor(self._rewards, device=states.device)
-        self._trajectories.append((states, rewards))
+        features = torch.cat(self._features)
+        rewards = torch.tensor(self._rewards, device=features.device)
+        self._trajectories.append((features, rewards))
+        self._features = []
+        self._rewards = []
+
         if len(self._trajectories) >= self.n_episodes:
-            advantages = torch.cat([
-                self._compute_advantages(states, rewards)
-                for (states, rewards)
-                in self._trajectories
-            ])
-            self.v.reinforce(advantages, retain_graph=True)
-            self.policy.reinforce(advantages)
-            self.features.reinforce()
-            self._trajectories = []
+            self._train()
+
+    def _train(self):
+        advantages = torch.cat([
+            self._compute_advantages(features, rewards)
+            for (features, rewards)
+            in self._trajectories
+        ])
+        self.v.reinforce(advantages, retain_graph=True)
+        self.policy.reinforce(advantages)
+        self.features.reinforce()
+        self._trajectories = []
 
     def _compute_advantages(self, features, rewards):
         returns = self._compute_discounted_returns(rewards)
-        values = self.v(features)
+        values = self.v(State(features))
         return returns - values
 
     def _compute_discounted_returns(self, rewards):

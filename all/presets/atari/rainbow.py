@@ -45,16 +45,16 @@ def rainbow(
         optimizer=None,
         # vanilla DQN parameters
         minibatch_size=32,
-        replay_buffer_size=150000,  # fits on 8 GB card
+        replay_buffer_size=100000,
         agent_history_length=4,
-        target_update_frequency=10000,
+        target_update_frequency=1000,
         discount_factor=0.99,
         action_repeat=4,
         update_frequency=4,
-        lr=1e-4,  # Adam instead of RM prop
-        eps=1.5e-4,  # Adam epsilon
+        lr=5e-4,
+        eps=1.5e-4,
         initial_exploration=1.,
-        final_exploration=0.1,
+        final_exploration=0.02,
         final_exploration_frame=1000000,
         replay_start_size=50000,
         noop_max=30,

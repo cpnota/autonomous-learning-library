@@ -1,10 +1,29 @@
 import torch
 import numpy as np
+from all.environments import State
 from .abstract import Body
 from .parallel import ParallelBody, ParallelRepeatActions
 
 # pylint: disable=protected-access
 NOOP_ACTION = torch.tensor([0])
+
+class ToLegacyBody(Body):
+    _previous_state = None
+
+    def act(self, state, reward):
+        previous_state, self._previous_state = self._previous_state, state
+        if not previous_state or previous_state.done:
+            return self.agent.initial(state)
+        if state.done:
+            return self.agent.terminal(state, reward)
+        return self.agent.act(state, reward)
+
+class FromLegacyBody(Body):
+    def initial(self, state):
+        return self.agent.act(state, 0)
+
+    def terminal(self, state, reward):
+        return self.agent.act(state, reward)
 
 class NoopBody(Body):
     def __init__(self, agent, noop_max):
@@ -13,42 +32,61 @@ class NoopBody(Body):
         self.noops = 0
         self.actions_taken = 0
 
-    def initial(self, state, info=None):
+    def initial(self, state):
         self.noops = np.random.randint(self.noop_max) + 1
         self.actions_taken = 0
         return NOOP_ACTION
 
-    def act(self, state, reward, info=None):
+    def act(self, state, reward):
         self.actions_taken += 1
         if self.actions_taken < self.noops:
             return NOOP_ACTION
         if self.actions_taken == self.noops:
-            return self.agent.initial(state, info)
+            return self.agent.initial(state)
         return self.agent.act(state, reward)
 
-    def terminal(self, reward, info=None):
+    def terminal(self, state, reward):
         if self.actions_taken >= self.noops:
-            self.agent.terminal(reward, info)
+            self.agent.terminal(state, reward)
         # otherwise, the poor agent never stood a chance
 
 class Deflicker(Body):
     _previous_frame = None
 
-    def initial(self, frame, info=None):
-        self._previous_frame = frame
-        return self.agent.initial(frame, info)
+    def initial(self, state):
+        self._previous_frame = state.raw
+        return self.agent.initial(state)
 
-    def act(self, frame, reward, info=None):
+    def act(self, state, reward):
+        frame = state.raw
         frame, self._previous_frame = torch.max(
             frame, self._previous_frame), frame
-        return self.agent.act(frame, reward, info)
+        deflickered = State(frame, state.mask, state.info)
+        return self.agent.act(deflickered, reward)
 
 class AtariVisionPreprocessor(Body):
-    def initial(self, frame, info=None):
-        return self.agent.initial(self._preprocess(frame), info)
+    def initial(self, state):
+        return self.agent.initial(State(
+            self._preprocess(state.raw),
+            state.mask,
+            state.info
+        ))
 
-    def act(self, frame, reward, info=None):
-        return self.agent.act(self._preprocess(frame), reward, info)
+    def act(self, state, reward):
+        state = State(
+            self._preprocess(state.raw),
+            state.mask,
+            state.info
+        )
+        return self.agent.act(state, reward)
+
+    def terminal(self, state, reward):
+        state = State(
+            self._preprocess(state.raw),
+            state.mask,
+            state.info
+        )
+        return self.agent.terminal(state, reward)
 
     def _preprocess(self, frame):
         return to_grayscale(downsample(frame)).unsqueeze(1)
@@ -62,16 +100,38 @@ def downsample(frame):
 class FrameStack(Body):
     def __init__(self, agent, size=4):
         super().__init__(agent)
-        self._state = []
+        self._frames = []
         self._size = size
 
-    def initial(self, state, info=None):
-        self._state = [state] * self._size
-        return self.agent.initial(stack(self._state), info)
+    def initial(self, state):
+        self._frames = [state.raw] * self._size
+        return self.agent.initial(State(
+            stack(self._frames),
+            state.mask,
+            state.info
+        ))
 
-    def act(self, state, reward, info=None):
-        self._state = self._state[1:] + [state]
-        return self.agent.act(stack(self._state), reward, info)
+    def act(self, state, reward):
+        self._frames = self._frames[1:] + [state.raw]
+        return self.agent.act(
+            State(
+                stack(self._frames),
+                state.mask,
+                state.info
+            ),
+            reward
+        )
+
+    def terminal(self, state, reward):
+        self._frames = self._frames[1:] + [state.raw]
+        return self.agent.act(
+            State(
+                stack(self._frames),
+                state.mask,
+                state.info
+            ),
+            reward
+        )
 
 def stack(frames):
     return torch.cat(frames, dim=1)
@@ -82,16 +142,17 @@ class EpisodicLives(Body):
         self._env = env
         self._lives = 0
 
-    def initial(self, state, info=None):
+    def initial(self, state):
         self._lives = self._get_lives()
-        return self.agent.initial(state, info)
+        return self.agent.initial(state)
 
-    def act(self, state, reward, info=None):
+    def act(self, state, reward):
         if self._lost_life():
-            self.terminal(reward, info)
+            state = State(state.raw, state.mask * 0, state.info)
+            self.terminal(state, reward)
             self._lives = self._get_lives()
-            return self.initial(state, info)
-        return self.agent.act(state, reward, info)
+            return self.initial(state)
+        return self.agent.act(state, reward)
 
     def _lost_life(self):
         lives = self._get_lives()
@@ -106,25 +167,25 @@ class FireOnReset(Body):
         super().__init__(agent)
         self._frames = 0
 
-    def initial(self, state, info=None):
+    def initial(self, state):
         self._frames = 1
         return torch.tensor([1])
 
-    def act(self, state, reward, info=None):
+    def act(self, state, reward):
         if self._frames == 1:
             self._frames += 1
             return torch.tensor([2])
         if self._frames == 2:
             self._frames += 1
-            return self.agent.initial(state, info)
-        return self.agent.act(state, reward, info)
+            return self.agent.initial(state)
+        return self.agent.act(state, reward)
 
 class RewardClipping(Body):
-    def act(self, state, reward, info=None):
-        return self.agent.act(state, np.sign(reward), info)
+    def act(self, state, reward):
+        return self.agent.act(state, np.sign(reward))
 
-    def terminal(self, reward, info=None):
-        return self.agent.terminal(np.sign(reward), info)
+    def terminal(self, state, reward):
+        return self.agent.terminal(state, np.sign(reward))
 
 class RepeatActions(Body):
     def __init__(self, agent, repeats=4):
@@ -134,24 +195,24 @@ class RepeatActions(Body):
         self._action = None
         self._reward = 0
 
-    def initial(self, state, info=None):
-        self._action = self.agent.initial(state, info)
+    def initial(self, state):
+        self._action = self.agent.initial(state)
         self._reward = 0
         self._count = 0
         return self._action
 
-    def act(self, state, reward, info=None):
+    def act(self, state, reward):
         self._count += 1
         self._reward += reward
         if self._count == self._repeats:
-            self._action = self.agent.act(state, self._reward, info)
+            self._action = self.agent.act(state, self._reward)
             self._reward = 0
             self._count = 0
         return self._action
 
-    def terminal(self, reward, info=None):
+    def terminal(self, state, reward):
         self._reward += reward
-        return self.agent.terminal(self._reward, info)
+        return self.agent.terminal(state, self._reward)
 
 class DeepmindAtariBody(Body):
     '''
@@ -180,6 +241,7 @@ class DeepmindAtariBody(Body):
             noop_max=30,
             preprocess=True,
     ):
+        agent = FromLegacyBody(agent)
         if action_repeat > 1:
             agent = RepeatActions(agent, repeats=action_repeat)
         if clip_rewards:
@@ -196,6 +258,7 @@ class DeepmindAtariBody(Body):
             agent = Deflicker(agent)
         if noop_max > 0:
             agent = NoopBody(agent, noop_max)
+        agent = ToLegacyBody(agent)
         super().__init__(agent)
 
 
@@ -218,6 +281,7 @@ class ParallelAtariBody(Body):
             agent = ParallelRepeatActions(agent, repeats=action_repeat)
 
         def make_body(agent, env):
+            agent = FromLegacyBody(agent)
             if clip_rewards:
                 agent = RewardClipping(agent)
             if fire_on_reset and env._env.unwrapped.get_action_meanings()[1] == 'FIRE':
@@ -232,7 +296,7 @@ class ParallelAtariBody(Body):
                 agent = Deflicker(agent)
             if noop_max > 0:
                 agent = NoopBody(agent, noop_max)
-            return agent
+            return ToLegacyBody(agent)
 
         agent = ParallelBody(agent, envs, make_body)
 
