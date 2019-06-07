@@ -92,7 +92,7 @@ def a2c(
             clip_grad=clip_grad,
             writer=writer,
         )
-    
+
         return ParallelAtariBody(
             A2C(
                 features,
