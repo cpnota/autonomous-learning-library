@@ -30,23 +30,24 @@ class Experiment:
             label=None,
             render=False,
             console=True,
+            write_loss=True
     ):
         if isinstance(make_agent, tuple):
             make, n_envs = make_agent
-            self._init_trial(make, label, render, console)
+            self._init_trial(make, label, render, console, write_loss)
             self._run_multi(make, n_envs)
         else:
-            self._init_trial(make_agent, label, render, console)
+            self._init_trial(make_agent, label, render, console, write_loss)
             self._run_single(make_agent)
 
-    def _init_trial(self, make_agent, label, render, console):
+    def _init_trial(self, make_agent, label, render, console, write_loss):
         if label is None:
             label = make_agent.__name__
         self._frames = 0
         self._episode = 1
         self._render = render
         self._console = console
-        self._writer = self._make_writer(label)
+        self._writer = self._make_writer(label, write_loss)
 
     def _run_single(self, make_agent):
         self._agent = make_agent(self.env, writer=self._writer)
@@ -118,5 +119,5 @@ class Experiment:
         self._writer.add_evaluation('returns-by-frame', returns, step="frame")
         self._writer.add_scalar('fps', fps, step="frame")
 
-    def _make_writer(self, label):
-        return ExperimentWriter(label, self.env.name)
+    def _make_writer(self, label, write_loss):
+        return ExperimentWriter(label, self.env.name, loss=write_loss)

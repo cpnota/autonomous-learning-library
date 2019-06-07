@@ -32,7 +32,7 @@ class DummyWriter(Writer):
 
 
 class ExperimentWriter(SummaryWriter, Writer):
-    def __init__(self, agent_name, env_name):
+    def __init__(self, agent_name, env_name, loss=True):
         self.env_name = env_name
         current_time = str(datetime.now())
         log_dir = os.path.join(
@@ -40,11 +40,12 @@ class ExperimentWriter(SummaryWriter, Writer):
         )
         self._frames = 0
         self._episodes = 1
+        self._loss = loss
         super().__init__(log_dir=log_dir)
 
     def add_loss(self, name, value, step="frame"):
-        # self.add_scalar("loss/" + name, value, step)
-        pass
+        if self._loss:
+            self.add_scalar("loss/" + name, value, step)
 
     def add_evaluation(self, name, value, step="frame"):
         self.add_scalar('evaluation/' + name, value, self._get_step(step))

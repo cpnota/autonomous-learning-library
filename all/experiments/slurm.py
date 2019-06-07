@@ -54,7 +54,7 @@ class SlurmExperiment:
         index = int(os.environ['SLURM_ARRAY_TASK_ID'])
         env = self.envs[index]
         experiment = Experiment(env, frames=self.frames)
-        experiment.run(self.agent(**self.hyperparameters))
+        experiment.run(self.agent(**self.hyperparameters), write_loss=False)
 
     def queue_jobs(self):
         self.create_sbatch_script()
