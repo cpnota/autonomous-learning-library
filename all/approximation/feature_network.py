@@ -45,21 +45,10 @@ class FeatureNetwork(Features):
     def _decache(self):
         graphs = []
         grads = []
-
-        new_cache = []
-        new_out = []
-        if self._out[-1].grad is None:
-            new_cache = [self._cache[-1]]
-            new_out = [self._out[-1]]
-            self._cache = self._cache[0:-1]
-            self._out = self._out[0:-1]
-
         for graph, out in zip(self._cache, self._out):
             if out.grad is not None:
                 graphs.append(graph)
                 grads.append(out.grad)
-        graphs = torch.cat(graphs)
-        grads = torch.cat(grads)
-        self._cache = new_cache
-        self._out = new_out
-        return graphs, grads
+        self._cache = []
+        self._out = []
+        return torch.cat(graphs), torch.cat(grads)
