@@ -33,8 +33,8 @@ def policy_net(env):
 
 
 def a2c(
-        # based on stable baselines hyperparameters
-        clip_grad=0.5,
+        # modified from stable baselines hyperparameters
+        clip_grad=0.1,
         discount_factor=0.99,
         lr=7e-4,    # RMSprop learning rate
         alpha=0.99, # RMSprop momentum decay
@@ -42,7 +42,7 @@ def a2c(
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.25,
         feature_lr_scaling=1,
-        n_envs=16,
+        n_envs=64,
         n_steps=5,
         device=torch.device("cpu"),
 ):
