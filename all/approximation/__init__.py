@@ -1,15 +1,11 @@
-from .q_function import QFunction
+from .approximation import Approximation
 from .q_network import QNetwork
-from .v_function import ValueFunction
 from .v_network import ValueNetwork
-from .features import Features
 from .feature_network import FeatureNetwork
 
 __all__ = [
-    "QFunction",
+    "Approximation",
     "QNetwork",
-    "ValueFunction",
     "ValueNetwork",
-    "Features",
     "FeatureNetwork"
 ]

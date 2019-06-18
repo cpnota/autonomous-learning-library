@@ -1,11 +1,10 @@
-from abc import ABC, abstractmethod
 import copy
 import torch
 from torch.nn import utils
 from torch.nn.functional import mse_loss
 from all.experiments import DummyWriter
 
-class Approximation(ABC):
+class Approximation():
     def __init__(
             self,
             model,
@@ -30,13 +29,17 @@ class Approximation(ABC):
         self._writer = writer
         self._name = name
 
-    @abstractmethod
     def __call__(self, *inputs):
-        pass
+        result = self.model(*inputs)
+        self._enqueue(result)
+        return result.detach()
 
-    @abstractmethod
     def eval(self, *inputs):
-        pass
+        with torch.no_grad():
+            training = self.target_model.training
+            result = self.target_model(*inputs)
+            self.target_model.train(training)
+            return result
 
     def reinforce(self, errors, retain_graph=False):
         batch_size = len(errors)
