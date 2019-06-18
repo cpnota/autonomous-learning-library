@@ -1,4 +1,4 @@
-import torch
+from torch import nn
 from torch.nn.functional import mse_loss
 from all.layers import ListNetwork
 from .approximation import Approximation
@@ -7,6 +7,15 @@ def td_loss(loss):
     def _loss(estimates, errors):
         return loss(estimates, errors + estimates.detach())
     return _loss
+
+class VModule(nn.Module):
+    def __init__(self, model):
+        super().__init__()
+        self.device = next(model.parameters()).device
+        self.model = ListNetwork(model, (1,))
+
+    def forward(self, states):
+        return self.model(states).squeeze(-1)
 
 class ValueNetwork(Approximation):
     def __init__(
@@ -17,7 +26,7 @@ class ValueNetwork(Approximation):
             name='v',
             **kwargs
     ):
-        model = ListNetwork(model, (1,))
+        model = VModule(model)
         loss = td_loss(loss)
         super().__init__(
             model,
@@ -26,15 +35,3 @@ class ValueNetwork(Approximation):
             name=name,
             **kwargs
         )
-
-    def __call__(self, states):
-        result = self.model(states).squeeze(1)
-        self._enqueue(result)
-        return result.detach()
-
-    def eval(self, states):
-        with torch.no_grad():
-            training = self.target_model.training
-            result = self.target_model(states).squeeze(1)
-            self.target_model.train(training)
-            return result
