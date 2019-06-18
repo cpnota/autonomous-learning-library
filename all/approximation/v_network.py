@@ -34,7 +34,7 @@ class ValueNetwork(Approximation):
 
     def eval(self, states):
         with torch.no_grad():
-            training = self.model.training
-            result = self.model(states).squeeze(1)
-            self.model.train(training)
+            training = self.target_model.training
+            result = self.target_model(states).squeeze(1)
+            self.target_model.train(training)
             return result

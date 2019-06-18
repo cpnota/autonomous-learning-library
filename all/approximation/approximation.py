@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 import copy
 import torch
-from torch import optim
 from torch.nn import utils
 from torch.nn.functional import mse_loss
 from all.experiments import DummyWriter
@@ -10,7 +9,7 @@ class Approximation(ABC):
     def __init__(
             self,
             model,
-            optimizer=None,
+            optimizer,
             clip_grad=0,
             loss_scaling=1,
             loss=mse_loss,
@@ -23,7 +22,7 @@ class Approximation(ABC):
         self.device = next(model.parameters()).device
         self._updates = 0
         self._target_update_frequency = target_update_frequency
-        self._optimizer = optimizer or optim.Adam(model.parameters())
+        self._optimizer = optimizer
         self._loss = loss
         self._loss_scaling = loss_scaling
         self._cache = []
@@ -46,11 +45,7 @@ class Approximation(ABC):
             loss = self._loss(cache, errors) * self._loss_scaling
             self._writer.add_loss(self._name, loss)
             loss.backward(retain_graph=retain_graph)
-            if self._clip_grad != 0:
-                utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
-            self._optimizer.step()
-            self._optimizer.zero_grad()
-            self._update_target_model()
+            self._step()
 
     def _enqueue(self, results):
         self._cache.append(results)
@@ -66,6 +61,13 @@ class Approximation(ABC):
         items = torch.cat(self._cache[:i])
         self._cache = self._cache[i:]
         return items
+
+    def _step(self):
+        if self._clip_grad != 0:
+            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
+        self._optimizer.step()
+        self._optimizer.zero_grad()
+        self._update_target_model()
 
     def _init_target_model(self, target_update_frequency):
         return (
