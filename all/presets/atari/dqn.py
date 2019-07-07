@@ -1,9 +1,8 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
-from all.nn import Flatten, Linear0
+from all import nn
 from all.approximation import QNetwork
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
@@ -22,10 +21,10 @@ def conv_net(env, frames=4):
         nn.ReLU(),
         nn.Conv2d(64, 64, 3, stride=1),
         nn.ReLU(),
-        Flatten(),
+        nn.Flatten(),
         nn.Linear(3456, 512),
         nn.ReLU(),
-        Linear0(512, env.action_space.n)
+        nn.Linear0(512, env.action_space.n)
     )
 
 

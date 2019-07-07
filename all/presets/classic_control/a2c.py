@@ -1,7 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch import nn
 from torch.optim import Adam
+from all import nn
 from all.agents import A2C
 from all.approximation import VNetwork, FeatureNetwork
 from all.experiments import DummyWriter

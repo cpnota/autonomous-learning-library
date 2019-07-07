@@ -1,19 +1,18 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import mse_loss
+from all import nn
 from all.agents import DQN
 from all.approximation import QNetwork
 from all.experiments import DummyWriter
-from all.nn import Flatten
 from all.memory import ExperienceReplayBuffer
 from all.policies import GreedyPolicy
 
 
 def fc_net(env, frames=1):
     return nn.Sequential(
-        Flatten(),
+        nn.Flatten(),
         nn.Linear(env.state_space.shape[0] * frames, 256),
         nn.ReLU(),
         nn.Linear(256, env.action_space.n)
