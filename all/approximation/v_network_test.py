@@ -2,7 +2,7 @@ import unittest
 import torch
 from torch import nn
 import torch_testing as tt
-from all.approximation.v_network import ValueNetwork
+from all.approximation.v_network import VNetwork
 from all.environments import State
 
 STATE_DIM = 2
@@ -15,7 +15,7 @@ class TestVNetwork(unittest.TestCase):
         )
 
         optimizer = torch.optim.SGD(self.model.parameters(), lr=0.1)
-        self.v = ValueNetwork(self.model, optimizer)
+        self.v = VNetwork(self.model, optimizer)
 
     def test_reinforce_list(self):
         states = State(

@@ -5,7 +5,7 @@ from torch.optim import RMSprop
 from all.layers import Flatten, Linear0
 from all.agents import A2C
 from all.bodies import ParallelAtariBody
-from all.approximation import ValueNetwork, FeatureNetwork
+from all.approximation import VNetwork, FeatureNetwork
 from all.experiments import DummyWriter
 from all.policies import SoftmaxPolicy
 
@@ -77,7 +77,7 @@ def a2c(
             feature_optimizer,
             clip_grad=clip_grad
         )
-        v = ValueNetwork(
+        v = VNetwork(
             value_model,
             value_optimizer,
             loss_scaling=value_loss_scaling,

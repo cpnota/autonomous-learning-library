@@ -1,13 +1,10 @@
 import torch
-from torch.nn import utils
 from all.environments import State
-from .features import Features
+from .approximation import Approximation
 
-class FeatureNetwork(Features):
-    def __init__(self, model, optimizer, clip_grad=0):
-        self.model = model
-        self.optimizer = optimizer
-        self.clip_grad = clip_grad
+class FeatureNetwork(Approximation):
+    def __init__(self, model, optimizer=None, **kwargs):
+        super().__init__(model, optimizer, **kwargs)
         self._cache = []
         self._out = []
 
@@ -15,8 +12,7 @@ class FeatureNetwork(Features):
         features = self.model(states.features.float())
         out = features.detach()
         out.requires_grad = True
-        self._cache.append(features)
-        self._out.append(out)
+        self._enqueue(features, out)
         return State(
             out,
             mask=states.mask,
@@ -25,9 +21,9 @@ class FeatureNetwork(Features):
 
     def eval(self, states):
         with torch.no_grad():
-            training = self.model.training
-            result = self.model(states.features.float())
-            self.model.train(training)
+            training = self.target_model.training
+            result = self.target_model(states.features.float())
+            self.target_model.train(training)
             return State(
                 result,
                 mask=states.mask,
@@ -35,14 +31,15 @@ class FeatureNetwork(Features):
             )
 
     def reinforce(self):
-        graphs, grads = self._decache()
+        graphs, grads = self._dequeue()
         graphs.backward(grads)
-        if self.clip_grad != 0:
-            utils.clip_grad_norm_(self.model.parameters(), self.clip_grad)
-        self.optimizer.step()
-        self.optimizer.zero_grad()
+        self._step()
 
-    def _decache(self):
+    def _enqueue(self, features, out):
+        self._cache.append(features)
+        self._out.append(out)
+
+    def _dequeue(self):
         graphs = []
         grads = []
         for graph, out in zip(self._cache, self._out):

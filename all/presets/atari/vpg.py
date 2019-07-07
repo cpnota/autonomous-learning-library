@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.optim import RMSprop
 from all.agents import VPG
-from all.approximation import ValueNetwork, FeatureNetwork
+from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
 from all.experiments import DummyWriter
 from all.layers import Flatten, Linear0
@@ -79,7 +79,7 @@ def vpg(
             feature_optimizer,
             clip_grad=clip_grad
         )
-        v = ValueNetwork(
+        v = VNetwork(
             value_model,
             value_optimizer,
             loss_scaling=value_loss_scaling,

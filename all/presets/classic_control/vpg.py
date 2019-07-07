@@ -4,7 +4,7 @@ from torch import nn
 from torch.optim import Adam
 from all.layers import Flatten
 from all.agents import VPG
-from all.approximation import ValueNetwork, FeatureNetwork
+from all.approximation import VNetwork, FeatureNetwork
 from all.experiments import DummyWriter
 from all.policies import SoftmaxPolicy
 
@@ -44,7 +44,7 @@ def vpg(
 
         features = FeatureNetwork(
             feature_model, feature_optimizer, clip_grad=clip_grad)
-        v = ValueNetwork(
+        v = VNetwork(
             value_model,
             value_optimizer,
             clip_grad=clip_grad,
