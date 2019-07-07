@@ -1,22 +1,23 @@
 import argparse
 from all.environments import GymEnvironment
 from all.experiments import Experiment
-from all.presets import box2d
+from all.presets import continuous
 
 envs = {
     'walker': 'BipedalWalker-v2',
     'walker_hard': 'BipedalWalkerHardcore-v2',
-    'car': 'CarRacing-v0',
+    'mountaincar': 'MountainCarContinuous-v2',
     'lander': 'LunarLanderContinuous-v2',
+    'pendulum': 'Pendulum-v0'
 }
 
 def run_atari():
     parser = argparse.ArgumentParser(
-        description='Run a Box2D benchmark.')
-    parser.add_argument('env', help='Name of the env (walker, walker_hard, car, lander)')
+        description='Run a continuous actions benchmark.')
+    parser.add_argument('env', help='Name of the env (see envs)')
     parser.add_argument(
         'agent', help="Name of the agent (e.g. actor_critic). See presets for available agents.")
-    parser.add_argument('--frames', type=int, default=100000,
+    parser.add_argument('--frames', type=int, default=2e6,
                         help='The number of training frames')
     parser.add_argument(
         '--device', default='cuda',
@@ -26,7 +27,7 @@ def run_atari():
 
     env = GymEnvironment(envs[args.env], device=args.device)
     agent_name = args.agent
-    agent = getattr(box2d, agent_name)
+    agent = getattr(continuous, agent_name)
 
     experiment = Experiment(
         env,
