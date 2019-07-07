@@ -1,11 +1,6 @@
 from torch.nn.functional import mse_loss
-from all.layers import QModule
+from all.layers import QModule, td_loss
 from .approximation import Approximation
-
-def td_loss(loss):
-    def _loss(estimates, errors):
-        return loss(estimates, errors + estimates.detach())
-    return _loss
 
 class QNetwork(Approximation):
     def __init__(

@@ -1,11 +1,6 @@
 from torch.nn.functional import mse_loss
-from all.layers import VModule
+from all.layers import VModule, td_loss
 from .approximation import Approximation
-
-def td_loss(loss):
-    def _loss(estimates, errors):
-        return loss(estimates, errors + estimates.detach())
-    return _loss
 
 class ValueNetwork(Approximation):
     def __init__(

@@ -142,3 +142,8 @@ class VModule(nn.Module):
 
     def forward(self, states):
         return self.model(states).squeeze(-1)
+
+def td_loss(loss):
+    def _loss(estimates, errors):
+        return loss(estimates, errors + estimates.detach())
+    return _loss
