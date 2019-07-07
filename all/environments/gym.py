@@ -33,7 +33,7 @@ class GymEnvironment(Environment):
         return self._state
 
     def step(self, action):
-        state, reward, done, info = self._env.step(action.item())
+        state, reward, done, info = self._env.step(self._convert(action))
         self._state = self._make_state(state, done, info)
         self._action = action
         self._reward = reward
@@ -116,3 +116,10 @@ class GymEnvironment(Environment):
             self._done_mask if done else self._not_done_mask,
             [info]
         )
+
+    def _convert(self, action):
+        if isinstance(self.action_space, gym.spaces.Discrete):
+            return action.item()
+        if isinstance(self.action_space, gym.spaces.Box):
+            return action.cpu().numpy()[0]
+        raise TypeError("Unknown action space type")

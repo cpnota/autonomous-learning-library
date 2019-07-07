@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from .abstract import Policy
+from .policy import Policy
 
 class GreedyPolicy(Policy):
     def __init__(
