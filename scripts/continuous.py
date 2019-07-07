@@ -6,7 +6,7 @@ from all.presets import continuous
 envs = {
     'walker': 'BipedalWalker-v2',
     'walker_hard': 'BipedalWalkerHardcore-v2',
-    'mountaincar': 'MountainCarContinuous-v2',
+    'mountaincar': 'MountainCarContinuous-v0',
     'lander': 'LunarLanderContinuous-v2',
     'pendulum': 'Pendulum-v0'
 }
