@@ -3,7 +3,7 @@ import torch
 from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
-from all.layers import Flatten, Dueling, Linear0
+from all.nn import Flatten, Dueling, Linear0
 from all.approximation import QNetwork
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody

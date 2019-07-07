@@ -5,7 +5,7 @@ from all.agents import VPG
 from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
 from all.experiments import DummyWriter
-from all.layers import Flatten, Linear0
+from all.nn import Flatten, Linear0
 from all.policies import SoftmaxPolicy
 
 

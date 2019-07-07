@@ -2,7 +2,7 @@
 import torch
 from torch import nn
 from torch.optim import RMSprop
-from all.layers import Flatten, Linear0
+from all.nn import Flatten, Linear0
 from all.agents import A2C
 from all.bodies import ParallelAtariBody
 from all.approximation import VNetwork, FeatureNetwork

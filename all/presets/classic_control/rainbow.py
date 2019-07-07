@@ -6,7 +6,7 @@ from torch.nn.functional import mse_loss
 from all.agents import DQN
 from all.approximation import QNetwork
 from all.experiments import DummyWriter
-from all.layers import Dueling, Flatten, NoisyLinear
+from all.nn import Dueling, Flatten, NoisyLinear
 from all.memory import PrioritizedReplayBuffer
 from all.policies import GreedyPolicy
 

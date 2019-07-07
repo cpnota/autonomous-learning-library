@@ -1,5 +1,5 @@
 from torch.nn.functional import mse_loss
-from all.layers import VModule, td_loss
+from all.nn import VModule, td_loss
 from .approximation import Approximation
 
 class VNetwork(Approximation):

@@ -6,7 +6,7 @@ from torch.nn.functional import mse_loss
 from all.agents import DQN
 from all.approximation import QNetwork
 from all.experiments import DummyWriter
-from all.layers import Flatten
+from all.nn import Flatten
 from all.memory import ExperienceReplayBuffer
 from all.policies import GreedyPolicy
 

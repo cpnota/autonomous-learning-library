@@ -1,5 +1,5 @@
 from torch.nn.functional import mse_loss
-from all.layers import QModule, td_loss
+from all.nn import QModule, td_loss
 from .approximation import Approximation
 
 class QNetwork(Approximation):

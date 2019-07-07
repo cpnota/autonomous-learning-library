@@ -1,5 +1,5 @@
 import torch
-from all.layers import ListNetwork
+from all.nn import ListNetwork
 from .stochastic import StochasticPolicy
 
 

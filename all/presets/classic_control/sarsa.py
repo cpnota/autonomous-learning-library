@@ -2,7 +2,7 @@
 import torch
 from torch import nn
 from torch.optim import Adam
-from all.layers import Flatten
+from all.nn import Flatten
 from all.agents import Sarsa
 from all.approximation import QNetwork
 from all.policies import GreedyPolicy

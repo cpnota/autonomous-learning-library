@@ -2,7 +2,7 @@
 import torch
 from torch import nn
 from torch.optim import Adam
-from all.layers import Flatten, Linear0
+from all.nn import Flatten, Linear0
 from all.agents import ActorCritic
 from all.approximation import VNetwork
 from all.experiments import DummyWriter
