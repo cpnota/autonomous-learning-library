@@ -1,8 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch import nn
 from torch.optim import Adam
-from all.layers import Flatten
+from all import nn
 from all.agents import ActorCritic
 from all.approximation import VNetwork
 from all.experiments import DummyWriter
@@ -11,7 +10,7 @@ from all.policies import SoftmaxPolicy
 
 def fc_value(env):
     return nn.Sequential(
-        Flatten(),
+        nn.Flatten(),
         nn.Linear(env.state_space.shape[0], 256),
         nn.ReLU(),
         nn.Linear(256, 1)
@@ -19,7 +18,7 @@ def fc_value(env):
 
 def fc_policy(env):
     return nn.Sequential(
-        Flatten(),
+        nn.Flatten(),
         nn.Linear(env.state_space.shape[0], 256),
         nn.ReLU(),
         nn.Linear(256, env.action_space.n)

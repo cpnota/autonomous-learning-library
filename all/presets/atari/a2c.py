@@ -1,8 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch import nn
 from torch.optim import RMSprop
-from all.layers import Flatten, Linear0
+from all import nn
 from all.agents import A2C
 from all.bodies import ParallelAtariBody
 from all.approximation import VNetwork, FeatureNetwork
@@ -18,17 +17,17 @@ def conv_features():
         nn.ReLU(),
         nn.Conv2d(64, 64, 3, stride=1),
         nn.ReLU(),
-        Flatten(),
+        nn.Flatten(),
     )
 
 
 def value_net():
-    return nn.Sequential(nn.Linear(3456, 512), nn.ReLU(), Linear0(512, 1))
+    return nn.Sequential(nn.Linear(3456, 512), nn.ReLU(), nn.Linear0(512, 1))
 
 
 def policy_net(env):
     return nn.Sequential(
-        nn.Linear(3456, 512), nn.ReLU(), Linear0(512, env.action_space.n)
+        nn.Linear(3456, 512), nn.ReLU(), nn.Linear0(512, env.action_space.n)
     )
 
 
