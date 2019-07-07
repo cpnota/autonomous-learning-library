@@ -4,7 +4,7 @@ from torch import nn
 from torch.optim import Adam
 from all.layers import Flatten
 from all.agents import ActorCritic
-from all.approximation import ValueNetwork
+from all.approximation import VNetwork
 from all.experiments import DummyWriter
 from all.policies import SoftmaxPolicy
 
@@ -33,7 +33,7 @@ def actor_critic(
     def _actor_critic(env, writer=DummyWriter()):
         value_model = fc_value(env).to(device)
         value_optimizer = Adam(value_model.parameters(), lr=lr_v)
-        v = ValueNetwork(value_model, value_optimizer, writer=writer)
+        v = VNetwork(value_model, value_optimizer, writer=writer)
         policy_model = fc_policy(env).to(device)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
         policy = SoftmaxPolicy(policy_model, policy_optimizer, env.action_space.n, writer=writer)

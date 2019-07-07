@@ -2,7 +2,7 @@ from torch.nn.functional import mse_loss
 from all.layers import VModule, td_loss
 from .approximation import Approximation
 
-class ValueNetwork(Approximation):
+class VNetwork(Approximation):
     def __init__(
             self,
             model,
