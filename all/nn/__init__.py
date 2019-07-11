@@ -144,6 +144,16 @@ class VModule(nn.Module):
     def forward(self, states):
         return self.model(states).squeeze(-1)
 
+class QModuleContinuous(nn.Module):
+    def __init__(self, model):
+        super().__init__()
+        self.device = next(model.parameters()).device
+        self.model = model
+
+    def forward(self, states, actions):
+        x = torch.cat((states.features.float(), actions), dim=1)
+        return self.model(x) * states.mask.float().unsqueeze(-1)
+
 def td_loss(loss):
     def _loss(estimates, errors):
         return loss(estimates, errors + estimates.detach())
