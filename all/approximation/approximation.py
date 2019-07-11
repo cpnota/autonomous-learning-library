@@ -29,10 +29,12 @@ class Approximation():
         self._writer = writer
         self._name = name
 
-    def __call__(self, *inputs):
+    def __call__(self, *inputs, detach=True):
         result = self.model(*inputs)
-        self._enqueue(result)
-        return result.detach()
+        if detach:
+            self._enqueue(result)
+            return result.detach()
+        return result
 
     def eval(self, *inputs):
         with torch.no_grad():

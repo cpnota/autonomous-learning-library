@@ -37,7 +37,7 @@ class DeterministicPolicy(Policy):
         return outputs
 
     def greedy(self, state):
-      return self.model(state)
+        return self.model(state)
 
     def eval(self, state):
         with torch.no_grad():

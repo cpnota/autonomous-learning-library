@@ -1,8 +1,8 @@
 import unittest
 import torch
-from all import nn
 import numpy as np
 from gym.spaces import Box
+from all import nn
 from all.environments import State
 from all.policies import DeterministicPolicy
 
