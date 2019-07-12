@@ -23,8 +23,7 @@ def fc_policy(env):
         nn.Linear(env.state_space.shape[0], 256),
         nn.ReLU(),
         nn.Linear0(256, env.action_space.shape[0]),
-        nn.Tanh(),
-        nn.Scale(env.action_space.high[0])
+        nn.TanhActionBound(env.action_space)
     )
 
 def ddpg(

@@ -120,13 +120,14 @@ class Linear0(nn.Linear):
         if self.bias is not None:
             nn.init.constant_(self.bias, 0.)
 
-class Scale(nn.Module):
-    def __init__(self, scale):
+class TanhActionBound(nn.Module):
+    def __init__(self, action_space):
         super().__init__()
-        self.scale = scale
+        self.register_buffer('weight', torch.tensor((action_space.high - action_space.low) / 2))
+        self.register_buffer('bias', torch.tensor((action_space.high + action_space.low) / 2))
 
     def forward(self, x):
-        return x * self.scale
+        return torch.tanh(x) * self.weight + self.bias
 
 class QModule(nn.Module):
     def __init__(self, model, num_actions):
