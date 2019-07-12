@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 import torch
 import torch_testing as tt
+import gym
 from all import nn
 from all.environments import State
 
@@ -71,6 +72,25 @@ class TestNN(unittest.TestCase):
         x = State(torch.randn(2))
         out = net(x)
         tt.assert_almost_equal(out.features, torch.tensor([0.3218211, 0.3707529]), decimal=3)
+
+    def test_tanh_action_bound(self):
+        space = gym.spaces.Box(
+            np.array([-1., 10.]),
+            np.array([1, 20])
+        )
+        model = nn.TanhActionBound(space)
+        x = torch.tensor([
+            [100., 100],
+            [-100, -100],
+            [-100, 100],
+            [0, 0]
+        ])
+        tt.assert_almost_equal(model(x), torch.tensor([
+            [1., 20],
+            [-1, 10],
+            [-1, 20],
+            [0., 15]
+        ]))
 
     def assert_array_equal(self, actual, expected):
         for first, second in zip(actual, expected):

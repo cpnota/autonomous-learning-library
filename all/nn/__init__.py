@@ -114,12 +114,20 @@ class NoisyLinear(nn.Linear):
             bias = bias + self.sigma_bias * self.epsilon_bias
         return F.linear(x, self.weight + self.sigma_weight * self.epsilon_weight, bias)
 
-
 class Linear0(nn.Linear):
     def reset_parameters(self):
         nn.init.constant_(self.weight, 0.)
         if self.bias is not None:
             nn.init.constant_(self.bias, 0.)
+
+class TanhActionBound(nn.Module):
+    def __init__(self, action_space):
+        super().__init__()
+        self.register_buffer('weight', torch.tensor((action_space.high - action_space.low) / 2))
+        self.register_buffer('bias', torch.tensor((action_space.high + action_space.low) / 2))
+
+    def forward(self, x):
+        return torch.tanh(x) * self.weight + self.bias
 
 class QModule(nn.Module):
     def __init__(self, model, num_actions):
@@ -143,6 +151,16 @@ class VModule(nn.Module):
 
     def forward(self, states):
         return self.model(states).squeeze(-1)
+
+class QModuleContinuous(nn.Module):
+    def __init__(self, model):
+        super().__init__()
+        self.device = next(model.parameters()).device
+        self.model = model
+
+    def forward(self, states, actions):
+        x = torch.cat((states.features.float(), actions), dim=1)
+        return self.model(x).squeeze(-1) * states.mask.float()
 
 def td_loss(loss):
     def _loss(estimates, errors):

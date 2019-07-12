@@ -20,20 +20,17 @@ class FeatureNetwork(Approximation):
         )
 
     def eval(self, states):
-        with torch.no_grad():
-            training = self.target_model.training
-            result = self.target_model(states.features.float())
-            self.target_model.train(training)
-            return State(
-                result,
-                mask=states.mask,
-                info=states.info
-            )
+        result = self._target(states.features.float())
+        return State(
+            result,
+            mask=states.mask,
+            info=states.info
+        )
 
     def reinforce(self):
         graphs, grads = self._dequeue()
         graphs.backward(grads)
-        self._step()
+        self.step()
 
     def _enqueue(self, features, out):
         self._cache.append(features)

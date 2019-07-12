@@ -4,7 +4,7 @@ from torch.optim import Adam
 from torch.nn.functional import mse_loss
 from all import nn
 from all.agents import DQN
-from all.approximation import QNetwork
+from all.approximation import QNetwork, FixedTarget
 from all.experiments import DummyWriter
 from all.memory import PrioritizedReplayBuffer
 from all.policies import GreedyPolicy
@@ -67,7 +67,7 @@ def rainbow(
             model,
             optimizer,
             env.action_space.n,
-            target_update_frequency=target_update_frequency,
+            target=FixedTarget(target_update_frequency),
             loss=mse_loss,
             writer=writer
         )

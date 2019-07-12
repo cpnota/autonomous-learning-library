@@ -1,8 +1,8 @@
-import copy
 import torch
 from torch.nn import utils
 from torch.nn.functional import mse_loss
 from all.experiments import DummyWriter
+from .target import FixedTarget, TrivialTarget
 
 class Approximation():
     def __init__(
@@ -13,14 +13,14 @@ class Approximation():
             loss_scaling=1,
             loss=mse_loss,
             name='approximation',
-            target_update_frequency=None,
+            target=None,
             writer=DummyWriter(),
     ):
         self.model = model
-        self.target_model = self._init_target_model(target_update_frequency)
         self.device = next(model.parameters()).device
+        self._target = target or TrivialTarget()
+        self._target.init(model)
         self._updates = 0
-        self._target_update_frequency = target_update_frequency
         self._optimizer = optimizer
         self._loss = loss
         self._loss_scaling = loss_scaling
@@ -29,17 +29,15 @@ class Approximation():
         self._writer = writer
         self._name = name
 
-    def __call__(self, *inputs):
+    def __call__(self, *inputs, detach=True):
         result = self.model(*inputs)
-        self._enqueue(result)
-        return result.detach()
+        if detach:
+            self._enqueue(result)
+            return result.detach()
+        return result
 
     def eval(self, *inputs):
-        with torch.no_grad():
-            training = self.target_model.training
-            result = self.target_model(*inputs)
-            self.target_model.train(training)
-            return result
+        return self._target(*inputs)
 
     def reinforce(self, errors, retain_graph=False):
         batch_size = len(errors)
@@ -48,7 +46,17 @@ class Approximation():
             loss = self._loss(cache, errors) * self._loss_scaling
             self._writer.add_loss(self._name, loss)
             loss.backward(retain_graph=retain_graph)
-            self._step()
+            self.step()
+
+    def step(self):
+        if self._clip_grad != 0:
+            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
+        self._optimizer.step()
+        self._optimizer.zero_grad()
+        self._target.update()
+
+    def zero_grad(self):
+        self._optimizer.zero_grad()
 
     def _enqueue(self, results):
         self._cache.append(results)
@@ -65,27 +73,10 @@ class Approximation():
         self._cache = self._cache[i:]
         return items
 
-    def _step(self):
-        if self._clip_grad != 0:
-            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
-        self._optimizer.step()
-        self._optimizer.zero_grad()
-        self._update_target_model()
-
     def _init_target_model(self, target_update_frequency):
-        return (
-            copy.deepcopy(self.model)
-            if target_update_frequency is not None
-            else self.model
-        )
-
-    def _update_target_model(self):
-        self._updates += 1
-        if self._should_update_target():
-            self.target_model.load_state_dict(self.model.state_dict())
-
-    def _should_update_target(self):
-        return (
-            (self._target_update_frequency is not None)
-            and (self._updates % self._target_update_frequency == 0)
-        )
+        if target_update_frequency is not None:
+            self._target = FixedTarget(target_update_frequency)
+            self._target.init(self.model)
+        else:
+            self._target = TrivialTarget()
+            self._target.init(self.model)
