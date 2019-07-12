@@ -1,8 +1,10 @@
 import unittest
 import torch
+import torch_testing as tt
 import numpy as np
 from gym.spaces import Box
 from all import nn
+from all.approximation import FixedTarget
 from all.environments import State
 from all.policies import DeterministicPolicy
 
@@ -60,6 +62,35 @@ class TestDeterministic(unittest.TestCase):
             self.policy.reinforce()
 
         self.assertTrue(loss < 0.1)
+
+    def test_target(self):
+        self.policy = DeterministicPolicy(
+            self.model,
+            self.optimizer,
+            self.space,
+            0.5,
+            target=FixedTarget(3)
+        )
+
+        # choose initial action
+        state = State(torch.ones(1, STATE_DIM))
+        action = self.policy.greedy(state)
+        tt.assert_equal(action, torch.zeros(1, ACTION_DIM))
+
+        # run update step, make sure target network doesn't change
+        action.sum().backward(retain_graph=True)
+        self.policy.reinforce()
+        tt.assert_equal(self.policy.eval(state), torch.zeros(1, ACTION_DIM))
+
+        # again...
+        action.sum().backward(retain_graph=True)
+        self.policy.reinforce()
+        tt.assert_equal(self.policy.eval(state), torch.zeros(1, ACTION_DIM))
+
+        # third time, target should be updated
+        action.sum().backward(retain_graph=True)
+        self.policy.reinforce()
+        tt.assert_allclose(self.policy.eval(state), torch.tensor([[-0.686739, -0.686739, -0.686739]]))
 
 if __name__ == '__main__':
     unittest.main()
