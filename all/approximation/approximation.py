@@ -1,8 +1,8 @@
-import copy
 import torch
 from torch.nn import utils
 from torch.nn.functional import mse_loss
 from all.experiments import DummyWriter
+from .target import FixedTarget, TrivialTarget
 
 class Approximation():
     def __init__(
@@ -17,8 +17,8 @@ class Approximation():
             writer=DummyWriter(),
     ):
         self.model = model
-        self.target_model = self._init_target_model(target_update_frequency)
         self.device = next(model.parameters()).device
+        self._init_target_model(target_update_frequency)
         self._updates = 0
         self._target_update_frequency = target_update_frequency
         self._optimizer = optimizer
@@ -37,11 +37,7 @@ class Approximation():
         return result
 
     def eval(self, *inputs):
-        with torch.no_grad():
-            training = self.target_model.training
-            result = self.target_model(*inputs)
-            self.target_model.train(training)
-            return result
+        return self._target(*inputs)
 
     def reinforce(self, errors, retain_graph=False):
         batch_size = len(errors)
@@ -72,22 +68,12 @@ class Approximation():
             utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
         self._optimizer.step()
         self._optimizer.zero_grad()
-        self._update_target_model()
+        self._target.update()
 
     def _init_target_model(self, target_update_frequency):
-        return (
-            copy.deepcopy(self.model)
-            if target_update_frequency is not None
-            else self.model
-        )
-
-    def _update_target_model(self):
-        self._updates += 1
-        if self._should_update_target():
-            self.target_model.load_state_dict(self.model.state_dict())
-
-    def _should_update_target(self):
-        return (
-            (self._target_update_frequency is not None)
-            and (self._updates % self._target_update_frequency == 0)
-        )
+        if target_update_frequency is not None:
+            self._target = FixedTarget(target_update_frequency)
+            self._target.init(self.model)
+        else:
+            self._target = TrivialTarget()
+            self._target.init(self.model)
