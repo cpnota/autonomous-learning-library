@@ -3,7 +3,7 @@ import torch
 from torch.optim import Adam
 from all import nn
 from all.agents import DDPG
-from all.approximation import QContinuous, FixedTarget
+from all.approximation import QContinuous, PolyakTarget
 from all.experiments import DummyWriter
 from all.policies import DeterministicPolicy
 from all.memory import ExperienceReplayBuffer
@@ -35,7 +35,7 @@ def ddpg(
         replay_buffer_size=50000,
         minibatch_size=64,
         discount_factor=0.99,
-        target_update_frequency=1000,
+        polyak_rate=0.001,
         update_frequency=4,
         device=torch.device('cuda')
 ):
@@ -45,7 +45,7 @@ def ddpg(
         q = QContinuous(
             value_model,
             value_optimizer,
-            target=FixedTarget(target_update_frequency),
+            target=PolyakTarget(polyak_rate),
             writer=writer
         )
 
@@ -56,6 +56,7 @@ def ddpg(
             policy_optimizer,
             env.action_space,
             noise,
+            target=PolyakTarget(polyak_rate)
         )
 
         replay_buffer = ExperienceReplayBuffer(
