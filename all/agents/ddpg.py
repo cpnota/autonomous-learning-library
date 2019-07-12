@@ -47,15 +47,17 @@ class DDPG(Agent):
             next_actions = self.policy.eval(next_states)
             td_errors = (
                 rewards +
-                self.discount_factor * self.q.eval(states, next_actions) -
+                self.discount_factor * self.q.eval(next_states, next_actions) -
                 self.q(states, torch.cat(actions))
             )
             self.q.reinforce(weights * td_errors)
             self.replay_buffer.update_priorities(td_errors)
 
             # train policy
-            self.q(states, self.policy.greedy(states), detach=False).mean().backward()
+            loss = -self.q(states, self.policy.greedy(states), detach=False).mean()
+            loss.backward()
             self.policy.reinforce()
+            self.q._optimizer.zero_grad()
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and

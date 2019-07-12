@@ -30,7 +30,7 @@ class DeterministicPolicy(Policy):
         self._writer = writer
 
     def __call__(self, state, action=None, prob=None):
-        outputs = self.model(state)
+        outputs = self.model(state).detach()
         outputs = outputs + self.noise.sample(outputs.shape).to(self.device)
         outputs = torch.min(outputs, self._high)
         outputs = torch.max(outputs, self._low)

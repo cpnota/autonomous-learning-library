@@ -22,23 +22,27 @@ def fc_policy(env):
         nn.Flatten(),
         nn.Linear(env.state_space.shape[0], 256),
         nn.ReLU(),
-        nn.Linear0(256, env.action_space.shape[0])
+        nn.Linear0(256, env.action_space.shape[0]),
+        nn.Tanh(),
+        nn.Scale(env.action_space.high[0])
     )
 
 def ddpg(
-        lr_v=1e-3,
+        lr_q=1e-3,
         lr_pi=1e-4,
         noise=0.1,
         replay_start_size=5000,
         replay_buffer_size=50000,
-        minibatch_size=32,
+        minibatch_size=64,
         discount_factor=0.99,
+        target_update_frequency=1000,
+        update_frequency=4,
         device=torch.device('cuda')
 ):
     def _ddpg(env, writer=DummyWriter()):
         value_model = fc_value(env).to(device)
-        value_optimizer = Adam(value_model.parameters(), lr=lr_v)
-        q = QContinuous(value_model, value_optimizer, env.action_space, writer=writer)
+        value_optimizer = Adam(value_model.parameters(), lr=lr_q)
+        q = QContinuous(value_model, value_optimizer, target_update_frequency=target_update_frequency, writer=writer)
 
         policy_model = fc_policy(env).to(device)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
@@ -60,7 +64,7 @@ def ddpg(
             replay_buffer,
             replay_start_size=replay_start_size,
             discount_factor=discount_factor,
-            update_frequency=1,
+            update_frequency=update_frequency,
             minibatch_size=minibatch_size
         )
     return _ddpg
