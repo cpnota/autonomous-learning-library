@@ -5,7 +5,7 @@ from torch.nn.functional import smooth_l1_loss
 import torch_testing as tt
 import numpy as np
 from all.environments import State
-from all.approximation.q_network import QNetwork
+from all.approximation import QNetwork, FixedTarget
 
 STATE_DIM = 2
 ACTIONS = 3
@@ -52,7 +52,13 @@ class TestQNetwork(unittest.TestCase):
             nn.Linear(1, 1)
         )
         optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
-        q = QNetwork(model, optimizer, 1, loss=smooth_l1_loss, target_update_frequency=3)
+        q = QNetwork(
+            model,
+            optimizer,
+            1,
+            loss=smooth_l1_loss,
+            target=FixedTarget(3)
+        )
         inputs = State(torch.tensor([1.]))
         errors = torch.tensor([-1.])
 

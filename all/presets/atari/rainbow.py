@@ -1,10 +1,9 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
-from all.layers import Flatten, Dueling, Linear0
-from all.approximation import QNetwork
+from all import nn
+from all.approximation import QNetwork, FixedTarget
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
 from all.experiments import DummyWriter
@@ -23,17 +22,17 @@ def dueling_conv_net(env, frames=4):
         nn.ReLU(),
         nn.Conv2d(64, 64, 3, stride=1),
         nn.ReLU(),
-        Flatten(),
-        Dueling(
+        nn.Flatten(),
+        nn.Dueling(
             nn.Sequential(
                 nn.Linear(3456, 512),
                 nn.ReLU(),
-                Linear0(512, 1)
+                nn.Linear0(512, 1)
             ),
             nn.Sequential(
                 nn.Linear(3456, 512),
                 nn.ReLU(),
-                Linear0(512, env.action_space.n)
+                nn.Linear0(512, env.action_space.n)
             ),
         )
     )
@@ -99,7 +98,7 @@ def rainbow(
             _model,
             _optimizer,
             env.action_space.n,
-            target_update_frequency=target_update_frequency,
+            target=FixedTarget(target_update_frequency),
             loss=smooth_l1_loss,
             writer=writer
         )

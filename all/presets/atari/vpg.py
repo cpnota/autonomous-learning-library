@@ -1,11 +1,10 @@
 import torch
-from torch import nn
 from torch.optim import RMSprop
+from all import nn
 from all.agents import VPG
-from all.approximation import ValueNetwork, FeatureNetwork
+from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
 from all.experiments import DummyWriter
-from all.layers import Flatten, Linear0
 from all.policies import SoftmaxPolicy
 
 
@@ -17,7 +16,7 @@ def conv_features():
         nn.ReLU(),
         nn.Conv2d(64, 64, 3, stride=1),
         nn.ReLU(),
-        Flatten()
+        nn.Flatten()
     )
 
 
@@ -25,7 +24,7 @@ def value_net():
     return nn.Sequential(
         nn.Linear(3456, 512),
         nn.ReLU(),
-        Linear0(512, 1)
+        nn.Linear0(512, 1)
     )
 
 
@@ -33,7 +32,7 @@ def policy_net(env):
     return nn.Sequential(
         nn.Linear(3456, 512),
         nn.ReLU(),
-        Linear0(512, env.action_space.n)
+        nn.Linear0(512, env.action_space.n)
     )
 
 
@@ -79,7 +78,7 @@ def vpg(
             feature_optimizer,
             clip_grad=clip_grad
         )
-        v = ValueNetwork(
+        v = VNetwork(
             value_model,
             value_optimizer,
             loss_scaling=value_loss_scaling,

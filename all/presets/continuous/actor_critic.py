@@ -5,7 +5,7 @@ from all import nn
 from all.agents import ActorCritic
 from all.approximation import VNetwork
 from all.experiments import DummyWriter
-from all.policies import SoftmaxPolicy
+from all.policies import GaussianPolicy
 
 
 def fc_value(env):
@@ -13,7 +13,7 @@ def fc_value(env):
         nn.Flatten(),
         nn.Linear(env.state_space.shape[0], 256),
         nn.ReLU(),
-        nn.Linear(256, 1)
+        nn.Linear0(256, 1)
     )
 
 def fc_policy(env):
@@ -21,21 +21,30 @@ def fc_policy(env):
         nn.Flatten(),
         nn.Linear(env.state_space.shape[0], 256),
         nn.ReLU(),
-        nn.Linear(256, env.action_space.n)
+        nn.Linear0(256, env.action_space.shape[0] * 2)
     )
 
 def actor_critic(
-        lr_v=5e-4,
-        lr_pi=2e-4,
-        device=torch.device('cpu')
+        lr_v=2e-4,
+        lr_pi=1e-4,
+        entropy_loss_scaling=0.01,
+        device=torch.device('cuda')
 ):
     def _actor_critic(env, writer=DummyWriter()):
         value_model = fc_value(env).to(device)
         value_optimizer = Adam(value_model.parameters(), lr=lr_v)
         v = VNetwork(value_model, value_optimizer, writer=writer)
+
         policy_model = fc_policy(env).to(device)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
-        policy = SoftmaxPolicy(policy_model, policy_optimizer, env.action_space.n, writer=writer)
+        policy = GaussianPolicy(
+            policy_model,
+            policy_optimizer,
+            env.action_space.shape[0],
+            entropy_loss_scaling=entropy_loss_scaling,
+            writer=writer
+        )
+
         return ActorCritic(v, policy)
     return _actor_critic
 

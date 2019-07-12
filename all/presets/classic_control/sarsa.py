@@ -1,8 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch import nn
 from torch.optim import Adam
-from all.layers import Flatten
+from all import nn
 from all.agents import Sarsa
 from all.approximation import QNetwork
 from all.policies import GreedyPolicy
@@ -10,7 +9,7 @@ from all.experiments import DummyWriter
 
 def fc_net(env, frames=1):
     return nn.Sequential(
-        Flatten(),
+        nn.Flatten(),
         nn.Linear(env.state_space.shape[0] * frames, 256),
         nn.Tanh(),
         nn.Linear(256, env.action_space.n)

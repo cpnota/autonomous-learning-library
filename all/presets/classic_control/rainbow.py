@@ -1,20 +1,19 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch import nn
 from torch.optim import Adam
 from torch.nn.functional import mse_loss
+from all import nn
 from all.agents import DQN
-from all.approximation import QNetwork
+from all.approximation import QNetwork, FixedTarget
 from all.experiments import DummyWriter
-from all.layers import Dueling, Flatten, NoisyLinear
 from all.memory import PrioritizedReplayBuffer
 from all.policies import GreedyPolicy
 
 
 def dueling_fc_net(env, sigma_init):
     return nn.Sequential(
-        Flatten(),
-        Dueling(
+        nn.Flatten(),
+        nn.Dueling(
             nn.Sequential(
                 nn.Linear(env.state_space.shape[0], 256),
                 nn.ReLU(),
@@ -23,7 +22,7 @@ def dueling_fc_net(env, sigma_init):
             nn.Sequential(
                 nn.Linear(env.state_space.shape[0], 256),
                 nn.ReLU(),
-                NoisyLinear(256, env.action_space.n, sigma_init=sigma_init)
+                nn.NoisyLinear(256, env.action_space.n, sigma_init=sigma_init)
             )
         )
     )
@@ -68,7 +67,7 @@ def rainbow(
             model,
             optimizer,
             env.action_space.n,
-            target_update_frequency=target_update_frequency,
+            target=FixedTarget(target_update_frequency),
             loss=mse_loss,
             writer=writer
         )
