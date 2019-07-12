@@ -29,14 +29,14 @@ def fc_policy(env):
 
 def ddpg(
         lr_q=1e-3,
-        lr_pi=1e-4,
+        lr_pi=1e-3,
         noise=0.1,
         replay_start_size=5000,
         replay_buffer_size=50000,
         minibatch_size=64,
         discount_factor=0.99,
         polyak_rate=0.001,
-        update_frequency=4,
+        update_frequency=1,
         device=torch.device('cuda')
 ):
     def _ddpg(env, writer=DummyWriter()):
