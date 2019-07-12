@@ -46,10 +46,10 @@ class TestDeterministic(unittest.TestCase):
         action = self.policy(state).detach().numpy()
         np.testing.assert_array_almost_equal(action, np.array([[-0.1, -0.1, 0.1]]))
 
-    def test_reinforce_one(self):
+    def test_step_one(self):
         state = State(torch.randn(1, STATE_DIM))
         self.policy(state)
-        self.policy.reinforce()
+        self.policy.step()
 
     def test_converge(self):
         state = State(torch.randn(1, STATE_DIM))
@@ -59,7 +59,7 @@ class TestDeterministic(unittest.TestCase):
             action = self.policy.greedy(state)
             loss = torch.abs(target - action).mean()
             loss.backward()
-            self.policy.reinforce()
+            self.policy.step()
 
         self.assertTrue(loss < 0.1)
 
@@ -79,17 +79,17 @@ class TestDeterministic(unittest.TestCase):
 
         # run update step, make sure target network doesn't change
         action.sum().backward(retain_graph=True)
-        self.policy.reinforce()
+        self.policy.step()
         tt.assert_equal(self.policy.eval(state), torch.zeros(1, ACTION_DIM))
 
         # again...
         action.sum().backward(retain_graph=True)
-        self.policy.reinforce()
+        self.policy.step()
         tt.assert_equal(self.policy.eval(state), torch.zeros(1, ACTION_DIM))
 
         # third time, target should be updated
         action.sum().backward(retain_graph=True)
-        self.policy.reinforce()
+        self.policy.step()
         tt.assert_allclose(
             self.policy.eval(state),
             torch.tensor([[-0.686739, -0.686739, -0.686739]])

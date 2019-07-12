@@ -44,10 +44,9 @@ class DDPG(Agent):
                 self.minibatch_size)
 
             # train q function
-            next_actions = self.policy.eval(next_states)
             td_errors = (
                 rewards +
-                self.discount_factor * self.q.eval(next_states, next_actions) -
+                self.discount_factor * self.q.eval(next_states, self.policy.eval(next_states)) -
                 self.q(states, torch.cat(actions))
             )
             self.q.reinforce(weights * td_errors)
@@ -56,8 +55,8 @@ class DDPG(Agent):
             # train policy
             loss = -self.q(states, self.policy.greedy(states), detach=False).mean()
             loss.backward()
-            self.policy.reinforce()
-            self.q._optimizer.zero_grad() # pylint: disable=protected-access
+            self.policy.step()
+            self.q.zero_grad()
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and

@@ -46,7 +46,17 @@ class Approximation():
             loss = self._loss(cache, errors) * self._loss_scaling
             self._writer.add_loss(self._name, loss)
             loss.backward(retain_graph=retain_graph)
-            self._step()
+            self.step()
+
+    def step(self):
+        if self._clip_grad != 0:
+            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
+        self._optimizer.step()
+        self._optimizer.zero_grad()
+        self._target.update()
+
+    def zero_grad(self):
+        self._optimizer.zero_grad()
 
     def _enqueue(self, results):
         self._cache.append(results)
@@ -62,13 +72,6 @@ class Approximation():
         items = torch.cat(self._cache[:i])
         self._cache = self._cache[i:]
         return items
-
-    def _step(self):
-        if self._clip_grad != 0:
-            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
-        self._optimizer.step()
-        self._optimizer.zero_grad()
-        self._target.update()
 
     def _init_target_model(self, target_update_frequency):
         if target_update_frequency is not None:

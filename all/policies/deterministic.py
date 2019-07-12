@@ -44,9 +44,14 @@ class DeterministicPolicy(Policy):
     def eval(self, state):
         return self._target(state)
 
-    def reinforce(self):
-        # Deterministic policies are trained through backprogation,
-        # so reinforce() does not take any parameters.
+    def reinforce(self, _):
+        raise NotImplementedError(
+            'Deterministic policies are trainted through backpropagation.' +
+            'Call backward() on a loss derived from the action' +
+            'and then call policy.step()'
+        )
+
+    def step(self):
         if self._clip_grad != 0:
             utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
         self.optimizer.step()

@@ -30,7 +30,7 @@ class FeatureNetwork(Approximation):
     def reinforce(self):
         graphs, grads = self._dequeue()
         graphs.backward(grads)
-        self._step()
+        self.step()
 
     def _enqueue(self, features, out):
         self._cache.append(features)
