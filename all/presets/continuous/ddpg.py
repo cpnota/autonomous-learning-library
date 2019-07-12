@@ -28,7 +28,7 @@ def fc_policy(env):
 
 def ddpg(
         lr_q=1e-3,
-        lr_pi=1e-3,
+        lr_pi=1e-4,
         noise=0.1,
         replay_start_size=5000,
         replay_buffer_size=50000,
