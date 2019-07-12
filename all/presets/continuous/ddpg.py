@@ -3,7 +3,7 @@ import torch
 from torch.optim import Adam
 from all import nn
 from all.agents import DDPG
-from all.approximation import QContinuous
+from all.approximation import QContinuous, FixedTarget
 from all.experiments import DummyWriter
 from all.policies import DeterministicPolicy
 from all.memory import ExperienceReplayBuffer
@@ -42,7 +42,12 @@ def ddpg(
     def _ddpg(env, writer=DummyWriter()):
         value_model = fc_value(env).to(device)
         value_optimizer = Adam(value_model.parameters(), lr=lr_q)
-        q = QContinuous(value_model, value_optimizer, target_update_frequency=target_update_frequency, writer=writer)
+        q = QContinuous(
+            value_model,
+            value_optimizer,
+            target=FixedTarget(target_update_frequency),
+            writer=writer
+        )
 
         policy_model = fc_policy(env).to(device)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)

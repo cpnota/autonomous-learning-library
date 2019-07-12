@@ -13,14 +13,14 @@ class Approximation():
             loss_scaling=1,
             loss=mse_loss,
             name='approximation',
-            target_update_frequency=None,
+            target=None,
             writer=DummyWriter(),
     ):
         self.model = model
         self.device = next(model.parameters()).device
-        self._init_target_model(target_update_frequency)
+        self._target = target or TrivialTarget()
+        self._target.init(model)
         self._updates = 0
-        self._target_update_frequency = target_update_frequency
         self._optimizer = optimizer
         self._loss = loss
         self._loss_scaling = loss_scaling

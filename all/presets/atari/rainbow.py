@@ -3,7 +3,7 @@ import torch
 from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
 from all import nn
-from all.approximation import QNetwork
+from all.approximation import QNetwork, FixedTarget
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
 from all.experiments import DummyWriter
@@ -98,7 +98,7 @@ def rainbow(
             _model,
             _optimizer,
             env.action_space.n,
-            target_update_frequency=target_update_frequency,
+            target=FixedTarget(target_update_frequency),
             loss=smooth_l1_loss,
             writer=writer
         )
