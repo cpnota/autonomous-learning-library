@@ -8,7 +8,7 @@ class TestClassicControlPresets(unittest.TestCase):
         self.validate(actor_critic(device='cpu'))
 
     def test_ddpg(self):
-        self.validate(ddpg(device='cpu'))
+        self.validate(ddpg(replay_start_size=50, device='cpu'))
 
     def validate(self, make_agent):
         validate_agent(make_agent, GymEnvironment('Pendulum-v0'))

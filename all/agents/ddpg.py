@@ -57,7 +57,7 @@ class DDPG(Agent):
             loss = -self.q(states, self.policy.greedy(states), detach=False).mean()
             loss.backward()
             self.policy.reinforce()
-            self.q._optimizer.zero_grad()
+            self.q._optimizer.zero_grad() # pylint: disable=protected-access
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and

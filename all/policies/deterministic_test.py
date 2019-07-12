@@ -90,7 +90,10 @@ class TestDeterministic(unittest.TestCase):
         # third time, target should be updated
         action.sum().backward(retain_graph=True)
         self.policy.reinforce()
-        tt.assert_allclose(self.policy.eval(state), torch.tensor([[-0.686739, -0.686739, -0.686739]]))
+        tt.assert_allclose(
+            self.policy.eval(state),
+            torch.tensor([[-0.686739, -0.686739, -0.686739]])
+        )
 
 if __name__ == '__main__':
     unittest.main()
