@@ -56,18 +56,18 @@ class PPO(Agent):
 
     def _train_step(self, states, actions, pi_0, advantages, targets):
         features = self.features(states)
-        pi_i = self.policy(features, actions)
-        policy_loss = self._compute_policy_loss(pi_i, pi_0, advantages)
-        policy_loss.backward()
-        self.policy.step()
+        self.policy(features, actions)
+        self.policy.reinforce(self._compute_policy_loss(pi_0, advantages))
         self.v.reinforce(targets - self.v(features))
         self.features.reinforce()
 
-    def _compute_policy_loss(self, pi_i, pi_0, advantages):
-        ratios = torch.exp(pi_i - pi_0)
-        surr1 = ratios * advantages
-        surr2 = torch.clamp(ratios, 1.0 - self._epsilon, 1.0 + self._epsilon) * advantages
-        return -torch.min(surr1, surr2).mean()
+    def _compute_policy_loss(self, pi_0, advantages):
+        def _policy_loss(pi_i):
+            ratios = torch.exp(pi_i - pi_0)
+            surr1 = ratios * advantages
+            surr2 = torch.clamp(ratios, 1.0 - self._epsilon, 1.0 + self._epsilon) * advantages
+            return -torch.min(surr1, surr2).mean()
+        return _policy_loss
 
     def _make_buffer(self):
         return NStepBatchBuffer(

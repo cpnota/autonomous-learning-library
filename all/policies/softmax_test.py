@@ -55,8 +55,25 @@ class TestSoftmax(unittest.TestCase):
         states = State(torch.randn(3, STATE_DIM), torch.tensor([1, 0, 1]))
         with torch.no_grad():
             actions = self.policy(states)
-        probs = self.policy(states, action=actions)
-        tt.assert_almost_equal(probs, torch.tensor([0.204, 0.333, 0.217]), decimal=3)
+        log_probs = self.policy(states, action=actions)
+        tt.assert_almost_equal(log_probs, torch.tensor([-1.59, -1.099, -1.528]), decimal=3)
+
+    def test_custom_loss(self):
+        def loss(log_probs):
+            return -log_probs.mean()
+
+        states = State(torch.randn(3, STATE_DIM), torch.tensor([1, 1, 1]))
+        actions = self.policy.eval(states)
+
+        # notice the values increase with each successive reinforce
+        log_probs = self.policy(states, actions)
+        tt.assert_almost_equal(log_probs, torch.tensor([-0.84, -0.62, -0.757]), decimal=3)
+        self.policy.reinforce(loss)
+        log_probs = self.policy(states, actions)
+        tt.assert_almost_equal(log_probs, torch.tensor([-0.811, -0.561, -0.701]), decimal=3)
+        self.policy.reinforce(loss)
+        log_probs = self.policy(states, actions)
+        tt.assert_almost_equal(log_probs, torch.tensor([-0.785, -0.51 , -0.651]), decimal=3)
 
 
 if __name__ == '__main__':

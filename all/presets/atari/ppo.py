@@ -38,7 +38,7 @@ def ppo(
         lr=2.5e-4,    # RMSprop learning rate
         alpha=0.99, # RMSprop momentum decay
         eps=1e-4,   # RMSprop stability
-        # entropy_loss_scaling=0.01,
+        entropy_loss_scaling=0.01,
         value_loss_scaling=0.25,
         feature_lr_scaling=1,
         epochs=4,
@@ -89,7 +89,7 @@ def ppo(
             policy_model,
             policy_optimizer,
             env.action_space.n,
-            # entropy_loss_scaling=entropy_loss_scaling,
+            entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer,
         )
