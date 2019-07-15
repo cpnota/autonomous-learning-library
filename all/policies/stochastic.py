@@ -33,8 +33,8 @@ class StochasticPolicy(Policy):
             action = distribution.sample()
             self._cache(distribution, action)
             return action
-        self._cache(distribution, action)
-        return distribution.log_prob(action).exp().detach()
+        # self._cache(distribution, action)
+        return distribution.log_prob(action)
 
     def eval(self, state, action=None):
         with torch.no_grad():
@@ -43,7 +43,7 @@ class StochasticPolicy(Policy):
             if action is None:
                 action = distribution.sample()
                 return action
-            return distribution.log_prob(action).exp().detach()
+            return distribution.log_prob(action)
 
     def reinforce(self, errors, retain_graph=False):
         # shape the data properly
@@ -59,12 +59,14 @@ class StochasticPolicy(Policy):
             self._writer.add_loss(self.name + '/pg', policy_loss)
             self._writer.add_loss(self.name + '/entropy', entropy_loss)
             loss.backward(retain_graph=retain_graph)
+            # take gradient step
+            self.step()
 
-            # take gradient steps
-            if self._clip_grad != 0:
-                utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
-            self.optimizer.step()
-            self.optimizer.zero_grad()
+    def step(self):
+        if self._clip_grad != 0:
+            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
+        self.optimizer.step()
+        self.optimizer.zero_grad()
 
     def _cache(self, distribution, action):
         self._log_probs.append(distribution.log_prob(action))
