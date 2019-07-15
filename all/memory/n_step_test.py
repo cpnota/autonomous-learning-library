@@ -119,8 +119,8 @@ class NStepBatchBufferTest(unittest.TestCase):
         expected_states = State(torch.arange(0, 6))
         expect_next_states = State(torch.cat((torch.arange(6, 9), torch.arange(6, 9))))
         expected_returns = torch.tensor([
-            3, 3, 3,
-            4, 4, 4
+            0.5, 0.5, 0.5,
+            1, 1, 1
         ]).float()
         expected_lengths = torch.tensor([
             2, 2, 2,
@@ -154,10 +154,15 @@ class NStepBatchBufferTest(unittest.TestCase):
             9, 7, 5,
             9, 7, 11
         ]), expected_next_done)
+        # expected_returns = torch.tensor([
+        #     3, 2, 1,
+        #     4, 2, 0,
+        #     4, 0, 4
+        # ]).float()
         expected_returns = torch.tensor([
-            3, 2, 1,
-            4, 2, 0,
-            4, 0, 4
+            1, 0.5, 0,
+            2, 1, 2,
+            2, 2, 2
         ]).float()
         expected_lengths = torch.tensor([
             3, 2, 1,
@@ -167,8 +172,8 @@ class NStepBatchBufferTest(unittest.TestCase):
 
         self.assert_states_equal(states, expected_states)
         self.assert_states_equal(next_states, expect_next_states)
-        tt.assert_allclose(returns, expected_returns)
         tt.assert_equal(lengths, expected_lengths)
+        tt.assert_allclose(returns, expected_returns)
 
     def test_multi_rollout(self):
         buffer = NStepBatchBuffer(2, 2, discount_factor=0.5)

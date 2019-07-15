@@ -129,33 +129,39 @@ class NStepBatchBuffer:
         sample_lengths = [0] * sample_n
 
         # compute the N-step returns the slow way
+        sample_returns = torch.zeros(
+            (self.n_steps, self.n_envs),
+            device=self._rewards[0].device
+        )
+        current_returns = self._rewards[0] * 0
+        for i in range(self.n_steps):
+            t = self.n_steps - 1 - i
+            current_returns = (
+                self._rewards[t] + self.gamma * current_returns * self._states[t + 1].mask.float()
+            )
+            sample_returns[t] = current_returns
+
         for e in range(self.n_envs):
             for t in range(self.n_steps):
                 i = t * self.n_envs + e
                 state = self._states[t][e]
                 action = self._actions[t][e]
-                returns = 0.0
                 next_state = state
                 sample_length = 0
                 if state.mask:
                     for k in range(1, self.n_steps + 1):
                         sample_length += 1
                         next_state = self._states[t + k][e]
-                        returns += (self.gamma ** (k - 1)) * self._rewards[t + k][e]
                         if not next_state.mask or t + k == self.n_steps:
                             break
                 sample_states[i] = state
                 sample_actions[i] = action
-                sample_returns[i] = returns
                 sample_next_states[i] = next_state
                 sample_lengths[i] = sample_length
 
-        self._states = [self._states[-1]]
-        self._actions = [self._actions[-1]]
-        self._rewards = [self._rewards[-1]]
-        sample_returns = torch.tensor(
-            sample_returns, device=self._rewards[0].device, dtype=torch.float
-        )
+        self._states = self._states[self.n_steps:]
+        self._actions = self._actions[self.n_steps:]
+        self._rewards = self._rewards[self.n_steps:]
         sample_lengths = torch.tensor(
             sample_lengths, device=self._rewards[0].device, dtype=torch.float
         )
@@ -163,7 +169,7 @@ class NStepBatchBuffer:
         return (
             State.from_list(sample_states),
             sample_actions,
-            sample_returns,
+            sample_returns.view(-1),
             State.from_list(sample_next_states),
             sample_lengths,
         )
