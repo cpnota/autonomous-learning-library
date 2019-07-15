@@ -148,17 +148,14 @@ class NStepBatchBufferTest(unittest.TestCase):
 
         expected_states = State(torch.arange(0, 9), done[0:9])
         expected_next_done = torch.zeros(9)
+        expected_next_done[5] = 1
+        expected_next_done[7] = 1
         expected_next_done[8] = 1
         expect_next_states = State(torch.tensor([
             9, 7, 5,
-            9, 7, 5,
-            9, 7, 11
+            9, 7, 11,
+            9, 10, 11
         ]), expected_next_done)
-        # expected_returns = torch.tensor([
-        #     3, 2, 1,
-        #     4, 2, 0,
-        #     4, 0, 4
-        # ]).float()
         expected_returns = torch.tensor([
             1, 0.5, 0,
             2, 1, 2,
@@ -166,8 +163,8 @@ class NStepBatchBufferTest(unittest.TestCase):
         ]).float()
         expected_lengths = torch.tensor([
             3, 2, 1,
-            2, 1, 0,
-            1, 0, 1
+            2, 1, 2,
+            1, 1, 1
         ]).float()
 
         self.assert_states_equal(states, expected_states)
