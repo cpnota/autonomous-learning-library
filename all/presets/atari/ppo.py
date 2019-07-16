@@ -38,10 +38,11 @@ def ppo(
         lr=2.5e-4,    # RMSprop learning rate
         alpha=0.99, # RMSprop momentum decay
         eps=1e-4,   # RMSprop stability
-        entropy_loss_scaling=0.01,
+        entropy_loss_scaling=0.02,
         value_loss_scaling=0.25,
         feature_lr_scaling=1,
         epochs=4,
+        minibatches=4,
         epsilon=0.2,
         n_envs=16,
         n_steps=128,
@@ -101,6 +102,7 @@ def ppo(
                 policy,
                 epsilon=epsilon,
                 epochs=epochs,
+                minibatches=minibatches,
                 n_envs=n_envs,
                 n_steps=n_steps,
                 discount_factor=discount_factor,

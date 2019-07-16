@@ -11,6 +11,7 @@ class PPO(Agent):
             policy,
             epsilon=0.2,
             epochs=4,
+            minibatches=4,
             n_envs=None,
             n_steps=4,
             discount_factor=0.99
@@ -26,6 +27,7 @@ class PPO(Agent):
         self._epsilon = epsilon
         self._epochs = epochs
         self._batch_size = n_envs * n_steps
+        self._minibatches = minibatches
         self._buffer = self._make_buffer()
         self._features = []
 
@@ -45,7 +47,23 @@ class PPO(Agent):
                 targets = self._compute_targets(returns, next_states, lengths)
                 advantages = targets - self.v.eval(features)
             for _ in range(self._epochs):
-                self._train_step(states, actions, pi_0, advantages, targets)
+                self._train_epoch(states, actions, pi_0, advantages, targets)
+
+    def _train_epoch(self, states, actions, pi_0, advantages, targets):
+        minibatch_size = int(self._batch_size / self._minibatches)
+        indexes = torch.randperm(self._batch_size)
+        for n in range(self._minibatches):
+            first = n * minibatch_size
+            last = first + minibatch_size
+            i = indexes[first:last]
+            self._train_minibatch(states[i], actions[i], pi_0[i], advantages[i], targets[i])
+
+    def _train_minibatch(self, states, actions, pi_0, advantages, targets):
+        features = self.features(states)
+        self.policy(features, actions)
+        self.policy.reinforce(self._compute_policy_loss(pi_0, advantages))
+        self.v.reinforce(targets - self.v(features))
+        self.features.reinforce()
 
     def _compute_targets(self, returns, next_states, lengths):
         return (
@@ -53,13 +71,6 @@ class PPO(Agent):
             (self.discount_factor ** lengths)
             * self.v.eval(self.features.eval(next_states))
         )
-
-    def _train_step(self, states, actions, pi_0, advantages, targets):
-        features = self.features(states)
-        self.policy(features, actions)
-        self.policy.reinforce(self._compute_policy_loss(pi_0, advantages))
-        self.v.reinforce(targets - self.v(features))
-        self.features.reinforce()
 
     def _compute_policy_loss(self, pi_0, advantages):
         def _policy_loss(pi_i):
