@@ -1,6 +1,6 @@
 import torch
 from all.environments import State
-from all.memory import NStepBatchBuffer
+from all.memory import NStepAdvantageBuffer
 from .abstract import Agent
 
 
@@ -36,20 +36,17 @@ class A2C(Agent):
     def _train(self):
         if len(self._buffer) >= self._batch_size:
             states = State.from_list(self._features)
-            _, _, returns, next_states, rollout_lengths = self._buffer.sample(self._batch_size)
-            td_errors = (
-                returns
-                + (self.discount_factor ** rollout_lengths)
-                * self.v.eval(self.features.eval(next_states))
-                - self.v(states)
-            )
-            self.v.reinforce(td_errors)
-            self.policy.reinforce(td_errors)
+            _, _, advantages = self._buffer.sample(self._batch_size)
+            self.v(states)
+            self.v.reinforce(advantages)
+            self.policy.reinforce(advantages)
             self.features.reinforce()
             self._features = []
 
     def _make_buffer(self):
-        return NStepBatchBuffer(
+        return NStepAdvantageBuffer(
+            self.v,
+            self.features,
             self.n_steps,
             self.n_envs,
             discount_factor=self.discount_factor
