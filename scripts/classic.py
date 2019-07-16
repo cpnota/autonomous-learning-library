@@ -9,7 +9,7 @@ def run_atari():
     parser.add_argument('env', help='Name of the env (e.g. CartPole-v1)')
     parser.add_argument(
         'agent', help="Name of the agent (e.g. sarsa). See presets for available agents.")
-    parser.add_argument('--episodes', type=int, default=1000,
+    parser.add_argument('--episodes', type=int, default=2000,
                         help='The number of training frames')
     parser.add_argument(
         '--device', default='cuda',

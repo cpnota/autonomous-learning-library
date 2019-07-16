@@ -14,7 +14,7 @@ def run_atari():
         '--device', default='cuda',
         help='The name of the device to run the agent on (e.g. cpu, cuda, cuda:0)'
     )
-    parser.add_argument('--frames', type=int, default=100e6, help='The number of training frames')
+    parser.add_argument('--frames', type=int, default=200e6, help='The number of training frames')
     args = parser.parse_args()
 
     env = AtariEnvironment(args.env, device=args.device)
