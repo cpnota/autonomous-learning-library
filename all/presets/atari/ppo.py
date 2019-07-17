@@ -35,7 +35,8 @@ def ppo(
         # stable baselines hyperparameters
         clip_grad=0.5,
         discount_factor=0.99,
-        lr=2.5e-4,    # RMSprop learning rate
+        lam=0.95,   # GAE lambda (similar to e-traces)
+        lr=2.5e-4,  # RMSprop learning rate
         alpha=0.99, # RMSprop momentum decay
         eps=1e-4,   # RMSprop stability
         entropy_loss_scaling=0.02,
@@ -106,6 +107,7 @@ def ppo(
                 n_envs=n_envs,
                 n_steps=n_steps,
                 discount_factor=discount_factor,
+                lam=lam
             ),
             envs,
         )
