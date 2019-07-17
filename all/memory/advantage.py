@@ -33,14 +33,18 @@ class NStepAdvantageBuffer:
         if len(self) < self.n_steps * self.n_envs:
             raise Exception("Not enough states received!")
 
-        sample_n = self.n_envs * self.n_steps
-        sample_states = [None] * sample_n
-        sample_actions = [None] * sample_n
-        sample_returns = [0] * sample_n
-        sample_next_states = [None] * sample_n
-        sample_lengths = [0] * sample_n
+        rewards, lengths = self._compute_returns()
+        states, actions, next_states = self._summarize_transitions()
+        advantages = self._compute_advantages(states, rewards, next_states, lengths)
+        self._update_buffers()
 
-        # compute the N-step returns the slow way
+        return (
+            states,
+            actions,
+            advantages
+        )
+
+    def _compute_returns(self):
         sample_returns = torch.zeros(
             (self.n_steps, self.n_envs),
             device=self._rewards[0].device
@@ -63,6 +67,14 @@ class NStepAdvantageBuffer:
             sample_returns[t] = current_returns
             sample_lengths[t] = current_lengths
 
+        return sample_returns, sample_lengths
+
+    def _summarize_transitions(self):
+        sample_n = self.n_envs * self.n_steps
+        sample_states = [None] * sample_n
+        sample_actions = [None] * sample_n
+        sample_next_states = [None] * sample_n
+
         for e in range(self.n_envs):
             next_state = self._states[self.n_steps][e]
             for i in range(self.n_steps):
@@ -78,22 +90,17 @@ class NStepAdvantageBuffer:
                 if not state.mask:
                     next_state = state
 
+        return State.from_list(sample_states), sample_actions, State.from_list(sample_next_states)
+
+    def _compute_advantages(self, states, rewards, next_states, lengths):
+        return (
+            rewards.view(-1)
+            + (self.gamma ** lengths.view(-1))
+            * self.v.eval(self.features.eval(next_states))
+            - self.v.eval(self.features.eval(states))
+        )
+
+    def _update_buffers(self):
         self._states = self._states[self.n_steps:]
         self._actions = self._actions[self.n_steps:]
         self._rewards = self._rewards[self.n_steps:]
-
-        sample_states = State.from_list(sample_states)
-        sample_next_states = State.from_list(sample_next_states)
-
-        advantages = (
-            sample_returns.view(-1)
-            + (self.gamma ** sample_lengths.view(-1))
-            * self.v.eval(self.features.eval(sample_next_states))
-            - self.v.eval(self.features.eval(sample_states))
-        )
-
-        return (
-            sample_states,
-            sample_actions,
-            advantages
-        )
