@@ -17,6 +17,7 @@ class GeneralizedAdvantageBuffer:
         self.n_envs = n_envs
         self.gamma = discount_factor
         self.lam = lam
+        self._batch_size = self.n_steps * self.n_envs
         self._states = []
         self._actions = []
         self._rewards = []
@@ -39,12 +40,12 @@ class GeneralizedAdvantageBuffer:
             raise Exception("Buffer length exceeded: " + str(self.n_steps))
 
     def sample(self, _):
-        if len(self) < self.n_steps * self.n_envs:
+        if len(self) < self._batch_size:
             raise Exception("Not enough states received!")
 
         # states, actions,  = self._summarize_transitions()
         states = State.from_list(self._states[0:self.n_steps + 1])
-        actions = torch.stack(self._actions[:self.n_steps], dim=0)
+        actions = torch.cat(self._actions[:self.n_steps], dim=0)
         rewards = torch.stack(self._rewards[:self.n_steps]).view(self.n_steps, -1)
         _values = self.v.eval(self.features.eval(states)).view((self.n_steps + 1, -1))
         values = _values[0:self.n_steps]
@@ -54,7 +55,7 @@ class GeneralizedAdvantageBuffer:
         self._update_buffers()
 
         return (
-            states,
+            states[0:self._batch_size],
             actions,
             advantages
         )

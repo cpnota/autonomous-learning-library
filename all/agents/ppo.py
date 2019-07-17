@@ -1,5 +1,5 @@
 import torch
-from all.memory import NStepBatchBuffer
+from all.memory import GeneralizedAdvantageBuffer
 from .abstract import Agent
 
 
@@ -14,7 +14,8 @@ class PPO(Agent):
             minibatches=4,
             n_envs=None,
             n_steps=4,
-            discount_factor=0.99
+            discount_factor=0.99,
+            lam=0.95
     ):
         if n_envs is None:
             raise RuntimeError("Must specify n_envs.")
@@ -24,6 +25,7 @@ class PPO(Agent):
         self.n_envs = n_envs
         self.n_steps = n_steps
         self.discount_factor = discount_factor
+        self.lam = lam
         self._epsilon = epsilon
         self._epochs = epochs
         self._batch_size = n_envs * n_steps
@@ -32,20 +34,18 @@ class PPO(Agent):
         self._features = []
 
     def act(self, states, rewards):
+        self._train()
         actions = self.policy.eval(self.features.eval(states))
         self._buffer.store(states, actions, rewards)
-        self._train()
         return actions
 
     def _train(self):
         if len(self._buffer) >= self._batch_size:
-            states, actions, returns, next_states, lengths = self._buffer.sample(self._batch_size)
-            actions = torch.stack(actions, dim=0)
+            states, actions, advantages = self._buffer.sample(self._batch_size)
             with torch.no_grad():
                 features = self.features.eval(states)
                 pi_0 = self.policy.eval(features, actions)
-                targets = self._compute_targets(returns, next_states, lengths)
-                advantages = targets - self.v.eval(features)
+                targets = self.v.eval(features) + advantages
             for _ in range(self._epochs):
                 self._train_epoch(states, actions, pi_0, advantages, targets)
 
@@ -81,9 +81,12 @@ class PPO(Agent):
         return _policy_loss
 
     def _make_buffer(self):
-        return NStepBatchBuffer(
+        return GeneralizedAdvantageBuffer(
+            self.v,
+            self.features,
             self.n_steps,
             self.n_envs,
-            discount_factor=self.discount_factor
+            discount_factor=self.discount_factor,
+            lam=self.lam
         )
  
