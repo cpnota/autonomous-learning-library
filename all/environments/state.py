@@ -65,6 +65,12 @@ class State:
                 self._mask[idx],
                 self._info[idx]
             )
+        if isinstance(idx, torch.Tensor):
+            return State(
+                self._raw[idx],
+                self._mask[idx],
+                # can't copy info
+            )
         return State(
             self._raw[idx].unsqueeze(0),
             self._mask[idx].unsqueeze(0),

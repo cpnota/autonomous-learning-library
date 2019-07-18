@@ -34,7 +34,7 @@ class StochasticPolicy(Policy):
             self._cache(distribution, action)
             return action
         self._cache(distribution, action)
-        return distribution.log_prob(action).exp().detach()
+        return distribution.log_prob(action)
 
     def eval(self, state, action=None):
         with torch.no_grad():
@@ -43,28 +43,34 @@ class StochasticPolicy(Policy):
             if action is None:
                 action = distribution.sample()
                 return action
-            return distribution.log_prob(action).exp().detach()
+            return distribution.log_prob(action)
 
-    def reinforce(self, errors, retain_graph=False):
-        # shape the data properly
-        errors = errors.view(-1)
-        batch_size = len(errors)
-        log_probs, entropy = self._decache(batch_size)
+    def reinforce(self, loss, retain_graph=False):
+        if callable(loss):
+            log_probs, entropy = self._decache_all()
+            policy_loss = loss(log_probs)
+        else:
+            # shape the data properly
+            errors = loss.view(-1)
+            batch_size = len(errors)
+            log_probs, entropy = self._decache(batch_size)
+            policy_loss = (-log_probs.transpose(0, -1) * errors).mean()
         if log_probs.requires_grad:
             # compute losses
-            policy_loss = (-log_probs.transpose(0, -1) * errors).mean()
             entropy_loss = -entropy.mean()
             loss = policy_loss + self._entropy_loss_scaling * entropy_loss
             self._writer.add_loss(self.name, loss)
             self._writer.add_loss(self.name + '/pg', policy_loss)
             self._writer.add_loss(self.name + '/entropy', entropy_loss)
             loss.backward(retain_graph=retain_graph)
+            # take gradient step
+            self.step()
 
-            # take gradient steps
-            if self._clip_grad != 0:
-                utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
-            self.optimizer.step()
-            self.optimizer.zero_grad()
+    def step(self):
+        if self._clip_grad != 0:
+            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
+        self.optimizer.step()
+        self.optimizer.zero_grad()
 
     def _cache(self, distribution, action):
         self._log_probs.append(distribution.log_prob(action))
@@ -84,4 +90,11 @@ class StochasticPolicy(Policy):
         entropy = torch.cat(self._entropy[:i])
         self._entropy = self._entropy[i:]
 
+        return log_probs, entropy
+
+    def _decache_all(self):
+        log_probs = torch.cat(self._log_probs)
+        self._log_probs = []
+        entropy = torch.cat(self._entropy)
+        self._entropy = []
         return log_probs, entropy

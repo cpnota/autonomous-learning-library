@@ -129,41 +129,51 @@ class NStepBatchBuffer:
         sample_lengths = [0] * sample_n
 
         # compute the N-step returns the slow way
+        sample_returns = torch.zeros(
+            (self.n_steps, self.n_envs),
+            device=self._rewards[0].device
+        )
+        sample_lengths = torch.zeros(
+            (self.n_steps, self.n_envs),
+            device=self._rewards[0].device
+        )
+        current_returns = self._rewards[0] * 0
+        current_lengths = current_returns.clone()
+        for i in range(self.n_steps):
+            t = self.n_steps - 1 - i
+            mask = self._states[t + 1].mask.float()
+            current_returns = (
+                self._rewards[t] + self.gamma * current_returns * mask
+            )
+            current_lengths = (
+                1 + current_lengths * mask
+            )
+            sample_returns[t] = current_returns
+            sample_lengths[t] = current_lengths
+
         for e in range(self.n_envs):
-            for t in range(self.n_steps):
-                i = t * self.n_envs + e
+            next_state = self._states[self.n_steps][e]
+            for i in range(self.n_steps):
+                t = self.n_steps - 1 - i
+                idx = t * self.n_envs + e
                 state = self._states[t][e]
                 action = self._actions[t][e]
-                returns = 0.0
-                next_state = state
-                sample_length = 0
-                if state.mask:
-                    for k in range(1, self.n_steps + 1):
-                        sample_length += 1
-                        next_state = self._states[t + k][e]
-                        returns += (self.gamma ** (k - 1)) * self._rewards[t + k][e]
-                        if not next_state.mask or t + k == self.n_steps:
-                            break
-                sample_states[i] = state
-                sample_actions[i] = action
-                sample_returns[i] = returns
-                sample_next_states[i] = next_state
-                sample_lengths[i] = sample_length
 
-        self._states = [self._states[-1]]
-        self._actions = [self._actions[-1]]
-        self._rewards = [self._rewards[-1]]
-        sample_returns = torch.tensor(
-            sample_returns, device=self._rewards[0].device, dtype=torch.float
-        )
-        sample_lengths = torch.tensor(
-            sample_lengths, device=self._rewards[0].device, dtype=torch.float
-        )
+                sample_states[idx] = state
+                sample_actions[idx] = action
+                sample_next_states[idx] = next_state
+
+                if not state.mask:
+                    next_state = state
+
+        self._states = self._states[self.n_steps:]
+        self._actions = self._actions[self.n_steps:]
+        self._rewards = self._rewards[self.n_steps:]
 
         return (
             State.from_list(sample_states),
             sample_actions,
-            sample_returns,
+            sample_returns.view(-1),
             State.from_list(sample_next_states),
-            sample_lengths,
+            sample_lengths.view(-1),
         )
