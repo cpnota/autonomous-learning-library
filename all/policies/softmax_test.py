@@ -73,7 +73,7 @@ class TestSoftmax(unittest.TestCase):
         tt.assert_almost_equal(log_probs, torch.tensor([-0.811, -0.561, -0.701]), decimal=3)
         self.policy.reinforce(loss)
         log_probs = self.policy(states, actions)
-        tt.assert_almost_equal(log_probs, torch.tensor([-0.785, -0.51 , -0.651]), decimal=3)
+        tt.assert_almost_equal(log_probs, torch.tensor([-0.785, -0.51, -0.651]), decimal=3)
 
 
 if __name__ == '__main__':

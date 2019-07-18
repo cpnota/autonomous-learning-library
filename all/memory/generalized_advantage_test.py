@@ -76,7 +76,7 @@ class GeneralizedAdvantageBufferTest(unittest.TestCase):
         states = State.from_list(states)
         values = self.v.eval(self.features.eval(states)).view(3, -1)
         tt.assert_almost_equal(values, torch.tensor([
-            [ 0.183, -1.408],
+            [0.183, -1.408],
             [-0.348, -1.938],
             [-0.878, -2.468]
         ]), decimal=3)
