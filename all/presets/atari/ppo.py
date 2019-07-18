@@ -1,6 +1,6 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch.optim import RMSprop
+from torch.optim import Adam
 from all import nn
 from all.agents import PPO
 from all.bodies import ParallelAtariBody
@@ -18,34 +18,30 @@ def conv_features():
         nn.Conv2d(64, 64, 3, stride=1),
         nn.ReLU(),
         nn.Flatten(),
+        nn.Linear(3456, 512),
+        nn.ReLU()
     )
-
 
 def value_net():
-    return nn.Sequential(nn.Linear(3456, 512), nn.ReLU(), nn.Linear0(512, 1))
-
+    return nn.Linear0(512, 1)
 
 def policy_net(env):
-    return nn.Sequential(
-        nn.Linear(3456, 512), nn.ReLU(), nn.Linear0(512, env.action_space.n)
-    )
-
+    return nn.Linear0(512, env.action_space.n)
 
 def ppo(
         # stable baselines hyperparameters
         clip_grad=0.5,
         discount_factor=0.99,
         lam=0.95,   # GAE lambda (similar to e-traces)
-        lr=2.5e-4,  # RMSprop learning rate
-        alpha=0.99, # RMSprop momentum decay
-        eps=1e-4,   # RMSprop stability
-        entropy_loss_scaling=0.02,
-        value_loss_scaling=0.25,
+        lr=2.5e-4,  # Adam learning rate
+        eps=1e-5,   # Adam stability
+        entropy_loss_scaling=0.01,
+        value_loss_scaling=0.5,
         feature_lr_scaling=1,
         epochs=4,
         minibatches=4,
-        epsilon=0.2,
-        n_envs=16,
+        epsilon=0.1,
+        n_envs=8,
         n_steps=128,
         device=torch.device("cpu"),
 ):
@@ -56,21 +52,18 @@ def ppo(
         value_model = value_net().to(device)
         policy_model = policy_net(env).to(device)
 
-        feature_optimizer = RMSprop(
+        feature_optimizer = Adam(
             feature_model.parameters(),
-            alpha=alpha,
             lr=lr * feature_lr_scaling,
             eps=eps
         )
-        value_optimizer = RMSprop(
+        value_optimizer = Adam(
             value_model.parameters(),
-            alpha=alpha,
             lr=lr,
             eps=eps
         )
-        policy_optimizer = RMSprop(
+        policy_optimizer = Adam(
             policy_model.parameters(),
-            alpha=alpha,
             lr=lr,
             eps=eps
         )
