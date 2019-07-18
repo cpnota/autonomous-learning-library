@@ -51,7 +51,7 @@ class GeneralizedAdvantageBufferTest(unittest.TestCase):
 
         _states, _actions, _advantages = buffer.sample(-1)
         tt.assert_almost_equal(_advantages, advantages)
-        tt.assert_equal(_actions, torch.tensor([[1], [1]]))
+        tt.assert_equal(_actions, torch.tensor([1, 1]))
 
     def test_multi(self):
         buffer = GeneralizedAdvantageBuffer(

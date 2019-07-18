@@ -1,7 +1,7 @@
 import unittest
 from all.environments import GymEnvironment
 from all.presets.validate_agent import validate_agent
-from all.presets.classic_control import a2c, actor_critic, dqn, rainbow, vpg, sarsa
+from all.presets.classic_control import a2c, actor_critic, dqn, ppo, rainbow, vpg, sarsa
 
 class TestClassicControlPresets(unittest.TestCase):
     def test_a2c_(self):
@@ -12,6 +12,9 @@ class TestClassicControlPresets(unittest.TestCase):
 
     def test_dqn(self):
         self.validate(dqn())
+
+    def test_ppo(self):
+        self.validate(ppo())
 
     def test_rainbow(self):
         self.validate(rainbow())

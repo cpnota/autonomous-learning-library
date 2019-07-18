@@ -19,22 +19,25 @@ def conv_features():
         nn.ReLU(),
         nn.Flatten(),
         nn.Linear(3456, 512),
-        nn.ReLU()
+        nn.ReLU(),
     )
+
 
 def value_net():
     return nn.Linear0(512, 1)
 
+
 def policy_net(env):
     return nn.Linear0(512, env.action_space.n)
+
 
 def ppo(
         # stable baselines hyperparameters
         clip_grad=0.5,
         discount_factor=0.99,
-        lam=0.95,   # GAE lambda (similar to e-traces)
+        lam=0.95,  # GAE lambda (similar to e-traces)
         lr=2.5e-4,  # Adam learning rate
-        eps=1e-5,   # Adam stability
+        eps=1e-5,  # Adam stability
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.5,
         feature_lr_scaling=1,
@@ -53,32 +56,18 @@ def ppo(
         policy_model = policy_net(env).to(device)
 
         feature_optimizer = Adam(
-            feature_model.parameters(),
-            lr=lr * feature_lr_scaling,
-            eps=eps
+            feature_model.parameters(), lr=lr * feature_lr_scaling, eps=eps
         )
-        value_optimizer = Adam(
-            value_model.parameters(),
-            lr=lr,
-            eps=eps
-        )
-        policy_optimizer = Adam(
-            policy_model.parameters(),
-            lr=lr,
-            eps=eps
-        )
+        value_optimizer = Adam(value_model.parameters(), lr=lr, eps=eps)
+        policy_optimizer = Adam(policy_model.parameters(), lr=lr, eps=eps)
 
-        features = FeatureNetwork(
-            feature_model,
-            feature_optimizer,
-            clip_grad=clip_grad
-        )
+        features = FeatureNetwork(feature_model, feature_optimizer, clip_grad=clip_grad)
         v = VNetwork(
             value_model,
             value_optimizer,
             loss_scaling=value_loss_scaling,
             clip_grad=clip_grad,
-            writer=writer
+            writer=writer,
         )
         policy = SoftmaxPolicy(
             policy_model,
@@ -100,7 +89,7 @@ def ppo(
                 n_envs=n_envs,
                 n_steps=n_steps,
                 discount_factor=discount_factor,
-                lam=lam
+                lam=lam,
             ),
             envs,
         )
