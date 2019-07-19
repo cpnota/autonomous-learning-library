@@ -14,7 +14,8 @@ def vac(
         value_loss_scaling=0.25,
         entropy_loss_scaling=0.01,
         clip_grad=0.5,
-        lr=2.5e-4,    # RMSprop learning rate
+        lr_pi=1e-4,
+        lr_v=5e-4,
         alpha=0.99, # RMSprop momentum decay
         eps=1e-5,   # RMSprop stability
         n_envs=16,
@@ -26,12 +27,12 @@ def vac(
         policy_model = nature_policy_head(envs[0]).to(device)
         feature_model = nature_cnn().to(device)
 
-        value_optimizer = RMSprop(value_model.parameters(), alpha=alpha, lr=lr, eps=eps)
+        value_optimizer = RMSprop(value_model.parameters(), alpha=alpha, lr=lr_v, eps=eps)
         policy_optimizer = RMSprop(
-            policy_model.parameters(), alpha=alpha, lr=lr, eps=eps
+            policy_model.parameters(), alpha=alpha, lr=lr_pi, eps=eps
         )
         feature_optimizer = RMSprop(
-            feature_model.parameters(), alpha=alpha, lr=lr, eps=eps
+            feature_model.parameters(), alpha=alpha, lr=lr_pi, eps=eps
         )
 
         v = VNetwork(
