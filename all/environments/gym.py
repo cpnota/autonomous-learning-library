@@ -121,5 +121,5 @@ class GymEnvironment(Environment):
         if isinstance(self.action_space, gym.spaces.Discrete):
             return action.item()
         if isinstance(self.action_space, gym.spaces.Box):
-            return action.cpu().detach().numpy()[0]
+            return action.cpu().detach().numpy().reshape(-1)
         raise TypeError("Unknown action space type")

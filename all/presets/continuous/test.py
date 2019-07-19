@@ -1,14 +1,11 @@
 import unittest
 from all.environments import GymEnvironment
 from all.presets.validate_agent import validate_agent
-from all.presets.continuous import ddpg, vac
+from all.presets.continuous import ddpg
 
 class TestClassicControlPresets(unittest.TestCase):
     def test_ddpg(self):
         self.validate(ddpg(replay_start_size=50, device='cpu'))
-
-    def test_vac(self):
-        self.validate(vac(device='cpu'))
 
     def validate(self, make_agent):
         validate_agent(make_agent, GymEnvironment('Pendulum-v0'))
