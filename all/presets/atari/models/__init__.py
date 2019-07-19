@@ -37,9 +37,9 @@ def nature_ddqn(env, frames=4):
         )
     )
 
-def nature_cnn():
+def nature_cnn(frames=4):
     return nn.Sequential(
-        nn.Conv2d(4, 32, 8, stride=4),
+        nn.Conv2d(frames, 32, 8, stride=4),
         nn.ReLU(),
         nn.Conv2d(32, 64, 4, stride=2),
         nn.ReLU(),

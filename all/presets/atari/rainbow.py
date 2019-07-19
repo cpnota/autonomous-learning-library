@@ -2,46 +2,15 @@
 import torch
 from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
-from all import nn
 from all.approximation import QNetwork, FixedTarget
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
 from all.experiments import DummyWriter
 from all.memory import PrioritizedReplayBuffer
 from all.policies import GreedyPolicy
-
-# "Dueling" architecture modification.
-# https://arxiv.org/abs/1511.06581
-
-
-def dueling_conv_net(env, frames=4):
-    return nn.Sequential(
-        nn.Conv2d(frames, 32, 8, stride=4),
-        nn.ReLU(),
-        nn.Conv2d(32, 64, 4, stride=2),
-        nn.ReLU(),
-        nn.Conv2d(64, 64, 3, stride=1),
-        nn.ReLU(),
-        nn.Flatten(),
-        nn.Dueling(
-            nn.Sequential(
-                nn.Linear(3456, 512),
-                nn.ReLU(),
-                nn.Linear0(512, 1)
-            ),
-            nn.Sequential(
-                nn.Linear(3456, 512),
-                nn.ReLU(),
-                nn.Linear0(512, env.action_space.n)
-            ),
-        )
-    )
-
+from .models import nature_ddqn
 
 def rainbow(
-        # If None, build defaults
-        model=None,
-        optimizer=None,
         # vanilla DQN parameters
         minibatch_size=32,
         replay_buffer_size=100000,
@@ -83,17 +52,12 @@ def rainbow(
     final_beta_frame /= action_repeat
 
     def _rainbow(env, writer=DummyWriter()):
-        _model = model
-        _optimizer = optimizer
-        if _model is None:
-            _model = dueling_conv_net(
-                env, frames=agent_history_length).to(device)
-        if _optimizer is None:
-            _optimizer = Adam(
-                _model.parameters(),
-                lr=lr,
-                eps=eps
-            )
+        _model = nature_ddqn(env, frames=agent_history_length).to(device)
+        _optimizer = Adam(
+            _model.parameters(),
+            lr=lr,
+            eps=eps
+        )
         q = QNetwork(
             _model,
             _optimizer,
@@ -129,6 +93,3 @@ def rainbow(
             noop_max=noop_max
         )
     return _rainbow
-
-
-__all__ = ["rainbow", "dueling_conv_net"]

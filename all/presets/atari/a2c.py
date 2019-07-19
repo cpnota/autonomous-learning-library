@@ -1,34 +1,12 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import RMSprop
-from all import nn
 from all.agents import A2C
 from all.bodies import ParallelAtariBody
 from all.approximation import VNetwork, FeatureNetwork
 from all.experiments import DummyWriter
 from all.policies import SoftmaxPolicy
-
-
-def conv_features():
-    return nn.Sequential(
-        nn.Conv2d(4, 32, 8, stride=4),
-        nn.ReLU(),
-        nn.Conv2d(32, 64, 4, stride=2),
-        nn.ReLU(),
-        nn.Conv2d(64, 64, 3, stride=1),
-        nn.ReLU(),
-        nn.Flatten(),
-        nn.Linear(3456, 512),
-        nn.ReLU(),
-    )
-
-
-def value_net():
-    return nn.Linear0(512, 1)
-
-
-def policy_net(env):
-    return nn.Linear0(512, env.action_space.n)
+from .models import nature_cnn, nature_value_head, nature_policy_head
 
 
 def a2c(
@@ -47,9 +25,9 @@ def a2c(
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
 
-        feature_model = conv_features().to(device)
-        value_model = value_net().to(device)
-        policy_model = policy_net(env).to(device)
+        value_model = nature_value_head().to(device)
+        policy_model = nature_policy_head(envs[0]).to(device)
+        feature_model = nature_cnn().to(device)
 
         feature_optimizer = RMSprop(
             feature_model.parameters(), alpha=alpha, lr=lr, eps=eps
