@@ -1,6 +1,6 @@
 import torch
 from all.memory import GeneralizedAdvantageBuffer
-from .abstract import Agent
+from ._agent import Agent
 
 
 class PPO(Agent):

@@ -1,4 +1,4 @@
-from .abstract import Agent
+from ._agent import Agent
 
 class VAC(Agent):
     '''Vanilla Actor-Critic'''

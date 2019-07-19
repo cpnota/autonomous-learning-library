@@ -1,7 +1,7 @@
 import torch
 from all.environments import State
 from all.memory import NStepAdvantageBuffer
-from .abstract import Agent
+from ._agent import Agent
 
 
 class A2C(Agent):

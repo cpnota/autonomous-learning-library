@@ -1,5 +1,5 @@
 import torch
-from .abstract import Agent
+from ._agent import Agent
 
 class DDPG(Agent):
     def __init__(self,

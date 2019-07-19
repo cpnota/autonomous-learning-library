@@ -1,6 +1,6 @@
 import torch
 from all.environments import State
-from .abstract import Agent
+from ._agent import Agent
 
 class VPG(Agent):
     '''Vanilla Policy Gradient'''
