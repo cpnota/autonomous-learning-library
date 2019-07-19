@@ -29,7 +29,7 @@ def vpg(
         entropy_loss_scaling=0.001,
         gamma=0.99,
         lr=5e-3,
-        n_episodes=5,
+        min_batch_size=500,
         device=torch.device('cpu')
 ):
     def _vpg(env, writer=DummyWriter()):
@@ -57,7 +57,7 @@ def vpg(
             clip_grad=clip_grad,
             writer=writer
         )
-        return VPG(features, v, policy, gamma=gamma, n_episodes=n_episodes)
+        return VPG(features, v, policy, gamma=gamma, min_batch_size=min_batch_size)
     return _vpg
 
 

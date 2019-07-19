@@ -3,19 +3,23 @@ from all.environments import State
 from .abstract import Agent
 
 class VPG(Agent):
+    '''Vanilla Policy Gradient'''
     def __init__(
             self,
             features,
             v,
             policy,
             gamma=0.99,
-            n_episodes=1
+            # run complete episodes until we have
+            # seen at least min_batch_size states
+            min_batch_size=1
     ):
         self.features = features
         self.v = v
         self.policy = policy
         self.gamma = gamma
-        self.n_episodes = n_episodes
+        self.min_batch_size = min_batch_size
+        self._current_batch_size = 0
         self._trajectories = []
         self._features = []
         self._rewards = []
@@ -43,10 +47,11 @@ class VPG(Agent):
         features = torch.cat(self._features)
         rewards = torch.tensor(self._rewards, device=features.device)
         self._trajectories.append((features, rewards))
+        self._current_batch_size += len(features)
         self._features = []
         self._rewards = []
 
-        if len(self._trajectories) >= self.n_episodes:
+        if self._current_batch_size >= self.min_batch_size:
             self._train()
 
     def _train(self):
@@ -59,6 +64,7 @@ class VPG(Agent):
         self.policy.reinforce(advantages)
         self.features.reinforce()
         self._trajectories = []
+        self._current_batch_size = 0
 
     def _compute_advantages(self, features, rewards):
         returns = self._compute_discounted_returns(rewards)
