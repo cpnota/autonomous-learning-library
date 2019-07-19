@@ -1,7 +1,7 @@
 import unittest
 from all.environments import GymEnvironment
 from all.presets.validate_agent import validate_agent
-from all.presets.classic_control import a2c, dqn, ppo, rainbow, vac, vpg, vsarsa
+from all.presets.classic_control import a2c, dqn, ppo, rainbow, vac, vpg, vqn, vsarsa
 
 class TestClassicControlPresets(unittest.TestCase):
     def test_a2c_(self):
@@ -24,6 +24,9 @@ class TestClassicControlPresets(unittest.TestCase):
 
     def test_vsarsa(self):
         self.validate(vsarsa())
+
+    def test_vqn(self):
+        self.validate(vqn())
 
     def validate(self, make_agent):
         validate_agent(make_agent, GymEnvironment('CartPole-v0'))
