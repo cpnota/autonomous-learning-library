@@ -4,5 +4,6 @@ from .ppo import ppo
 from .rainbow import rainbow
 from .vac import vac
 from .vpg import vpg
+from .vsarsa import vsarsa
 
-__all__ = ["a2c", "dqn", "ppo", "rainbow", "vac", "vpg"]
+__all__ = ["a2c", "dqn", "ppo", "rainbow", "vac", "vpg", "vsarsa"]
