@@ -3,9 +3,9 @@ from .a2c import A2C
 from .ddpg import DDPG
 from .dqn import DQN
 from .ppo import PPO
-from .sarsa import Sarsa
 from .vac import VAC
 from .vpg import VPG
+from .vsarsa import VSarsa
 
 __all__ = [
     "Agent",
@@ -13,7 +13,7 @@ __all__ = [
     "DDPG",
     "DQN",
     "PPO",
-    "Sarsa",
     "VAC",
     "VPG",
+    "VSarsa",
 ]

@@ -4,7 +4,7 @@ from .ppo import ppo
 from .rainbow import rainbow
 from .vac import vac
 from .vpg import vpg
-from .sarsa import sarsa
+from .vsarsa import vsarsa
 
 __all__ = [
     "a2c",
@@ -13,5 +13,5 @@ __all__ = [
     "rainbow",
     "vac",
     "vpg",
-    "sarsa"
+    "vsarsa"
 ]

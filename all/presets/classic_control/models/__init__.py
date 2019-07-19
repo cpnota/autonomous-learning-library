@@ -1,6 +1,6 @@
 from all import nn
 
-def two_layer_q(env, hidden=64):
+def fc_relu_q(env, hidden=64):
     return nn.Sequential(
         nn.Flatten(),
         nn.Linear(env.state_space.shape[0], hidden),
