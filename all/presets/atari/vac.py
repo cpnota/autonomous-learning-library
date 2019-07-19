@@ -14,7 +14,7 @@ def vac(
         value_loss_scaling=0.25,
         entropy_loss_scaling=0.01,
         clip_grad=0.5,
-        lr=7e-4,    # RMSprop learning rate
+        lr=2.5e-4,    # RMSprop learning rate
         alpha=0.99, # RMSprop momentum decay
         eps=1e-5,   # RMSprop stability
         n_envs=16,
