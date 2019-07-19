@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import torch
-from all.presets.classic_control import sarsa
+from all.presets.classic_control import dqn
 from all.experiments import Experiment, Writer
 
 
@@ -51,14 +51,14 @@ class TestExperiment(unittest.TestCase):
         self.experiment.env.seed(0)
 
     def test_adds_label(self):
-        self.experiment.run(sarsa(), console=False)
-        self.assertEqual(self.experiment._writer.label, "_sarsa")
+        self.experiment.run(dqn(), console=False)
+        self.assertEqual(self.experiment._writer.label, "_dqn")
 
     def test_writes_returns_eps(self):
-        self.experiment.run(sarsa(), console=False)
+        self.experiment.run(dqn(), console=False)
         np.testing.assert_equal(
             self.experiment._writer.data["evaluation/returns-by-episode"]["values"],
-            np.array([9., 12., 10.])
+            np.array([14., 19., 26.])
         )
         np.testing.assert_equal(
             self.experiment._writer.data["evaluation/returns-by-episode"]["steps"],
@@ -66,9 +66,9 @@ class TestExperiment(unittest.TestCase):
         )
 
     def test_writes_loss(self):
-        self.experiment.run(sarsa(), console=False)
+        self.experiment.run(dqn(), console=False)
         self.assertTrue(self.experiment._writer.write_loss)
-        self.experiment.run(sarsa(), console=False, write_loss=False)
+        self.experiment.run(dqn(), console=False, write_loss=False)
         self.assertFalse(self.experiment._writer.write_loss)
 
 if __name__ == '__main__':
