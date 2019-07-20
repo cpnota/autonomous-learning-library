@@ -1,39 +1,11 @@
 import torch
 from torch.optim import RMSprop
-from all import nn
 from all.agents import VPG
 from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
 from all.experiments import DummyWriter
 from all.policies import SoftmaxPolicy
-
-
-def conv_features():
-    return nn.Sequential(
-        nn.Conv2d(4, 32, 8, stride=4),
-        nn.ReLU(),
-        nn.Conv2d(32, 64, 4, stride=2),
-        nn.ReLU(),
-        nn.Conv2d(64, 64, 3, stride=1),
-        nn.ReLU(),
-        nn.Flatten()
-    )
-
-
-def value_net():
-    return nn.Sequential(
-        nn.Linear(3456, 512),
-        nn.ReLU(),
-        nn.Linear0(512, 1)
-    )
-
-
-def policy_net(env):
-    return nn.Sequential(
-        nn.Linear(3456, 512),
-        nn.ReLU(),
-        nn.Linear0(512, env.action_space.n)
-    )
+from .models import nature_cnn, nature_value_head, nature_policy_head
 
 
 def vpg(
@@ -46,13 +18,13 @@ def vpg(
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.25,
         feature_lr_scaling=1,
-        n_episodes=5,
+        min_batch_size=1000,
         device=torch.device('cpu')
 ):
     def _vpg_atari(env, writer=DummyWriter()):
-        feature_model = conv_features().to(device)
-        value_model = value_net().to(device)
-        policy_model = policy_net(env).to(device)
+        feature_model = nature_cnn().to(device)
+        value_model = nature_value_head().to(device)
+        policy_model = nature_policy_head(env).to(device)
 
         feature_optimizer = RMSprop(
             feature_model.parameters(),
@@ -95,7 +67,7 @@ def vpg(
         )
 
         return DeepmindAtariBody(
-            VPG(features, v, policy, gamma=discount_factor, n_episodes=n_episodes),
+            VPG(features, v, policy, gamma=discount_factor, min_batch_size=min_batch_size),
             env
         )
     return _vpg_atari

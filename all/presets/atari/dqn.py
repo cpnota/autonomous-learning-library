@@ -2,36 +2,16 @@
 import torch
 from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
-from all import nn
 from all.approximation import QNetwork, FixedTarget
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
 from all.experiments import DummyWriter
 from all.policies import GreedyPolicy
 from all.memory import ExperienceReplayBuffer
-
-# Model the original deep mind paper (https://www.nature.com/articles/nature14236):
-
-
-def conv_net(env, frames=4):
-    return nn.Sequential(
-        nn.Conv2d(frames, 32, 8, stride=4),
-        nn.ReLU(),
-        nn.Conv2d(32, 64, 4, stride=2),
-        nn.ReLU(),
-        nn.Conv2d(64, 64, 3, stride=1),
-        nn.ReLU(),
-        nn.Flatten(),
-        nn.Linear(3456, 512),
-        nn.ReLU(),
-        nn.Linear0(512, env.action_space.n)
-    )
+from .models import nature_dqn
 
 
 def dqn(
-        # If None, build defaults
-        model=None,
-        optimizer=None,
         # Taken from Extended Data Table 1
         # in https://www.nature.com/articles/nature14236
         # except where noted.
@@ -56,16 +36,12 @@ def dqn(
     replay_start_size /= action_repeat
 
     def _dqn(env, writer=DummyWriter()):
-        _model = model
-        _optimizer = optimizer
-        if _model is None:
-            _model = conv_net(env, frames=agent_history_length).to(device)
-        if _optimizer is None:
-            _optimizer = Adam(
-                _model.parameters(),
-                lr=lr,
-                eps=eps
-            )
+        _model = nature_dqn(env).to(device)
+        _optimizer = Adam(
+            _model.parameters(),
+            lr=lr,
+            eps=eps
+        )
         q = QNetwork(
             _model,
             _optimizer,
@@ -98,6 +74,3 @@ def dqn(
             noop_max=noop_max
         )
     return _dqn
-
-
-__all__ = ["dqn", "conv_net"]

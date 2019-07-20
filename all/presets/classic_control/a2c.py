@@ -1,26 +1,11 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
-from all import nn
 from all.agents import A2C
 from all.approximation import VNetwork, FeatureNetwork
 from all.experiments import DummyWriter
 from all.policies import SoftmaxPolicy
-
-
-def fc_features(env):
-    return nn.Sequential(
-        nn.Linear(env.state_space.shape[0], 256),
-        nn.ReLU()
-    )
-
-
-def fc_value(_):
-    return nn.Linear(256, 1)
-
-
-def fc_policy(env):
-    return nn.Linear(256, env.action_space.n)
+from .models import fc_relu_features, fc_policy_head, fc_value_head
 
 
 def a2c(
@@ -34,9 +19,9 @@ def a2c(
 ):
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
-        feature_model = fc_features(env).to(device)
-        value_model = fc_value(env).to(device)
-        policy_model = fc_policy(env).to(device)
+        feature_model = fc_relu_features(env).to(device)
+        value_model = fc_value_head().to(device)
+        policy_model = fc_policy_head(env).to(device)
 
         feature_optimizer = Adam(feature_model.parameters(), lr=lr)
         value_optimizer = Adam(value_model.parameters(), lr=lr)

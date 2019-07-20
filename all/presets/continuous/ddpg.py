@@ -12,17 +12,21 @@ from all.memory import ExperienceReplayBuffer
 def fc_value(env):
     return nn.Sequential(
         nn.Flatten(),
-        nn.Linear(env.state_space.shape[0] + env.action_space.shape[0], 256),
+        nn.Linear(env.state_space.shape[0] + env.action_space.shape[0], 64),
         nn.ReLU(),
-        nn.Linear0(256, 1)
+        nn.Linear(64, 64),
+        nn.ReLU(),
+        nn.Linear0(64, 1)
     )
 
 def fc_policy(env):
     return nn.Sequential(
         nn.Flatten(),
-        nn.Linear(env.state_space.shape[0], 256),
+        nn.Linear(env.state_space.shape[0], 64),
         nn.ReLU(),
-        nn.Linear0(256, env.action_space.shape[0]),
+        nn.Linear(64, 64),
+        nn.ReLU(),
+        nn.Linear0(64, env.action_space.shape[0]),
         nn.TanhActionBound(env.action_space)
     )
 

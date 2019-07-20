@@ -2,22 +2,12 @@
 import torch
 from torch.optim import Adam
 from torch.nn.functional import mse_loss
-from all import nn
 from all.agents import DQN
 from all.approximation import QNetwork, FixedTarget
 from all.experiments import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.policies import GreedyPolicy
-
-
-def fc_net(env, frames=1):
-    return nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(env.state_space.shape[0] * frames, 256),
-        nn.ReLU(),
-        nn.Linear(256, env.action_space.n)
-    )
-
+from .models import fc_relu_q
 
 def dqn(
         minibatch_size=32,
@@ -30,11 +20,10 @@ def dqn(
         final_exploration=0.02,
         final_exploration_frame=10000,
         replay_start_size=1000,
-        build_model=fc_net,
         device=torch.device('cpu')
 ):
     def _dqn(env, writer=DummyWriter()):
-        model = build_model(env).to(device)
+        model = fc_relu_q(env).to(device)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(
             model,
