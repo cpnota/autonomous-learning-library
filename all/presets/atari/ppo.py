@@ -1,7 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch.optim import RMSprop
-from all.agents import A2C
+from torch.optim import Adam
+from all.agents import PPO
 from all.bodies import ParallelAtariBody
 from all.approximation import VNetwork, FeatureNetwork
 from all.experiments import DummyWriter
@@ -9,33 +9,35 @@ from all.policies import SoftmaxPolicy
 from .models import nature_cnn, nature_value_head, nature_policy_head
 
 
-def a2c(
-        # taken from stable-baselines
-        discount_factor=0.99,
-        n_steps=5,
-        value_loss_scaling=0.25,
-        entropy_loss_scaling=0.01,
+def ppo(
+        # stable baselines hyperparameters
         clip_grad=0.5,
-        lr=7e-4,  # RMSprop learning rate
-        alpha=0.99,  # RMSprop momentum decay
-        eps=1e-5,  # RMSprop stability
-        n_envs=16,
+        discount_factor=0.99,
+        lam=0.95,  # GAE lambda (similar to e-traces)
+        lr=2.5e-4,  # Adam learning rate
+        eps=1e-5,  # Adam stability
+        entropy_loss_scaling=0.01,
+        value_loss_scaling=0.5,
+        feature_lr_scaling=1,
+        epochs=4,
+        minibatches=4,
+        epsilon=0.1,
+        n_envs=8,
+        n_steps=128,
         device=torch.device("cpu"),
 ):
-    def _a2c(envs, writer=DummyWriter()):
+    def _ppo(envs, writer=DummyWriter()):
         env = envs[0]
 
         value_model = nature_value_head().to(device)
         policy_model = nature_policy_head(envs[0]).to(device)
         feature_model = nature_cnn().to(device)
 
-        feature_optimizer = RMSprop(
-            feature_model.parameters(), alpha=alpha, lr=lr, eps=eps
+        feature_optimizer = Adam(
+            feature_model.parameters(), lr=lr * feature_lr_scaling, eps=eps
         )
-        value_optimizer = RMSprop(value_model.parameters(), alpha=alpha, lr=lr, eps=eps)
-        policy_optimizer = RMSprop(
-            policy_model.parameters(), alpha=alpha, lr=lr, eps=eps
-        )
+        value_optimizer = Adam(value_model.parameters(), lr=lr, eps=eps)
+        policy_optimizer = Adam(policy_model.parameters(), lr=lr, eps=eps)
 
         features = FeatureNetwork(feature_model, feature_optimizer, clip_grad=clip_grad)
         v = VNetwork(
@@ -55,18 +57,22 @@ def a2c(
         )
 
         return ParallelAtariBody(
-            A2C(
+            PPO(
                 features,
                 v,
                 policy,
+                epsilon=epsilon,
+                epochs=epochs,
+                minibatches=minibatches,
                 n_envs=n_envs,
                 n_steps=n_steps,
                 discount_factor=discount_factor,
+                lam=lam,
             ),
             envs,
         )
 
-    return _a2c, n_envs
+    return _ppo, n_envs
 
 
-__all__ = ["a2c"]
+__all__ = ["ppo"]

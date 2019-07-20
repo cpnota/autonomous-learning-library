@@ -2,13 +2,14 @@ from setuptools import setup, find_packages
 
 setup(
     name="all",
-    version="0.2.1",
+    version="0.2.2",
     description=("A reinforcement learning library in python"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",
     author="Autonomous Learning Lab",
     install_requires=[
-        "gym[atari]",    # rl environments
+        "gym[atari]",    # atari environments
+        "gym[box2d]",    # box2d environments
         "numpy",         # math library
         "pylint",        # code quality tool
         "tensorboardX",  # visualize results

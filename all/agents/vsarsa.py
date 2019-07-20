@@ -1,7 +1,8 @@
-from .abstract import Agent
+from ._agent import Agent
 
 
-class Sarsa(Agent):
+class VSarsa(Agent):
+    '''Vanilla SARSA'''
     def __init__(self, q, policy, gamma=1):
         self.q = q
         self.policy = policy

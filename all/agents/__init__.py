@@ -1,17 +1,21 @@
-from .abstract import Agent
+from ._agent import Agent
 from .a2c import A2C
-from .actor_critic import ActorCritic
 from .ddpg import DDPG
 from .dqn import DQN
-from .sarsa import Sarsa
+from .ppo import PPO
+from .vac import VAC
 from .vpg import VPG
+from .vqn import VQN
+from .vsarsa import VSarsa
 
 __all__ = [
     "Agent",
     "A2C",
-    "ActorCritic",
     "DDPG",
     "DQN",
-    "Sarsa",
+    "PPO",
+    "VAC",
     "VPG",
+    "VQN",
+    "VSarsa",
 ]

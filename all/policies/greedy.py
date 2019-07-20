@@ -25,10 +25,10 @@ class GreedyPolicy(Policy):
     def __call__(self, state, action=None, prob=False):
         self.epsilon = self.anneal()
         if np.random.rand() < self.epsilon:
-            return torch.randint(self.num_actions, (1,), device=self.q.device)
+            return torch.randint(self.num_actions, (len(state),), device=self.q.device)
         with torch.no_grad():
-            action_scores = self.q.eval(state).squeeze(0)
-        return torch.argmax(action_scores)
+            action_scores = self.q.eval(state)
+        return torch.argmax(action_scores, dim=1)
 
     def reinforce(self, errors):
         return  # not possible
