@@ -3,6 +3,7 @@ from .a2c import A2C
 from .ddpg import DDPG
 from .dqn import DQN
 from .ppo import PPO
+from .sac import SAC
 from .vac import VAC
 from .vpg import VPG
 from .vqn import VQN
