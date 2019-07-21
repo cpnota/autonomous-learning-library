@@ -43,7 +43,7 @@ def sac(
         lr_q=1e-3,
         lr_v=1e-3,
         lr_pi=1e-4,
-        entropy_regularizer=0.1,
+        entropy_regularizer=0.01,
         replay_start_size=5000,
         replay_buffer_size=50000,
         minibatch_size=256,

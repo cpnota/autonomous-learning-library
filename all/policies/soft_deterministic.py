@@ -34,20 +34,19 @@ class SoftDeterministicPolicy(Policy):
         )
         self._tanh_mean = torch.tensor((space.high + space.low) / 2, device=self.device)
 
-    def __call__(self, state, action=None, prob=None):
+    def __call__(self, state, action=None, log_prob=False):
         outputs = self.model(state)
         distribution = self._distribution(outputs)
-        self._raw_actions = distribution.rsample()
-        return self._squash(self._raw_actions)
-
-    def log_prob(self, _):
-        return self._last_dist.log_prob(self._raw_actions.detach()).sum(1, keepdim=True)
+        raw_actions = distribution.rsample()
+        if log_prob:
+            return self._squash(raw_actions), distribution.log_prob(raw_actions).sum(1, keepdim=True)
+        return self._squash(raw_actions)
 
     def greedy(self, state):
-        return self.model(state)[:, 0:self._action_dim]
+        return self._squash(self.model(state)[:, 0:self._action_dim])
 
     def eval(self, state):
-        return self._target(state)[:, 0:self._action_dim]
+        return self._squash(self._target(state)[:, 0:self._action_dim])
 
     def reinforce(self, _):
         raise NotImplementedError(

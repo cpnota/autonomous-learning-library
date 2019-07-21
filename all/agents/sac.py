@@ -56,16 +56,15 @@ class SAC(Agent):
 
             # compute targets
             with torch.no_grad():
-                _actions = self.policy(states)
-                log_probs = self.policy.log_prob(_actions).detach()
+                _actions, _log_probs = self.policy(states, log_prob=True)
                 # print('actions', _actions.shape)
                 # print('log_prob', log_probs.shape)
                 q_targets = rewards + self.discount_factor * self.v.eval(next_states)
                 v_targets = torch.min(
                     self.q_1.eval(states, _actions),
                     self.q_2.eval(states, _actions),
-                ) - self.entropy_regularizer * log_probs
-                self.writer.add_loss('entropy', -log_probs.mean())
+                ) - self.entropy_regularizer * _log_probs
+                self.writer.add_loss('entropy', -_log_probs.mean())
                 self.writer.add_loss('v_mean', v_targets.mean())
                 self.writer.add_loss('r_mean', rewards.mean())
 
@@ -80,11 +79,11 @@ class SAC(Agent):
             self.v.reinforce(v_errors)
 
             # train policy
-            __actions = self.policy(states)
+            __actions, __log_probs = self.policy(states, log_prob=True)
 
             loss = -(
                 self.q_1(states, __actions, detach=False)
-                - self.entropy_regularizer * self.policy.log_prob(__actions)
+                - self.entropy_regularizer * __log_probs
             ).mean()
             loss.backward()
             self.policy.step()
