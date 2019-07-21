@@ -40,13 +40,13 @@ def fc_policy(env):
     )
 
 def sac(
-        lr_q=1e-3,
-        lr_v=1e-3,
-        lr_pi=1e-4,
+        lr_q=3e-4,
+        lr_v=3e-4,
+        lr_pi=3e-4,
         entropy_regularizer=0.1,
         replay_start_size=5000,
         replay_buffer_size=50000,
-        minibatch_size=64,
+        minibatch_size=256,
         discount_factor=0.99,
         polyak_rate=0.005,
         update_frequency=1,
@@ -61,6 +61,7 @@ def sac(
             writer=writer,
             name='q_1'
         )
+
         q_2_model = fc_q(env).to(device)
         q_2_optimizer = Adam(q_2_model.parameters(), lr=lr_q)
         q_2 = QContinuous(
