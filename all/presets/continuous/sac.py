@@ -40,9 +40,9 @@ def fc_policy(env):
     )
 
 def sac(
-        lr_q=3e-4,
-        lr_v=3e-4,
-        lr_pi=3e-4,
+        lr_q=1e-3,
+        lr_v=1e-3,
+        lr_pi=1e-4,
         entropy_regularizer=0.1,
         replay_start_size=5000,
         replay_buffer_size=50000,
@@ -53,21 +53,19 @@ def sac(
         device=torch.device('cuda')
 ):
     def _sac(env, writer=DummyWriter()):
-        q1_model = fc_q(env).to(device)
-        q1_optimizer = Adam(q1_model.parameters(), lr=lr_q)
-        q1 = QContinuous(
-            q1_model,
-            q1_optimizer,
-            target=PolyakTarget(polyak_rate),
+        q_1_model = fc_q(env).to(device)
+        q_1_optimizer = Adam(q_1_model.parameters(), lr=lr_q)
+        q_1 = QContinuous(
+            q_1_model,
+            q_1_optimizer,
             writer=writer,
             name='q_1'
         )
-        q2_model = fc_q(env).to(device)
-        q2_optimizer = Adam(q2_model.parameters(), lr=lr_q)
-        q2 = QContinuous(
-            q2_model,
-            q2_optimizer,
-            target=PolyakTarget(polyak_rate),
+        q_2_model = fc_q(env).to(device)
+        q_2_optimizer = Adam(q_2_model.parameters(), lr=lr_q)
+        q_2 = QContinuous(
+            q_2_model,
+            q_2_optimizer,
             writer=writer,
             name='q_2'
         )
@@ -97,8 +95,8 @@ def sac(
 
         return SAC(
             policy,
-            q1,
-            q2,
+            q_1,
+            q_2,
             v,
             replay_buffer,
             entropy_regularizer=entropy_regularizer,

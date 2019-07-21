@@ -27,6 +27,7 @@ class SoftDeterministicPolicy(Policy):
         self._entropy = []
         self._writer = writer
         self._last_dist = None
+        self._raw_actions = None
         # parameters for squashing to tanh
         self._tanh_scale = torch.tensor(
             (space.high - space.low) / 2, device=self.device
@@ -34,15 +35,13 @@ class SoftDeterministicPolicy(Policy):
         self._tanh_mean = torch.tensor((space.high + space.low) / 2, device=self.device)
 
     def __call__(self, state, action=None, prob=None):
-        outputs = self.model(state).detach()
+        outputs = self.model(state)
         distribution = self._distribution(outputs)
-        return self._squash(distribution.sample())
+        self._raw_actions = distribution.rsample()
+        return self._squash(self._raw_actions)
 
-    def log_prob(self, actions):
-        actions = actions - self._tanh_mean
-        actions = actions / self._tanh_scale
-        unsquashed = 0.5 * torch.log((1 + actions) / (1 - actions))
-        return self._last_dist.log_prob(unsquashed)
+    def log_prob(self, _):
+        return self._last_dist.log_prob(self._raw_actions.detach()).sum(1, keepdim=True)
 
     def greedy(self, state):
         return self.model(state)[:, 0:self._action_dim]

@@ -5,8 +5,8 @@ from all.experiments import DummyWriter
 class SAC(Agent):
     def __init__(self,
                  policy,
-                 q1,
-                 q2,
+                 q_1,
+                 q_2,
                  v,
                  replay_buffer,
                  entropy_regularizer=0.01,
@@ -19,8 +19,8 @@ class SAC(Agent):
         # objects
         self.policy = policy
         self.v = v
-        self.q1 = q1
-        self.q2 = q2
+        self.q_1 = q_1
+        self.q_2 = q_2
         self.replay_buffer = replay_buffer
         self.writer=writer
         # hyperparameters
@@ -52,27 +52,28 @@ class SAC(Agent):
             # Randomly sample a batch of transitions
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
                 self.minibatch_size)
-            actions = torch.cat(actions)
+            actions = torch.cat(actions).detach()
 
-            # resample actions
-            _actions = self.policy(states).detach()
-
-            # compute targets for Q and V
-            entropy = self.policy.log_prob(_actions).detach()
-            q_targets = rewards + self.discount_factor * self.v.eval(next_states)
-            v_targets = torch.min(
-                self.q1.eval(states, _actions),
-                self.q2.eval(states, _actions),
-            ) - self.entropy_regularizer * entropy
-            self.writer.add_loss('entropy', -entropy.mean())
-            self.writer.add_loss('v_mean', v_targets.mean())
-            self.writer.add_loss('r_mean', rewards.mean())
+            # compute targets
+            with torch.no_grad():
+                _actions = self.policy(states)
+                log_probs = self.policy.log_prob(_actions).detach()
+                # print('actions', _actions.shape)
+                # print('log_prob', log_probs.shape)
+                q_targets = rewards + self.discount_factor * self.v.eval(next_states)
+                v_targets = torch.min(
+                    self.q_1.eval(states, _actions),
+                    self.q_2.eval(states, _actions),
+                ) - self.entropy_regularizer * log_probs
+                self.writer.add_loss('entropy', -log_probs.mean())
+                self.writer.add_loss('v_mean', v_targets.mean())
+                self.writer.add_loss('r_mean', rewards.mean())
 
             # update Q-functions
-            q1_errors = q_targets - self.q1(states, actions)
-            q2_errors = q_targets - self.q2(states, actions)
-            self.q1.reinforce(q1_errors)
-            self.q2.reinforce(q2_errors)
+            q_1_errors = q_targets - self.q_1(states, actions)
+            self.q_1.reinforce(q_1_errors)
+            q_2_errors = q_targets - self.q_2(states, actions)
+            self.q_2.reinforce(q_2_errors)
 
             # update V-function
             v_errors = v_targets - self.v(states)
@@ -80,13 +81,14 @@ class SAC(Agent):
 
             # train policy
             __actions = self.policy(states)
+
             loss = -(
-                self.q1(states, __actions, detach=False)
-                - self.entropy_regularizer * self.policy.log_prob(actions)
+                self.q_1(states, __actions, detach=False)
+                - self.entropy_regularizer * self.policy.log_prob(__actions)
             ).mean()
             loss.backward()
             self.policy.step()
-            self.q1.zero_grad()
+            self.q_1.zero_grad()
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and
