@@ -22,7 +22,7 @@ class SAC(Agent):
         self.q_1 = q_1
         self.q_2 = q_2
         self.replay_buffer = replay_buffer
-        self.writer=writer
+        self.writer = writer
         # hyperparameters
         self.replay_start_size = replay_start_size
         self.update_frequency = update_frequency
@@ -39,7 +39,8 @@ class SAC(Agent):
         self._store_transition(state, reward)
         self._train()
         self.state = state
-        self.action = self.policy(state)
+        with torch.no_grad():
+            self.action = self.policy(state)
         return self.action
 
     def _store_transition(self, state, reward):
@@ -49,16 +50,14 @@ class SAC(Agent):
 
     def _train(self):
         if self._should_train():
-            # Randomly sample a batch of transitions
+            # randomly sample a batch of transitions
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
                 self.minibatch_size)
-            actions = torch.cat(actions).detach()
+            actions = torch.cat(actions)
 
-            # compute targets
+            # compute targets for Q and V
             with torch.no_grad():
                 _actions, _log_probs = self.policy(states, log_prob=True)
-                # print('actions', _actions.shape)
-                # print('log_prob', log_probs.shape)
                 q_targets = rewards + self.discount_factor * self.v.eval(next_states)
                 v_targets = torch.min(
                     self.q_1.eval(states, _actions),
@@ -79,11 +78,11 @@ class SAC(Agent):
             self.v.reinforce(v_errors)
 
             # train policy
-            __actions, __log_probs = self.policy(states, log_prob=True)
+            _actions, _log_probs = self.policy(states, log_prob=True)
 
             loss = -(
-                self.q_1(states, __actions, detach=False)
-                - self.entropy_regularizer * __log_probs
+                self.q_1(states, _actions, detach=False)
+                - self.entropy_regularizer * _log_probs
             ).mean()
             loss.backward()
             self.policy.step()

@@ -43,13 +43,13 @@ def sac(
         lr_q=1e-3,
         lr_v=1e-3,
         lr_pi=1e-4,
-        entropy_regularizer=0.01,
+        entropy_regularizer=0.005,
         replay_start_size=5000,
         replay_buffer_size=50000,
         minibatch_size=256,
         discount_factor=0.99,
         polyak_rate=0.005,
-        update_frequency=1,
+        update_frequency=4,
         device=torch.device('cuda')
 ):
     def _sac(env, writer=DummyWriter()):
