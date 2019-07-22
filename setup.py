@@ -8,8 +8,7 @@ setup(
     url="https://github.com/cpnota/autonomous-learning-library.git",
     author="Autonomous Learning Lab",
     install_requires=[
-        "gym[atari]",    # atari environments
-        "gym[box2d]",    # box2d environments
+        "gym[atari,box2d]",    # atari environments
         "roboschool",    # open-source mujoco
         "numpy",         # math library
         "pylint",        # code quality tool

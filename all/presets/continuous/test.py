@@ -11,7 +11,7 @@ class TestClassicControlPresets(unittest.TestCase):
         self.validate(sac(replay_start_size=50, device='cpu'))
 
     def validate(self, make_agent):
-        validate_agent(make_agent, GymEnvironment('LunarLanderContinuous-v2'))
+        validate_agent(make_agent, GymEnvironment('Pendulum-v0'))
 
 if __name__ == '__main__':
     unittest.main()
