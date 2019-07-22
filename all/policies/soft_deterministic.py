@@ -38,9 +38,14 @@ class SoftDeterministicPolicy(Policy):
         outputs = self.model(state)
         distribution = self._distribution(outputs)
         raw_actions = distribution.rsample()
+        actions = self._squash(raw_actions)
         if log_prob:
-            return self._squash(raw_actions), distribution.log_prob(raw_actions).sum(1, keepdim=True)
-        return self._squash(raw_actions)
+            return (actions, self._log_prob(
+                distribution,
+                raw_actions,
+                actions
+            ))
+        return actions
 
     def greedy(self, state):
         return self._squash(self.model(state)[:, 0:self._action_dim])
@@ -71,3 +76,10 @@ class SoftDeterministicPolicy(Policy):
 
     def _squash(self, x):
         return torch.tanh(x) * self._tanh_scale + self._tanh_mean
+
+    def _log_prob(self, dist, raw, action):
+        # Squashing using tanh changes the probabilty densities.
+        # See section C. of the Soft Actor-Critic appendix.
+        log_prob = dist.log_prob(raw)
+        log_prob -= torch.log(1 - action.pow(2) + 1e-6)
+        return log_prob.sum(1, keepdim=True)
