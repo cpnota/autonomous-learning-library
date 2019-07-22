@@ -10,6 +10,7 @@ setup(
     install_requires=[
         "gym[atari]",    # atari environments
         "gym[box2d]",    # box2d environments
+        "roboschool",    # open-source mujoco
         "numpy",         # math library
         "pylint",        # code quality tool
         "tensorboardX",  # visualize results
