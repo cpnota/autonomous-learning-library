@@ -42,8 +42,8 @@ def fc_policy(env):
 def sac(
         lr_q=3e-4,
         lr_v=3e-4,
-        lr_pi=3e-4,
-        entropy_regularizer=0.005,
+        lr_pi=1e-4,
+        entropy_regularizer=0.1,
         replay_start_size=5000,
         replay_buffer_size=50000,
         minibatch_size=256,

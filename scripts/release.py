@@ -27,9 +27,9 @@ for agent_name in atari.__all__:
 
 # create slurm tasks for running atari agents
 for agent_name in continuous.__all__:
-    print('Pendulum-v0', agent_name)
+    print('Lander', agent_name)
     agent = getattr(continuous, agent_name)
-    envs = [GymEnvironment('Pendulum-v0', device=device)]
+    envs = [GymEnvironment('LunarLanderContinuous-v2', device=device)]
     SlurmExperiment(agent, envs, 500000, hyperparameters={'device': device}, sbatch_args={
         'partition': '1080ti-short'
     })

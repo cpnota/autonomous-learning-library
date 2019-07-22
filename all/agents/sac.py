@@ -1,6 +1,6 @@
 import torch
-from ._agent import Agent
 from all.experiments import DummyWriter
+from ._agent import Agent
 
 class SAC(Agent):
     def __init__(self,
