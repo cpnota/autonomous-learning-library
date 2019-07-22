@@ -1,14 +1,17 @@
 import argparse
+import roboschool
 from all.environments import GymEnvironment
 from all.experiments import Experiment
 from all.presets import continuous
 
+# some example envs
+# can also enter ID directly
 envs = {
     'walker': 'BipedalWalker-v2',
-    'walker_hard': 'BipedalWalkerHardcore-v2',
     'mountaincar': 'MountainCarContinuous-v0',
     'lander': 'LunarLanderContinuous-v2',
-    'pendulum': 'Pendulum-v0'
+    'hopper': 'RoboschoolHopper-v1',
+    'cheetah': 'RoboschoolHalfCheetah-v1'
 }
 
 def run_atari():
@@ -23,9 +26,18 @@ def run_atari():
         '--device', default='cuda',
         help='The name of the device to run the agent on (e.g. cpu, cuda, cuda:0)'
     )
+    parser.add_argument(
+        '--render', default=False,
+        help='Whether to render the environment.'
+    )
     args = parser.parse_args()
 
-    env = GymEnvironment(envs[args.env], device=args.device)
+    if args.env in envs:
+        env_id = envs[args.env]
+    else:
+        env_id = args.env
+
+    env = GymEnvironment(env_id, device=args.device)
     agent_name = args.agent
     agent = getattr(continuous, agent_name)
 
@@ -33,7 +45,7 @@ def run_atari():
         env,
         frames=args.frames
     )
-    experiment.run(agent(device=args.device), label=agent_name)
+    experiment.run(agent(device=args.device), label=agent_name, render=args.render)
 
 
 if __name__ == '__main__':
