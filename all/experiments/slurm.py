@@ -57,7 +57,7 @@ class SlurmExperiment:
     def run_experiment(self):
         task_id = int(os.environ['SLURM_ARRAY_TASK_ID'])
         env = self.envs[int(task_id / len(self.agents))]
-        agent = self.agents(task_id % len(self.agents))
+        agent = self.agents[task_id % len(self.agents)]
         Experiment(agent, env, frames=self.frames, write_loss=False)
 
     def queue_jobs(self):
