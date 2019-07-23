@@ -10,10 +10,9 @@ class ListNetwork(nn.Module):
     Wraps a network such that States can be given as input.
     '''
 
-    def __init__(self, model, out):
+    def __init__(self, model, _=None):
         super().__init__()
         self.model = model
-        self.out = list(out)
         self.device = next(model.parameters()).device
 
     def forward(self, state):
