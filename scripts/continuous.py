@@ -7,28 +7,31 @@ from all.presets import continuous
 # some example envs
 # can also enter ID directly
 envs = {
-    'walker': 'BipedalWalker-v2',
-    'mountaincar': 'MountainCarContinuous-v0',
-    'lander': 'LunarLanderContinuous-v2',
-    'hopper': 'RoboschoolHopper-v1',
-    'cheetah': 'RoboschoolHalfCheetah-v1'
+    "walker": "BipedalWalker-v2",
+    "mountaincar": "MountainCarContinuous-v0",
+    "lander": "LunarLanderContinuous-v2",
+    "hopper": "RoboschoolHopper-v1",
+    "cheetah": "RoboschoolHalfCheetah-v1",
 }
 
+
 def run_atari():
-    parser = argparse.ArgumentParser(
-        description='Run a continuous actions benchmark.')
-    parser.add_argument('env', help='Name of the env (see envs)')
+    parser = argparse.ArgumentParser(description="Run a continuous actions benchmark.")
+    parser.add_argument("env", help="Name of the env (see envs)")
     parser.add_argument(
-        'agent', help="Name of the agent (e.g. actor_critic). See presets for available agents.")
-    parser.add_argument('--frames', type=int, default=2e6,
-                        help='The number of training frames')
-    parser.add_argument(
-        '--device', default='cuda',
-        help='The name of the device to run the agent on (e.g. cpu, cuda, cuda:0)'
+        "agent",
+        help="Name of the agent (e.g. actor_critic). See presets for available agents.",
     )
     parser.add_argument(
-        '--render', default=False,
-        help='Whether to render the environment.'
+        "--frames", type=int, default=2e6, help="The number of training frames"
+    )
+    parser.add_argument(
+        "--device",
+        default="cuda",
+        help="The name of the device to run the agent on (e.g. cpu, cuda, cuda:0)",
+    )
+    parser.add_argument(
+        "--render", default=False, help="Whether to render the environment."
     )
     args = parser.parse_args()
 
@@ -42,11 +45,9 @@ def run_atari():
     agent = getattr(continuous, agent_name)
 
     experiment = Experiment(
-        env,
-        frames=args.frames
+        agent(device=args.device), env, frames=args.frames, render=args.render
     )
-    experiment.run(agent(device=args.device), label=agent_name, render=args.render)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_atari()
