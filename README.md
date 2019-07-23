@@ -1,10 +1,97 @@
-# The Autonomous Learning Library
+# The Autonomous Learning Library: An Object-Orient Deep Reinforcement Learning Library in Pytorch
 
-This is a library for reinforcement learning built at the [Autonomous Learning Laboratory](http://all.cs.umass.edu) (ALL) at the [University of Massachusetts, Amherst](https://www.umass.edu).
-The goal of the library is to provide implementations of modern reinforcement learning algorithms that reflect the way that reinforcement learning researchers think about agent design, and to provide the components necessary to build and test new types of agents.
+The Autonomous Learning Library (`all`) is an object-oriented deep reinforcement learning library in `pytorch`. The goal of the library is to provide implementations of modern reinforcement learning algorithms that reflect the way that reinforcement learning researchers think about agent design and to provide the components necessary to build and test new ideas with minimal overhead.
 
-This library was written and is currently maintained by Chris Nota (@cpnota).
-The views expressed or implied in this repository do not necessarily reflect the views of the ALL.
+## Algorithms
+
+As of today, `all` contains implementations of the following deep RL algorithms:
+
+- [x] Advantage Actor-Critic (A2C)
+- [x] Deep Deterministic Policy Gradient (DDPG)
+- [x] Deep Q-Learning (DQN) + extensions
+- [x] Proximal Policy Optimization (PPO)
+- [x] Soft Actor-Critic (SAC)
+
+It also contains implementations of the following "vanilla" agents, which provide useful baselines and perform better than you may expect:
+
+- [x] Vanilla Actor-Critic
+- [x] Vanilla Policy Gradient
+- [x] Vanilla Q-Learning
+- [x] Vanilla Sarsa
+
+We will try to stay up-to-date with advances in the field, but we do not intend to implement every algorithm. Rather, we prefer to maintain a smaller set of high-quality agents that have achieved notoriety in the field.
+
+## Why use `all`?
+
+The primary reason for using `all` over its many competitors is because it contains components that allow you to *build your own* reinforcement learning agents.
+We provide out-of-the-box modules for:
+
+- [x] Custom Q-Networks, V-Networks, policy networks, and feature networks
+- [x] Generic function approximation
+- [x] Experience Replay
+- [x] Prioritized Experience Replay
+- [x] Advantage Estimation
+- [x] Generalized Advantage Estimation (GAE)
+- [x] Target networks
+- [x] Polyak averaging
+- [x] An enhanced `nn` module (includes dueling layers, noisy layers, action bounds, and the coveted `nn.Flatten`)
+- [x] `gym` to `pytorch` wrappers
+- [x] Atari wrappers
+- [x] An `Experiment` API for comparing and evaluating agents
+- [x] A `SlurmExperiment` API for running massive experiments on computing clusters
+- [x] A `Writer` object for easily logging information in `tensorboard`
+
+Rather than being embedded in the agents, all of these modules are available for use by your own custom agents.
+Additionally, the included agents accept custom versions of any of the above objects.
+Have a new type of replay buffer in mind?
+Code it up and pass it directly to our `DQN` and `DDPG` implementations.
+Additionally, our agents were written with readibility as a primary concern, so they are easy to modify.
+
+## Example
+
+Our agents implement a single method: `action = agent.act(state, reward)`.
+Much of the complexity is handled behind the scenes, making the final API simple.
+Unlike many libraries, we do not combine the learning algorithm and the training loop.
+Instead, our agents can be embedded in existing applications and trained in the online setting.
+
+The `all.presets` includes agents that preconfigured for certain types of environments.
+It can be used as follows:
+
+```python
+from all.presets.atari import dqn
+from all.environments import AtariEnvironment
+
+env = AtariEnvironment('Breakout')
+agent = dqn(lr=3e-4)(env)
+
+while True:
+    if env.done:
+        env.reset()
+    else:
+        env.step(action)
+    env.render()
+    action = agent.act(env.state, env.reward)
+```
+
+However, generally we recommend using the `Experiment` API, which adds many additional features:
+
+```python
+from all.presets.atari import a2c, dqn
+from all.environments import AtariEnvironment
+from all.experiments import Experiment
+
+# use graphics card for much faster training
+device = 'cuda'
+experiment = Experiment(AtariEnvironment('Breakout', device=device), frames=10e6)
+experiment.run(a2c(device=device))
+experiment.run(dqn(device=device))
+```
+
+Results can be viewed by typing:
+
+```
+make tensorboard
+```
 
 ## Installation
 
@@ -45,13 +132,13 @@ make test
 
 If the unit tests pass with no errors, it is more than likely that your installation works! The unit test run every agent using both `cpu` and `cuda` for a few timesteps/episodes.
 
-## Running the Benchmarks
+## Running the Presets
 
 You can easily benchmark the included algorithms using the scripts in `./benchmarks`.
 To run a simple `CartPole` benchmark, run:
 
 ```
-python benchmarks/classic.py CartPole-v1 dqn
+python scripts/classic.py CartPole-v1 dqn
 ```
 
 Results are printed to the console, and can also be viewed by running:
@@ -65,22 +152,17 @@ and opening your browser to http://localhost:6006.
 To run an Atari benchmark in CUDA mode (warning: this could take several hours to run, depending on your machine):
 
 ```
-python benchmarks/atari.py Pong dqn
+python scripts/atari.py Pong dqn
 ```
 
 If you want to run in `cpu` mode (~10x slower on my machine), you can add ```--device cpu```:
 
 ```
-python benchmarks/atari.py Pong dqn --device cpu
+python scipts/atari.py Pong dqn --device cpu
 ```
 
-Finally, to run the entire benchmarking suite:
+## Note
 
-```
-python benchmark/release.py
-```
-
-Before every merge to master, we re-run the benchmarking suite and commit the results to this repository.
-The results are labeled with the hass of the commit where the benchmark command was run.
-Your can view our results by running `make benchmark`, and opening your browser to http://localhost:6007. 
-To replicate these results, you can checkout that specific commit that the run is labeled with and run the above command.
+This library was built at the [Autonomous Learning Laboratory](http://all.cs.umass.edu) (ALL) at the [University of Massachusetts, Amherst](https://www.umass.edu).
+It was written and is currently maintained by Chris Nota (@cpnota).
+The views expressed or implied in this repository do not necessarily reflect the views of the ALL.
