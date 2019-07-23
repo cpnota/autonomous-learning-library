@@ -3,30 +3,25 @@ from timeit import default_timer as timer
 import numpy as np
 import torch
 from all.environments import State
-from .writer import ExperimentWriter
 
 class EnvRunner(ABC):
     def __init__(
             self,
             agent,
             env,
-            agent_name=None,
-            env_name=None,
+            writer,
             frames=np.inf,
             episodes=np.inf,
             render=False,
             quiet=False,
-            write_loss=True,
     ):
+        self._agent = agent(env, writer)
         self._env = env
-        self._agent_name = agent_name or agent.__name__
-        self._env_name = env_name or self._env.name
+        self._writer = writer
         self._max_frames = frames
         self._max_episodes = episodes
         self._render = render
         self._quiet = quiet
-        self._writer = self._make_writer(write_loss)
-        self._agent = agent(env, self._writer)
         self.run()
 
     @abstractmethod
@@ -35,7 +30,7 @@ class EnvRunner(ABC):
 
     def _done(self):
         return (
-            self._writer.frames > self._max_frames or 
+            self._writer.frames > self._max_frames or
             self._writer.episodes > self._max_episodes
         )
 
@@ -46,9 +41,6 @@ class EnvRunner(ABC):
         self._writer.add_evaluation('returns-by-episode', returns, step="episode")
         self._writer.add_evaluation('returns-by-frame', returns, step="frame")
         self._writer.add_scalar('fps', fps, step="frame")
-
-    def _make_writer(self, write_loss):
-        return ExperimentWriter(self._agent_name, self._env_name, loss=write_loss)
 
 class SingleEnvRunner(EnvRunner):
     def run(self):
@@ -83,13 +75,13 @@ class SingleEnvRunner(EnvRunner):
         return returns
 
 class ParallelEnvRunner(EnvRunner):
-    def __init__(self, agent, env, **kwargs):
+    def __init__(self, agent, env, writer, **kwargs):
         make_agent, n_envs = agent
         envs = env.duplicate(n_envs)
         self._n_envs = n_envs
         self._returns = None
         self._start_time = None
-        super().__init__(make_agent, envs, env_name=env.name, **kwargs)
+        super().__init__(make_agent, envs, writer, **kwargs)
 
     def run(self):
         self._reset()
