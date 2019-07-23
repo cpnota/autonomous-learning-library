@@ -16,18 +16,22 @@ ID = {
 class SlurmExperiment:
     def __init__(
             self,
-            agent,
+            agents,
             envs,
             frames,
             job_name='autonomous-learning-library',
-            hyperparameters=None,
             sbatch_args=None,
     ):
-        self.agent = agent
+        if not isinstance(agents, list):
+            agents = [agents]
+
+        if not isinstance(envs, list):
+            envs = [envs]
+
+        self.agents = agents
         self.envs = envs
         self.frames = frames
         self.job_name = job_name
-        self.hyperparameters = hyperparameters or {}
         self.sbatch_args = sbatch_args or {}
         self.parse_args()
 
@@ -51,10 +55,10 @@ class SlurmExperiment:
         self.args = parser.parse_args()
 
     def run_experiment(self):
-        index = int(os.environ['SLURM_ARRAY_TASK_ID'])
-        env = self.envs[index]
-        experiment = Experiment(env, frames=self.frames)
-        experiment.run(self.agent(**self.hyperparameters), write_loss=False)
+        task_id = int(os.environ['SLURM_ARRAY_TASK_ID'])
+        env = self.envs[int(task_id / len(self.agents))]
+        agent = self.agents(task_id % len(self.agents))
+        Experiment(agent, env, frames=self.frames, write_loss=False)
 
     def queue_jobs(self):
         self.create_sbatch_script()
@@ -64,12 +68,13 @@ class SlurmExperiment:
     def create_sbatch_script(self):
         script = open(SCRIPT_NAME, 'w')
         script.write('#!/bin/sh\n\n')
+        num_experiments = len(self.envs) * len(self.agents)
 
         sbatch_args = {
             'job-name': self.job_name,
             'output': 'out/all_%A_%a.out',
             'error': 'out/all_%A_%a.err',
-            'array': '0-' + str(len(self.envs) - 1),
+            'array': '0-' + str(num_experiments - 1),
             'partition': '1080ti-short',
             'ntasks': 1,
             'mem-per-cpu': 4000,
