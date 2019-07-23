@@ -166,7 +166,3 @@ python scipts/atari.py Pong dqn --device cpu
 This library was built at the [Autonomous Learning Laboratory](http://all.cs.umass.edu) (ALL) at the [University of Massachusetts, Amherst](https://www.umass.edu).
 It was written and is currently maintained by Chris Nota (@cpnota).
 The views expressed or implied in this repository do not necessarily reflect the views of the ALL.
-
-## SEO :-)
-
-`deep reinforcement learning`, `pytorch reinforcement learning`, `pytorch rl`, `a2c pytorch`, `ddpg pytorch`, `dqn pytorch`, `ppo pytorch`, `sac pytorch`
