@@ -167,6 +167,6 @@ This library was built at the [Autonomous Learning Laboratory](http://all.cs.uma
 It was written and is currently maintained by Chris Nota (@cpnota).
 The views expressed or implied in this repository do not necessarily reflect the views of the ALL.
 
-## Tags :-)
+## SEO :-)
 
-DQN pytorch, 
+`deep reinforcement learning`, `pytorch reinforcement learning`, `pytorch rl`, `a2c pytorch`, `ddpg pytorch`, `dqn pytorch`, `ppo pytorch`, `sac pytorch`
