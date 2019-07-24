@@ -2,7 +2,7 @@ import torch
 from torch.nn import utils
 from torch.nn.functional import mse_loss
 from all.experiments import DummyWriter
-from .target import FixedTarget, TrivialTarget
+from .target import TrivialTarget
 
 class Approximation():
     def __init__(
@@ -72,11 +72,3 @@ class Approximation():
         items = torch.cat(self._cache[:i])
         self._cache = self._cache[i:]
         return items
-
-    def _init_target_model(self, target_update_frequency):
-        if target_update_frequency is not None:
-            self._target = FixedTarget(target_update_frequency)
-            self._target.init(self.model)
-        else:
-            self._target = TrivialTarget()
-            self._target.init(self.model)
