@@ -1,11 +1,9 @@
 import torch
-from all.approximation import TrivialTarget
-from all.nn import ListNetwork, utils
-from all.experiments import DummyWriter
-from .policy import Policy
+from all.approximation import Approximation
+from all.nn import ListNetwork
 
 
-class DeterministicPolicy(Policy):
+class DeterministicPolicy(Approximation):
     def __init__(
             self,
             model,
@@ -13,23 +11,20 @@ class DeterministicPolicy(Policy):
             space,
             noise,
             name='policy',
-            target=None,
-            clip_grad=0,
-            writer=DummyWriter()
+            **kwargs
     ):
-        self.model = ListNetwork(model, (space.shape[0],))
-        self.optimizer = optimizer
-        self.name = name
-        self.device = next(model.parameters()).device
+        model = ListNetwork(model)
+        super().__init__(
+            model,
+            optimizer,
+            name=name,
+            **kwargs
+        )
         self.noise = torch.distributions.normal.Normal(0, noise)
-        self._target = target or TrivialTarget()
-        self._target.init(self.model)
         self._low = torch.tensor(space.low, device=self.device)
         self._high = torch.tensor(space.high, device=self.device)
-        self._clip_grad = clip_grad
         self._log_probs = []
         self._entropy = []
-        self._writer = writer
 
     def __call__(self, state, action=None, prob=None):
         outputs = self.model(state).detach()
@@ -50,10 +45,3 @@ class DeterministicPolicy(Policy):
             'Call backward() on a loss derived from the action' +
             'and then call policy.step()'
         )
-
-    def step(self):
-        if self._clip_grad != 0:
-            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
-        self.optimizer.step()
-        self.optimizer.zero_grad()
-        self._target.update()

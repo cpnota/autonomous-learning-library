@@ -9,10 +9,10 @@ class SoftmaxPolicy(StochasticPolicy):
             self,
             model,
             optimizer,
-            actions,
+            _, # deprecated
             **kwargs
     ):
-        model = ListNetwork(model, (actions,))
+        model = ListNetwork(model)
 
         def distribution(outputs):
             probs = functional.softmax(outputs, dim=-1)
