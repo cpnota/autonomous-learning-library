@@ -1,8 +1,7 @@
 import numpy as np
 import torch
-from .policy import Policy
 
-class GreedyPolicy(Policy):
+class GreedyPolicy():
     def __init__(
             self,
             q,
@@ -29,9 +28,6 @@ class GreedyPolicy(Policy):
         with torch.no_grad():
             action_scores = self.q.eval(state)
         return torch.argmax(action_scores, dim=1)
-
-    def reinforce(self, errors):
-        return  # not possible
 
     def anneal(self):
         self.executions += 1
