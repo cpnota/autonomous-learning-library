@@ -1,8 +1,10 @@
+import os
 import torch
 from torch.nn import utils
 from torch.nn.functional import mse_loss
 from all.experiments import DummyWriter
 from .target import TrivialTarget
+from .checkpointer import DummyCheckpointer
 
 class Approximation():
     def __init__(
@@ -15,11 +17,17 @@ class Approximation():
             name='approximation',
             target=None,
             writer=DummyWriter(),
+            checkpointer=DummyCheckpointer()
     ):
         self.model = model
         self.device = next(model.parameters()).device
         self._target = target or TrivialTarget()
         self._target.init(model)
+        self._checkpointer = checkpointer
+        self._checkpointer.init(
+            self.model,
+            os.path.join(writer.log_dir, name + '.pt')
+        )
         self._updates = 0
         self._optimizer = optimizer
         self._loss = loss
@@ -54,6 +62,7 @@ class Approximation():
         self._optimizer.step()
         self._optimizer.zero_grad()
         self._target.update()
+        self._checkpointer()
 
     def zero_grad(self):
         self._optimizer.zero_grad()

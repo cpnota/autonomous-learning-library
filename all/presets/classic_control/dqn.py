@@ -3,7 +3,7 @@ import torch
 from torch.optim import Adam
 from torch.nn.functional import mse_loss
 from all.agents import DQN
-from all.approximation import QNetwork, FixedTarget
+from all.approximation import QNetwork, FixedTarget, PeriodicCheckpointer
 from all.experiments import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.policies import GreedyPolicy
@@ -31,7 +31,8 @@ def dqn(
             env.action_space.n,
             target=FixedTarget(target_update_frequency),
             loss=mse_loss,
-            writer=writer
+            writer=writer,
+            checkpointer=PeriodicCheckpointer(1000)
         )
         policy = GreedyPolicy(
             q,
