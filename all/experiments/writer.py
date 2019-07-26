@@ -5,7 +5,6 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from tensorboardX import SummaryWriter
 
-
 class Writer(ABC):
     log_dir = 'runs'
 
@@ -86,3 +85,8 @@ def get_commit_hash():
 
 
 COMMIT_HASH = get_commit_hash()
+
+try:
+    os.mkdir('runs')
+except FileExistsError:
+    pass
