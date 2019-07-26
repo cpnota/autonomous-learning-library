@@ -26,7 +26,11 @@ def vpg(
         policy_optimizer = Adam(policy_model.parameters(), lr=lr)
 
         features = FeatureNetwork(
-            feature_model, feature_optimizer, clip_grad=clip_grad)
+            feature_model,
+            feature_optimizer,
+            clip_grad=clip_grad,
+            writer=writer
+        )
         v = VNetwork(
             value_model,
             value_optimizer,

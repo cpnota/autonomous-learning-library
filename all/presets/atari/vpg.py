@@ -48,7 +48,8 @@ def vpg(
         features = FeatureNetwork(
             feature_model,
             feature_optimizer,
-            clip_grad=clip_grad
+            clip_grad=clip_grad,
+            writer=writer
         )
         v = VNetwork(
             value_model,

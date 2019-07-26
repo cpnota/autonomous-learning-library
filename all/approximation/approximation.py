@@ -1,8 +1,12 @@
+import os
 import torch
 from torch.nn import utils
 from torch.nn.functional import mse_loss
 from all.experiments import DummyWriter
 from .target import TrivialTarget
+from .checkpointer import PeriodicCheckpointer
+
+DEFAULT_CHECKPOINT_FREQUENCY = 200
 
 class Approximation():
     def __init__(
@@ -15,6 +19,7 @@ class Approximation():
             name='approximation',
             target=None,
             writer=DummyWriter(),
+            checkpointer=None
     ):
         self.model = model
         self.device = next(model.parameters()).device
@@ -28,6 +33,14 @@ class Approximation():
         self._clip_grad = clip_grad
         self._writer = writer
         self._name = name
+
+        if checkpointer is None:
+            checkpointer = PeriodicCheckpointer(DEFAULT_CHECKPOINT_FREQUENCY)
+        self._checkpointer = checkpointer
+        self._checkpointer.init(
+            self.model,
+            os.path.join(writer.log_dir, name + '.pt')
+        )
 
     def __call__(self, *inputs, detach=True):
         result = self.model(*inputs)
@@ -54,6 +67,7 @@ class Approximation():
         self._optimizer.step()
         self._optimizer.zero_grad()
         self._target.update()
+        self._checkpointer()
 
     def zero_grad(self):
         self._optimizer.zero_grad()

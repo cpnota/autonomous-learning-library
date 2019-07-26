@@ -39,7 +39,12 @@ def ppo(
         value_optimizer = Adam(value_model.parameters(), lr=lr, eps=eps)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr, eps=eps)
 
-        features = FeatureNetwork(feature_model, feature_optimizer, clip_grad=clip_grad)
+        features = FeatureNetwork(
+            feature_model,
+            feature_optimizer,
+            clip_grad=clip_grad,
+            writer=writer
+        )
         v = VNetwork(
             value_model,
             value_optimizer,
