@@ -59,7 +59,8 @@ def ddpg(
             policy_optimizer,
             env.action_space,
             noise,
-            target=PolyakTarget(polyak_rate)
+            target=PolyakTarget(polyak_rate),
+            writer=writer
         )
 
         replay_buffer = ExperienceReplayBuffer(

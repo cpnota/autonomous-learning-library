@@ -86,7 +86,8 @@ def sac(
         policy = SoftDeterministicPolicy(
             policy_model,
             policy_optimizer,
-            env.action_space
+            env.action_space,
+            writer=writer
         )
 
         replay_buffer = ExperienceReplayBuffer(

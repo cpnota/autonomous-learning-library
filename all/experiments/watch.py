@@ -2,6 +2,8 @@ import os
 import torch
 import gym
 from all.agents import Agent
+from all.bodies import DeepmindAtariBody
+from all.environments import AtariEnvironment
 
 def watch(agent, env):
     action = None
@@ -39,19 +41,14 @@ class GreedyAgent(Agent):
             raise TypeError('GreedyAgent must have either policy or q function')
 
     def act(self, state, reward):
-        if self.feature:
-            state = self.feature(state)
-        if isinstance(self.action_space, gym.spaces.Discrete):
-            return torch.argmax(self.policy(state), dim=1)
-        if isinstance(self.action_space, gym.spaces.Box):
-            return (
-                self.policy(state)
-                .cpu()
-                .detach()
-                .numpy()
-                .reshape(-1)[0:len(self.action_space.shape[0])]
-            )
-        raise TypeError('Unknown action space')
+        with torch.no_grad():
+            if self.feature:
+                state = self.feature(state)
+            if isinstance(self.action_space, gym.spaces.Discrete):
+                return torch.argmax(self.policy(state), dim=1)
+            if isinstance(self.action_space, gym.spaces.Box):
+                return self.policy(state)[0, :self.action_space.shape[0]]
+            raise TypeError('Unknown action space')
 
     @staticmethod
     def load(dirname, env):
@@ -65,9 +62,15 @@ class GreedyAgent(Agent):
                 policy = torch.load(os.path.join(dirname, filename)).to(env.device)
             if filename == 'q.pt':
                 q = torch.load(os.path.join(dirname, filename)).to(env.device)
-        return GreedyAgent(
+
+        agent = GreedyAgent(
             env.action_space,
             feature=feature,
             policy=policy,
             q=q,
         )
+
+        if isinstance(env, AtariEnvironment):
+            agent = DeepmindAtariBody(agent, env)
+
+        return agent

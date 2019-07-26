@@ -31,14 +31,6 @@ class FeatureNetwork(Approximation):
         self._enqueue(graphs, features._raw)
         return features
 
-    def eval(self, states):
-        result = self._target(states.features.float())
-        return State(
-            result,
-            mask=states.mask,
-            info=states.info
-        )
-
     def reinforce(self):
         graphs, grads = self._dequeue()
         graphs.backward(grads)

@@ -50,7 +50,12 @@ def vac(
             clip_grad=clip_grad,
             writer=writer,
         )
-        features = FeatureNetwork(feature_model, feature_optimizer, clip_grad=clip_grad)
+        features = FeatureNetwork(
+            feature_model,
+            feature_optimizer,
+            clip_grad=clip_grad,
+            writer=writer
+        )
 
         return ParallelAtariBody(
             VAC(features, v, policy, gamma=discount_factor),
