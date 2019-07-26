@@ -1,4 +1,3 @@
-import roboschool # auto-registers with gym
 from .abstract import Environment
 from .gym import GymEnvironment
 from .atari import AtariEnvironment
