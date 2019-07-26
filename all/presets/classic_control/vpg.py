@@ -2,7 +2,7 @@
 import torch
 from torch.optim import Adam
 from all.agents import VPG
-from all.approximation import VNetwork, FeatureNetwork
+from all.approximation import VNetwork, FeatureNetwork, PeriodicCheckpointer
 from all.experiments import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import fc_relu_features, fc_policy_head, fc_value_head
@@ -26,12 +26,18 @@ def vpg(
         policy_optimizer = Adam(policy_model.parameters(), lr=lr)
 
         features = FeatureNetwork(
-            feature_model, feature_optimizer, clip_grad=clip_grad)
+            feature_model,
+            feature_optimizer,
+            clip_grad=clip_grad,
+            writer=writer,
+            checkpointer=PeriodicCheckpointer(50)
+        )
         v = VNetwork(
             value_model,
             value_optimizer,
             clip_grad=clip_grad,
-            writer=writer
+            writer=writer,
+            checkpointer=PeriodicCheckpointer(50)
         )
         policy = SoftmaxPolicy(
             policy_model,
@@ -39,7 +45,8 @@ def vpg(
             env.action_space.n,
             entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
-            writer=writer
+            writer=writer,
+            checkpointer=PeriodicCheckpointer(50)
         )
         return VPG(features, v, policy, gamma=gamma, min_batch_size=min_batch_size)
     return _vpg
