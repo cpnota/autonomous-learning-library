@@ -46,7 +46,7 @@ def sac(
         lr_temperature=1e-5,
         entropy_target_scaling=1,
         replay_start_size=5000,
-        replay_buffer_size=50000,
+        replay_buffer_size=1e6,
         minibatch_size=256,
         discount_factor=0.99,
         polyak_rate=0.005,
