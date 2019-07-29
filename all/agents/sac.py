@@ -9,7 +9,9 @@ class SAC(Agent):
                  q_2,
                  v,
                  replay_buffer,
-                 entropy_regularizer=0.01,
+                 entropy_target=-2., # usually -action_space.size[0]
+                 temperature_initial=0.1,
+                 lr_temperature=1e-4,
                  discount_factor=0.99,
                  minibatch_size=32,
                  replay_start_size=5000,
@@ -28,7 +30,10 @@ class SAC(Agent):
         self.update_frequency = update_frequency
         self.minibatch_size = minibatch_size
         self.discount_factor = discount_factor
-        self.entropy_regularizer = entropy_regularizer
+        # vars for learning the temperature
+        self.entropy_target = entropy_target
+        self.temperature = temperature_initial
+        self.lr_temperature = lr_temperature
         # data
         self.env = None
         self.state = None
@@ -62,10 +67,13 @@ class SAC(Agent):
                 v_targets = torch.min(
                     self.q_1.eval(states, _actions),
                     self.q_2.eval(states, _actions),
-                ) - self.entropy_regularizer * _log_probs
+                ) - self.temperature * _log_probs
+                temperature_loss = ((_log_probs + self.entropy_target).detach().mean())
                 self.writer.add_loss('entropy', -_log_probs.mean())
                 self.writer.add_loss('v_mean', v_targets.mean())
                 self.writer.add_loss('r_mean', rewards.mean())
+                self.writer.add_loss('temperature_loss', temperature_loss)
+                self.writer.add_loss('temperature', self.temperature)
 
             # update Q-functions
             q_1_errors = q_targets - self.q_1(states, actions)
@@ -79,14 +87,16 @@ class SAC(Agent):
 
             # train policy
             _actions, _log_probs = self.policy(states, log_prob=True)
-
             loss = -(
                 self.q_1(states, _actions, detach=False)
-                - self.entropy_regularizer * _log_probs
+                - self.temperature * _log_probs
             ).mean()
             loss.backward()
             self.policy.step()
             self.q_1.zero_grad()
+
+            # adjust temperature
+            self.temperature += self.lr_temperature * temperature_loss
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and

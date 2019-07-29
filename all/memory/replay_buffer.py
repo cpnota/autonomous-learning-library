@@ -24,7 +24,7 @@ class ReplayBuffer(ABC):
 class ExperienceReplayBuffer(ReplayBuffer):
     def __init__(self, size, device=torch.device('cpu')):
         self.buffer = []
-        self.capacity = size
+        self.capacity = int(size)
         self.pos = 0
         self.device = device
 
