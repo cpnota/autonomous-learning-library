@@ -6,6 +6,7 @@ from all.agents import DQN
 from all.approximation import QNetwork, FixedTarget
 from all.experiments import DummyWriter
 from all.memory import ExperienceReplayBuffer
+from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
 from .models import fc_relu_q
 
@@ -36,9 +37,15 @@ def dqn(
         policy = GreedyPolicy(
             q,
             env.action_space.n,
-            initial_epsilon=initial_exploration,
-            final_epsilon=final_exploration,
-            annealing_time=final_exploration_frame
+            epsilon=initial_exploration
+        )
+        policy.epsilon = LinearScheduler(
+            initial_exploration,
+            final_exploration,
+            replay_start_size,
+            final_exploration_frame,
+            name="epsilon",
+            writer=writer
         )
         replay_buffer = ExperienceReplayBuffer(
             replay_buffer_size, device=device)

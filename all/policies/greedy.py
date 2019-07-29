@@ -1,7 +1,8 @@
 import numpy as np
 import torch
+from all.optim import SchedulerMixin
 
-class GreedyPolicy():
+class GreedyPolicy(SchedulerMixin):
     def __init__(
             self,
             q,

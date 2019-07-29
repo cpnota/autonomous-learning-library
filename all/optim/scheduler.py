@@ -1,3 +1,5 @@
+from all.experiments import DummyWriter
+
 class SchedulerMixin(object):
     '''Change the way attribute getters work to all "instance" descriptors.'''
     def __getattribute__(self, name):
@@ -8,14 +10,29 @@ class SchedulerMixin(object):
 
 
 class LinearScheduler(object):
-    def __init__(self, initial_value, final_value, decay_start, decay_end):
+    def __init__(
+            self,
+            initial_value,
+            final_value,
+            decay_start,
+            decay_end,
+            name='variable',
+            writer=DummyWriter(),
+    ):
         self._initial_value = initial_value
         self._final_value = final_value
         self._decay_start = decay_start
         self._decay_end = decay_end
         self._i = -1
+        self._name = name
+        self._writer = writer
 
     def __get__(self, instance, owner=None):
+        result = self._get_value()
+        self._writer.add_schedule(self._name, result)
+        return result
+
+    def _get_value(self):
         self._i += 1
         if self._i < self._decay_start:
             return self._initial_value

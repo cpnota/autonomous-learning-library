@@ -20,6 +20,10 @@ class Writer(ABC):
     def add_scalar(self, name, value, step="frame"):
         pass
 
+    @abstractmethod
+    def add_schedule(self, name, value, step="frame"):
+        pass
+
 
 class DummyWriter(Writer):
     def add_loss(self, name, value, step="frame"):
@@ -29,6 +33,9 @@ class DummyWriter(Writer):
         pass
 
     def add_scalar(self, name, value, step="frame"):
+        pass
+
+    def add_schedule(self, name, value, step="frame"):
         pass
 
 
@@ -50,6 +57,10 @@ class ExperimentWriter(SummaryWriter, Writer):
 
     def add_evaluation(self, name, value, step="frame"):
         self.add_scalar('evaluation/' + name, value, self._get_step(step))
+
+    def add_schedule(self, name, value, step="frame"):
+        if self._loss:
+            self.add_scalar('schedule' + '/' + name, value, self._get_step(step))
 
     def add_scalar(self, name, value, step="frame"):
         super().add_scalar(self.env_name + "/" + name, value, self._get_step(step))
