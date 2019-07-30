@@ -76,7 +76,8 @@ class PPO(Agent):
         def _policy_loss(pi_i):
             ratios = torch.exp(pi_i - pi_0)
             surr1 = ratios * advantages
-            surr2 = torch.clamp(ratios, 1.0 - self._epsilon, 1.0 + self._epsilon) * advantages
+            epsilon = self._epsilon
+            surr2 = torch.clamp(ratios, 1.0 - epsilon, 1.0 + epsilon) * advantages
             return -torch.min(surr1, surr2).mean()
         return _policy_loss
 

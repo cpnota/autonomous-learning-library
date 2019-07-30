@@ -25,7 +25,7 @@ class Approximation():
         self.model = model
         self.device = next(model.parameters()).device
         self._target = target or TrivialTarget()
-        self._scheduler = scheduler or ConstantLR()
+        self._scheduler = scheduler
         self._target.init(model)
         self._updates = 0
         self._optimizer = optimizer
@@ -69,7 +69,9 @@ class Approximation():
         self._optimizer.step()
         self._optimizer.zero_grad()
         self._target.update()
-        self._scheduler.step()
+        if self._scheduler:
+            self._writer.add_schedule(self._name + '/lr', self._optimizer.param_groups[0]['lr'])
+            self._scheduler.step()
         self._checkpointer()
 
     def zero_grad(self):
