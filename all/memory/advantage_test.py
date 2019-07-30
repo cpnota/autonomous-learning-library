@@ -26,8 +26,7 @@ class NStepAdvantageBufferTest(unittest.TestCase):
         states = State(torch.arange(0, 12).unsqueeze(1))
         buffer.store(states[0:3], actions, torch.zeros(3))
         buffer.store(states[3:6], actions, torch.ones(3))
-        buffer.store(states[6:9], actions, 4 * torch.ones(3))
-        states, _, advantages = buffer.sample(-1)
+        states, _, advantages = buffer.advantages(states[6:9], 4 * torch.ones(3))
 
         expected_states = State(torch.arange(0, 6).unsqueeze(1))
         expected_next_states = State(
@@ -59,8 +58,7 @@ class NStepAdvantageBufferTest(unittest.TestCase):
         buffer.store(states[0:3], actions, torch.zeros(3))
         buffer.store(states[3:6], actions, torch.ones(3))
         buffer.store(states[6:9], actions, 2 * torch.ones(3))
-        buffer.store(states[9:12], actions, 4 * torch.ones(3))
-        states, actions, advantages = buffer.sample(-1)
+        states, actions, advantages = buffer.advantages(states[9:12], 4 * torch.ones(3))
 
         expected_states = State(torch.arange(0, 9).unsqueeze(1), done[0:9])
         expected_next_done = torch.zeros(9)
@@ -94,9 +92,8 @@ class NStepAdvantageBufferTest(unittest.TestCase):
         actions = torch.ones((2))
         buffer.store(raw_states[0:2], actions, torch.ones(2))
         buffer.store(raw_states[2:4], actions, torch.ones(2))
-        buffer.store(raw_states[4:6], actions, torch.ones(2))
 
-        states, actions, advantages = buffer.sample(-1)
+        states, actions, advantages = buffer.advantages(raw_states[4:6], torch.ones(2))
         expected_states = State(torch.arange(0, 4).unsqueeze(1))
         expected_returns = torch.tensor([1.5, 1.5, 1, 1])
         expected_next_states = State(torch.tensor([4, 5, 4, 5]).unsqueeze(1))
@@ -109,10 +106,10 @@ class NStepAdvantageBufferTest(unittest.TestCase):
             expected_lengths
         ))
 
+        buffer.store(raw_states[4:6], actions, torch.ones(2))
         buffer.store(raw_states[6:8], actions, torch.ones(2))
-        buffer.store(raw_states[8:10], actions, torch.ones(2))
 
-        states, actions, advantages = buffer.sample(-1)
+        states, actions, advantages = buffer.advantages(raw_states[8:10], torch.ones(2))
         expected_states = State(torch.arange(4, 8).unsqueeze(1))
         self.assert_states_equal(states, expected_states)
         tt.assert_allclose(advantages, self._compute_expected_advantages(

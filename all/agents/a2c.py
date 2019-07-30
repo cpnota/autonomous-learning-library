@@ -1,5 +1,3 @@
-import torch
-from all.environments import State
 from all.memory import NStepAdvantageBuffer
 from ._agent import Agent
 
@@ -27,21 +25,22 @@ class A2C(Agent):
         self._features = []
 
     def act(self, states, rewards):
-        self._buffer.store(states, torch.zeros(self.n_envs), rewards)
-        self._train()
-        features = self.features(states)
-        self._features.append(features)
-        return self.policy(features)
+        self._train(states, rewards)
+        actions = self.policy.eval(self.features.eval(states))
+        self._buffer.store(states, actions, rewards)
+        return actions
 
-    def _train(self):
+    def _train(self, states, rewards):
         if len(self._buffer) >= self._batch_size:
-            states = State.from_list(self._features)
-            _, _, advantages = self._buffer.sample(self._batch_size)
-            self.v(states)
+            states, actions, advantages = self._buffer.advantages(states, rewards)
+            # forward pass
+            features = self.features(states)
+            self.v(features)
+            self.policy(features, actions)
+            # backward pass
             self.v.reinforce(advantages)
             self.policy.reinforce(advantages)
             self.features.reinforce()
-            self._features = []
 
     def _make_buffer(self):
         return NStepAdvantageBuffer(
