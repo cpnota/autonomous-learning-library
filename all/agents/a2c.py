@@ -25,14 +25,14 @@ class A2C(Agent):
         self._features = []
 
     def act(self, states, rewards):
-        self._train(states, rewards)
+        self._train(states)
         actions = self.policy.eval(self.features.eval(states))
         self._buffer.store(states, actions, rewards)
         return actions
 
-    def _train(self, states, rewards):
+    def _train(self, states):
         if len(self._buffer) >= self._batch_size:
-            states, actions, advantages = self._buffer.advantages(states, rewards)
+            states, actions, advantages = self._buffer.advantages(states)
             # forward pass
             features = self.features(states)
             self.v(features)

@@ -27,12 +27,11 @@ class NStepAdvantageBuffer:
         else:
             raise Exception("Buffer length exceeded: " + str(self.n_steps))
 
-    def advantages(self, states, rewards):
+    def advantages(self, states):
         if len(self) < self.n_steps * self.n_envs:
             raise Exception("Not enough states received!")
 
         self._states.append(states)
-        self._rewards.append(rewards)
         rewards, lengths = self._compute_returns()
         states, actions, next_states = self._summarize_transitions()
         advantages = self._compute_advantages(states, rewards, next_states, lengths)

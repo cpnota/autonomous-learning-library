@@ -37,13 +37,11 @@ class GeneralizedAdvantageBuffer:
         else:
             raise Exception("Buffer length exceeded: " + str(self.n_steps))
 
-    def advantages(self, states, rewards):
+    def advantages(self, states):
         if len(self) < self._batch_size:
             raise Exception("Not enough states received!")
 
         self._states.append(states)
-        self._rewards.append(rewards)
-
         states = State.from_list(self._states[0:self.n_steps + 1])
         actions = torch.cat(self._actions[:self.n_steps], dim=0)
         rewards = torch.stack(self._rewards[:self.n_steps]).view(self.n_steps, -1)

@@ -48,7 +48,7 @@ class GeneralizedAdvantageBufferTest(unittest.TestCase):
         advantages[1] = td_errors[1]
         tt.assert_almost_equal(advantages, torch.tensor([1.121, 1.909]), decimal=3)
 
-        _states, _actions, _advantages = buffer.advantages(states[2], rewards[2])
+        _states, _actions, _advantages = buffer.advantages(states[2])
         tt.assert_almost_equal(_advantages, advantages)
         tt.assert_equal(_actions, torch.tensor([1, 1]))
 
@@ -94,7 +94,7 @@ class GeneralizedAdvantageBufferTest(unittest.TestCase):
             [1.909, 1.704]
         ]), decimal=3)
 
-        _states, _actions, _advantages = buffer.advantages(states[2], rewards[2])
+        _states, _actions, _advantages = buffer.advantages(states[2])
         tt.assert_almost_equal(_advantages, advantages.view(-1))
 
     def assert_array_equal(self, actual, expected):
