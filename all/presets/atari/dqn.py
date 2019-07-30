@@ -8,6 +8,7 @@ from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.policies import GreedyPolicy
 from all.memory import ExperienceReplayBuffer
+from all.optim import LinearScheduler
 from .models import nature_dqn
 
 
@@ -50,13 +51,18 @@ def dqn(
             loss=smooth_l1_loss,
             writer=writer
         )
-        policy = GreedyPolicy(q,
-                              env.action_space.n,
-                              annealing_start=replay_start_size,
-                              annealing_time=final_exploration_frame - replay_start_size,
-                              initial_epsilon=initial_exploration,
-                              final_epsilon=final_exploration
-                              )
+        policy = GreedyPolicy(
+            q,
+            env.action_space.n,
+            epsilon=LinearScheduler(
+                initial_exploration,
+                final_exploration,
+                replay_start_size,
+                final_exploration_frame,
+                name="epsilon",
+                writer=writer
+            )
+        )
         replay_buffer = ExperienceReplayBuffer(
             replay_buffer_size,
             device=device

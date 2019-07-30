@@ -7,8 +7,7 @@ class GreedyPolicy(Schedulable):
             self,
             q,
             num_actions,
-            epsilon=0.01,
-            **kwargs
+            epsilon=0.,
     ):
         self.q = q
         self.num_actions = num_actions

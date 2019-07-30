@@ -37,15 +37,14 @@ def dqn(
         policy = GreedyPolicy(
             q,
             env.action_space.n,
-            epsilon=initial_exploration
-        )
-        policy.epsilon = LinearScheduler(
-            initial_exploration,
-            final_exploration,
-            replay_start_size,
-            final_exploration_frame,
-            name="epsilon",
-            writer=writer
+            epsilon=LinearScheduler(
+                initial_exploration,
+                final_exploration,
+                replay_start_size,
+                final_exploration_frame,
+                name="epsilon",
+                writer=writer
+            )
         )
         replay_buffer = ExperienceReplayBuffer(
             replay_buffer_size, device=device)

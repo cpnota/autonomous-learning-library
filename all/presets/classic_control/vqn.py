@@ -21,7 +21,7 @@ def vqn(
         model = fc_relu_q(env).to(device)
         optimizer = RMSprop(model.parameters(), lr=lr, alpha=alpha, eps=eps)
         q = QNetwork(model, optimizer, env.action_space.n, writer=writer)
-        policy = GreedyPolicy(q, env.action_space.n, annealing_time=1, final_epsilon=epsilon)
+        policy = GreedyPolicy(q, env.action_space.n, epsilon=epsilon)
         return VQN(q, policy, gamma=gamma)
     return _vqn, n_envs
  

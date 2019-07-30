@@ -74,10 +74,7 @@ def rainbow(
         policy = GreedyPolicy(
             q,
             env.action_space.n,
-            initial_epsilon=1,
-            final_epsilon=0,
-            annealing_start=replay_start_size,
-            annealing_time=1
+            epsilon=0
         )
         # replay_buffer = ExperienceReplayBuffer(replay_buffer_size)
         replay_buffer = PrioritizedReplayBuffer(
