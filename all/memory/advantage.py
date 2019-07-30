@@ -99,7 +99,7 @@ class NStepAdvantageBuffer:
         return (
             rewards.view(-1)
             + (self.gamma ** lengths.view(-1))
-            * self.v.eval(self.features.eval(next_states))
+            * self.v.target(self.features.target(next_states))
             - self.v.eval(self.features.eval(states))
         )
 
