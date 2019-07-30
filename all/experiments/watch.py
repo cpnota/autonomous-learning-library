@@ -8,6 +8,8 @@ from all.environments import AtariEnvironment
 def watch(agent, env):
     action = None
     returns = 0
+    # have to call this before initial reset for pybullet envs
+    env.render(mode="human")
     while True:
         if env.done:
             print('returns:', returns)
