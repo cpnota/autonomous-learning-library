@@ -82,4 +82,4 @@ class SoftDeterministicPolicy(Policy):
         # See section C. of the Soft Actor-Critic appendix.
         log_prob = dist.log_prob(raw)
         log_prob -= torch.log(1 - action.pow(2) + 1e-6)
-        return log_prob.sum(1, keepdim=True)
+        return log_prob.sum(1)
