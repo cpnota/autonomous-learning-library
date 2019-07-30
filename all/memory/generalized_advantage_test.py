@@ -34,7 +34,6 @@ class GeneralizedAdvantageBufferTest(unittest.TestCase):
         rewards = torch.tensor([1., 2, 4])
         buffer.store(states[0], actions, rewards[0])
         buffer.store(states[1], actions, rewards[1])
-        buffer.store(states[2], actions, rewards[2])
 
         values = self.v.eval(self.features.eval(states))
         tt.assert_almost_equal(values, torch.tensor([0.1826, -0.3476, -0.8777]), decimal=3)
@@ -49,11 +48,11 @@ class GeneralizedAdvantageBufferTest(unittest.TestCase):
         advantages[1] = td_errors[1]
         tt.assert_almost_equal(advantages, torch.tensor([1.121, 1.909]), decimal=3)
 
-        _states, _actions, _advantages = buffer.sample(-1)
+        _states, _actions, _advantages = buffer.advantages(states[2], rewards[2])
         tt.assert_almost_equal(_advantages, advantages)
         tt.assert_equal(_actions, torch.tensor([1, 1]))
 
-    def test_multi(self):
+    def test_parallel(self):
         buffer = GeneralizedAdvantageBuffer(
             self.v,
             self.features,
@@ -71,10 +70,8 @@ class GeneralizedAdvantageBufferTest(unittest.TestCase):
         rewards = torch.tensor([[1., 1], [2, 1], [4, 1]])
         buffer.store(states[0], actions, rewards[0])
         buffer.store(states[1], actions, rewards[1])
-        buffer.store(states[2], actions, rewards[2])
 
-        states = State.from_list(states)
-        values = self.v.eval(self.features.eval(states)).view(3, -1)
+        values = self.v.eval(self.features.eval(State.from_list(states))).view(3, -1)
         tt.assert_almost_equal(values, torch.tensor([
             [0.183, -1.408],
             [-0.348, -1.938],
@@ -97,7 +94,7 @@ class GeneralizedAdvantageBufferTest(unittest.TestCase):
             [1.909, 1.704]
         ]), decimal=3)
 
-        _states, _actions, _advantages = buffer.sample(-1)
+        _states, _actions, _advantages = buffer.advantages(states[2], rewards[2])
         tt.assert_almost_equal(_advantages, advantages.view(-1))
 
     def assert_array_equal(self, actual, expected):

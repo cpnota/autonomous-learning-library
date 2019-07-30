@@ -34,14 +34,14 @@ class PPO(Agent):
         self._features = []
 
     def act(self, states, rewards):
-        self._train()
+        self._train(states, rewards)
         actions = self.policy.eval(self.features.eval(states))
         self._buffer.store(states, actions, rewards)
         return actions
 
-    def _train(self):
+    def _train(self, _states, _rewards):
         if len(self._buffer) >= self._batch_size:
-            states, actions, advantages = self._buffer.sample(self._batch_size)
+            states, actions, advantages = self._buffer.advantages(_states, _rewards)
             with torch.no_grad():
                 features = self.features.eval(states)
                 pi_0 = self.policy.eval(features, actions)

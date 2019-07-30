@@ -13,8 +13,6 @@ class NStepAdvantageBuffer:
         self._rewards = []
 
     def __len__(self):
-        if not self._states:
-            return 0
         return len(self._states) * self.n_envs
 
     def store(self, states, actions, rewards):
@@ -92,7 +90,11 @@ class NStepAdvantageBuffer:
                 if not state.mask:
                     next_state = state
 
-        return State.from_list(sample_states), torch.stack(sample_actions), State.from_list(sample_next_states)
+        return (
+            State.from_list(sample_states),
+            torch.stack(sample_actions),
+            State.from_list(sample_next_states)
+        )
 
     def _compute_advantages(self, states, rewards, next_states, lengths):
         return (

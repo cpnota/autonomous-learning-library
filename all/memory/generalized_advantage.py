@@ -23,9 +23,7 @@ class GeneralizedAdvantageBuffer:
         self._rewards = []
 
     def __len__(self):
-        if not self._states:
-            return 0
-        return (len(self._states) - 1) * self.n_envs
+        return len(self._states) * self.n_envs
 
     def store(self, states, actions, rewards):
         if not self._states:
@@ -39,20 +37,22 @@ class GeneralizedAdvantageBuffer:
         else:
             raise Exception("Buffer length exceeded: " + str(self.n_steps))
 
-    def sample(self, _):
+    def advantages(self, states, rewards):
         if len(self) < self._batch_size:
             raise Exception("Not enough states received!")
 
-        # states, actions,  = self._summarize_transitions()
+        self._states.append(states)
+        self._rewards.append(rewards)
+
         states = State.from_list(self._states[0:self.n_steps + 1])
         actions = torch.cat(self._actions[:self.n_steps], dim=0)
         rewards = torch.stack(self._rewards[:self.n_steps]).view(self.n_steps, -1)
-        _values = self.v.eval(self.features.eval(states)).view((self.n_steps + 1, -1))
+        _values = self.v.target(self.features.target(states)).view((self.n_steps + 1, -1))
         values = _values[0:self.n_steps]
         next_values = _values[1:self.n_steps + 1]
         td_errors = rewards + self.gamma * next_values - values
         advantages = self._compute_advantages(td_errors)
-        self._update_buffers()
+        self._clear_buffers()
 
         return (
             states[0:self._batch_size],
@@ -74,30 +74,7 @@ class GeneralizedAdvantageBuffer:
 
         return advantages.view(-1)
 
-    def _summarize_transitions(self):
-        sample_n = self.n_envs * self.n_steps
-        sample_states = [None] * sample_n
-        sample_actions = [None] * sample_n
-        sample_next_states = [None] * sample_n
-
-        for e in range(self.n_envs):
-            next_state = self._states[self.n_steps][e]
-            for i in range(self.n_steps):
-                t = self.n_steps - 1 - i
-                idx = t * self.n_envs + e
-                state = self._states[t][e]
-                action = self._actions[t][e]
-
-                sample_states[idx] = state
-                sample_actions[idx] = action
-                sample_next_states[idx] = next_state
-
-                if not state.mask:
-                    next_state = state
-
-        return State.from_list(sample_states), sample_actions, State.from_list(sample_next_states)
-
-    def _update_buffers(self):
-        self._states = self._states[self.n_steps:]
-        self._actions = self._actions[self.n_steps:]
-        self._rewards = self._rewards[self.n_steps:]
+    def _clear_buffers(self):
+        self._states = []
+        self._actions = []
+        self._rewards = []
