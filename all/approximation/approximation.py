@@ -17,6 +17,7 @@ class Approximation():
             loss_scaling=1,
             loss=mse_loss,
             name='approximation',
+            scheduler=None,
             target=None,
             writer=DummyWriter(),
             checkpointer=None
@@ -24,6 +25,7 @@ class Approximation():
         self.model = model
         self.device = next(model.parameters()).device
         self._target = target or TrivialTarget()
+        self._scheduler = scheduler or ConstantLR()
         self._target.init(model)
         self._updates = 0
         self._optimizer = optimizer
@@ -67,6 +69,7 @@ class Approximation():
         self._optimizer.step()
         self._optimizer.zero_grad()
         self._target.update()
+        self._scheduler.step()
         self._checkpointer()
 
     def zero_grad(self):
@@ -86,3 +89,8 @@ class Approximation():
         items = torch.cat(self._cache[:i])
         self._cache = self._cache[i:]
         return items
+
+class ConstantLR():
+    '''Dummy LRScheduler'''
+    def step(self):
+        pass
