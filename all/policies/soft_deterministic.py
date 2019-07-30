@@ -43,7 +43,11 @@ class SoftDeterministicPolicy(Approximation):
         return self._squash(self.model(state)[:, 0:self._action_dim])
 
     def eval(self, state):
-        return self._squash(self._target(state)[:, 0:self._action_dim])
+        with torch.no_grad():
+            return self(state)
+
+    def target(self, state):
+        self._target(state)
 
     def reinforce(self, _):
         raise NotImplementedError(

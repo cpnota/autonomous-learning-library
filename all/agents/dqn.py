@@ -45,7 +45,7 @@ class DQN(Agent):
                 self.minibatch_size)
             td_errors = (
                 rewards +
-                self.discount_factor * torch.max(self.q.eval(next_states), dim=1)[0] -
+                self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0] -
                 self.q(states, actions)
             )
             self.q.reinforce(weights * td_errors)

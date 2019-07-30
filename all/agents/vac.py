@@ -13,7 +13,7 @@ class VAC(Agent):
         if self._previous_features:
             td_error = (
                 reward
-                + self.gamma * self.v.eval(self.features.eval(state))
+                + self.gamma * self.v.target(self.features.eval(state))
                 - self.v(self._previous_features)
             )
             self.v.reinforce(td_error)

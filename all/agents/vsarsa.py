@@ -16,7 +16,7 @@ class VSarsa(Agent):
         if self.previous_state:
             td_error = (
                 reward
-                + self.gamma * self.q.eval(state, action)
+                + self.gamma * self.q.target(state, action)
                 - self.q(self.previous_state, self.previous_action)
             )
             self.q.reinforce(td_error)
