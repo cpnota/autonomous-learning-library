@@ -45,6 +45,12 @@ class Approximation():
         )
 
     def __call__(self, *inputs, detach=True):
+        '''
+        Run a forward pass of the model.
+
+        If detach=True, the computation graph is cached and the result is detached.
+        If detach=False, nothing is cached and instead returns the attached result.
+        '''
         result = self.model(*inputs)
         if detach:
             self._enqueue(result)
@@ -52,9 +58,16 @@ class Approximation():
         return result
 
     def eval(self, *inputs):
+        '''Run a forward pass of the model in no_grad mode.'''
+        with torch.no_grad():
+            return self.model(*inputs)
+
+    def target(self, *inputs):
+        '''Run a forward pass of the target network.'''
         return self._target(*inputs)
 
     def reinforce(self, errors, retain_graph=False):
+        '''Update the model using the cache and the errors passed in.'''
         batch_size = len(errors)
         cache = self._dequeue(batch_size)
         if cache.requires_grad:
@@ -64,6 +77,7 @@ class Approximation():
             self.step()
 
     def step(self):
+        '''Given that a bakcward pass has been made, run an optimization step.'''
         if self._clip_grad != 0:
             utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
         self._optimizer.step()

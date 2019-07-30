@@ -44,8 +44,7 @@ class SAC(Agent):
         self._store_transition(state, reward)
         self._train()
         self.state = state
-        with torch.no_grad():
-            self.action = self.policy(state)
+        self.action = self.policy.eval(state)
         return self.action
 
     def _store_transition(self, state, reward):
@@ -63,10 +62,10 @@ class SAC(Agent):
             # compute targets for Q and V
             with torch.no_grad():
                 _actions, _log_probs = self.policy(states, log_prob=True)
-                q_targets = rewards + self.discount_factor * self.v.eval(next_states)
+                q_targets = rewards + self.discount_factor * self.v.target(next_states)
                 v_targets = torch.min(
-                    self.q_1.eval(states, _actions),
-                    self.q_2.eval(states, _actions),
+                    self.q_1.target(states, _actions),
+                    self.q_2.target(states, _actions),
                 ) - self.temperature * _log_probs
                 temperature_loss = ((_log_probs + self.entropy_target).detach().mean())
                 self.writer.add_loss('entropy', -_log_probs.mean())

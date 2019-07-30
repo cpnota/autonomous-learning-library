@@ -46,7 +46,7 @@ class DDPG(Agent):
             # train q function
             td_errors = (
                 rewards +
-                self.discount_factor * self.q.eval(next_states, self.policy.eval(next_states)) -
+                self.discount_factor * self.q.target(next_states, self.policy.target(next_states)) -
                 self.q(states, torch.cat(actions))
             )
             self.q.reinforce(weights * td_errors)

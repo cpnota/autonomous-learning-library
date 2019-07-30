@@ -36,9 +36,6 @@ class DeterministicPolicy(Approximation):
     def greedy(self, state):
         return self.model(state)
 
-    def eval(self, state):
-        return self._target(state)
-
     def reinforce(self, _):
         raise NotImplementedError(
             'Deterministic policies are trainted through backpropagation.' +
