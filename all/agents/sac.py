@@ -1,5 +1,5 @@
 import torch
-from all.experiments.writer import DummyWriter
+from all.logging import DummyWriter
 from ._agent import Agent
 
 class SAC(Agent):

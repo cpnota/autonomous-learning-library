@@ -3,7 +3,7 @@ import torch
 from torch.optim import Adam
 from all.agents import PPO
 from all.approximation import VNetwork, FeatureNetwork
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import fc_relu_features, fc_policy_head, fc_value_head
 

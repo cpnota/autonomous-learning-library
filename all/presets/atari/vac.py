@@ -3,7 +3,7 @@ from torch.optim import RMSprop
 from all.agents import VAC
 from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import ParallelAtariBody
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import nature_cnn, nature_value_head, nature_policy_head
 

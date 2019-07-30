@@ -5,7 +5,7 @@ from torch.nn.functional import mse_loss
 from all import nn
 from all.agents import DQN
 from all.approximation import QNetwork, FixedTarget
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.memory import PrioritizedReplayBuffer
 from all.policies import GreedyPolicy
 
@@ -74,10 +74,7 @@ def rainbow(
         policy = GreedyPolicy(
             q,
             env.action_space.n,
-            initial_epsilon=1,
-            final_epsilon=0,
-            annealing_start=replay_start_size,
-            annealing_time=1
+            epsilon=0
         )
         # replay_buffer = ExperienceReplayBuffer(replay_buffer_size)
         replay_buffer = PrioritizedReplayBuffer(

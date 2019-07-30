@@ -1,4 +1,6 @@
-import roboschool # registers env
+import gym
+import pybullet_envs
+import roboschool
 from watch_classic import watch
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 import numpy as np
+from all.logging import ExperimentWriter
 from .runner import SingleEnvRunner, ParallelEnvRunner
-from .writer import ExperimentWriter
 
 class Experiment:
     def __init__(

@@ -4,7 +4,7 @@ from torch.optim import Adam
 from all import nn
 from all.agents import SAC
 from all.approximation import QContinuous, PolyakTarget, VNetwork
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.policies.soft_deterministic import SoftDeterministicPolicy
 from all.memory import ExperienceReplayBuffer
 

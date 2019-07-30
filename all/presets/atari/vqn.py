@@ -5,7 +5,8 @@ from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork
 from all.agents import VQN
 from all.bodies import ParallelAtariBody
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
+from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
 from .models import nature_ddqn
 
@@ -35,12 +36,18 @@ def vqn(
             loss=smooth_l1_loss,
             writer=writer
         )
-        policy = GreedyPolicy(q,
-                              env.action_space.n,
-                              annealing_time=final_exploration_frame,
-                              initial_epsilon=initial_exploration,
-                              final_epsilon=final_exploration
-                              )
+        policy = GreedyPolicy(
+            q,
+            env.action_space.n,
+            epsilon=LinearScheduler(
+                initial_exploration,
+                final_exploration,
+                0,
+                final_exploration_frame,
+                name="epsilon",
+                writer=writer
+            )
+        )
         return ParallelAtariBody(
             VQN(q, policy, gamma=discount_factor),
             envs,

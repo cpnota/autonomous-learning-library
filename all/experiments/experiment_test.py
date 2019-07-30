@@ -3,7 +3,8 @@ import numpy as np
 import torch
 from all.presets.classic_control import dqn, a2c
 from all.environments import GymEnvironment
-from all.experiments import Experiment, Writer
+from all.experiments import Experiment
+from all.logging import Writer
 
 # pylint: disable=protected-access
 
@@ -23,6 +24,9 @@ class MockWriter(Writer):
         self.data[key]["steps"].append(self._get_step(step))
 
     def add_loss(self, name, value, step="frame"):
+        pass
+
+    def add_schedule(self, name, value, step="frame"):
         pass
 
     def add_evaluation(self, name, value, step="frame"):

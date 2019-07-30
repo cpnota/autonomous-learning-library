@@ -1,10 +1,12 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import PPO
 from all.bodies import ParallelAtariBody
 from all.approximation import VNetwork, FeatureNetwork
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
+from all.optim import LinearScheduler
 from all.policies import SoftmaxPolicy
 from .models import nature_cnn, nature_value_head, nature_policy_head
 
@@ -18,14 +20,21 @@ def ppo(
         eps=1e-5,  # Adam stability
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.5,
-        feature_lr_scaling=1,
+        min_lr_scale=0.1, # Maximum amount to anneal the lr
+        clip_initial=0.1,
+        clip_final=0.01,
+        final_anneal_frame=40e6, # Anneal LR and clip until here
         epochs=4,
         minibatches=4,
-        epsilon=0.1,
         n_envs=8,
         n_steps=128,
         device=torch.device("cpu"),
 ):
+    # Update epoch * minibatches times per update,
+    # but we only update once per n_steps,
+    # with n_envs and 4 frames per step
+    final_anneal_step = final_anneal_frame * epochs * minibatches / (n_steps * n_envs * 4)
+
     def _ppo(envs, writer=DummyWriter()):
         env = envs[0]
 
@@ -34,7 +43,7 @@ def ppo(
         feature_model = nature_cnn().to(device)
 
         feature_optimizer = Adam(
-            feature_model.parameters(), lr=lr * feature_lr_scaling, eps=eps
+            feature_model.parameters(), lr=lr, eps=eps
         )
         value_optimizer = Adam(value_model.parameters(), lr=lr, eps=eps)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr, eps=eps)
@@ -43,6 +52,11 @@ def ppo(
             feature_model,
             feature_optimizer,
             clip_grad=clip_grad,
+            scheduler=CosineAnnealingLR(
+                feature_optimizer,
+                final_anneal_step,
+                eta_min=lr * min_lr_scale
+            ),
             writer=writer
         )
         v = VNetwork(
@@ -51,6 +65,11 @@ def ppo(
             loss_scaling=value_loss_scaling,
             clip_grad=clip_grad,
             writer=writer,
+            scheduler=CosineAnnealingLR(
+                value_optimizer,
+                final_anneal_step,
+                eta_min=lr * min_lr_scale
+            ),
         )
         policy = SoftmaxPolicy(
             policy_model,
@@ -59,6 +78,11 @@ def ppo(
             entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer,
+            scheduler=CosineAnnealingLR(
+                policy_optimizer,
+                final_anneal_step,
+                eta_min=lr * min_lr_scale
+            ),
         )
 
         return ParallelAtariBody(
@@ -66,7 +90,14 @@ def ppo(
                 features,
                 v,
                 policy,
-                epsilon=epsilon,
+                epsilon=LinearScheduler(
+                    clip_initial,
+                    clip_final,
+                    0,
+                    final_anneal_step,
+                    name='clip',
+                    writer=writer
+                ),
                 epochs=epochs,
                 minibatches=minibatches,
                 n_envs=n_envs,

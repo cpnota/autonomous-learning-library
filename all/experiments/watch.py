@@ -1,14 +1,18 @@
 import os
+import time
 import torch
 import gym
 from all.agents import Agent
 from all.bodies import DeepmindAtariBody
 from all.environments import AtariEnvironment
 
-def watch(agent, env):
+def watch(agent, env, fps=60):
     action = None
     returns = 0
+    # have to call this before initial reset for pybullet envs
+    env.render(mode="human")
     while True:
+        time.sleep(1 / fps)
         if env.done:
             print('returns:', returns)
             env.reset()
@@ -19,8 +23,8 @@ def watch(agent, env):
         action = agent.act(env.state, env.reward)
         returns += env.reward
 
-def load_and_watch(dir, env):
-    watch(GreedyAgent.load(dir, env), env)
+def load_and_watch(dir, env, fps=60):
+    watch(GreedyAgent.load(dir, env), env, fps=fps)
 
 class GreedyAgent(Agent):
     def __init__(
@@ -40,7 +44,7 @@ class GreedyAgent(Agent):
         if not self.policy:
             raise TypeError('GreedyAgent must have either policy or q function')
 
-    def act(self, state, reward):
+    def act(self, state, _):
         with torch.no_grad():
             if self.feature:
                 state = self.feature(state)

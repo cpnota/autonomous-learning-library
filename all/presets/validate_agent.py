@@ -1,6 +1,6 @@
 import torch
 from all.environments import State
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 
 def validate_agent(make_agent, env):
     if isinstance(make_agent, tuple):
