@@ -2,7 +2,7 @@ import os
 import torch
 from torch.nn import utils
 from torch.nn.functional import mse_loss
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from .target import TrivialTarget
 from .checkpointer import PeriodicCheckpointer
 

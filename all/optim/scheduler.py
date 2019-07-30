@@ -1,7 +1,7 @@
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 
-class SchedulerMixin(object):
-    '''Change the way attribute getters work to all "instance" descriptors.'''
+class Schedulable:
+    '''Allow "instance" descriptors to implement parameter scheduling.'''
     def __getattribute__(self, name):
         value = object.__getattribute__(self, name)
         if hasattr(value, '__get__'):
@@ -9,7 +9,7 @@ class SchedulerMixin(object):
         return value
 
 
-class LinearScheduler(object):
+class LinearScheduler:
     def __init__(
             self,
             initial_value,

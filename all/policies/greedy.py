@@ -1,8 +1,8 @@
 import numpy as np
 import torch
-from all.optim import SchedulerMixin
+from all.optim import Schedulable
 
-class GreedyPolicy(SchedulerMixin):
+class GreedyPolicy(Schedulable):
     def __init__(
             self,
             q,

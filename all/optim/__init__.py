@@ -1,1 +1,1 @@
-from .scheduler import LinearScheduler, SchedulerMixin
+from .scheduler import LinearScheduler, Schedulable

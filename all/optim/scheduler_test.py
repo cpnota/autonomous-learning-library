@@ -1,17 +1,17 @@
 import unittest
 import numpy as np
-from all.optim import SchedulerMixin, LinearScheduler
+from all.optim import Schedulable, LinearScheduler
 
-class Obj(SchedulerMixin):
+class Obj(Schedulable):
     def __init__(self):
-        self.a = 0
+        self.attr = 0
 
 class TestScheduler(unittest.TestCase):
-    def testLinearScheduler(self):
+    def test_linear_scheduler(self):
         obj = Obj()
-        obj.a = LinearScheduler(10, 0, 3, 13)
+        obj.attr = LinearScheduler(10, 0, 3, 13)
         expected = [10, 10, 10, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0]
-        actual = [obj.a for _ in expected]
+        actual = [obj.attr for _ in expected]
         np.testing.assert_allclose(actual, expected)
 
 if __name__ == '__main__':

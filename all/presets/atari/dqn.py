@@ -5,7 +5,7 @@ from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork, FixedTarget
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.policies import GreedyPolicy
 from all.memory import ExperienceReplayBuffer
 from .models import nature_dqn

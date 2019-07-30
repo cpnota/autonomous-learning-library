@@ -5,7 +5,7 @@ from torch.nn.functional import mse_loss
 from all import nn
 from all.agents import DQN
 from all.approximation import QNetwork, FixedTarget
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.memory import PrioritizedReplayBuffer
 from all.policies import GreedyPolicy
 

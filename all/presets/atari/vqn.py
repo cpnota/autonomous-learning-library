@@ -5,7 +5,7 @@ from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork
 from all.agents import VQN
 from all.bodies import ParallelAtariBody
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.policies import GreedyPolicy
 from .models import nature_ddqn
 

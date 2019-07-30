@@ -4,7 +4,7 @@ from torch.optim import RMSprop
 from all.agents import VQN
 from all.approximation import QNetwork
 from all.policies import GreedyPolicy
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from .models import fc_relu_q
 
 def vqn(

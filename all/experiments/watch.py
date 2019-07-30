@@ -40,7 +40,7 @@ class GreedyAgent(Agent):
         if not self.policy:
             raise TypeError('GreedyAgent must have either policy or q function')
 
-    def act(self, state, reward):
+    def act(self, state, _):
         with torch.no_grad():
             if self.feature:
                 state = self.feature(state)

@@ -4,7 +4,7 @@ from torch.optim import Adam
 from torch.nn.functional import mse_loss
 from all.agents import DQN
 from all.approximation import QNetwork, FixedTarget
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
