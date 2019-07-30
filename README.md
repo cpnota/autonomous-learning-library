@@ -1,4 +1,4 @@
-# The Autonomous Learning Library: An Object-Orient Deep Reinforcement Learning Library in Pytorch
+# The Autonomous Learning Library: An Object-Oriented Deep Reinforcement Learning Library in Pytorch
 
 The Autonomous Learning Library (`all`) is an object-oriented deep reinforcement learning library in `pytorch`. The goal of the library is to provide implementations of modern reinforcement learning algorithms that reflect the way that reinforcement learning researchers think about agent design and to provide the components necessary to build and test new ideas with minimal overhead.
 
