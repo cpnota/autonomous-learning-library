@@ -80,12 +80,12 @@ class TestDeterministic(unittest.TestCase):
         # run update step, make sure target network doesn't change
         action.sum().backward(retain_graph=True)
         self.policy.step()
-        tt.assert_equal(self.policy.eval(state), torch.zeros(1, ACTION_DIM))
+        tt.assert_equal(self.policy.target(state), torch.zeros(1, ACTION_DIM))
 
         # again...
         action.sum().backward(retain_graph=True)
         self.policy.step()
-        tt.assert_equal(self.policy.eval(state), torch.zeros(1, ACTION_DIM))
+        tt.assert_equal(self.policy.target(state), torch.zeros(1, ACTION_DIM))
 
         # third time, target should be updated
         action.sum().backward(retain_graph=True)

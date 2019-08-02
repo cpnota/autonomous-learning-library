@@ -4,3 +4,4 @@ from .q_network import QNetwork
 from .v_network import VNetwork
 from .feature_network import FeatureNetwork
 from .target import TargetNetwork, FixedTarget, PolyakTarget, TrivialTarget
+from .checkpointer import Checkpointer, DummyCheckpointer, PeriodicCheckpointer

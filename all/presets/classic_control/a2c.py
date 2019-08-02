@@ -3,7 +3,7 @@ import torch
 from torch.optim import Adam
 from all.agents import A2C
 from all.approximation import VNetwork, FeatureNetwork
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import fc_relu_features, fc_policy_head, fc_value_head
 
@@ -12,9 +12,9 @@ def a2c(
         clip_grad=0.1,
         discount_factor=0.99,
         entropy_loss_scaling=0.001,
-        lr=1e-3,
-        n_envs=8,
-        n_steps=8,
+        lr=3e-3,
+        n_envs=4,
+        n_steps=32,
         device=torch.device('cpu')
 ):
     def _a2c(envs, writer=DummyWriter()):

@@ -4,7 +4,7 @@ from torch.optim import Adam
 from all import nn
 from all.agents import SAC
 from all.approximation import QContinuous, PolyakTarget, VNetwork
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.policies.soft_deterministic import SoftDeterministicPolicy
 from all.memory import ExperienceReplayBuffer
 
@@ -42,10 +42,11 @@ def fc_policy(env):
 def sac(
         lr_q=3e-4,
         lr_v=3e-4,
-        lr_pi=1e-4,
-        entropy_regularizer=0.1,
+        lr_pi=3e-4,
+        lr_temperature=1e-5,
+        entropy_target_scaling=1,
         replay_start_size=5000,
-        replay_buffer_size=50000,
+        replay_buffer_size=1e6,
         minibatch_size=256,
         discount_factor=0.99,
         polyak_rate=0.005,
@@ -86,7 +87,8 @@ def sac(
         policy = SoftDeterministicPolicy(
             policy_model,
             policy_optimizer,
-            env.action_space
+            env.action_space,
+            writer=writer
         )
 
         replay_buffer = ExperienceReplayBuffer(
@@ -100,7 +102,8 @@ def sac(
             q_2,
             v,
             replay_buffer,
-            entropy_regularizer=entropy_regularizer,
+            entropy_target=(-env.action_space.shape[0] * entropy_target_scaling),
+            lr_temperature=lr_temperature,
             replay_start_size=replay_start_size,
             discount_factor=discount_factor,
             update_frequency=update_frequency,

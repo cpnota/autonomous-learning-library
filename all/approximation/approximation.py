@@ -1,8 +1,12 @@
+import os
 import torch
 from torch.nn import utils
 from torch.nn.functional import mse_loss
-from all.experiments import DummyWriter
-from .target import FixedTarget, TrivialTarget
+from all.logging import DummyWriter
+from .target import TrivialTarget
+from .checkpointer import PeriodicCheckpointer
+
+DEFAULT_CHECKPOINT_FREQUENCY = 200
 
 class Approximation():
     def __init__(
@@ -13,12 +17,15 @@ class Approximation():
             loss_scaling=1,
             loss=mse_loss,
             name='approximation',
+            scheduler=None,
             target=None,
             writer=DummyWriter(),
+            checkpointer=None
     ):
         self.model = model
         self.device = next(model.parameters()).device
         self._target = target or TrivialTarget()
+        self._scheduler = scheduler
         self._target.init(model)
         self._updates = 0
         self._optimizer = optimizer
@@ -29,7 +36,21 @@ class Approximation():
         self._writer = writer
         self._name = name
 
+        if checkpointer is None:
+            checkpointer = PeriodicCheckpointer(DEFAULT_CHECKPOINT_FREQUENCY)
+        self._checkpointer = checkpointer
+        self._checkpointer.init(
+            self.model,
+            os.path.join(writer.log_dir, name + '.pt')
+        )
+
     def __call__(self, *inputs, detach=True):
+        '''
+        Run a forward pass of the model.
+
+        If detach=True, the computation graph is cached and the result is detached.
+        If detach=False, nothing is cached and instead returns the attached result.
+        '''
         result = self.model(*inputs)
         if detach:
             self._enqueue(result)
@@ -37,9 +58,16 @@ class Approximation():
         return result
 
     def eval(self, *inputs):
+        '''Run a forward pass of the model in no_grad mode.'''
+        with torch.no_grad():
+            return self.model(*inputs)
+
+    def target(self, *inputs):
+        '''Run a forward pass of the target network.'''
         return self._target(*inputs)
 
     def reinforce(self, errors, retain_graph=False):
+        '''Update the model using the cache and the errors passed in.'''
         batch_size = len(errors)
         cache = self._dequeue(batch_size)
         if cache.requires_grad:
@@ -49,11 +77,16 @@ class Approximation():
             self.step()
 
     def step(self):
+        '''Given that a bakcward pass has been made, run an optimization step.'''
         if self._clip_grad != 0:
             utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
         self._optimizer.step()
         self._optimizer.zero_grad()
         self._target.update()
+        if self._scheduler:
+            self._writer.add_schedule(self._name + '/lr', self._optimizer.param_groups[0]['lr'])
+            self._scheduler.step()
+        self._checkpointer()
 
     def zero_grad(self):
         self._optimizer.zero_grad()
@@ -73,10 +106,7 @@ class Approximation():
         self._cache = self._cache[i:]
         return items
 
-    def _init_target_model(self, target_update_frequency):
-        if target_update_frequency is not None:
-            self._target = FixedTarget(target_update_frequency)
-            self._target.init(self.model)
-        else:
-            self._target = TrivialTarget()
-            self._target.init(self.model)
+class ConstantLR():
+    '''Dummy LRScheduler'''
+    def step(self):
+        pass

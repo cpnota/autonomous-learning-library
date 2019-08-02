@@ -4,7 +4,7 @@ from torch.optim import RMSprop
 from all.agents import A2C
 from all.bodies import ParallelAtariBody
 from all.approximation import VNetwork, FeatureNetwork
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import nature_cnn, nature_value_head, nature_policy_head
 
@@ -37,13 +37,18 @@ def a2c(
             policy_model.parameters(), alpha=alpha, lr=lr, eps=eps
         )
 
-        features = FeatureNetwork(feature_model, feature_optimizer, clip_grad=clip_grad)
+        features = FeatureNetwork(
+            feature_model,
+            feature_optimizer,
+            clip_grad=clip_grad,
+            writer=writer
+        )
         v = VNetwork(
             value_model,
             value_optimizer,
             loss_scaling=value_loss_scaling,
             clip_grad=clip_grad,
-            writer=writer,
+            writer=writer
         )
         policy = SoftmaxPolicy(
             policy_model,
@@ -51,7 +56,7 @@ def a2c(
             env.action_space.n,
             entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
-            writer=writer,
+            writer=writer
         )
 
         return ParallelAtariBody(

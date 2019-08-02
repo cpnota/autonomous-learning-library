@@ -11,7 +11,7 @@ class GaussianPolicy(StochasticPolicy):
             action_dim,
             **kwargs
     ):
-        model = ListNetwork(model, (action_dim * 2,))
+        model = ListNetwork(model)
         optimizer = optimizer
 
         def distribution(outputs):

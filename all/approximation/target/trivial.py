@@ -7,13 +7,11 @@ class TrivialTarget(TargetNetwork):
 
     def __call__(self, *inputs):
         with torch.no_grad():
-            training = self._model.training
-            result = self._model(*inputs)
-            self._model.train(training)
-            return result
+            return self._model(*inputs)
 
     def init(self, model):
         self._model = model
+        self._model.training = False
 
     def update(self):
         pass

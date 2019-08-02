@@ -4,7 +4,7 @@ from torch.optim import Adam
 from all import nn
 from all.agents import DDPG
 from all.approximation import QContinuous, PolyakTarget
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.policies import DeterministicPolicy
 from all.memory import ExperienceReplayBuffer
 
@@ -59,7 +59,8 @@ def ddpg(
             policy_optimizer,
             env.action_space,
             noise,
-            target=PolyakTarget(polyak_rate)
+            target=PolyakTarget(polyak_rate),
+            writer=writer
         )
 
         replay_buffer = ExperienceReplayBuffer(

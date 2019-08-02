@@ -3,7 +3,7 @@ import torch
 from torch.optim import Adam
 from all.agents import VPG
 from all.approximation import VNetwork, FeatureNetwork
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import fc_relu_features, fc_policy_head, fc_value_head
 
@@ -26,7 +26,11 @@ def vpg(
         policy_optimizer = Adam(policy_model.parameters(), lr=lr)
 
         features = FeatureNetwork(
-            feature_model, feature_optimizer, clip_grad=clip_grad)
+            feature_model,
+            feature_optimizer,
+            clip_grad=clip_grad,
+            writer=writer
+        )
         v = VNetwork(
             value_model,
             value_optimizer,

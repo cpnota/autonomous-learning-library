@@ -40,8 +40,8 @@ class GymEnvironment(Environment):
         self._done = done
         return self._state, self._reward
 
-    def render(self):
-        return self._env.render()
+    def render(self, **kwargs):
+        return self._env.render(**kwargs)
 
     def close(self):
         return self._env.close()

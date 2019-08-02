@@ -1,31 +1,23 @@
 import torch
-from all.approximation import TrivialTarget
-from all.nn import ListNetwork, utils
-from all.experiments import DummyWriter
-from .policy import Policy
+from all.approximation import Approximation
+from all.nn import ListNetwork
 
 
-class SoftDeterministicPolicy(Policy):
+class SoftDeterministicPolicy(Approximation):
     def __init__(
             self,
             model,
             optimizer,
             space,
             name="policy",
-            target=None,
-            clip_grad=0,
-            writer=DummyWriter(),
+            **kwargs
     ):
-        self.model = ListNetwork(model)
-        self.optimizer = optimizer
-        self.name = name
-        self.device = next(model.parameters()).device
+        model = ListNetwork(model)
+        optimizer = optimizer
+        name = name
+        super().__init__(model, optimizer, name=name, **kwargs)
         self._action_dim = space.shape[0]
-        self._target = target or TrivialTarget()
-        self._target.init(self.model)
-        self._clip_grad = clip_grad
         self._entropy = []
-        self._writer = writer
         self._last_dist = None
         self._raw_actions = None
         # parameters for squashing to tanh
@@ -51,7 +43,11 @@ class SoftDeterministicPolicy(Policy):
         return self._squash(self.model(state)[:, 0:self._action_dim])
 
     def eval(self, state):
-        return self._squash(self._target(state)[:, 0:self._action_dim])
+        with torch.no_grad():
+            return self(state)
+
+    def target(self, state):
+        self._target(state)
 
     def reinforce(self, _):
         raise NotImplementedError(
@@ -59,13 +55,6 @@ class SoftDeterministicPolicy(Policy):
             + "Call backward() on a loss derived from the action"
             + "and then call policy.step()"
         )
-
-    def step(self):
-        if self._clip_grad != 0:
-            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
-        self.optimizer.step()
-        self.optimizer.zero_grad()
-        self._target.update()
 
     def _distribution(self, outputs):
         means = outputs[:, 0 : self._action_dim]

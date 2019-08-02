@@ -52,7 +52,7 @@ class Environment(ABC):
         """
 
     @abstractmethod
-    def render(self):
+    def render(self, **kwargs):
         """
         Render the current environment state.
         """

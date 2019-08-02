@@ -1,8 +1,12 @@
 import unittest
 import numpy as np
 import torch
-from all.presets.classic_control import dqn
-from all.experiments import Experiment, Writer
+from all.presets.classic_control import dqn, a2c
+from all.environments import GymEnvironment
+from all.experiments import Experiment
+from all.logging import Writer
+
+# pylint: disable=protected-access
 
 
 class MockWriter(Writer):
@@ -15,18 +19,18 @@ class MockWriter(Writer):
 
     def add_scalar(self, key, value, step="frame"):
         if not key in self.data:
-            self.data[key] = {
-                "values": [],
-                "steps": []
-            }
+            self.data[key] = {"values": [], "steps": []}
         self.data[key]["values"].append(value)
         self.data[key]["steps"].append(self._get_step(step))
 
     def add_loss(self, name, value, step="frame"):
         pass
 
+    def add_schedule(self, name, value, step="frame"):
+        pass
+
     def add_evaluation(self, name, value, step="frame"):
-        self.add_scalar('evaluation/' + name, value, self._get_step(step))
+        self.add_scalar("evaluation/" + name, value, self._get_step(step))
 
     def _get_step(self, _type):
         if _type == "frame":
@@ -37,39 +41,43 @@ class MockWriter(Writer):
 
 
 class MockExperiment(Experiment):
-    def _make_writer(self, label, write_loss=True):
-        return MockWriter(label, write_loss)
-
-# pylint: disable=protected-access
+    def _make_writer(self, agent_name, env_name, write_loss):
+        self._writer = MockWriter(agent_name + '_' +  env_name, write_loss)
+        return self._writer
 
 
 class TestExperiment(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
         torch.manual_seed(0)
-        self.experiment = MockExperiment('CartPole-v0', episodes=3)
-        self.experiment.env.seed(0)
+        self.env = GymEnvironment('CartPole-v0')
+        self.env.seed(0)
+        self.experiment = None
 
     def test_adds_label(self):
-        self.experiment.run(dqn(), console=False)
-        self.assertEqual(self.experiment._writer.label, "_dqn")
+        experiment = MockExperiment(dqn(), self.env, quiet=True, episodes=3)
+        self.assertEqual(experiment._writer.label, "_dqn_CartPole-v0")
 
     def test_writes_returns_eps(self):
-        self.experiment.run(dqn(), console=False)
+        experiment = MockExperiment(dqn(), self.env, quiet=True, episodes=3)
         np.testing.assert_equal(
-            self.experiment._writer.data["evaluation/returns-by-episode"]["values"],
-            np.array([14., 19., 26.])
+            experiment._writer.data["evaluation/returns/episode"]["values"],
+            np.array([14.0, 19.0, 26.0]),
         )
         np.testing.assert_equal(
-            self.experiment._writer.data["evaluation/returns-by-episode"]["steps"],
-            np.array([1, 2, 3])
+            experiment._writer.data["evaluation/returns/episode"]["steps"],
+            np.array([1, 2, 3]),
         )
 
     def test_writes_loss(self):
-        self.experiment.run(dqn(), console=False)
-        self.assertTrue(self.experiment._writer.write_loss)
-        self.experiment.run(dqn(), console=False, write_loss=False)
-        self.assertFalse(self.experiment._writer.write_loss)
+        experiment = MockExperiment(dqn(), self.env, quiet=True, write_loss=True, episodes=3)
+        self.assertTrue(experiment._writer.write_loss)
+        experiment = MockExperiment(dqn(), self.env, quiet=True, write_loss=False, episodes=3)
+        self.assertFalse(experiment._writer.write_loss)
 
-if __name__ == '__main__':
+    def test_runs_multi_env(self):
+        experiment = MockExperiment(a2c(n_envs=3), self.env, quiet=True, episodes=3)
+        self.assertEqual(len(experiment._writer.data["evaluation/returns/episode"]["values"]), 3)
+
+if __name__ == "__main__":
     unittest.main()

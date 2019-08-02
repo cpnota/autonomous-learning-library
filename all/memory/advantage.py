@@ -13,30 +13,29 @@ class NStepAdvantageBuffer:
         self._rewards = []
 
     def __len__(self):
-        if not self._states:
-            return 0
-        return (len(self._states) - 1) * self.n_envs
+        return len(self._states) * self.n_envs
 
     def store(self, states, actions, rewards):
         if not self._states:
             self._states = [states]
             self._actions = [actions]
             self._rewards = [rewards]
-        elif len(self._states) <= self.n_steps:
+        elif len(self._states) < self.n_steps:
             self._states.append(states)
             self._actions.append(actions)
             self._rewards.append(rewards)
         else:
             raise Exception("Buffer length exceeded: " + str(self.n_steps))
 
-    def sample(self, _):
+    def advantages(self, states):
         if len(self) < self.n_steps * self.n_envs:
             raise Exception("Not enough states received!")
 
+        self._states.append(states)
         rewards, lengths = self._compute_returns()
         states, actions, next_states = self._summarize_transitions()
         advantages = self._compute_advantages(states, rewards, next_states, lengths)
-        self._update_buffers()
+        self._clear_buffers()
 
         return (
             states,
@@ -90,17 +89,21 @@ class NStepAdvantageBuffer:
                 if not state.mask:
                     next_state = state
 
-        return State.from_list(sample_states), sample_actions, State.from_list(sample_next_states)
+        return (
+            State.from_list(sample_states),
+            torch.stack(sample_actions),
+            State.from_list(sample_next_states)
+        )
 
     def _compute_advantages(self, states, rewards, next_states, lengths):
         return (
             rewards.view(-1)
             + (self.gamma ** lengths.view(-1))
-            * self.v.eval(self.features.eval(next_states))
+            * self.v.target(self.features.target(next_states))
             - self.v.eval(self.features.eval(states))
         )
 
-    def _update_buffers(self):
-        self._states = self._states[self.n_steps:]
-        self._actions = self._actions[self.n_steps:]
-        self._rewards = self._rewards[self.n_steps:]
+    def _clear_buffers(self):
+        self._states = []
+        self._actions = []
+        self._rewards = []

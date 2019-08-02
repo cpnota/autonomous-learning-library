@@ -18,6 +18,6 @@ envs = [
     if 'NoFrameskip-v4' in env and not '-ram' in env
 ]
 
-SlurmExperiment(a2c, envs, 1e9, hyperparameters={'device': device}, sbatch_args={
+SlurmExperiment(a2c(device=device), envs, 1e9, sbatch_args={
     'partition': '1080ti-long' # long queue: run for a week
 })

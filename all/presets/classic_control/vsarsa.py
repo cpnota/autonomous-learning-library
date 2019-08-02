@@ -4,7 +4,7 @@ from torch.optim import RMSprop
 from all.agents import VSarsa
 from all.approximation import QNetwork
 from all.policies import GreedyPolicy
-from all.experiments import DummyWriter
+from all.logging import DummyWriter
 from .models import fc_relu_q
 
 def vsarsa(
@@ -21,7 +21,11 @@ def vsarsa(
         model = fc_relu_q(env).to(device)
         optimizer = RMSprop(model.parameters(), lr=lr, alpha=alpha, eps=eps)
         q = QNetwork(model, optimizer, env.action_space.n, writer=writer)
-        policy = GreedyPolicy(q, env.action_space.n, annealing_time=1, final_epsilon=epsilon)
+        policy = GreedyPolicy(
+            q,
+            env.action_space.n,
+            epsilon=epsilon
+        )
         return VSarsa(q, policy, gamma=gamma)
     return _vsarsa, n_envs
  

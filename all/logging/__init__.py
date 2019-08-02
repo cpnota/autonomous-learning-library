@@ -5,8 +5,9 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from tensorboardX import SummaryWriter
 
-
 class Writer(ABC):
+    log_dir = 'runs'
+
     @abstractmethod
     def add_loss(self, name, value, step="frame"):
         pass
@@ -17,6 +18,10 @@ class Writer(ABC):
 
     @abstractmethod
     def add_scalar(self, name, value, step="frame"):
+        pass
+
+    @abstractmethod
+    def add_schedule(self, name, value, step="frame"):
         pass
 
 
@@ -30,18 +35,21 @@ class DummyWriter(Writer):
     def add_scalar(self, name, value, step="frame"):
         pass
 
+    def add_schedule(self, name, value, step="frame"):
+        pass
+
 
 class ExperimentWriter(SummaryWriter, Writer):
     def __init__(self, agent_name, env_name, loss=True):
         self.env_name = env_name
         current_time = str(datetime.now())
-        log_dir = os.path.join(
+        self.log_dir = os.path.join(
             'runs', ("%s %s %s" % (agent_name, COMMIT_HASH, current_time))
         )
         self._frames = 0
         self._episodes = 1
         self._loss = loss
-        super().__init__(log_dir=log_dir)
+        super().__init__(log_dir=self.log_dir)
 
     def add_loss(self, name, value, step="frame"):
         if self._loss:
@@ -49,6 +57,10 @@ class ExperimentWriter(SummaryWriter, Writer):
 
     def add_evaluation(self, name, value, step="frame"):
         self.add_scalar('evaluation/' + name, value, self._get_step(step))
+
+    def add_schedule(self, name, value, step="frame"):
+        if self._loss:
+            self.add_scalar('schedule' + '/' + name, value, self._get_step(step))
 
     def add_scalar(self, name, value, step="frame"):
         super().add_scalar(self.env_name + "/" + name, value, self._get_step(step))
@@ -84,3 +96,8 @@ def get_commit_hash():
 
 
 COMMIT_HASH = get_commit_hash()
+
+try:
+    os.mkdir('runs')
+except FileExistsError:
+    pass
