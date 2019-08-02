@@ -61,11 +61,11 @@ class TestExperiment(unittest.TestCase):
     def test_writes_returns_eps(self):
         experiment = MockExperiment(dqn(), self.env, quiet=True, episodes=3)
         np.testing.assert_equal(
-            experiment._writer.data["evaluation/returns-by-episode"]["values"],
+            experiment._writer.data["evaluation/returns/episode"]["values"],
             np.array([14.0, 19.0, 26.0]),
         )
         np.testing.assert_equal(
-            experiment._writer.data["evaluation/returns-by-episode"]["steps"],
+            experiment._writer.data["evaluation/returns/episode"]["steps"],
             np.array([1, 2, 3]),
         )
 
@@ -77,7 +77,7 @@ class TestExperiment(unittest.TestCase):
 
     def test_runs_multi_env(self):
         experiment = MockExperiment(a2c(n_envs=3), self.env, quiet=True, episodes=3)
-        self.assertEqual(len(experiment._writer.data["evaluation/returns-by-episode"]["values"]), 3)
+        self.assertEqual(len(experiment._writer.data["evaluation/returns/episode"]["values"]), 3)
 
 if __name__ == "__main__":
     unittest.main()
