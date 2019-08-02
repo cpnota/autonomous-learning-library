@@ -22,6 +22,7 @@ class EnvRunner(ABC):
         self._max_episodes = episodes
         self._render = render
         self._quiet = quiet
+        self._best_returns = -np.inf
         self.run()
 
     @abstractmethod
@@ -38,8 +39,11 @@ class EnvRunner(ABC):
         if not self._quiet:
             print("episode: %i, frames: %i, fps: %d, returns: %d" %
                   (self._writer.episodes, self._writer.frames, fps, returns))
-        self._writer.add_evaluation('returns-by-episode', returns, step="episode")
-        self._writer.add_evaluation('returns-by-frame', returns, step="frame")
+        if returns > self._best_returns:
+            self._best_returns = returns
+        self._writer.add_evaluation('returns/episode', returns, step="episode")
+        self._writer.add_evaluation('returns/frame', returns, step="frame")
+        self._writer.add_evaluation("returns/max", self._best_returns, step="frame")
         self._writer.add_scalar('fps', fps, step="frame")
 
 class SingleEnvRunner(EnvRunner):
@@ -115,7 +119,7 @@ class ParallelEnvRunner(EnvRunner):
             self._returns[i] += env.reward
             end_time = timer()
             fps = self._writer.frames / (end_time - self._start_time)
-            self._log(self._returns[i], fps)
+            self._log(self._returns[i].item(), fps)
             env.reset()
             self._returns[i] = 0
             self._writer.episodes += 1
