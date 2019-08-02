@@ -34,6 +34,7 @@ We provide out-of-the-box modules for:
 - [x] Generalized Advantage Estimation (GAE)
 - [x] Target networks
 - [x] Polyak averaging
+- [x] Easy parameter and learning rate scheduling
 - [x] An enhanced `nn` module (includes dueling layers, noisy layers, action bounds, and the coveted `nn.Flatten`)
 - [x] `gym` to `pytorch` wrappers
 - [x] Atari wrappers
