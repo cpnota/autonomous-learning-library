@@ -2,7 +2,7 @@ import unittest
 import torch
 from all.environments import AtariEnvironment
 from all.presets.validate_agent import validate_agent
-from all.presets.atari import a2c, dqn, ppo, rainbow, vac, vpg, vsarsa, vqn
+from all.presets.atari import a2c, ddqn, dqn, ppo, vac, vpg, vsarsa, vqn
 
 
 CPU = torch.device("cpu")
@@ -24,6 +24,18 @@ class TestAtariPresets(unittest.TestCase):
     def test_a2c_cuda(self):
         validate_agent(a2c(device=CUDA), AtariEnvironment("Breakout", device=CUDA))
 
+    def test_ddqn(self):
+        validate_agent(
+            ddqn(replay_start_size=64, device=CPU),
+            AtariEnvironment("Breakout", device=CPU),
+        )
+
+    def test_ddqn_cuda(self):
+        validate_agent(
+            ddqn(replay_start_size=64, device=CUDA),
+            AtariEnvironment("Breakout", device=CUDA),
+        )
+
     def test_dqn(self):
         validate_agent(
             dqn(replay_start_size=64, device=CPU),
@@ -41,18 +53,6 @@ class TestAtariPresets(unittest.TestCase):
 
     def test_ppo_cuda(self):
         validate_agent(ppo(device=CUDA, n_envs=4), AtariEnvironment("Breakout", device=CUDA))
-
-    def test_rainbow(self):
-        validate_agent(
-            rainbow(replay_start_size=64, device=CPU),
-            AtariEnvironment("Breakout", device=CPU),
-        )
-
-    def test_rainbow_cuda(self):
-        validate_agent(
-            rainbow(replay_start_size=64, device=CUDA),
-            AtariEnvironment("Breakout", device=CUDA),
-        )
 
     def test_vac(self):
         validate_agent(vac(device=CPU, n_envs=4), AtariEnvironment("Breakout", device=CPU))
