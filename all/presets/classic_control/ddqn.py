@@ -63,10 +63,10 @@ def ddqn(
             device=device
         )
         return DDQN(q, policy, replay_buffer,
-                   discount_factor=discount_factor,
-                   replay_start_size=replay_start_size,
-                   update_frequency=update_frequency,
-                   minibatch_size=minibatch_size)
+                    discount_factor=discount_factor,
+                    replay_start_size=replay_start_size,
+                    update_frequency=update_frequency,
+                    minibatch_size=minibatch_size)
     return _ddqn
 
 

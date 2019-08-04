@@ -77,10 +77,10 @@ def ddqn(
         )
         return DeepmindAtariBody(
             DDQN(q, policy, replay_buffer,
-                discount_factor=discount_factor,
-                minibatch_size=minibatch_size,
-                replay_start_size=replay_start_size,
-                update_frequency=update_frequency,
+                 discount_factor=discount_factor,
+                 minibatch_size=minibatch_size,
+                 replay_start_size=replay_start_size,
+                 update_frequency=update_frequency,
                 ),
             env,
             action_repeat=action_repeat,
