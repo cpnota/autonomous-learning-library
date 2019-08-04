@@ -1,6 +1,7 @@
 from ._agent import Agent
 from .a2c import A2C
 from .ddpg import DDPG
+from .ddqn import DDQN
 from .dqn import DQN
 from .ppo import PPO
 from .sac import SAC

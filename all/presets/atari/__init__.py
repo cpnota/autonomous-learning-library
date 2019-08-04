@@ -1,5 +1,6 @@
 from .a2c import a2c
 from .dqn import dqn
+from .ddqn import ddqn
 from .ppo import ppo
 from .rainbow import rainbow
 from .vac import vac
@@ -9,6 +10,7 @@ from .vsarsa import vsarsa
 
 __all__ = [
     "a2c",
+    "ddqn",
     "dqn",
     "ppo",
     "rainbow",
