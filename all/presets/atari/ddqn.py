@@ -20,7 +20,7 @@ def ddqn(
         discount_factor=0.99,
         action_repeat=4,
         update_frequency=4,
-        lr=5e-4,
+        lr=2.5e-4,
         eps=1.5e-4,
         initial_exploration=1.,
         final_exploration=0.02,
