@@ -2,7 +2,14 @@ import torch
 from ._agent import Agent
 
 
-class DQN(Agent):
+class DDQN(Agent):
+    '''
+    Double Deep Q-Network
+
+    In additional to the introduction of "double" Q-learning,
+    this agent also supports prioritized experience replay
+    if replay_buffer is a prioritized buffer.
+    '''
     def __init__(self,
                  q,
                  policy,
@@ -40,15 +47,18 @@ class DQN(Agent):
             self.replay_buffer.store(self.state, self.action, reward, state)
 
     def _train(self):
+        '''
+        Selects next action using the trained network,
+        but computes target according to online network.
+        '''
         if self._should_train():
-            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
+            (states, actions, rewards, next_states, weights) = self.replay_buffer.sample(
                 self.minibatch_size)
-            td_errors = (
-                rewards +
-                self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0] -
-                self.q(states, actions)
-            )
-            self.q.reinforce(td_errors)
+            next_actions = torch.argmax(self.q.eval(next_states), dim=1)
+            targets = rewards + self.discount_factor * self.q.target(next_states, next_actions)
+            td_errors = targets - self.q(states, actions)
+            self.q.reinforce(weights * td_errors)
+            self.replay_buffer.update_priorities(td_errors)
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and

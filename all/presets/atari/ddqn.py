@@ -3,7 +3,7 @@ import torch
 from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork, FixedTarget
-from all.agents import DQN
+from all.agents import DDQN
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.memory import PrioritizedReplayBuffer
@@ -11,7 +11,7 @@ from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
 from .models import nature_ddqn
 
-def rainbow(
+def ddqn(
         # vanilla DQN parameters
         minibatch_size=32,
         replay_buffer_size=100000,
@@ -20,7 +20,7 @@ def rainbow(
         discount_factor=0.99,
         action_repeat=4,
         update_frequency=4,
-        lr=5e-4,
+        lr=2.5e-4,
         eps=1.5e-4,
         initial_exploration=1.,
         final_exploration=0.02,
@@ -34,24 +34,14 @@ def rainbow(
         device=torch.device('cpu')
 ):
     '''
-    Partial implementation of the Rainbow variant of DQN.
-
-    So far, the enhancements that have been added are:
-    1. Prioritized Replay
-    2. Dueling Networks
-
-    Still to be added are:
-    3. Double Q-Learning
-    4. NoisyNets
-    5. Multi-step Learning
-    6. Distributional RL
+    Double Dueling DQN with Prioritized Experience Replay.
     '''
     # counted by number of updates rather than number of frame
     final_exploration_frame /= action_repeat
     replay_start_size /= action_repeat
     final_beta_frame /= action_repeat
 
-    def _rainbow(env, writer=DummyWriter()):
+    def _ddqn(env, writer=DummyWriter()):
         _model = nature_ddqn(env, frames=agent_history_length).to(device)
         _optimizer = Adam(
             _model.parameters(),
@@ -86,15 +76,15 @@ def rainbow(
             device=device
         )
         return DeepmindAtariBody(
-            DQN(q, policy, replay_buffer,
-                discount_factor=discount_factor,
-                minibatch_size=minibatch_size,
-                replay_start_size=replay_start_size,
-                update_frequency=update_frequency,
+            DDQN(q, policy, replay_buffer,
+                 discount_factor=discount_factor,
+                 minibatch_size=minibatch_size,
+                 replay_start_size=replay_start_size,
+                 update_frequency=update_frequency,
                 ),
             env,
             action_repeat=action_repeat,
             frame_stack=agent_history_length,
             noop_max=noop_max
         )
-    return _rainbow
+    return _ddqn
