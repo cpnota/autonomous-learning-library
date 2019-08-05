@@ -2,11 +2,11 @@
 import torch
 from torch.optim import RMSprop
 from all.agents import A2C
-from all.bodies import ParallelAtariBody
+from all.bodies import RewardClipping
 from all.approximation import VNetwork, FeatureNetwork
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
-from .models import nature_cnn, nature_value_head, nature_policy_head
+from .models import nature_features, nature_value_head, nature_policy_head
 
 
 def a2c(
@@ -27,7 +27,7 @@ def a2c(
 
         value_model = nature_value_head().to(device)
         policy_model = nature_policy_head(envs[0]).to(device)
-        feature_model = nature_cnn().to(device)
+        feature_model = nature_features().to(device)
 
         feature_optimizer = RMSprop(
             feature_model.parameters(), alpha=alpha, lr=lr, eps=eps
@@ -59,7 +59,7 @@ def a2c(
             writer=writer
         )
 
-        return ParallelAtariBody(
+        return RewardClipping(
             A2C(
                 features,
                 v,
@@ -68,7 +68,6 @@ def a2c(
                 n_steps=n_steps,
                 discount_factor=discount_factor,
             ),
-            envs,
         )
 
     return _a2c, n_envs

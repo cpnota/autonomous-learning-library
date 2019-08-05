@@ -7,7 +7,12 @@ from .atari_wrappers import make_atari, wrap_deepmind
 class AtariEnvironment(GymEnvironment):
     def __init__(self, name, **kwargs):
         self._kwargs = kwargs
-        env = wrap_deepmind(make_atari(name + 'NoFrameskip-v4'), frame_stack=True, clip_rewards=False)
+        env = wrap_deepmind(
+            make_atari(name + 'NoFrameskip-v4'),
+            episode_life=False,
+            frame_stack=True,
+            clip_rewards=False
+        )
         super().__init__(env, **kwargs)
         self._name = name
 

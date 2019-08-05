@@ -4,7 +4,7 @@ from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork, FixedTarget
 from all.agents import DDQN
-from all.bodies import DeepmindAtariBody
+from all.bodies import RewardClipping
 from all.logging import DummyWriter
 from all.memory import PrioritizedReplayBuffer
 from all.optim import LinearScheduler
@@ -26,7 +26,6 @@ def ddqn(
         final_exploration=0.02,
         final_exploration_frame=1000000,
         replay_start_size=50000,
-        noop_max=30,
         # Prioritized Replay
         alpha=0.5,
         beta=0.4,
@@ -66,7 +65,7 @@ def ddqn(
                 final_exploration_frame,
                 name="epsilon",
                 writer=writer
-            )
+            )        
         )
         replay_buffer = PrioritizedReplayBuffer(
             replay_buffer_size,
@@ -75,16 +74,13 @@ def ddqn(
             final_beta_frame=final_beta_frame,
             device=device
         )
-        return DeepmindAtariBody(
+        return RewardClipping(
             DDQN(q, policy, replay_buffer,
                  discount_factor=discount_factor,
                  minibatch_size=minibatch_size,
                  replay_start_size=replay_start_size,
                  update_frequency=update_frequency,
                 ),
-            env,
-            action_repeat=action_repeat,
-            frame_stack=agent_history_length,
-            noop_max=noop_max
         )
+
     return _ddqn
