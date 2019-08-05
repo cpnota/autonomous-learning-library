@@ -119,6 +119,14 @@ class Linear0(nn.Linear):
         if self.bias is not None:
             nn.init.constant_(self.bias, 0.)
 
+class Scale(nn.Module):
+    def __init__(self, scale):
+        super().__init__()
+        self.scale = scale
+
+    def forward(self, x):
+        return x * self.scale
+
 class TanhActionBound(nn.Module):
     def __init__(self, action_space):
         super().__init__()

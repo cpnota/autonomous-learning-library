@@ -39,6 +39,7 @@ def nature_ddqn(env, frames=4):
 
 def nature_cnn(frames=4):
     return nn.Sequential(
+        nn.Scale(1/255),
         nn.Conv2d(frames, 32, 8, stride=4),
         nn.ReLU(),
         nn.Conv2d(32, 64, 4, stride=2),
@@ -51,7 +52,7 @@ def nature_cnn(frames=4):
     )
 
 def nature_value_head():
-    return nn.Linear0(512, 1)
+    return nn.Linear(512, 1)
 
 def nature_policy_head(env):
     return nn.Linear0(512, env.action_space.n)
