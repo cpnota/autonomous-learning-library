@@ -261,43 +261,51 @@ class DeepmindAtariBody(Body):
         agent = ToLegacyBody(agent)
         super().__init__(agent)
 
-
 class ParallelAtariBody(Body):
-    '''Parallel version of DeepmindatariBody'''
     def __init__(
-            self,
-            agent,
-            envs,
-            action_repeat=4,
-            clip_rewards=True,
-            deflicker=True,
-            episodic_lives=True,
-            fire_on_reset=True,
-            frame_stack=4,
-            noop_max=30,
-            preprocess=True,
+        self, agent, envs, **kwargs
     ):
-        if action_repeat > 1:
-            agent = ParallelRepeatActions(agent, repeats=action_repeat)
-
-        def make_body(agent, env):
-            agent = FromLegacyBody(agent)
-            if clip_rewards:
-                agent = RewardClipping(agent)
-            if fire_on_reset and env._env.unwrapped.get_action_meanings()[1] == 'FIRE':
-                agent = FireOnReset(agent)
-            if episodic_lives:
-                agent = EpisodicLives(agent, env)
-            if frame_stack > 1:
-                agent = FrameStack(agent, size=frame_stack)
-            if preprocess:
-                agent = AtariVisionPreprocessor(agent)
-            if deflicker:
-                agent = Deflicker(agent)
-            if noop_max > 0:
-                agent = NoopBody(agent, noop_max)
-            return ToLegacyBody(agent)
-
-        agent = ParallelBody(agent, envs, make_body)
-
         super().__init__(agent)
+
+    def act(self, state, rewards):
+        return self.agent.act(state, torch.sign(rewards))
+
+# class ParallelAtariBody(Body):
+#     '''Parallel version of DeepmindatariBody'''
+#     def __init__(
+#             self,
+#             agent,
+#             envs,
+#             action_repeat=4,
+#             clip_rewards=True,
+#             deflicker=True,
+#             episodic_lives=True,
+#             fire_on_reset=True,
+#             frame_stack=4,
+#             noop_max=30,
+#             preprocess=True,
+#     ):
+#         if action_repeat > 1:
+#             agent = ParallelRepeatActions(agent, repeats=action_repeat)
+
+#         def make_body(agent, env):
+#             agent = FromLegacyBody(agent)
+#             if clip_rewards:
+#                 agent = RewardClipping(agent)
+#             if fire_on_reset and env._env.unwrapped.get_action_meanings()[1] == 'FIRE':
+#                 agent = FireOnReset(agent)
+#             if episodic_lives:
+#                 agent = EpisodicLives(agent, env)
+#             if frame_stack > 1:
+#                 agent = FrameStack(agent, size=frame_stack)
+#             if preprocess:
+#                 agent = AtariVisionPreprocessor(agent)
+#             if deflicker:
+#                 agent = Deflicker(agent)
+#             if noop_max > 0:
+#                 agent = NoopBody(agent, noop_max)
+#             return ToLegacyBody(agent)
+
+#         agent = ParallelBody(agent, envs, make_body)
+
+#         super().__init__(agent)

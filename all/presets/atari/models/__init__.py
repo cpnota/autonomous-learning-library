@@ -46,7 +46,7 @@ def nature_cnn(frames=4):
         nn.Conv2d(64, 64, 3, stride=1),
         nn.ReLU(),
         nn.Flatten(),
-        nn.Linear(3456, 512),
+        nn.Linear(3136, 512),
         nn.ReLU(),
     )
 
