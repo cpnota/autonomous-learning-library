@@ -22,7 +22,7 @@ def nature_cnn(frames=4):
 def nature_dqn(env, frames=4):
     return nn.Sequential(
         nature_cnn(frames=frames),
-        nn.Linear(3456, 512),
+        nn.Linear(3136, 512),
         nn.ReLU(),
         nn.Linear0(512, env.action_space.n)
     )
@@ -32,12 +32,12 @@ def nature_ddqn(env, frames=4):
         nature_cnn(frames=frames),
         nn.Dueling(
             nn.Sequential(
-                nn.Linear(3456, 512),
+                nn.Linear(3136, 512),
                 nn.ReLU(),
                 nn.Linear0(512, 1)
             ),
             nn.Sequential(
-                nn.Linear(3456, 512),
+                nn.Linear(3136, 512),
                 nn.ReLU(),
                 nn.Linear0(512, env.action_space.n)
             ),
