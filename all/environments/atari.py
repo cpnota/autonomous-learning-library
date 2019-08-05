@@ -1,19 +1,24 @@
 import torch
 import numpy as np
+import gym
 from .state import State
 from .gym import GymEnvironment
-from .atari_wrappers import make_atari, wrap_deepmind
+from .atari_wrappers import NoopResetEnv, MaxAndSkipEnv, FireResetEnv, WarpFrame
 
 class AtariEnvironment(GymEnvironment):
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, *args, **kwargs):
+        # need these for duplication
+        self._args = args
         self._kwargs = kwargs
-        env = wrap_deepmind(
-            make_atari(name + 'NoFrameskip-v4'),
-            episode_life=False,
-            frame_stack=True,
-            clip_rewards=False
-        )
-        super().__init__(env, **kwargs)
+        # construct the environment
+        env = gym.make(name + 'NoFrameskip-v4')
+        # apply a subset of wrappers
+        env = NoopResetEnv(env, noop_max=30)
+        env = MaxAndSkipEnv(env)
+        env = FireResetEnv(env)
+        env = WarpFrame(env)
+        # initialize
+        super().__init__(env, *args, **kwargs)
         self._name = name
 
     @property
@@ -21,7 +26,7 @@ class AtariEnvironment(GymEnvironment):
         return self._name
 
     def duplicate(self, n):
-        return [AtariEnvironment(self._name, **self._kwargs) for _ in range(n)]
+        return [AtariEnvironment(self._name, *self._args, **self._kwargs) for _ in range(n)]
 
     def _make_state(self, raw, done, info):
         '''Convert numpy array into State'''

@@ -3,7 +3,7 @@ import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import PPO
-from all.bodies import RewardClipping
+from all.bodies import DeepmindAtariBody
 from all.approximation import VNetwork, FeatureNetwork
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
@@ -85,7 +85,7 @@ def ppo(
             ),
         )
 
-        return RewardClipping(
+        return DeepmindAtariBody(
             PPO(
                 features,
                 v,

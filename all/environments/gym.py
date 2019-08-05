@@ -7,6 +7,8 @@ from .state import State
 class GymEnvironment(Environment):
     def __init__(self, env, device=torch.device('cpu')):
         self._name = env
+        if isinstance(env, str):
+            env = gym.make(env)
         self._env = env
         self._state = None
         self._action = None

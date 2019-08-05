@@ -2,7 +2,7 @@ import torch
 from torch.optim import RMSprop
 from all.agents import VAC
 from all.approximation import VNetwork, FeatureNetwork
-from all.bodies import RewardClipping
+from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import nature_features, nature_value_head, nature_policy_head
@@ -57,7 +57,7 @@ def vac(
             writer=writer
         )
 
-        return RewardClipping(
+        return DeepmindAtariBody(
             VAC(features, v, policy, gamma=discount_factor),
         )
     return _vac, n_envs

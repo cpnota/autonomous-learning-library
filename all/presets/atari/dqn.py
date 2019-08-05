@@ -4,7 +4,7 @@ from torch.optim import Adam
 from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork, FixedTarget
 from all.agents import DQN
-from all.bodies import RewardClipping
+from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.policies import GreedyPolicy
 from all.memory import ExperienceReplayBuffer
@@ -65,7 +65,7 @@ def dqn(
             replay_buffer_size,
             device=device
         )
-        return RewardClipping(
+        return DeepmindAtariBody(
             DQN(q, policy, replay_buffer,
                 discount_factor=discount_factor,
                 minibatch_size=minibatch_size,

@@ -1,10 +1,11 @@
 from ._body import Body
-from .parallel import ParallelBody, ParallelFrameStack, ParallelRepeatActions
-from .rewards import RewardClipping
+from .atari import DeepmindAtariBody
+from .rewards import ClipRewards
+from .vision import FrameStack
 
 __all__ = [
     "Body",
-    "ParallelBody",
-    "ParallelFrameStack",
-    "ParallelRepeatActions",
+    "ClipRewards",
+    "DeepmindAtariBody",
+    "FrameStack",
 ]

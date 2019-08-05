@@ -2,7 +2,7 @@
 import torch
 from torch.optim import RMSprop
 from all.agents import A2C
-from all.bodies import RewardClipping
+from all.bodies import DeepmindAtariBody
 from all.approximation import VNetwork, FeatureNetwork
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
@@ -59,7 +59,7 @@ def a2c(
             writer=writer
         )
 
-        return RewardClipping(
+        return DeepmindAtariBody(
             A2C(
                 features,
                 v,

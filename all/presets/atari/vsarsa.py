@@ -4,7 +4,7 @@ from torch.optim import RMSprop
 from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork
 from all.agents import VSarsa
-from all.bodies import RewardClipping
+from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
@@ -48,7 +48,7 @@ def vsarsa(
                 writer=writer
             )
         )
-        return RewardClipping(
+        return DeepmindAtariBody(
             VSarsa(q, policy, gamma=discount_factor),
         )
     return _vsarsa, n_envs
