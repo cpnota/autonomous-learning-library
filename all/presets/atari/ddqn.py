@@ -26,7 +26,6 @@ def ddqn(
         final_exploration=0.02,
         final_exploration_frame=1000000,
         replay_start_size=50000,
-        noop_max=30,
         # Prioritized Replay
         alpha=0.5,
         beta=0.4,
@@ -82,9 +81,5 @@ def ddqn(
                  replay_start_size=replay_start_size,
                  update_frequency=update_frequency,
                 ),
-            env,
-            action_repeat=action_repeat,
-            frame_stack=agent_history_length,
-            noop_max=noop_max
         )
     return _ddqn

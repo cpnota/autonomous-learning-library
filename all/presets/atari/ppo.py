@@ -3,12 +3,12 @@ import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import PPO
-from all.bodies import ParallelAtariBody
+from all.bodies import DeepmindAtariBody
 from all.approximation import VNetwork, FeatureNetwork
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import SoftmaxPolicy
-from .models import nature_cnn, nature_value_head, nature_policy_head
+from .models import nature_features, nature_value_head, nature_policy_head
 
 
 def ppo(
@@ -40,7 +40,7 @@ def ppo(
 
         value_model = nature_value_head().to(device)
         policy_model = nature_policy_head(envs[0]).to(device)
-        feature_model = nature_cnn().to(device)
+        feature_model = nature_features().to(device)
 
         feature_optimizer = Adam(
             feature_model.parameters(), lr=lr, eps=eps
@@ -85,7 +85,7 @@ def ppo(
             ),
         )
 
-        return ParallelAtariBody(
+        return DeepmindAtariBody(
             PPO(
                 features,
                 v,
@@ -104,8 +104,7 @@ def ppo(
                 n_steps=n_steps,
                 discount_factor=discount_factor,
                 lam=lam,
-            ),
-            envs,
+            )
         )
 
     return _ppo, n_envs

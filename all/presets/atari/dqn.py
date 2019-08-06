@@ -18,7 +18,6 @@ def dqn(
         # except where noted.
         minibatch_size=32,
         replay_buffer_size=100000, # originally 1e6
-        agent_history_length=4,
         target_update_frequency=1000, # originally 1e4
         discount_factor=0.99,
         action_repeat=4,
@@ -29,7 +28,6 @@ def dqn(
         final_exploration=0.02, # originally 0.1
         final_exploration_frame=1000000,
         replay_start_size=50000,
-        noop_max=30,
         device=torch.device('cpu')
 ):
     # counted by number of updates rather than number of frame
@@ -74,9 +72,5 @@ def dqn(
                 replay_start_size=replay_start_size,
                 update_frequency=update_frequency,
                 ),
-            env,
-            action_repeat=action_repeat,
-            frame_stack=agent_history_length,
-            noop_max=noop_max
         )
     return _dqn
