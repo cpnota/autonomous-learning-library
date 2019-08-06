@@ -65,7 +65,7 @@ def ddqn(
                 final_exploration_frame,
                 name="epsilon",
                 writer=writer
-            )        
+            )
         )
         replay_buffer = PrioritizedReplayBuffer(
             replay_buffer_size,
