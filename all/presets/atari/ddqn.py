@@ -82,5 +82,4 @@ def ddqn(
                  update_frequency=update_frequency,
                 ),
         )
-
     return _ddqn
