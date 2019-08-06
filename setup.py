@@ -14,6 +14,7 @@ setup(
         "pylint",        # code quality tool
         "tensorboardX",  # visualize results
         "torch-testing", # testing library for pytorch
+        "opencv-python", # used by atari wrappers
         # these should be installed globally:
         # "tensorflow",  # needed for tensorboard
         # "torch",       # deep learning library
