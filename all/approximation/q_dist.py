@@ -16,8 +16,9 @@ class QDist(Approximation):
             **kwargs
     ):
         model = QDistModule(model, n_actions, n_atoms)
+        device = next(model.parameters()).device
         self.n_actions = n_actions
-        self.atoms = torch.linspace(v_min, v_max, steps=n_atoms)
+        self.atoms = torch.linspace(v_min, v_max, steps=n_atoms).to(device)
         super().__init__(
             model,
             optimizer,

@@ -4,22 +4,24 @@ from ._agent import Agent
 
 
 class C51(Agent):
-    '''
+    """
     Double Deep Q-Network
 
     In additional to the introduction of "double" Q-learning,
     this agent also supports prioritized experience replay
     if replay_buffer is a prioritized buffer.
-    '''
-    def __init__(self,
-                 q_dist,
-                 replay_buffer,
-                 exploration=0.02,
-                 discount_factor=0.99,
-                 minibatch_size=32,
-                 replay_start_size=5000,
-                 update_frequency=1
-                 ):
+    """
+
+    def __init__(
+            self,
+            q_dist,
+            replay_buffer,
+            exploration=0.02,
+            discount_factor=0.99,
+            minibatch_size=32,
+            replay_start_size=5000,
+            update_frequency=1,
+    ):
         # objects
         self.q_dist = q_dist
         self.replay_buffer = replay_buffer
@@ -49,24 +51,47 @@ class C51(Agent):
 
     def _choose_action(self, state):
         if np.random.rand() < self.exploration:
-            return torch.randint(self.q_dist.actions, (len(state),), device=self.q_dist.device)
-        probs = self.q_dist.eval(state).squeeze(0)
-        q_values = torch.mv(probs, self.q_dist.atoms)
-        return torch.argmax(q_values, dim=1)
+            return torch.randint(
+                self.q_dist.n_actions, (len(state),), device=self.q_dist.device
+            )
+        return self._best_actions(state).squeeze(0)
 
     def _train(self):
-        '''
-        TODO
-        '''
-        # if self._should_train():
-        #     (states, actions, rewards, next_states, weights) = self.replay_buffer.sample(
-        #         self.minibatch_size)
-        #     next_actions = torch.argmax(self.q.eval(next_states), dim=1)
-        #     targets = rewards + self.discount_factor * self.q.target(next_states, next_actions)
-        #     td_errors = targets - self.q(states, actions)
-        #     self.q.reinforce(weights * td_errors)
-        #     self.replay_buffer.update_priorities(td_errors)
+        if self._should_train():
+            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
+                self.minibatch_size
+            )
+            # choose best action from online network, double-q style
+            next_actions = self._best_actions(next_states)
+            # compute the target distribution
+            next_dist = self.q_dist.target(next_states, next_actions)
+            target_dist = self._project_target_distribution(rewards, next_dist)
+            # apply update
+            self.q_dist(states, actions)
+            self.q_dist.reinforce(target_dist)
+
+    def _best_actions(self, states):
+        probs = self.q_dist.eval(states)
+        q_values = (probs * self.q_dist.atoms).sum(dim=2)
+        return torch.argmax(q_values, dim=1)
+
+    def _project_target_distribution(self, rewards, dist):
+        target_dist = dist * 0
+        atoms = self.q_dist.atoms
+        v_min = atoms[0]
+        v_max = atoms[-1]
+        delta_z = atoms[1] - atoms[0]
+        for j, atom in enumerate(self.q_dist.atoms):
+            tz_j = (rewards + self.discount_factor * atom).clamp(v_min, v_max)
+            bj = (tz_j - v_min) / delta_z
+            l = bj.floor()
+            u = bj.ceil()
+            target_dist[:, l.long()] += dist[:, j] * (u - bj)
+            target_dist[:, u.long()] += dist[:, j] * (bj - l)
+        return target_dist
 
     def _should_train(self):
-        return (self.frames_seen > self.replay_start_size and
-                self.frames_seen % self.update_frequency == 0)
+        return (
+            self.frames_seen > self.replay_start_size
+            and self.frames_seen % self.update_frequency == 0
+        )
