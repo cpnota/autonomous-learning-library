@@ -1,5 +1,6 @@
 import torch
-from all.nn import QModule
+from torch.nn import functional as F
+from all import nn
 from .approximation import Approximation
 
 class QDist(Approximation):
@@ -7,15 +8,16 @@ class QDist(Approximation):
             self,
             model,
             optimizer,
-            num_actions,
-            num_atoms,
+            n_actions,
+            n_atoms,
             v_min,
             v_max,
             name='q_dist',
             **kwargs
     ):
-        model = QModule(model, num_actions * num_atoms)
-        self._init_atoms(num_atoms, v_min, v_max)
+        model = QDistModule(model, n_actions, n_atoms)
+        self.n_actions = n_actions
+        self.atoms = torch.linspace(v_min, v_max, steps=n_atoms)
         super().__init__(
             model,
             optimizer,
@@ -23,5 +25,19 @@ class QDist(Approximation):
             **kwargs
         )
 
-    def _init_atoms(self, num_atoms, v_min, v_max):
-        self.atoms = torch.linspace(v_min, v_max, steps=num_atoms)
+class QDistModule(nn.Module):
+    def __init__(self, model, n_actions, n_atoms):
+        super().__init__()
+        self.n_actions = n_actions
+        self.n_atoms = n_atoms
+        self.device = next(model.parameters()).device
+        self.model = nn.ListNetwork(model)
+
+    def forward(self, states, actions=None):
+        values = self.model(states).view((len(states), self.n_actions, self.n_atoms))
+        values = F.softmax(values, dim=2)
+        if actions is None:
+            return values
+        if isinstance(actions, list):
+            actions = torch.tensor(actions, device=self.device)
+        return values.gather(1, actions.view((len(states), 1, 1))).squeeze(1)
