@@ -1,11 +1,9 @@
 import unittest
 import torch
 from torch import nn
-from torch.nn.functional import smooth_l1_loss
 import torch_testing as tt
-import numpy as np
 from all.environments import State
-from all.approximation import QDist, FixedTarget
+from all.approximation import QDist
 
 STATE_DIM = 1
 ACTIONS = 2
@@ -91,10 +89,7 @@ class TestQDist(unittest.TestCase):
                         [0.2065, 0.1045, 0.1542, 0.2834, 0.2513],
                         [0.3903, 0.2471, 0.0360, 0.1733, 0.1533],
                     ],
-                    [
-                        [0, 0, 1, 0, 0],
-                        [0, 0, 1, 0, 0],
-                    ],
+                    [[0, 0, 1, 0, 0], [0, 0, 1, 0, 0]],
                     [
                         [0.1427, 0.2486, 0.0946, 0.4112, 0.1029],
                         [0.0819, 0.1320, 0.1203, 0.0373, 0.6285],
@@ -120,18 +115,16 @@ class TestQDist(unittest.TestCase):
             decimal=3,
         )
 
-        target_dists = torch.tensor([
-            [0, 0, 1, 0, 0],
-            [0, 0, 0, 0, 1],
-            [0, 1, 0, 0, 0]
-        ]).float()
+        target_dists = torch.tensor(
+            [[0, 0, 1, 0, 0], [0, 0, 0, 0, 1], [0, 1, 0, 0, 0]]
+        ).float()
         self.q.reinforce(target_dists)
 
         new_probs = self.q(states, actions)
         tt.assert_almost_equal(
-            torch.sign(new_probs - original_probs),
-            torch.sign(target_dists - 0.5)
+            torch.sign(new_probs - original_probs), torch.sign(target_dists - 0.5)
         )
+
 
 if __name__ == "__main__":
     unittest.main()
