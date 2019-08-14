@@ -104,6 +104,34 @@ class TestQDist(unittest.TestCase):
             decimal=3,
         )
 
+    def test_reinforce(self):
+        states = State(torch.randn((3, STATE_DIM)))
+        actions = torch.tensor([0, 1, 0])
+        original_probs = self.q(states, actions)
+        tt.assert_almost_equal(
+            original_probs,
+            torch.tensor(
+                [
+                    [0.2065, 0.1045, 0.1542, 0.2834, 0.2513],
+                    [0.3190, 0.2471, 0.0534, 0.1424, 0.2380],
+                    [0.1427, 0.2486, 0.0946, 0.4112, 0.1029],
+                ]
+            ),
+            decimal=3,
+        )
+
+        target_dists = torch.tensor([
+            [0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 1],
+            [0, 1, 0, 0, 0]
+        ]).float()
+        self.q.reinforce(target_dists)
+
+        new_probs = self.q(states, actions)
+        tt.assert_almost_equal(
+            torch.sign(new_probs - original_probs),
+            torch.sign(target_dists - 0.5)
+        )
 
 if __name__ == "__main__":
     unittest.main()

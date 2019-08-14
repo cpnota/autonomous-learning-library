@@ -21,6 +21,7 @@ class QDist(Approximation):
         super().__init__(
             model,
             optimizer,
+            loss=cross_entropy_loss,
             name=name,
             **kwargs
         )
@@ -40,9 +41,14 @@ class QDistModule(nn.Module):
         for i in range(len(states)):
             if states.mask[i] == 0:
                 values[i] *= 0
-                values[i,:,self.zero_atom] = 1
+                values[i, :, self.zero_atom] = 1
         if actions is None:
             return values
         if isinstance(actions, list):
             actions = torch.tensor(actions, device=self.device)
         return values[torch.arange(len(states)), actions]
+
+def cross_entropy_loss(dist, target_dist):
+    log_dist = torch.log(dist)
+    loss_v = -log_dist * target_dist
+    return loss_v.sum(dim=-1).mean()
