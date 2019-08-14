@@ -30,12 +30,17 @@ class QDistModule(nn.Module):
         super().__init__()
         self.n_actions = n_actions
         self.n_atoms = n_atoms
+        self.zero_atom = n_atoms // 2
         self.device = next(model.parameters()).device
         self.model = nn.ListNetwork(model)
 
     def forward(self, states, actions=None):
         values = self.model(states).view((len(states), self.n_actions, self.n_atoms))
         values = F.softmax(values, dim=2)
+        for i in range(len(states)):
+            if states.mask[i] == 0:
+                values[i] *= 0
+                values[i,:,self.zero_atom] = 1
         if actions is None:
             return values
         if isinstance(actions, list):

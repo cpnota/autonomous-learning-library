@@ -74,6 +74,36 @@ class TestQDist(unittest.TestCase):
             decimal=3,
         )
 
+    def test_done(self):
+        states = State(torch.randn((3, STATE_DIM)), mask=torch.tensor([1, 0, 1]))
+        probs = self.q(states)
+        self.assertEqual(probs.shape, (3, ACTIONS, ATOMS))
+        tt.assert_almost_equal(
+            probs.sum(dim=2),
+            torch.tensor([[1.0, 1.0], [1.0, 1.0], [1.0, 1.0]]),
+            decimal=3,
+        )
+        tt.assert_almost_equal(
+            probs,
+            torch.tensor(
+                [
+                    [
+                        [0.2065, 0.1045, 0.1542, 0.2834, 0.2513],
+                        [0.3903, 0.2471, 0.0360, 0.1733, 0.1533],
+                    ],
+                    [
+                        [0, 0, 1, 0, 0],
+                        [0, 0, 1, 0, 0],
+                    ],
+                    [
+                        [0.1427, 0.2486, 0.0946, 0.4112, 0.1029],
+                        [0.0819, 0.1320, 0.1203, 0.0373, 0.6285],
+                    ],
+                ]
+            ),
+            decimal=3,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
