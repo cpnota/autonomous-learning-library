@@ -31,7 +31,7 @@ class TestQDist(unittest.TestCase):
         tt.assert_almost_equal(
             probs.sum(dim=2),
             torch.tensor([[1.0, 1.0], [1.0, 1.0], [1.0, 1.0]]),
-            decimal=3
+            decimal=3,
         )
         tt.assert_almost_equal(
             probs,
@@ -60,30 +60,20 @@ class TestQDist(unittest.TestCase):
         probs = self.q(states, actions)
         self.assertEqual(probs.shape, (3, ATOMS))
         tt.assert_almost_equal(
-            probs.sum(dim=1),
-            torch.tensor([1., 1., 1.,]),
-            decimal=3
+            probs.sum(dim=1), torch.tensor([1.0, 1.0, 1.0]), decimal=3
         )
         tt.assert_almost_equal(
             probs,
             torch.tensor(
                 [
-                    [
-                        [0.2065, 0.1045, 0.1542, 0.2834, 0.2513],
-                        [0.3903, 0.2471, 0.0360, 0.1733, 0.1533],
-                    ],
-                    [
-                        [0.1966, 0.1299, 0.1431, 0.3167, 0.2137],
-                        [0.3190, 0.2471, 0.0534, 0.1424, 0.2380],
-                    ],
-                    [
-                        [0.1427, 0.2486, 0.0946, 0.4112, 0.1029],
-                        [0.0819, 0.1320, 0.1203, 0.0373, 0.6285],
-                    ],
+                    [0.2065, 0.1045, 0.1542, 0.2834, 0.2513],
+                    [0.3190, 0.2471, 0.0534, 0.1424, 0.2380],
+                    [0.1427, 0.2486, 0.0946, 0.4112, 0.1029],
                 ]
             ),
             decimal=3,
         )
+
 
 if __name__ == "__main__":
     unittest.main()
