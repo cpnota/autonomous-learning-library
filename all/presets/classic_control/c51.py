@@ -11,11 +11,11 @@ from .models import fc_relu_dist_q
 
 def c51(
         atoms=51,
-        minibatch_size=32,
+        minibatch_size=128,
         replay_buffer_size=20000,
         discount_factor=0.99,
         update_frequency=1,
-        lr=1e-4,
+        lr=1e-3,
         initial_exploration=1.00,
         final_exploration=0.02,
         final_exploration_frame=10000,
@@ -30,8 +30,8 @@ def c51(
             optimizer,
             env.action_space.n,
             atoms,
-            v_min=-30,
-            v_max=30,
+            v_min=-100,
+            v_max=100,
             writer=writer,
         )
         replay_buffer = ExperienceReplayBuffer(replay_buffer_size, device=device)
@@ -50,6 +50,7 @@ def c51(
             minibatch_size=minibatch_size,
             replay_start_size=replay_start_size,
             update_frequency=update_frequency,
+            writer=writer
         )
 
     return _c51

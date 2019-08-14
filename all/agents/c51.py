@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 from ._agent import Agent
+from all.logging import DummyWriter
 
 
 class C51(Agent):
@@ -21,6 +22,7 @@ class C51(Agent):
             minibatch_size=32,
             replay_start_size=5000,
             update_frequency=1,
+            writer=DummyWriter()
     ):
         # objects
         self.q_dist = q_dist
@@ -36,6 +38,7 @@ class C51(Agent):
         self.state = None
         self.action = None
         self.frames_seen = 0
+        self.writer = writer
 
     def act(self, state, reward):
         self._store_transition(state, reward)
@@ -67,7 +70,8 @@ class C51(Agent):
             next_dist = self.q_dist.target(next_states, next_actions)
             target_dist = self._project_target_distribution(rewards, next_dist)
             # apply update
-            self.q_dist(states, actions)
+            probs = self.q_dist(states, actions)
+            self.writer.add_loss('q_mean', (probs * self.q_dist.atoms).sum(dim=1).mean())
             self.q_dist.reinforce(target_dist)
 
     def _best_actions(self, states):
