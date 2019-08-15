@@ -1,7 +1,7 @@
 import torch
 import numpy as np
-from ._agent import Agent
 from all.logging import DummyWriter
+from ._agent import Agent
 
 
 class C51(Agent):
@@ -80,6 +80,7 @@ class C51(Agent):
         return torch.argmax(q_values, dim=1)
 
     def _project_target_distribution(self, rewards, dist):
+        # pylint: disable=invalid-name
         target_dist = dist * 0
         atoms = self.q_dist.atoms
         v_min = atoms[0]
