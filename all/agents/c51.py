@@ -70,7 +70,7 @@ class C51(Agent):
             next_actions = self._best_actions(next_states)
             # compute the target distribution
             next_dist = self.q_dist.target(next_states, next_actions)
-            target_dist = self._project_target_distribution(rewards, next_dist, actions)
+            target_dist = self._project_target_distribution(rewards, next_dist)
             # apply update
             probs = self.q_dist(states, actions)
             self.writer.add_loss('q/mean', (probs * self.q_dist.atoms).sum(dim=1).mean())
@@ -81,7 +81,7 @@ class C51(Agent):
         q_values = (probs * self.q_dist.atoms).sum(dim=2)
         return torch.argmax(q_values, dim=1)
 
-    def _project_target_distribution(self, rewards, dist, actions):
+    def _project_target_distribution(self, rewards, dist):
         # pylint: disable=invalid-name
         target_dist = dist * 0
         atoms = self.q_dist.atoms
@@ -90,9 +90,9 @@ class C51(Agent):
         delta_z = atoms[1] - atoms[0]
         # vectorized implementation of Algorithm 1
         tz_j = (rewards.view((-1, 1)) + self.discount_factor * atoms).clamp(v_min, v_max)
-        bj = (tz_j - v_min) / delta_z
+        bj = ((tz_j - v_min) / delta_z).clamp(0, len(atoms) - 1)
         l = bj.floor()
-        u = (bj - 1e-3).ceil() # otherwise rounding errors sometimes cause inappropriate round up
+        u = bj.ceil()
         target_dist[:, l.long()] += dist * (u - bj)
         target_dist[:, u.long()] += dist * (bj - l)
         return target_dist
