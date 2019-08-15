@@ -43,5 +43,5 @@ def fc_relu_dist_q(env, hidden=64, atoms=51):
         nn.Flatten(),
         nn.Linear(env.state_space.shape[0], hidden),
         nn.ReLU(),
-        nn.Linear(hidden, env.action_space.n * atoms)
+        nn.Linear0(hidden, env.action_space.n * atoms)
     )

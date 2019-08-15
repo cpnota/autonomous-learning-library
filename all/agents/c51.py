@@ -3,7 +3,7 @@ import numpy as np
 from all.logging import DummyWriter
 from ._agent import Agent
 
-torch.set_printoptions(threshold=5000)
+torch.set_printoptions(threshold=10000)
 
 class C51(Agent):
     """
@@ -90,11 +90,12 @@ class C51(Agent):
         delta_z = atoms[1] - atoms[0]
         # vectorized implementation of Algorithm 1
         tz_j = (rewards.view((-1, 1)) + self.discount_factor * atoms).clamp(v_min, v_max)
-        bj = ((tz_j - v_min) / delta_z).clamp(0, len(atoms) - 1)
-        l = bj.floor()
-        u = bj.ceil()
-        target_dist[:, l.long()] += dist * (u - bj)
-        target_dist[:, u.long()] += dist * (bj - l)
+        bj = ((tz_j - v_min) / delta_z)
+        l = bj.floor().clamp(0, len(atoms) - 1)
+        u = bj.ceil().clamp(0, len(atoms) - 1)
+        for i in range(len(rewards)):
+            target_dist[i, l[i].long()] += dist[i] * (u[i] - bj[i])
+            target_dist[i, u[i].long()] += dist[i] * (bj[i] - l[i])
         return target_dist
 
     def _should_train(self):

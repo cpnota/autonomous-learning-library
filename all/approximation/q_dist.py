@@ -51,4 +51,4 @@ class QDistModule(nn.Module):
 def cross_entropy_loss(dist, target_dist):
     log_dist = torch.log(dist)
     loss_v = -log_dist * target_dist
-    return loss_v.sum(dim=-1).mean()
+    return loss_v.mean()
