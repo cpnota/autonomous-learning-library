@@ -57,7 +57,7 @@ class C51(Agent):
             return torch.randint(
                 self.q_dist.n_actions, (len(state),), device=self.q_dist.device
             )
-        return self._best_actions(state).squeeze(0)
+        return self._best_actions(state).view((1))
 
     def _train(self):
         if self._should_train():
