@@ -15,7 +15,7 @@ def c51(
         replay_buffer_size=20000,
         discount_factor=0.99,
         update_frequency=1,
-        lr=1e-3,
+        lr=1e-5,
         initial_exploration=1.00,
         final_exploration=0.02,
         final_exploration_frame=10000,
