@@ -71,7 +71,7 @@ class C51(Agent):
             target_dist = self._project_target_distribution(rewards, next_dist)
             # apply update
             probs = self.q_dist(states, actions)
-            self.writer.add_loss('q_mean', (probs * self.q_dist.atoms).sum(dim=1).mean())
+            self.writer.add_loss('q/mean', (probs * self.q_dist.atoms).sum(dim=1).mean())
             self.q_dist.reinforce(target_dist)
 
     def _best_actions(self, states):
@@ -85,13 +85,12 @@ class C51(Agent):
         v_min = atoms[0]
         v_max = atoms[-1]
         delta_z = atoms[1] - atoms[0]
-        for j, atom in enumerate(self.q_dist.atoms):
-            tz_j = (rewards + self.discount_factor * atom).clamp(v_min, v_max)
-            bj = (tz_j - v_min) / delta_z
-            l = bj.floor()
-            u = bj.ceil()
-            target_dist[:, l.long()] += dist[:, j] * (u - bj)
-            target_dist[:, u.long()] += dist[:, j] * (bj - l)
+        tz_j = (rewards.view((-1, 1)) + self.discount_factor * atoms).clamp(v_min, v_max)
+        bj = (tz_j - v_min) / delta_z
+        l = bj.floor()
+        u = bj.ceil()
+        target_dist[:, l.long()] += dist * (u - bj)
+        target_dist[:, u.long()] += dist * (bj - l)
         return target_dist
 
     def _should_train(self):
