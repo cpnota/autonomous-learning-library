@@ -3,6 +3,7 @@ import numpy as np
 from all.logging import DummyWriter
 from ._agent import Agent
 
+torch.set_printoptions(threshold=5000)
 
 class C51(Agent):
     """
@@ -57,18 +58,19 @@ class C51(Agent):
             return torch.randint(
                 self.q_dist.n_actions, (len(state),), device=self.q_dist.device
             )
-        return self._best_actions(state).view((1))
+        return self._best_actions(state)
 
     def _train(self):
         if self._should_train():
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
                 self.minibatch_size
             )
+            actions = torch.cat(actions)
             # choose best action from online network, double-q style
             next_actions = self._best_actions(next_states)
             # compute the target distribution
             next_dist = self.q_dist.target(next_states, next_actions)
-            target_dist = self._project_target_distribution(rewards, next_dist)
+            target_dist = self._project_target_distribution(rewards, next_dist, actions)
             # apply update
             probs = self.q_dist(states, actions)
             self.writer.add_loss('q/mean', (probs * self.q_dist.atoms).sum(dim=1).mean())
@@ -79,17 +81,18 @@ class C51(Agent):
         q_values = (probs * self.q_dist.atoms).sum(dim=2)
         return torch.argmax(q_values, dim=1)
 
-    def _project_target_distribution(self, rewards, dist):
+    def _project_target_distribution(self, rewards, dist, actions):
         # pylint: disable=invalid-name
         target_dist = dist * 0
         atoms = self.q_dist.atoms
         v_min = atoms[0]
         v_max = atoms[-1]
         delta_z = atoms[1] - atoms[0]
+        # vectorized implementation of Algorithm 1
         tz_j = (rewards.view((-1, 1)) + self.discount_factor * atoms).clamp(v_min, v_max)
         bj = (tz_j - v_min) / delta_z
         l = bj.floor()
-        u = bj.ceil()
+        u = (bj - 1e-3).ceil() # otherwise rounding errors sometimes cause inappropriate round up
         target_dist[:, l.long()] += dist * (u - bj)
         target_dist[:, u.long()] += dist * (bj - l)
         return target_dist

@@ -44,7 +44,7 @@ class QDistModule(nn.Module):
         if actions is None:
             return values
         if isinstance(actions, list):
-            actions = torch.stack(actions)
+            actions = torch.cat(actions)
         return values[torch.arange(len(states)), actions]
 
 
