@@ -7,11 +7,17 @@ torch.set_printoptions(threshold=10000)
 
 class C51(Agent):
     """
-    Double Deep Q-Network
+    Implementation of C51, a categorical DQN agent
 
-    In additional to the introduction of "double" Q-learning,
-    this agent also supports prioritized experience replay
-    if replay_buffer is a prioritized buffer.
+    The 51 refers to the number of atoms used in the
+    categorical distribution used to estimate the
+    value distribution. Thought this is the canonical
+    name of the agent, this agent is compatible with
+    any number of atoms.
+
+    Also note that this implementation uses a "double q"
+    style update, which is believed to be less prone
+    towards overestimation.
     """
 
     def __init__(
