@@ -71,11 +71,6 @@ class C51(Agent):
             # compute the target distribution
             next_dist = self.q_dist.target(next_states, next_actions)
             target_dist = self._project_target_distribution(rewards, next_dist)
-            if next_states.mask[1] == 0:
-                print('*****')
-                print(self.q_dist.atoms)
-                print(next_dist[1])
-                print(target_dist[1])
             # apply update
             probs = self.q_dist(states, actions)
             self.writer.add_loss('q/mean', (probs * self.q_dist.atoms).sum(dim=1).mean())
@@ -100,9 +95,9 @@ class C51(Agent):
         u = bj.ceil().clamp(0, len(atoms) - 1)
         m_l = dist * (u - bj)
         m_u = dist * (bj - l)
-        for i in range(len(rewards)):
-            target_dist[i, l[i].long()] += m_l[i]
-            target_dist[i, u[i].long()] += m_u[i]
+        x = torch.arange(len(rewards)).expand(len(atoms), len(rewards)).transpose(0, 1)
+        target_dist[x, l.long()] += m_l
+        target_dist[x, u.long()] += m_u
         return target_dist
 
     def _should_train(self):
