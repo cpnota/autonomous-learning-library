@@ -71,6 +71,11 @@ class C51(Agent):
             # compute the target distribution
             next_dist = self.q_dist.target(next_states, next_actions)
             target_dist = self._project_target_distribution(rewards, next_dist)
+            if next_states.mask[1] == 0:
+                print('*****')
+                print(self.q_dist.atoms)
+                print(next_dist[1])
+                print(target_dist[1])
             # apply update
             probs = self.q_dist(states, actions)
             self.writer.add_loss('q/mean', (probs * self.q_dist.atoms).sum(dim=1).mean())
@@ -93,9 +98,11 @@ class C51(Agent):
         bj = ((tz_j - v_min) / delta_z)
         l = bj.floor().clamp(0, len(atoms) - 1)
         u = bj.ceil().clamp(0, len(atoms) - 1)
+        m_l = dist * (u - bj)
+        m_u = dist * (bj - l)
         for i in range(len(rewards)):
-            target_dist[i, l[i].long()] += dist[i] * (u[i] - bj[i])
-            target_dist[i, u[i].long()] += dist[i] * (bj[i] - l[i])
+            target_dist[i, l[i].long()] += m_l[i]
+            target_dist[i, u[i].long()] += m_u[i]
         return target_dist
 
     def _should_train(self):
