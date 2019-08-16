@@ -24,12 +24,12 @@ def c51(
         discount_factor=0.99,
         action_repeat=4,
         update_frequency=4,
-        lr=1e-4, # lr for Adam: Deepmind used RMSprop
+        lr=2.5e-4,  # requires slightly larger learning rate than dqn
         eps=1.5e-4, # stability parameter for Adam
         initial_exploration=1.,
         final_exploration=0.02, # originally 0.1
         final_exploration_frame=1000000,
-        replay_start_size=1000,
+        replay_start_size=10000,
         device=torch.device('cpu')
 ):
     # counted by number of updates rather than number of frame
