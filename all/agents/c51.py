@@ -68,37 +68,22 @@ class C51(Agent):
             actions = torch.cat(actions)
             # choose best action from online network, double-q style
             next_actions = self._best_actions(next_states)
-            # compute the target distribution
+            # compute the distribution at the next state
             next_dist = self.q_dist.target(next_states, next_actions)
-            target_dist = self._project_target_distribution(rewards, next_dist)
+            # shift the atoms in the next distribution
+            shifted_atoms = (rewards.view((-1, 1)) + self.discount_factor * self.q_dist.atoms)
+            # project the disribution back on the original set of atoms
+            target_dist = self.q_dist.project(next_dist, shifted_atoms)
             # apply update
             probs = self.q_dist(states, actions)
-            self.writer.add_loss('q/mean', (probs * self.q_dist.atoms).sum(dim=1).mean())
             self.q_dist.reinforce(target_dist)
+            # useful for debugging
+            self.writer.add_loss('q/mean', (probs * self.q_dist.atoms).sum(dim=1).mean())
 
     def _best_actions(self, states):
         probs = self.q_dist.eval(states)
         q_values = (probs * self.q_dist.atoms).sum(dim=2)
         return torch.argmax(q_values, dim=1)
-
-    def _project_target_distribution(self, rewards, dist):
-        # pylint: disable=invalid-name
-        target_dist = dist * 0
-        atoms = self.q_dist.atoms
-        v_min = atoms[0]
-        v_max = atoms[-1]
-        delta_z = atoms[1] - atoms[0]
-        # vectorized implementation of Algorithm 1
-        tz_j = (rewards.view((-1, 1)) + self.discount_factor * atoms).clamp(v_min, v_max)
-        bj = ((tz_j - v_min) / delta_z)
-        l = bj.floor().clamp(0, len(atoms) - 1)
-        u = bj.ceil().clamp(0, len(atoms) - 1)
-        m_l = dist * (u - bj)
-        m_u = dist * (bj - l)
-        x = torch.arange(len(rewards)).expand(len(atoms), len(rewards)).transpose(0, 1)
-        target_dist[x, l.long()] += m_l
-        target_dist[x, u.long()] += m_u
-        return target_dist
 
     def _should_train(self):
         return (

@@ -22,6 +22,25 @@ class QDist(Approximation):
         self.atoms = torch.linspace(v_min, v_max, steps=n_atoms).to(device)
         super().__init__(model, optimizer, loss=cross_entropy_loss, name=name, **kwargs)
 
+    def project(self, dist, support):
+        # pylint: disable=invalid-name
+        target_dist = dist * 0
+        atoms = self.atoms
+        v_min = atoms[0]
+        v_max = atoms[-1]
+        delta_z = atoms[1] - atoms[0]
+        # vectorized implementation of Algorithm 1
+        tz_j = support.clamp(v_min, v_max)
+        bj = ((tz_j - v_min) / delta_z)
+        l = bj.floor().clamp(0, len(atoms) - 1)
+        u = bj.ceil().clamp(0, len(atoms) - 1)
+        m_l = dist * (u - bj)
+        m_u = dist * (bj - l)
+        x = torch.arange(len(dist)).expand(len(atoms), len(dist)).transpose(0, 1)
+        target_dist[x, l.long()] += m_l
+        target_dist[x, u.long()] += m_u
+        return target_dist
+
 
 class QDistModule(nn.Module):
     def __init__(self, model, n_actions, n_atoms):
