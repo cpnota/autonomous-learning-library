@@ -2,7 +2,7 @@ import unittest
 import torch
 from all.environments import AtariEnvironment
 from all.presets.validate_agent import validate_agent
-from all.presets.atari import a2c, ddqn, dqn, ppo, vac, vpg, vsarsa, vqn
+from all.presets.atari import a2c, c51, ddqn, dqn, ppo, vac, vpg, vsarsa, vqn
 
 
 CPU = torch.device("cpu")
@@ -23,6 +23,12 @@ class TestAtariPresets(unittest.TestCase):
 
     def test_a2c_cuda(self):
         validate_agent(a2c(device=CUDA), AtariEnvironment("Breakout", device=CUDA))
+
+    def test_c51(self):
+        validate_agent(c51(device=CPU), AtariEnvironment("Breakout", device=CPU))
+
+    def test_c51_cuda(self):
+        validate_agent(c51(device=CUDA), AtariEnvironment("Breakout", device=CUDA))
 
     def test_ddqn(self):
         validate_agent(
