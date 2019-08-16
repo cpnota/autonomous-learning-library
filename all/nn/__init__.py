@@ -68,7 +68,13 @@ class Dueling(nn.Module):
         return self.aggregation(value, advantages)
 
 
-class Flatten(nn.Module):
+class Flatten(nn.Module): # pylint: disable=function-redefined
+    '''
+    Flatten a tensor, e.g., between conv2d and linear layers.
+
+    The maintainers FINALLY added this to torch.nn, but I am
+    leaving it in for compatible for the moment.
+    '''
     def forward(self, x):
         return x.view(x.size()[0], -1)
 
