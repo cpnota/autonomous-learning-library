@@ -7,6 +7,7 @@ The Autonomous Learning Library (`all`) is an object-oriented deep reinforcement
 As of today, `all` contains implementations of the following deep RL algorithms:
 
 - [x] Advantage Actor-Critic (A2C)
+- [x] Categorical DQN (C51)
 - [x] Deep Deterministic Policy Gradient (DDPG)
 - [x] Deep Q-Learning (DQN) + extensions
 - [x] Proximal Policy Optimization (PPO)

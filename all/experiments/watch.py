@@ -3,8 +3,6 @@ import time
 import torch
 import gym
 from all.agents import Agent
-from all.bodies import DeepmindAtariBody
-from all.environments import AtariEnvironment
 
 def watch(agent, env, fps=60):
     action = None
@@ -73,8 +71,5 @@ class GreedyAgent(Agent):
             policy=policy,
             q=q,
         )
-
-        if isinstance(env, AtariEnvironment):
-            agent = DeepmindAtariBody(agent, env)
 
         return agent

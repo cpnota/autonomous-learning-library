@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="all",
-    version="0.3.0",
+    version="0.3.1",
     description=("A reinforcement learning library in python"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",
@@ -14,6 +14,7 @@ setup(
         "pylint",        # code quality tool
         "tensorboardX",  # visualize results
         "torch-testing", # testing library for pytorch
+        "opencv-python", # used by atari wrappers
         # these should be installed globally:
         # "tensorflow",  # needed for tensorboard
         # "torch",       # deep learning library

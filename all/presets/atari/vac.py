@@ -2,10 +2,10 @@ import torch
 from torch.optim import RMSprop
 from all.agents import VAC
 from all.approximation import VNetwork, FeatureNetwork
-from all.bodies import ParallelAtariBody
+from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
-from .models import nature_cnn, nature_value_head, nature_policy_head
+from .models import nature_features, nature_value_head, nature_policy_head
 
 
 def vac(
@@ -25,7 +25,7 @@ def vac(
     def _vac(envs, writer=DummyWriter()):
         value_model = nature_value_head().to(device)
         policy_model = nature_policy_head(envs[0]).to(device)
-        feature_model = nature_cnn().to(device)
+        feature_model = nature_features().to(device)
 
         value_optimizer = RMSprop(value_model.parameters(), alpha=alpha, lr=lr_v, eps=eps)
         policy_optimizer = RMSprop(
@@ -57,8 +57,7 @@ def vac(
             writer=writer
         )
 
-        return ParallelAtariBody(
+        return DeepmindAtariBody(
             VAC(features, v, policy, gamma=discount_factor),
-            envs
         )
     return _vac, n_envs

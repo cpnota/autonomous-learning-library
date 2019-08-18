@@ -5,7 +5,7 @@ from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
-from .models import nature_cnn, nature_value_head, nature_policy_head
+from .models import nature_features, nature_value_head, nature_policy_head
 
 
 def vpg(
@@ -22,7 +22,7 @@ def vpg(
         device=torch.device('cpu')
 ):
     def _vpg_atari(env, writer=DummyWriter()):
-        feature_model = nature_cnn().to(device)
+        feature_model = nature_features().to(device)
         value_model = nature_value_head().to(device)
         policy_model = nature_policy_head(env).to(device)
 
@@ -69,7 +69,6 @@ def vpg(
 
         return DeepmindAtariBody(
             VPG(features, v, policy, gamma=discount_factor, min_batch_size=min_batch_size),
-            env
         )
     return _vpg_atari
 

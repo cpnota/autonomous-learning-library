@@ -68,7 +68,13 @@ class Dueling(nn.Module):
         return self.aggregation(value, advantages)
 
 
-class Flatten(nn.Module):
+class Flatten(nn.Module): # pylint: disable=function-redefined
+    '''
+    Flatten a tensor, e.g., between conv2d and linear layers.
+
+    The maintainers FINALLY added this to torch.nn, but I am
+    leaving it in for compatible for the moment.
+    '''
     def forward(self, x):
         return x.view(x.size()[0], -1)
 
@@ -118,6 +124,14 @@ class Linear0(nn.Linear):
         nn.init.constant_(self.weight, 0.)
         if self.bias is not None:
             nn.init.constant_(self.bias, 0.)
+
+class Scale(nn.Module):
+    def __init__(self, scale):
+        super().__init__()
+        self.scale = scale
+
+    def forward(self, x):
+        return x * self.scale
 
 class TanhActionBound(nn.Module):
     def __init__(self, action_space):

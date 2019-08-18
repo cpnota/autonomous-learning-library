@@ -4,7 +4,7 @@ from torch.optim import RMSprop
 from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork
 from all.agents import VQN
-from all.bodies import ParallelAtariBody
+from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
@@ -48,9 +48,7 @@ def vqn(
                 writer=writer
             )
         )
-        return ParallelAtariBody(
+        return DeepmindAtariBody(
             VQN(q, policy, gamma=discount_factor),
-            envs,
-            action_repeat=action_repeat,
         )
     return _vqn, n_envs
