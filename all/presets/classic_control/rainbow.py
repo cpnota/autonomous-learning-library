@@ -2,11 +2,11 @@
 import torch
 from torch.optim import Adam
 from all.agents import C51
-from all.approximation import QDist
+from all.approximation import QDist, PolyakTarget
 from all.logging import DummyWriter
 from all.memory import ExperienceReplayBuffer, NStepReplayBuffer
 from all.optim import LinearScheduler
-from .models import fc_relu_dist_q
+from .models import fc_relu_rainbow
 
 
 def rainbow(
@@ -17,14 +17,18 @@ def rainbow(
         final_exploration=0.02,
         initial_exploration=1.00,
         lr=1e-4,
-        minibatch_size=128,
+        minibatch_size=64,
         replay_buffer_size=20000,
         replay_start_size=1000,
         update_frequency=1,
         # multi-step learning
-        n_steps=5,
+        n_steps=2,
         # Distributional RL
         atoms=101,
+        # Noisy Nets
+        sigma=0.17,
+        # Polyak Target networks
+        polyak=0.001
 ):
     '''
     A (nearly complete) implementation of Rainbow.
@@ -33,15 +37,15 @@ def rainbow(
     1. Double Q-learning
     2. Multi-step learning
     3. Distributional RL
+    4. Noisy Nets
 
     Still to be implemented:
-    4. Prioritized Replay
-    5. Dueling networks
-    6. Noisy Nets
+    5. Prioritized Replay
+    6. Dueling networks
     '''
     def _rainbow(env, writer=DummyWriter()):
-        model = fc_relu_dist_q(env, atoms=atoms).to(device)
-        optimizer = Adam(model.parameters(), lr=lr)
+        model = fc_relu_rainbow(env, atoms=atoms, sigma=sigma).to(device)
+        optimizer = Adam(model.parameters(), lr=lr, eps=1e-3)
         q = QDist(
             model,
             optimizer,
@@ -49,6 +53,7 @@ def rainbow(
             atoms,
             v_min=-100,
             v_max=100,
+            target=PolyakTarget(polyak),
             writer=writer,
         )
         replay_buffer = NStepReplayBuffer(n_steps, discount_factor, ExperienceReplayBuffer(
@@ -58,14 +63,7 @@ def rainbow(
         return C51(
             q,
             replay_buffer,
-            exploration=LinearScheduler(
-                initial_exploration,
-                final_exploration,
-                replay_start_size,
-                final_exploration_frame,
-                name="epsilon",
-                writer=writer,
-            ),
+            exploration=0,
             discount_factor=discount_factor,
             minibatch_size=minibatch_size,
             replay_start_size=replay_start_size,

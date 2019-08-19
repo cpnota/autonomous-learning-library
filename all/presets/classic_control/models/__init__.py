@@ -45,3 +45,11 @@ def fc_relu_dist_q(env, hidden=64, atoms=51):
         nn.ReLU(),
         nn.Linear0(hidden, env.action_space.n * atoms)
     )
+
+def fc_relu_rainbow(env, hidden=64, atoms=51, sigma=0.5):
+    return nn.Sequential(
+        nn.Flatten(),
+        nn.Linear(env.state_space.shape[0], hidden),
+        nn.ReLU(),
+        nn.NoisyLinear(hidden, env.action_space.n * atoms, sigma_init=sigma)
+    )
