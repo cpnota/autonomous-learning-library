@@ -16,7 +16,7 @@ def rainbow(
         final_exploration_frame=10000,
         final_exploration=0.02,
         initial_exploration=1.00,
-        lr=1e-4,
+        lr=2e-4,
         minibatch_size=64,
         replay_buffer_size=20000,
         replay_start_size=1000,
@@ -26,7 +26,7 @@ def rainbow(
         # Distributional RL
         atoms=101,
         # Noisy Nets
-        sigma=0.17,
+        sigma=0.1,
         # Polyak Target networks
         polyak=0.001
 ):
@@ -35,13 +35,13 @@ def rainbow(
 
     The following enhancements have been applied:
     1. Double Q-learning
-    2. Multi-step learning
-    3. Distributional RL
-    4. Noisy Nets
+    2. Dueling networks
+    3. Multi-step learning
+    4. Distributional RL
+    5. Noisy Nets
 
     Still to be implemented:
-    5. Prioritized Replay
-    6. Dueling networks
+    6. Prioritized Replay
     '''
     def _rainbow(env, writer=DummyWriter()):
         model = fc_relu_rainbow(env, atoms=atoms, sigma=sigma).to(device)
@@ -51,8 +51,8 @@ def rainbow(
             optimizer,
             env.action_space.n,
             atoms,
-            v_min=-100,
-            v_max=100,
+            v_min=-200,
+            v_max=200,
             target=PolyakTarget(polyak),
             writer=writer,
         )

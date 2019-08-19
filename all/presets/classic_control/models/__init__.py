@@ -51,5 +51,8 @@ def fc_relu_rainbow(env, hidden=64, atoms=51, sigma=0.5):
         nn.Flatten(),
         nn.Linear(env.state_space.shape[0], hidden),
         nn.ReLU(),
-        nn.NoisyLinear(hidden, env.action_space.n * atoms, sigma_init=sigma)
+        nn.CategoricalDueling(
+            nn.Linear(hidden, atoms),
+            nn.NoisyLinear(hidden, env.action_space.n * atoms, sigma_init=sigma)
+        )
     )
