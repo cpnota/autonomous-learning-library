@@ -87,7 +87,7 @@ class C51(Agent):
             loss.backward()
             self.q_dist.step()
             # update priorities
-            self.replay_buffer.update_priorities(loss.detach())
+            self.replay_buffer.update_priorities(losses.detach())
             # useful for debugging
             self.writer.add_loss('q_dist', loss.detach())
             self.writer.add_loss('q_mean', (dist.detach() * self.q_dist.atoms).sum(dim=1).mean())
