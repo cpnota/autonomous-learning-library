@@ -4,7 +4,7 @@ import torch
 import numpy as np
 import torch_testing as tt
 from all.environments import State
-from all.memory import ExperienceReplayBuffer, PrioritizedReplayBuffer
+from all.memory import ExperienceReplayBuffer, PrioritizedReplayBuffer, NStepReplayBuffer
 
 class TestExperienceReplayBuffer(unittest.TestCase):
     def setUp(self):
@@ -92,6 +92,39 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         tt.assert_almost_equal(actual.raw, expected.raw)
         tt.assert_equal(actual.mask, expected.mask)
 
+class TestNStepReplayBuffer(unittest.TestCase):
+    def setUp(self):
+        np.random.seed(1)
+        random.seed(1)
+        torch.manual_seed(1)
+        self.replay_buffer = NStepReplayBuffer(4, 0.5, ExperienceReplayBuffer(100))
+
+    def test_run(self):
+        states = State(torch.arange(0, 20))
+        actions = torch.arange(0, 20)
+        rewards = torch.arange(0, 20).float()
+
+        for i in range(3):
+            self.replay_buffer.store(states[i], actions[i], rewards[i], states[i + 1])
+            self.assertEqual(len(self.replay_buffer), 0)
+
+        for i in range(3, 6):
+            self.replay_buffer.store(states[i], actions[i], rewards[i], states[i + 1])
+            self.assertEqual(len(self.replay_buffer), i - 2)
+
+        sample = self.replay_buffer.buffer.buffer[0]
+        self.assert_states_equal(sample[0], states[0])
+        tt.assert_equal(sample[1], actions[0])
+        tt.assert_equal(sample[2], torch.tensor(0 + 1 * 0.5 + 2 * 0.25 + 3 * 0.125))
+        tt.assert_equal(
+            self.replay_buffer.buffer.buffer[1][2],
+            torch.tensor(1 + 2 * 0.5 + 3 * 0.25 + 4 * 0.125)
+        )
+
+        
+    def assert_states_equal(self, actual, expected):
+        tt.assert_almost_equal(actual.raw, expected.raw)
+        tt.assert_equal(actual.mask, expected.mask)
 
 if __name__ == '__main__':
     unittest.main()

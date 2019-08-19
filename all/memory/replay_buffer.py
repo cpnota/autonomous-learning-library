@@ -136,3 +136,52 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
             idx = self._it_sum.find_prefixsum_idx(mass)
             res.append(idx)
         return res
+
+class NStepReplayBuffer(ReplayBuffer):
+    '''Converts any ReplayBuffer into an NStepReplayBuffer'''
+    def __init__(
+            self,
+            steps,
+            discount_factor,
+            buffer,
+    ):
+        assert steps >= 1
+        assert discount_factor >= 0
+        self.steps = steps
+        self.discount_factor = discount_factor
+        self.buffer = buffer
+        self._states = []
+        self._actions = []
+        self._rewards = []
+        self._reward = 0.
+
+    def store(self, state, action, reward, next_state):
+        self._states.append(state)
+        self._actions.append(action)
+        self._rewards.append(reward)
+        self._reward += (self.discount_factor ** (len(self._states) - 1)) * reward
+
+        done = next_state.done
+
+        if len(self._states) == self.steps or done:
+            self.buffer.store(self._states[0], self._actions[0], self._reward, next_state)
+            self._reward = self._reward -  self._rewards[0]
+            self._reward *= self.discount_factor ** -1
+            del self._states[0]
+            del self._actions[0]
+            del self._rewards[0]
+
+        if done:
+            self._states = []
+            self._actions = []
+            self._rewards = []
+            self._reward = 0.
+
+    def sample(self, *args, **kwargs):
+        return self.buffer.sample(*args, **kwargs)
+
+    def update_priorities(self, *args, **kwargs):
+        return self.buffer.update_priorities(*args, **kwargs)
+
+    def __len__(self):
+        return len(self.buffer)
