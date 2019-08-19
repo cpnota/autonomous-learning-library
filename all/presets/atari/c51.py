@@ -37,7 +37,7 @@ def c51(
     replay_start_size /= action_repeat
 
     def _c51(env, writer=DummyWriter()):
-        model = nature_c51(env, atoms=51).to(device)
+        model = nature_c51(env, atoms=atoms).to(device)
         optimizer = Adam(
             model.parameters(),
             lr=lr,

@@ -3,6 +3,7 @@ from .c51 import c51
 from .dqn import dqn
 from .ddqn import ddqn
 from .ppo import ppo
+from .rainbow import rainbow
 from .vac import vac
 from .vpg import vpg
 from .vqn import vqn
@@ -14,6 +15,7 @@ __all__ = [
     "ddqn",
     "dqn",
     "ppo",
+    "rainbow",
     "vac",
     "vpg",
     "vqn",

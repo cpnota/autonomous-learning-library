@@ -31,7 +31,7 @@ def rainbow(
         polyak=0.001
 ):
     '''
-    A (nearly complete) implementation of Rainbow.
+    A complete implementation of Rainbow.
 
     The following enhancements have been applied:
     1. Double Q-learning
