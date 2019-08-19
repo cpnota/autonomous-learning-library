@@ -67,6 +67,22 @@ class Dueling(nn.Module):
         advantages = self.advantage_model(features)
         return self.aggregation(value, advantages)
 
+class CategoricalDueling(nn.Module):
+    '''Dueling architecture for C51/Rainbow'''
+    def __init__(self, value_model, advantage_model):
+        super(CategoricalDueling, self).__init__()
+        self.value_model = value_model
+        self.advantage_model = advantage_model
+
+    def forward(self, features):
+        batch_size = len(features)
+        value_dist = self.value_model(features)
+        atoms = value_dist.shape[1]
+        advantage_dist = self.advantage_model(features).view((batch_size, -1, atoms))
+        advantage_mean = advantage_dist.mean(dim=1, keepdim=True)
+        return value_dist.view((batch_size, 1, atoms)) + advantage_dist - advantage_mean
+
+
 class Flatten(nn.Module): # pylint: disable=function-redefined
     '''
     Flatten a tensor, e.g., between conv2d and linear layers.
