@@ -121,7 +121,35 @@ class TestNStepReplayBuffer(unittest.TestCase):
             torch.tensor(1 + 2 * 0.5 + 3 * 0.25 + 4 * 0.125)
         )
 
-        
+    def test_done(self):
+        state = State(torch.tensor([1]))
+        action = torch.tensor(0)
+        done_state = State(torch.tensor([1]), mask=torch.tensor([0]))
+
+        self.replay_buffer.store(state, action, 1, done_state)
+        self.assertEqual(len(self.replay_buffer), 1)
+        sample = self.replay_buffer.buffer.buffer[0]
+        self.assert_states_equal(state, sample[0])
+        self.assertEqual(sample[2], 1)
+
+        self.replay_buffer.store(state, action, 1, state)
+        self.replay_buffer.store(state, action, 1, state)
+        self.assertEqual(len(self.replay_buffer), 1)
+
+        self.replay_buffer.store(state, action, 1, done_state)
+        self.assertEqual(len(self.replay_buffer), 2)
+        sample = self.replay_buffer.buffer.buffer[1]
+        self.assert_states_equal(sample[0], state)
+        self.assertEqual(sample[2], 1.75)
+        self.assert_states_equal(sample[3], done_state)
+
+        self.replay_buffer.store(state, action, 1, done_state)
+        self.assertEqual(len(self.replay_buffer), 3)
+        sample = self.replay_buffer.buffer.buffer[0]
+        self.assert_states_equal(state, sample[0])
+        self.assertEqual(sample[2], 1)
+
+
     def assert_states_equal(self, actual, expected):
         tt.assert_almost_equal(actual.raw, expected.raw)
         tt.assert_equal(actual.mask, expected.mask)
