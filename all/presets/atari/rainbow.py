@@ -32,7 +32,7 @@ def rainbow(
         # Noisy Nets
         sigma=0.5,
         # Polyak Target networks
-        polyak=1. / 32000,
+        polyak=1. / 2000,
         # Device selection
         device=torch.device('cpu')
 ):
