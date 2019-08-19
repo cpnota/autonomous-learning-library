@@ -161,21 +161,21 @@ class NStepReplayBuffer(ReplayBuffer):
         self._rewards.append(reward)
         self._reward += (self.discount_factor ** (len(self._states) - 1)) * reward
 
-        done = next_state.done
+        if len(self._states) == self.steps:
+            self._store_next(next_state)
 
-        if len(self._states) == self.steps or done:
-            self.buffer.store(self._states[0], self._actions[0], self._reward, next_state)
-            self._reward = self._reward -  self._rewards[0]
-            self._reward *= self.discount_factor ** -1
-            del self._states[0]
-            del self._actions[0]
-            del self._rewards[0]
-
-        if done:
-            self._states = []
-            self._actions = []
-            self._rewards = []
+        if not next_state.mask[0]:
+            while self._states:
+                self._store_next(next_state)
             self._reward = 0.
+
+    def _store_next(self, next_state):
+        self.buffer.store(self._states[0], self._actions[0], self._reward, next_state)
+        self._reward = self._reward -  self._rewards[0]
+        self._reward *= self.discount_factor ** -1
+        del self._states[0]
+        del self._actions[0]
+        del self._rewards[0]
 
     def sample(self, *args, **kwargs):
         return self.buffer.sample(*args, **kwargs)

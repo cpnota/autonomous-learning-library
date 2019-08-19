@@ -67,7 +67,6 @@ class Dueling(nn.Module):
         advantages = self.advantage_model(features)
         return self.aggregation(value, advantages)
 
-
 class Flatten(nn.Module): # pylint: disable=function-redefined
     '''
     Flatten a tensor, e.g., between conv2d and linear layers.
