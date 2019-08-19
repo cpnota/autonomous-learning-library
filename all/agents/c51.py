@@ -68,7 +68,7 @@ class C51(Agent):
 
     def _train(self):
         if self._should_train():
-            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
+            (states, actions, rewards, next_states, weights) = self.replay_buffer.sample(
                 self.minibatch_size
             )
             actions = torch.cat(actions)
@@ -81,10 +81,16 @@ class C51(Agent):
             # project the disribution back on the original set of atoms
             target_dist = self.q_dist.project(next_dist, shifted_atoms)
             # apply update
-            probs = self.q_dist(states, actions)
-            self.q_dist.reinforce(target_dist)
+            dist = self.q_dist(states, actions, detach=False)
+            losses = weights * self._loss(dist, target_dist)
+            loss = losses.mean()
+            loss.backward()
+            self.q_dist.step()
+            # update priorities
+            self.replay_buffer.update_priorities(loss.detach())
             # useful for debugging
-            self.writer.add_loss('q/mean', (probs * self.q_dist.atoms).sum(dim=1).mean())
+            self.writer.add_loss('q_dist', loss.detach())
+            self.writer.add_loss('q_mean', (dist.detach() * self.q_dist.atoms).sum(dim=1).mean())
 
     def _best_actions(self, states):
         probs = self.q_dist.eval(states)
@@ -96,3 +102,8 @@ class C51(Agent):
             self.frames_seen > self.replay_start_size
             and self.frames_seen % self.update_frequency == 0
         )
+
+    def _loss(self, dist, target_dist):
+        log_dist = torch.log(dist)
+        loss_v = -log_dist * target_dist
+        return loss_v.sum(dim=-1)
