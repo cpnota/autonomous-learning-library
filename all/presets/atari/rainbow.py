@@ -1,11 +1,11 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
-from all.approximation import QDist, PolyakTarget
+from all.approximation import QDist, FixedTarget
 from all.agents import C51
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
-from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer
+from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer, ExperienceReplayBuffer
 from .models import nature_rainbow
 
 
@@ -14,10 +14,12 @@ def rainbow(
         action_repeat=4,
         discount_factor=0.99,
         eps=1.5e-4, # stability parameter for Adam
-        lr=6.25e-5,  # requires slightly larger learning rate than dqn
+        exploration=0.02, # in case noisy nets fail us
+        lr=2.5e-4,  # requires slightly smaller learning rate than dqn
         minibatch_size=32,
         replay_buffer_size=100000, # originally 1e6
         replay_start_size=10000,
+        target_update_frequency=1000,
         update_frequency=4,
         # prioritized replay
         alpha=0.5,  # priority scaling
@@ -31,8 +33,6 @@ def rainbow(
         v_max=10,
         # Noisy Nets
         sigma=0.5,
-        # Polyak Target networks
-        polyak=1. / 2000,
         # Device selection
         device=torch.device('cpu')
 ):
@@ -49,6 +49,7 @@ def rainbow(
     7. Polyak target networks (not included in original rainbow!)
     '''
     replay_start_size /= action_repeat
+    final_beta_frame /= (action_repeat * update_frequency)
 
     def _rainbow(env, writer=DummyWriter()):
         model = nature_rainbow(env, atoms=atoms, sigma=sigma).to(device)
@@ -64,7 +65,7 @@ def rainbow(
             atoms,
             v_min=v_min,
             v_max=v_max,
-            target=PolyakTarget(polyak),
+            target=FixedTarget(target_update_frequency),
             writer=writer,
         )
         replay_buffer = NStepReplayBuffer(
@@ -82,7 +83,7 @@ def rainbow(
             C51(
                 q,
                 replay_buffer,
-                exploration=0,
+                exploration=exploration,
                 discount_factor=discount_factor,
                 minibatch_size=minibatch_size,
                 replay_start_size=replay_start_size,

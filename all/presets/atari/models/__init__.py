@@ -94,7 +94,12 @@ def nature_rainbow(env, frames=4, hidden=512, atoms=51, sigma=0.5):
             nn.Sequential(
                 nn.NoisyFactorizedLinear(3136, hidden, sigma_init=sigma),
                 nn.ReLU(),
-                nn.NoisyFactorizedLinear(hidden, env.action_space.n * atoms, sigma_init=sigma)
+                nn.NoisyFactorizedLinear(
+                    hidden,
+                    env.action_space.n * atoms,
+                    scale=0,
+                    sigma_init=sigma
+                )
             )
         )
     )

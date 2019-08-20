@@ -148,7 +148,7 @@ class NoisyFactorizedLinear(nn.Linear):
     N.B. nn.Linear already initializes weight and bias to
     """
 
-    def __init__(self, in_features, out_features, sigma_init=0.4, bias=True):
+    def __init__(self, in_features, out_features, sigma_init=0.4, scale=3, bias=True):
         super().__init__(in_features, out_features, bias=bias)
         sigma_init = sigma_init / np.sqrt(in_features)
         self.sigma_weight = nn.Parameter(
@@ -160,9 +160,10 @@ class NoisyFactorizedLinear(nn.Linear):
             self.sigma_bias = nn.Parameter(
                 torch.Tensor(out_features).fill_(sigma_init)
             )
+        self.init_scale = scale
 
     def reset_parameters(self):
-        std = np.sqrt(3 / self.in_features)
+        std = np.sqrt(self.init_scale / self.in_features)
         nn.init.uniform_(self.weight, -std, std)
         nn.init.uniform_(self.bias, -std, std)
 
