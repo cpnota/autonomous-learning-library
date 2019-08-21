@@ -109,7 +109,11 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
             weights.append(weight / max_weight)
 
         weights = np.array(weights, dtype=np.float32)
-        samples = [self.buffer[idx] for idx in idxes]
+        try:
+            samples = [self.buffer[idx] for idx in idxes]
+        except IndexError as e:
+            print('index out of range: ', idxes)
+            raise e
         self._cache = idxes
         return self._reshape(samples, torch.from_numpy(weights).to(self.device))
 
