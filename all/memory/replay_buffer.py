@@ -88,7 +88,10 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
         self._cache = None
 
     def store(self, states, action, reward, next_states):
-        self._add((states, action, reward, next_states))
+        idx = self.pos
+        super()._add((states, action, reward, next_states))
+        self._it_sum[idx] = self._max_priority ** self._alpha
+        self._it_min[idx] = self._max_priority ** self._alpha
 
     def sample(self, batch_size):
         beta = min(1.0, self._beta + self._frames
@@ -122,12 +125,6 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
             self._it_min[idx] = priority ** self._alpha
 
             self._max_priority = max(self._max_priority, priority)
-
-    def _add(self, *args, **kwargs):
-        idx = self.pos
-        super()._add(*args, **kwargs)
-        self._it_sum[idx] = self._max_priority ** self._alpha
-        self._it_min[idx] = self._max_priority ** self._alpha
 
     def _sample_proportional(self, batch_size):
         res = []
