@@ -15,11 +15,11 @@ def rainbow(
         discount_factor=0.99,
         eps=1.5e-4, # stability parameter for Adam
         exploration=0.02, # in case noisy nets fail us
-        lr=2.5e-4,  # requires slightly smaller learning rate than dqn
+        lr=6.25e-5,  # requires slightly smaller learning rate than dqn
         minibatch_size=32,
         replay_buffer_size=100000, # originally 1e6
         replay_start_size=80000,
-        target_update_frequency=1000,
+        target_update_frequency=2000,
         update_frequency=4,
         # prioritized replay
         alpha=0.5,  # priority scaling
