@@ -22,7 +22,7 @@ def rainbow(
         beta=0.6,  # importance sampling adjustment
         final_beta_frame=20000,
         # multi-step learning
-        n_steps=2,
+        n_steps=5,
         # Distributional RL
         atoms=101,
         # Noisy Nets
@@ -66,8 +66,8 @@ def rainbow(
         return C51(
             q,
             replay_buffer,
-            exploration=0,
-            discount_factor=discount_factor,
+            exploration=0.02,
+            discount_factor=discount_factor ** n_steps,
             minibatch_size=minibatch_size,
             replay_start_size=replay_start_size,
             update_frequency=update_frequency,

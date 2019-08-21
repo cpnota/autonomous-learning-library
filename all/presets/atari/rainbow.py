@@ -5,7 +5,7 @@ from all.approximation import QDist, FixedTarget
 from all.agents import C51
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
-from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer, ExperienceReplayBuffer
+from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer
 from .models import nature_rainbow
 
 
@@ -84,7 +84,7 @@ def rainbow(
                 q,
                 replay_buffer,
                 exploration=exploration,
-                discount_factor=discount_factor,
+                discount_factor=discount_factor ** n_steps,
                 minibatch_size=minibatch_size,
                 replay_start_size=replay_start_size,
                 update_frequency=update_frequency,
