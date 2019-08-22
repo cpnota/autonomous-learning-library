@@ -117,12 +117,12 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
         self._cache = idxes
         return self._reshape(samples, torch.from_numpy(weights).to(self.device))
 
-    def update_priorities(self, td_errors):
+    def update_priorities(self, priorities):
         idxes = self._cache
-        _td_errors = td_errors.detach().cpu().numpy()
-        priorities = list(np.abs(_td_errors) + self._epsilon)
-        assert len(idxes) == len(priorities)
-        for idx, priority in zip(idxes, priorities):
+        _priorities = priorities.detach().cpu().numpy()
+        _priorities = list(np.abs(_priorities) + self._epsilon)
+        assert len(idxes) == len(_priorities)
+        for idx, priority in zip(idxes, _priorities):
             assert priority > 0
             assert 0 <= idx < len(self)
             self._it_sum[idx] = priority ** self._alpha

@@ -82,12 +82,9 @@ class C51(Agent):
             target_dist = self.q_dist.project(next_dist, shifted_atoms)
             # apply update
             dist = self.q_dist(states, actions, detach=False)
-            losses = weights * self._loss(dist, target_dist)
-            loss = losses.mean()
+            loss = self._loss(dist, target_dist, weights)
             loss.backward()
             self.q_dist.step()
-            # update priorities
-            self.replay_buffer.update_priorities(losses.detach())
             # useful for debugging
             self.writer.add_loss('q_dist', loss.detach())
             self.writer.add_loss('q_mean', (dist.detach() * self.q_dist.atoms).sum(dim=1).mean())
@@ -103,7 +100,11 @@ class C51(Agent):
             and self.frames_seen % self.update_frequency == 0
         )
 
-    def _loss(self, dist, target_dist):
+    def _loss(self, dist, target_dist, weights):
         log_dist = torch.log(dist)
-        loss_v = -log_dist * target_dist
-        return loss_v.sum(dim=-1)
+        loss_v = log_dist * target_dist
+        losses = -loss_v.sum(dim=-1)
+        # before aggregating, update priorities
+        self.replay_buffer.update_priorities(losses.detach())
+        # aggregate
+        return (weights * losses).mean()
