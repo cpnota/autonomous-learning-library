@@ -101,7 +101,7 @@ class C51(Agent):
         )
 
     def _loss(self, dist, target_dist, weights):
-        log_dist = torch.log(dist)
+        log_dist = torch.log(torch.clamp(dist, min=1e-8))
         loss_v = log_dist * target_dist
         losses = -loss_v.sum(dim=-1)
         # before aggregating, update priorities

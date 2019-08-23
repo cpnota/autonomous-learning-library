@@ -120,6 +120,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
         assert len(idxes) == len(_priorities)
         for idx, priority in zip(idxes, _priorities):
             assert priority > 0
+            assert priority < np.inf
             assert 0 <= idx < len(self)
             self._it_sum[idx] = priority ** self._alpha
             self._it_min[idx] = priority ** self._alpha
