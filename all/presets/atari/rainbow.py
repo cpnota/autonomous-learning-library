@@ -14,7 +14,6 @@ def rainbow(
         action_repeat=4,
         discount_factor=0.99,
         eps=1.5e-4, # stability parameter for Adam
-        exploration=0.02, # in case noisy nets fail us
         lr=6.25e-5,  # requires slightly smaller learning rate than dqn
         minibatch_size=32,
         replay_buffer_size=100000, # originally 1e6
@@ -53,11 +52,7 @@ def rainbow(
 
     def _rainbow(env, writer=DummyWriter()):
         model = nature_rainbow(env, atoms=atoms, sigma=sigma).to(device)
-        optimizer = Adam(
-            model.parameters(),
-            lr=lr,
-            eps=eps
-        )
+        optimizer = Adam(model.parameters(), lr=lr, eps=eps)
         q = QDist(
             model,
             optimizer,
@@ -68,27 +63,24 @@ def rainbow(
             target=FixedTarget(target_update_frequency),
             writer=writer,
         )
-        replay_buffer = NStepReplayBuffer(
-            n_steps,
-            discount_factor,
-            PrioritizedReplayBuffer(
-                replay_buffer_size,
-                alpha=alpha,
-                beta=beta,
-                final_beta_frame=final_beta_frame,
-                device=device
-            )
+        replay_buffer = PrioritizedReplayBuffer(
+            replay_buffer_size,
+            alpha=alpha,
+            beta=beta,
+            device=device
         )
-        return DeepmindAtariBody(
-            C51(
-                q,
-                replay_buffer,
-                exploration=exploration,
-                discount_factor=discount_factor ** n_steps,
-                minibatch_size=minibatch_size,
-                replay_start_size=replay_start_size,
-                update_frequency=update_frequency,
-                writer=writer
-            )
+        replay_buffer = NStepReplayBuffer(n_steps, discount_factor, replay_buffer)
+
+        agent = C51(
+            q,
+            replay_buffer,
+            exploration=0.,
+            discount_factor=discount_factor ** n_steps,
+            minibatch_size=minibatch_size,
+            replay_start_size=replay_start_size,
+            update_frequency=update_frequency,
+            writer=writer,
         )
+        return DeepmindAtariBody(agent)
+
     return _rainbow
