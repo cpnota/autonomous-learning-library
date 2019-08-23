@@ -120,7 +120,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
     def update_priorities(self, priorities):
         idxes = self._cache
         _priorities = priorities.detach().cpu().numpy()
-        _priorities = list(np.abs(_priorities) + self._epsilon)
+        np.maximum(_priorities, self._epsilon)
         assert len(idxes) == len(_priorities)
         for idx, priority in zip(idxes, _priorities):
             assert priority > 0
