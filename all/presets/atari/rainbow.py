@@ -45,7 +45,6 @@ def rainbow(
     4. Multi-step learning
     5. Distributional RL
     6. Noisy nets
-    7. Polyak target networks (not included in original rainbow!)
     '''
     replay_start_size /= action_repeat
     final_beta_frame /= (action_repeat * update_frequency)
