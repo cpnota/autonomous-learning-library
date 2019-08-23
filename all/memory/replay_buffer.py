@@ -3,6 +3,7 @@ import random
 import numpy as np
 import torch
 from all.environments import State
+from all.optim import Schedulable
 from .segment_tree import SumSegmentTree, MinSegmentTree
 
 class ReplayBuffer(ABC):
@@ -59,13 +60,12 @@ class ExperienceReplayBuffer(ReplayBuffer):
     def __iter__(self):
         return iter(self.buffer)
 
-class PrioritizedReplayBuffer(ExperienceReplayBuffer):
+class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
     def __init__(
             self,
             buffer_size,
             alpha=0.6,
             beta=0.4,
-            final_beta_frame=100000,
             epsilon=1e-5,
             device=torch.device('cpu')
     ):
@@ -82,9 +82,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
         self._it_min = MinSegmentTree(it_capacity)
         self._max_priority = 1.0
         self._beta = beta
-        self._final_beta_frame = final_beta_frame
         self._epsilon = epsilon
-        self._frames = 0
         self._cache = None
 
     def store(self, states, action, reward, next_states):
@@ -94,9 +92,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
         self._it_min[idx] = self._max_priority ** self._alpha
 
     def sample(self, batch_size):
-        beta = min(1.0, self._beta + self._frames
-                   * (1.0 - self._beta) / self._final_beta_frame)
-        self._frames += 1
+        beta = self._beta
         idxes = self._sample_proportional(batch_size)
 
         weights = []
@@ -120,14 +116,13 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer):
     def update_priorities(self, priorities):
         idxes = self._cache
         _priorities = priorities.detach().cpu().numpy()
-        np.maximum(_priorities, self._epsilon)
+        _priorities = np.maximum(_priorities, self._epsilon)
         assert len(idxes) == len(_priorities)
         for idx, priority in zip(idxes, _priorities):
             assert priority > 0
             assert 0 <= idx < len(self)
             self._it_sum[idx] = priority ** self._alpha
             self._it_min[idx] = priority ** self._alpha
-
             self._max_priority = max(self._max_priority, priority)
 
     def _sample_proportional(self, batch_size):

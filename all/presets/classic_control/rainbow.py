@@ -4,7 +4,8 @@ from torch.optim import Adam
 from all.agents import C51
 from all.approximation import QDist, PolyakTarget
 from all.logging import DummyWriter
-from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer
+from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer, ExperienceReplayBuffer
+from all.optim import LinearScheduler
 from .models import fc_relu_rainbow
 
 
@@ -58,8 +59,14 @@ def rainbow(
         replay_buffer = PrioritizedReplayBuffer(
             replay_buffer_size,
             alpha=alpha,
-            beta=beta,
-            final_beta_frame=final_beta_frame,
+            beta=LinearScheduler(
+                beta,
+                1,
+                0,
+                final_beta_frame,
+                name='beta',
+                writer=writer
+            ),
             device=device
         )
         replay_buffer = NStepReplayBuffer(n_steps, discount_factor, replay_buffer)
