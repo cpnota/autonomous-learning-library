@@ -6,6 +6,7 @@ from all.agents import C51
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer
+from all.optim import LinearScheduler
 from .models import nature_rainbow
 
 
@@ -20,6 +21,10 @@ def rainbow(
         replay_start_size=80000,
         target_update_frequency=2000,
         update_frequency=4,
+        # explicit exploration in addition to noisy nets
+        initial_exploration=0.1,
+        final_exploration=0.01, # originally 0.1
+        final_exploration_frame=2e6,
         # prioritized replay
         alpha=0.5,  # priority scaling
         beta=0.4,  # importance sampling adjustment
@@ -48,6 +53,7 @@ def rainbow(
     '''
     replay_start_size /= action_repeat
     final_beta_frame /= (action_repeat * update_frequency)
+    final_exploration_frame /= action_repeat
 
     def _rainbow(env, writer=DummyWriter()):
         model = nature_rainbow(env, atoms=atoms, sigma=sigma).to(device)
@@ -73,7 +79,13 @@ def rainbow(
         agent = C51(
             q,
             replay_buffer,
-            exploration=0.,
+            exploration=LinearScheduler(
+                initial_exploration,
+                final_exploration,
+                replay_start_size,
+                final_exploration_frame,
+                writer=writer
+            ),
             discount_factor=discount_factor ** n_steps,
             minibatch_size=minibatch_size,
             replay_start_size=replay_start_size,
