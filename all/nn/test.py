@@ -111,15 +111,16 @@ class TestNN(unittest.TestCase):
         model = nn.CategoricalDueling(value_model, advantage_model)
         x = torch.randn((2, 2))
         out = model(x)
+        self.assertEqual(out.shape, (2, 6))
         tt.assert_almost_equal(
             out,
             torch.tensor(
                 [
-                    [[0.0143, -0.6910, 0.2512], [-0.0551, -0.4192, -0.0299]],
-                    [[0.0573, -1.1717, 0.5682], [-0.8680, -0.4817, -0.6795]],
+                    [0.014, -0.691, 0.251, -0.055, -0.419, -0.03],
+                    [0.057, -1.172, 0.568, -0.868, -0.482, -0.679],
                 ]
             ),
-            decimal=3
+            decimal=3,
         )
 
     def assert_array_equal(self, actual, expected):
