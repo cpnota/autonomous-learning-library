@@ -26,7 +26,6 @@ def ddqn(
         # Prioritized Replay
         alpha=0.2,  # priority scaling
         beta=0.6,  # importance sampling adjustment
-        final_beta_frame=20000,
         device=torch.device('cpu')
 ):
     '''
@@ -59,7 +58,6 @@ def ddqn(
             replay_buffer_size,
             alpha=alpha,
             beta=beta,
-            final_beta_frame=final_beta_frame,
             device=device
         )
         return DDQN(q, policy, replay_buffer,

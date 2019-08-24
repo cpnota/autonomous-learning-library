@@ -71,7 +71,6 @@ def ddqn(
             replay_buffer_size,
             alpha=alpha,
             beta=beta,
-            final_beta_frame=final_beta_frame,
             device=device
         )
         return DeepmindAtariBody(
