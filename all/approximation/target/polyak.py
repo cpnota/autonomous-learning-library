@@ -16,7 +16,7 @@ class PolyakTarget(TargetNetwork):
     def init(self, model):
         self._source = model
         self._target = copy.deepcopy(model)
-        self._target.training = False
+        self._target.eval()
 
     def update(self):
         for target_param, source_param in zip(self._target.parameters(), self._source.parameters()):

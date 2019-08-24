@@ -2,8 +2,18 @@ import unittest
 import torch
 from all.environments import AtariEnvironment
 from all.presets.validate_agent import validate_agent
-from all.presets.atari import a2c, c51, ddqn, dqn, ppo, vac, vpg, vsarsa, vqn
-
+from all.presets.atari import (
+    a2c,
+    c51,
+    ddqn,
+    dqn,
+    ppo,
+    rainbow,
+    vac,
+    vpg,
+    vsarsa,
+    vqn
+)
 
 CPU = torch.device("cpu")
 if torch.cuda.is_available():
@@ -59,6 +69,18 @@ class TestAtariPresets(unittest.TestCase):
 
     def test_ppo_cuda(self):
         validate_agent(ppo(device=CUDA, n_envs=4), AtariEnvironment("Breakout", device=CUDA))
+
+    def test_rainbow(self):
+        validate_agent(
+            rainbow(replay_start_size=64, device=CPU),
+            AtariEnvironment("Breakout", device=CPU),
+        )
+
+    def test_rainbow_cuda(self):
+        validate_agent(
+            rainbow(replay_start_size=64, device=CUDA),
+            AtariEnvironment("Breakout", device=CUDA),
+        )
 
     def test_vac(self):
         validate_agent(vac(device=CPU, n_envs=4), AtariEnvironment("Breakout", device=CPU))

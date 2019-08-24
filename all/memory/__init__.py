@@ -1,4 +1,9 @@
-from .replay_buffer import ReplayBuffer, ExperienceReplayBuffer, PrioritizedReplayBuffer
+from .replay_buffer import (
+    ReplayBuffer,
+    ExperienceReplayBuffer,
+    PrioritizedReplayBuffer,
+    NStepReplayBuffer,
+)
 from .n_step import NStepBuffer, NStepBatchBuffer
 from .advantage import NStepAdvantageBuffer
 from .generalized_advantage import GeneralizedAdvantageBuffer
@@ -10,5 +15,6 @@ __all__ = [
     "NStepBuffer",
     "NStepBatchBuffer",
     "NStepAdvantageBuffer",
+    "NStepReplayBuffer",
     "GeneralizedAdvantageBuffer",
 ]
