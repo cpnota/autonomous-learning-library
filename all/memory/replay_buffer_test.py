@@ -137,14 +137,14 @@ class TestNStepReplayBuffer(unittest.TestCase):
         self.assertEqual(len(self.replay_buffer), 1)
 
         self.replay_buffer.store(state, action, 1, done_state)
-        self.assertEqual(len(self.replay_buffer), 2)
+        self.assertEqual(len(self.replay_buffer), 4)
         sample = self.replay_buffer.buffer.buffer[1]
         self.assert_states_equal(sample[0], state)
         self.assertEqual(sample[2], 1.75)
         self.assert_states_equal(sample[3], done_state)
 
         self.replay_buffer.store(state, action, 1, done_state)
-        self.assertEqual(len(self.replay_buffer), 3)
+        self.assertEqual(len(self.replay_buffer), 5)
         sample = self.replay_buffer.buffer.buffer[0]
         self.assert_states_equal(state, sample[0])
         self.assertEqual(sample[2], 1)
