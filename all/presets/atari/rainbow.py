@@ -1,6 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.approximation import QDist, FixedTarget
 from all.agents import C51
 from all.bodies import DeepmindAtariBody
@@ -16,6 +17,7 @@ def rainbow(
         discount_factor=0.99,
         eps=1.5e-4, # stability parameter for Adam
         lr=2.5e-4,  # requires slightly smaller learning rate than dqn
+        lr_final_frame=40e6,
         minibatch_size=32,
         replay_buffer_size=200000, # choose as large as can fit on your cards
         replay_start_size=80000,
@@ -28,7 +30,6 @@ def rainbow(
         # prioritized replay
         alpha=0.5,  # priority scaling
         beta=0.5,  # importance sampling adjustment
-        final_beta_frame=40e6,
         # multi-step learning
         n_steps=3,
         # Distributional RL
@@ -52,8 +53,8 @@ def rainbow(
     6. Noisy nets
     '''
     replay_start_size /= action_repeat
-    final_beta_frame /= (action_repeat * update_frequency)
     final_exploration_frame /= action_repeat
+    lr_final_frame = lr_final_frame / (action_repeat * update_frequency)
 
     def _rainbow(env, writer=DummyWriter()):
         model = nature_rainbow(env, atoms=atoms, sigma=sigma).to(device)
@@ -63,6 +64,7 @@ def rainbow(
             optimizer,
             env.action_space.n,
             atoms,
+            scheduler=CosineAnnealingLR(optimizer, lr_final_frame),
             v_min=v_min,
             v_max=v_max,
             target=FixedTarget(target_update_frequency),
