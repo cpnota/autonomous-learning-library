@@ -16,7 +16,6 @@ class FixedTarget(TargetNetwork):
     def init(self, model):
         self._source = model
         self._target = copy.deepcopy(model)
-        self._target.eval()
 
     def update(self):
         self._updates += 1
