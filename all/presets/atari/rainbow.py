@@ -15,19 +15,19 @@ def rainbow(
         action_repeat=4,
         discount_factor=0.99,
         eps=1.5e-4, # stability parameter for Adam
-        lr=6.25e-5,  # requires slightly smaller learning rate than dqn
+        lr=2.5e-4,  # requires slightly smaller learning rate than dqn
         minibatch_size=32,
         replay_buffer_size=100000, # originally 1e6
         replay_start_size=80000,
-        target_update_frequency=2000,
+        target_update_frequency=1000,
         update_frequency=4,
         # explicit exploration in addition to noisy nets
         initial_exploration=0.1,
         final_exploration=0.01, # originally 0.1
-        final_exploration_frame=2e6,
+        final_exploration_frame=4e6,
         # prioritized replay
         alpha=0.5,  # priority scaling
-        beta=0.4,  # importance sampling adjustment
+        beta=0.5,  # importance sampling adjustment
         final_beta_frame=40e6,
         # multi-step learning
         n_steps=3,
