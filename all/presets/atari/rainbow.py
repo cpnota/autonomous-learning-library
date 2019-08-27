@@ -13,22 +13,19 @@ from .models import nature_rainbow
 
 def rainbow(
         # vanilla DQN parameters
-        action_repeat=4,
         discount_factor=0.99,
         eps=1.5e-4, # stability parameter for Adam
         lr=2.5e-4,  # requires slightly smaller learning rate than dqn
-        lr_final_frame=40e6,
         minibatch_size=32,
         replay_buffer_size=200000, # choose as large as can fit on your cards
-        replay_start_size=80000,
+        replay_start_size=10000, # in number of transitions
         target_update_frequency=1000,
         update_frequency=4,
         # explicit exploration in addition to noisy nets
-        initial_exploration=0.1,
-        final_exploration=0.01, # originally 0.1
-        final_exploration_frame=4e6,
+        initial_exploration=0.02,
+        final_exploration=0.,
         # prioritized replay
-        alpha=0.5,  # priority scaling
+        alpha=0.2, # priority scaling
         beta=0.5,  # importance sampling adjustment
         # multi-step learning
         n_steps=3,
@@ -38,7 +35,8 @@ def rainbow(
         v_max=10,
         # Noisy Nets
         sigma=0.5,
-        # Device selection
+        # Other
+        last_frame=40e6,
         device=torch.device('cpu')
 ):
     '''
@@ -52,9 +50,10 @@ def rainbow(
     5. Distributional RL
     6. Noisy nets
     '''
+    action_repeat = 4
     replay_start_size /= action_repeat
-    final_exploration_frame /= action_repeat
-    lr_final_frame = lr_final_frame / (action_repeat * update_frequency)
+    last_timestep = last_frame / action_repeat
+    last_update = last_timestep / update_frequency
 
     def _rainbow(env, writer=DummyWriter()):
         model = nature_rainbow(env, atoms=atoms, sigma=sigma).to(device)
@@ -64,7 +63,7 @@ def rainbow(
             optimizer,
             env.action_space.n,
             atoms,
-            scheduler=CosineAnnealingLR(optimizer, lr_final_frame),
+            scheduler=CosineAnnealingLR(optimizer, last_update),
             v_min=v_min,
             v_max=v_max,
             target=FixedTarget(target_update_frequency),
@@ -84,8 +83,8 @@ def rainbow(
             exploration=LinearScheduler(
                 initial_exploration,
                 final_exploration,
-                replay_start_size,
-                final_exploration_frame,
+                0,
+                last_timestep,
                 name='exploration',
                 writer=writer
             ),
