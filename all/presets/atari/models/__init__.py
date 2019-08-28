@@ -87,9 +87,14 @@ def nature_rainbow(env, frames=4, hidden=512, atoms=51, sigma=0.5):
         nn.Flatten(),
         nn.CategoricalDueling(
             nn.Sequential(
-                nn.Linear(3136, hidden),
+                nn.NoisyFactorizedLinear(3136, hidden, sigma_init=sigma),
                 nn.ReLU(),
-                nn.Linear0(hidden, atoms)
+                nn.NoisyFactorizedLinear(
+                    hidden,
+                    atoms,
+                    init_scale=0,
+                    sigma_init=sigma
+                )
             ),
             nn.Sequential(
                 nn.NoisyFactorizedLinear(3136, hidden, sigma_init=sigma),

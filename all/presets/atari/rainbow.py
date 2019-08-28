@@ -1,6 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.approximation import QDist, FixedTarget
 from all.agents import C51
 from all.bodies import DeepmindAtariBody
@@ -12,23 +13,20 @@ from .models import nature_rainbow
 
 def rainbow(
         # vanilla DQN parameters
-        action_repeat=4,
         discount_factor=0.99,
         eps=1.5e-4, # stability parameter for Adam
-        lr=6.25e-5,  # requires slightly smaller learning rate than dqn
+        lr=2.5e-4,  # requires slightly smaller learning rate than dqn
         minibatch_size=32,
-        replay_buffer_size=100000, # originally 1e6
-        replay_start_size=80000,
-        target_update_frequency=2000,
+        replay_buffer_size=200000, # choose as large as can fit on your cards
+        replay_start_size=20000, # in number of transitions
+        target_update_frequency=1000,
         update_frequency=4,
         # explicit exploration in addition to noisy nets
-        initial_exploration=0.1,
-        final_exploration=0.01, # originally 0.1
-        final_exploration_frame=2e6,
+        initial_exploration=0.02,
+        final_exploration=0.,
         # prioritized replay
-        alpha=0.5,  # priority scaling
-        beta=0.4,  # importance sampling adjustment
-        final_beta_frame=40e6,
+        alpha=0.2, # priority scaling
+        beta=0.5,  # importance sampling adjustment
         # multi-step learning
         n_steps=3,
         # Distributional RL
@@ -37,7 +35,8 @@ def rainbow(
         v_max=10,
         # Noisy Nets
         sigma=0.5,
-        # Device selection
+        # Other
+        last_frame=40e6,
         device=torch.device('cpu')
 ):
     '''
@@ -51,9 +50,10 @@ def rainbow(
     5. Distributional RL
     6. Noisy nets
     '''
+    action_repeat = 4
     replay_start_size /= action_repeat
-    final_beta_frame /= (action_repeat * update_frequency)
-    final_exploration_frame /= action_repeat
+    last_timestep = last_frame / action_repeat
+    last_update = last_timestep / update_frequency
 
     def _rainbow(env, writer=DummyWriter()):
         model = nature_rainbow(env, atoms=atoms, sigma=sigma).to(device)
@@ -63,6 +63,7 @@ def rainbow(
             optimizer,
             env.action_space.n,
             atoms,
+            scheduler=CosineAnnealingLR(optimizer, last_update),
             v_min=v_min,
             v_max=v_max,
             target=FixedTarget(target_update_frequency),
@@ -82,8 +83,9 @@ def rainbow(
             exploration=LinearScheduler(
                 initial_exploration,
                 final_exploration,
-                replay_start_size,
-                final_exploration_frame,
+                0,
+                last_timestep,
+                name='exploration',
                 writer=writer
             ),
             discount_factor=discount_factor ** n_steps,
