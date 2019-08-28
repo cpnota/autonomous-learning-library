@@ -3,7 +3,7 @@ from all.environments import State
 from ._body import Body
 
 class FrameStack(Body):
-    def __init__(self, agent, size=4, lazy=True):
+    def __init__(self, agent, size=4, lazy=False):
         super().__init__(agent)
         self._frames = []
         self._size = size
