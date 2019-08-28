@@ -18,7 +18,7 @@ class FrameStack(Body):
         if self._lazy:
             state = LazyState(self._frames, state.mask, state.info)
         else:
-            state = State(torch.state(self._frames, dim=1), state.mask, state.info)
+            state = State(torch.cat(self._frames, dim=1), state.mask, state.info)
 
         return self.agent.act(state, reward)
 
