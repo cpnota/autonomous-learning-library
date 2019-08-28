@@ -15,7 +15,7 @@ def rainbow(
         # vanilla DQN parameters
         discount_factor=0.99,
         eps=1.5e-4, # stability parameter for Adam
-        lr=2.5e-4,  # requires slightly smaller learning rate than dqn
+        lr=1e-4,  # requires slightly smaller learning rate than dqn
         minibatch_size=32,
         replay_buffer_size=200000, # choose as large as can fit on your cards
         replay_start_size=20000, # in number of transitions
