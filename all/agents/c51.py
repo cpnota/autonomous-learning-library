@@ -30,12 +30,14 @@ class C51(Agent):
         minibatch_size=32,
         replay_start_size=5000,
         update_frequency=1,
+        eps=1e-5, # stability parameter for loss
         writer=DummyWriter(),
     ):
         # objects
         self.q_dist = q_dist
         self.replay_buffer = replay_buffer
         # hyperparameters
+        self.eps = eps
         self.exploration = exploration
         self.replay_start_size = replay_start_size
         self.update_frequency = update_frequency
@@ -116,10 +118,8 @@ class C51(Agent):
         )
 
     def _loss(self, dist, target_dist, weights):
-        log_dist = torch.log(torch.clamp(dist, min=1e-5))
-        loss_v = log_dist * target_dist
-        losses = -loss_v.sum(dim=-1)
-        # before aggregating, update priorities
-        self.replay_buffer.update_priorities(losses.detach())
-        # aggregate
-        return (weights * losses).mean()
+        log_dist = torch.log(torch.clamp(dist, min=self.eps))
+        log_target_dist = torch.log(torch.clamp(target_dist, min=self.eps))
+        kl = (target_dist * (log_target_dist - log_dist)).sum(dim=-1)
+        self.replay_buffer.update_priorities(kl.detach())
+        return (weights * kl).mean()
