@@ -1,6 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.approximation import QDist, FixedTarget
 from all.agents import C51
 from all.bodies import DeepmindAtariBody
@@ -30,11 +31,14 @@ def c51(
         replay_start_size=50000,
         target_update_frequency=1000,
         update_frequency=4,
+        # other
+        last_frame=40e6,
         device=torch.device('cpu')
 ):
     # counted by number of updates rather than number of frame
     final_exploration_frame /= action_repeat
-    replay_start_size /= action_repeat
+    last_timestep = last_frame / action_repeat
+    last_update = last_timestep / update_frequency
 
     def _c51(env, writer=DummyWriter()):
         model = nature_c51(env, atoms=atoms).to(device)
@@ -51,6 +55,7 @@ def c51(
             v_min=v_min,
             v_max=v_max,
             target=FixedTarget(target_update_frequency),
+            scheduler=CosineAnnealingLR(optimizer, last_update),
             writer=writer,
         )
         replay_buffer = ExperienceReplayBuffer(

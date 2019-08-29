@@ -1,6 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork, FixedTarget
 from all.agents import DQN
@@ -28,22 +29,27 @@ def dqn(
         replay_start_size=50000,
         target_update_frequency=1000,
         update_frequency=4,
+        # other
+        last_frame=40e6,
         device=torch.device('cpu')
 ):
     # counted by number of updates rather than number of frame
     final_exploration_frame /= action_repeat
+    last_timestep = last_frame / action_repeat
+    last_update = last_timestep / update_frequency
 
     def _dqn(env, writer=DummyWriter()):
-        _model = nature_dqn(env).to(device)
-        _optimizer = Adam(
-            _model.parameters(),
+        model = nature_dqn(env).to(device)
+        optimizer = Adam(
+            model.parameters(),
             lr=lr,
             eps=eps
         )
         q = QNetwork(
-            _model,
-            _optimizer,
+            model,
+            optimizer,
             env.action_space.n,
+            scheduler=CosineAnnealingLR(optimizer, last_update),
             target=FixedTarget(target_update_frequency),
             loss=smooth_l1_loss,
             writer=writer
