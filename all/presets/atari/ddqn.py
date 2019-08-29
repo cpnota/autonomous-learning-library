@@ -19,7 +19,7 @@ def ddqn(
         final_exploration_frame=1000000,
         final_exploration=0.02,
         initial_exploration=1.,
-        lr=2.5e-4,
+        lr=1e-4,
         minibatch_size=32,
         replay_buffer_size=100000,
         replay_start_size=50000,
