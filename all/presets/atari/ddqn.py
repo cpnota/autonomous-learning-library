@@ -21,7 +21,7 @@ def ddqn(
         initial_exploration=1.,
         lr=1e-4,
         minibatch_size=32,
-        replay_buffer_size=100000,
+        replay_buffer_size=800000,
         replay_start_size=50000,
         target_update_frequency=1000,
         update_frequency=4,
