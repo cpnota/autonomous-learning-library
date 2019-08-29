@@ -93,6 +93,6 @@ def rainbow(
             update_frequency=update_frequency,
             writer=writer,
         )
-        return DeepmindAtariBody(agent)
+        return DeepmindAtariBody(agent, lazy_frames=True)
 
     return _rainbow
