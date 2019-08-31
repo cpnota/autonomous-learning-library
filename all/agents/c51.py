@@ -22,16 +22,16 @@ class C51(Agent):
     """
 
     def __init__(
-        self,
-        q_dist,
-        replay_buffer,
-        exploration=0.02,
-        discount_factor=0.99,
-        minibatch_size=32,
-        replay_start_size=5000,
-        update_frequency=1,
-        eps=1e-5, # stability parameter for loss
-        writer=DummyWriter(),
+            self,
+            q_dist,
+            replay_buffer,
+            exploration=0.02,
+            discount_factor=0.99,
+            minibatch_size=32,
+            replay_start_size=5000,
+            update_frequency=1,
+            eps=1e-5, # stability parameter for loss
+            writer=DummyWriter(),
     ):
         # objects
         self.q_dist = q_dist
