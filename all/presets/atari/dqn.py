@@ -1,6 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork, FixedTarget
 from all.agents import DQN
@@ -16,35 +17,39 @@ def dqn(
         # Taken from Extended Data Table 1
         # in https://www.nature.com/articles/nature14236
         # except where noted.
-        minibatch_size=32,
-        replay_buffer_size=100000, # originally 1e6
-        target_update_frequency=1000, # originally 1e4
-        discount_factor=0.99,
         action_repeat=4,
-        update_frequency=4,
-        lr=5e-4, # lr for Adam: Deepmind used RMSprop
-        eps=1.5e-4, # stability parameter for Adam
-        initial_exploration=1.,
-        final_exploration=0.02, # originally 0.1
+        discount_factor=0.99,
+        eps=1.5e-4,
         final_exploration_frame=1000000,
+        final_exploration=0.02, # originally 0.1
+        initial_exploration=1.,
+        lr=1e-4,
+        minibatch_size=32,
+        replay_buffer_size=800000, # originally 1 mil
         replay_start_size=50000,
+        target_update_frequency=1000,
+        update_frequency=4,
+        # other
+        last_frame=40e6,
         device=torch.device('cpu')
 ):
     # counted by number of updates rather than number of frame
     final_exploration_frame /= action_repeat
-    replay_start_size /= action_repeat
+    last_timestep = last_frame / action_repeat
+    last_update = last_timestep / update_frequency
 
     def _dqn(env, writer=DummyWriter()):
-        _model = nature_dqn(env).to(device)
-        _optimizer = Adam(
-            _model.parameters(),
+        model = nature_dqn(env).to(device)
+        optimizer = Adam(
+            model.parameters(),
             lr=lr,
             eps=eps
         )
         q = QNetwork(
-            _model,
-            _optimizer,
+            model,
+            optimizer,
             env.action_space.n,
+            scheduler=CosineAnnealingLR(optimizer, last_update),
             target=FixedTarget(target_update_frequency),
             loss=smooth_l1_loss,
             writer=writer
@@ -72,5 +77,6 @@ def dqn(
                 replay_start_size=replay_start_size,
                 update_frequency=update_frequency,
                 ),
+            lazy_frames=True
         )
     return _dqn

@@ -57,8 +57,8 @@ class DDQN(Agent):
             next_actions = torch.argmax(self.q.eval(next_states), dim=1)
             targets = rewards + self.discount_factor * self.q.target(next_states, next_actions)
             td_errors = targets - self.q(states, actions)
+            self.replay_buffer.update_priorities(td_errors.abs())
             self.q.reinforce(weights * td_errors)
-            self.replay_buffer.update_priorities(td_errors)
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and

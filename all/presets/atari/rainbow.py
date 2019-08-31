@@ -15,18 +15,18 @@ def rainbow(
         # vanilla DQN parameters
         discount_factor=0.99,
         eps=1.5e-4, # stability parameter for Adam
-        lr=2.5e-4,  # requires slightly smaller learning rate than dqn
+        lr=1e-4,  # requires slightly smaller learning rate than dqn
         minibatch_size=32,
-        replay_buffer_size=200000, # choose as large as can fit on your cards
-        replay_start_size=20000, # in number of transitions
+        replay_buffer_size=800000, # original of 1 million doesn't fit
+        replay_start_size=50000, # in number of transitions
         target_update_frequency=1000,
         update_frequency=4,
         # explicit exploration in addition to noisy nets
         initial_exploration=0.02,
         final_exploration=0.,
         # prioritized replay
-        alpha=0.2, # priority scaling
-        beta=0.5,  # importance sampling adjustment
+        alpha=0.4, # priority scaling
+        beta=0.6,  # importance sampling adjustment
         # multi-step learning
         n_steps=3,
         # Distributional RL
@@ -51,7 +51,6 @@ def rainbow(
     6. Noisy nets
     '''
     action_repeat = 4
-    replay_start_size /= action_repeat
     last_timestep = last_frame / action_repeat
     last_update = last_timestep / update_frequency
 
@@ -94,6 +93,6 @@ def rainbow(
             update_frequency=update_frequency,
             writer=writer,
         )
-        return DeepmindAtariBody(agent)
+        return DeepmindAtariBody(agent, lazy_frames=True)
 
     return _rainbow
