@@ -38,8 +38,9 @@ class AtariEnvironment(GymEnvironment):
             AtariEnvironment(self._name, *self._args, **self._kwargs) for _ in range(n)
         ]
 
-    def _make_state(self, raw, done, info={"life_lost": False}):
-        """Convert numpy array into State"""
+    def _make_state(self, raw, done, info=None):
+        if info is None:
+            info = {"life_lost": False}
         return State(
             torch.from_numpy(
                 np.moveaxis(np.array(raw, dtype=self.state_space.dtype), -1, 0)
