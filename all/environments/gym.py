@@ -29,7 +29,7 @@ class GymEnvironment(Environment):
     def reset(self):
         self._lazy_init()
         state = self._env.reset()
-        self._state = self._make_state(state, 0, None)
+        self._state = self._make_state(state, 0)
         self._reward = 0
         self._done = False
         return self._state
@@ -106,7 +106,7 @@ class GymEnvironment(Environment):
             )
             self._init = True
 
-    def _make_state(self, raw, done, info):
+    def _make_state(self, raw, done, info=None):
         '''Convert numpy array into State'''
         return State(
             torch.from_numpy(

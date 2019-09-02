@@ -112,6 +112,7 @@ class MaxAndSkipEnv(gym.Wrapper):
     def reset(self, **kwargs):
         return self.env.reset(**kwargs)
 
+
 class WarpFrame(gym.ObservationWrapper):
     def __init__(self, env, width=84, height=84, grayscale=True, dict_space_key=None):
         '''
@@ -163,3 +164,21 @@ class WarpFrame(gym.ObservationWrapper):
             obs = obs.copy()
             obs[self._key] = frame
         return obs
+
+class LifeLostEnv(gym.Wrapper):
+    def __init__(self, env):
+        '''
+        Modified wrapper to add a "life_lost" key to info.
+        This allows the agent Body to make the episode as done
+        if it desires.
+        '''
+        gym.Wrapper.__init__(self, env)
+        self.lives = 0
+
+    def step(self, action):
+        obs, reward, done, _ = self.env.step(action)
+        lives = self.env.unwrapped.ale.lives()
+        life_lost = (lives < self.lives and lives > 0)
+        self.lives = lives
+        info = { 'life_lost': life_lost }
+        return obs, reward, done, info
