@@ -14,5 +14,6 @@ class EpisodicLives(Body):
     def act(self, state, reward):
         for i in range(len(state)):
             if state.info[i]['life_lost']:
-                state.mask[i] = 0 * state.mask[i]
+                state._mask = state.mask.clone()
+                state._mask[i] = 0
         return self.agent.act(state, reward)
