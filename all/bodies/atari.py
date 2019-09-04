@@ -1,3 +1,4 @@
+from all.environments import State
 from ._body import Body
 from .rewards import ClipRewards
 from .vision import FrameStack
@@ -14,6 +15,7 @@ class EpisodicLives(Body):
     def act(self, state, reward):
         for i in range(len(state)):
             if state.info[i]['life_lost']:
-                state._mask = state.mask.clone()
-                state._mask[i] = 0
+                mask = state.mask.clone()
+                mask[i] = 0
+                state = State(state.raw, mask=mask, info=state.info)
         return self.agent.act(state, reward)

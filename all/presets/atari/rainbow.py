@@ -15,11 +15,11 @@ def rainbow(
         # vanilla DQN parameters
         discount_factor=0.99,
         eps=1.5e-4, # stability parameter for Adam
-        lr=6.25e-5,  # requires slightly smaller learning rate than dqn
+        lr=1e-4,  # requires slightly smaller learning rate than dqn
         minibatch_size=32,
         replay_buffer_size=1000000,
         replay_start_size=100000,
-        target_update_frequency=2000,
+        target_update_frequency=1000,
         update_frequency=4,
         # explicit exploration in addition to noisy nets
         initial_exploration=0.02,
