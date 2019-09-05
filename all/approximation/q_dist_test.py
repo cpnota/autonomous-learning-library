@@ -126,7 +126,7 @@ class TestQDist(unittest.TestCase):
         )
 
     def test_project(self):
-        q = QDist(self.model, self.optimizer, ACTIONS, 51, -10., 10.)
+        q = QDist(self.model.cuda(), self.optimizer, ACTIONS, 51, -10., 10.)
         dist = torch.tensor([
             [0.0190, 0.0197, 0.0200, 0.0190, 0.0195, 0.0198, 0.0194, 0.0192, 0.0201,
              0.0203, 0.0189, 0.0190, 0.0199, 0.0193, 0.0192, 0.0199, 0.0198, 0.0197,
@@ -146,7 +146,7 @@ class TestQDist(unittest.TestCase):
              0.0200, 0.0198, 0.0193, 0.0192, 0.0202, 0.0192, 0.0194, 0.0199, 0.0197,
              0.0197, 0.0200, 0.0199, 0.0190, 0.0192, 0.0195, 0.0202, 0.0194, 0.0203,
              0.0201, 0.0190, 0.0192, 0.0201, 0.0200, 0.0192]
-        ])
+        ]).cuda()
         # pylint: disable=bad-whitespace
         support = torch.tensor([
             [-9.7030, -9.3149, -8.9268, -8.5386, -8.1505, -7.7624, -7.3743, -6.9862,
@@ -170,7 +170,7 @@ class TestQDist(unittest.TestCase):
              2.7168,  3.1050,  3.4931,  3.8812,  4.2693,  4.6574,  5.0456,  5.4337,
              5.8218,  6.2099,  6.5980,  6.9862,  7.3743,  7.7624,  8.1505,  8.5386,
              8.9268,  9.3149,  9.7030]
-        ])
+        ]).cuda()
         expected = torch.tensor([
             [0.0049, 0.0198, 0.0204, 0.0202, 0.0198, 0.0202, 0.0202, 0.0199, 0.0202,
              0.0208, 0.0201, 0.0195, 0.0201, 0.0201, 0.0198, 0.0203, 0.0204, 0.0203,
@@ -191,8 +191,7 @@ class TestQDist(unittest.TestCase):
              0.0204, 0.0206, 0.0201, 0.0197, 0.0199, 0.0204, 0.0204, 0.0205, 0.0208,
              0.0200, 0.0197, 0.0204, 0.0206, 0.0200, 0.0049]
         ])
-        print(expected)
-        tt.assert_almost_equal(q.project(dist, support), expected, decimal=3)
+        tt.assert_almost_equal(q.project(dist, support).cpu(), expected.cpu(), decimal=3)
 
 
 if __name__ == "__main__":
