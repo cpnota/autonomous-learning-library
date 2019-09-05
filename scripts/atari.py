@@ -2,9 +2,16 @@ import argparse
 from all.environments import AtariEnvironment
 from all.experiments import Experiment
 from all.presets import atari
-
+import torch
+import numpy as np
+import random
 
 def run_atari():
+    random.seed(0)
+    np.random.seed(0)
+    torch.manual_seed(0)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
     parser = argparse.ArgumentParser(description="Run an Atari benchmark.")
     parser.add_argument("env", help="Name of the Atari game (e.g. Pong)")
     parser.add_argument(
