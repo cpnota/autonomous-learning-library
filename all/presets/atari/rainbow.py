@@ -18,7 +18,7 @@ def rainbow(
         lr=1e-4,  # requires slightly smaller learning rate than dqn
         minibatch_size=32,
         replay_buffer_size=1000000,
-        replay_start_size=100000,
+        replay_start_size=1000,
         target_update_frequency=1000,
         update_frequency=4,
         # explicit exploration in addition to noisy nets
