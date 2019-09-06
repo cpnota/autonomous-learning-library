@@ -6,15 +6,15 @@ from .approximation import Approximation
 
 class QDist(Approximation):
     def __init__(
-        self,
-        model,
-        optimizer,
-        n_actions,
-        n_atoms,
-        v_min,
-        v_max,
-        name="q_dist",
-        **kwargs
+            self,
+            model,
+            optimizer,
+            n_actions,
+            n_atoms,
+            v_min,
+            v_max,
+            name="q_dist",
+            **kwargs,
     ):
         model = QDistModule(model, n_actions, n_atoms)
         device = next(model.parameters()).device
@@ -36,18 +36,8 @@ class QDist(Approximation):
         bj = (tz_j - v_min) / delta_z
         l = bj.floor().clamp(0, len(atoms) - 1)
         u = bj.ceil().clamp(0, len(atoms) - 1)
-        # print('tz_j', tz_j.mean().item())
-        # print('bj', tz_j.mean().item())
-        # print('l', l.mean().item())
-        # print('u', u.mean().item())
-
-        # This commented out part works on cuda 10, but nowhere else (cpu or cuda 9):
-        # This is what we're trying to do conceptually.
-        # It may be better to switch to this version eventually.
-        # x = torch.arange(len(dist)).expand(len(atoms), len(dist)).transpose(0, 1)
-        # target_dist[x, l.long()] += dist * (u - bj)
-        # target_dist[x, u.long()] += dist * (bj - l)
-        # Instead, we flatten the matrix first and use index_add.
+        # This part is a little tricky:
+        # We have to flatten the matrix first and use index_add.
         # This approach is taken from Curt Park (under the MIT license):
         # https://github.com/Curt-Park/rainbow-is-all-you-need/blob/master/08.rainbow.ipynb
         offset = (
