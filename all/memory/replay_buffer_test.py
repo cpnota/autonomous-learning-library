@@ -69,7 +69,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
                     [0, 1, 2],
                     [0, 1, 3],
                     [5, 5, 5],
-                    [6, 6, 6],
+                    [6, 6, 2],
                     [7, 7, 7],
                     [7, 8, 8],
                     [7, 7, 7],
@@ -77,13 +77,13 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
             )
         )
         expected_weights = [
-            [1.0, 1.0, 1.0],
-            [0.5658823, 0.7035532, 0.51242465],
-            [0.06309573, 0.06309573, 0.06309573],
-            [0.06309573, 0.06309573, 0.06309573],
-            [0.06309573, 0.06309573, 0.06309573],
-            [0.07759299, 0.06309573, 0.06309573],
-            [0.08659915, 0.08659915, 0.08659915],
+            [1.0000, 1.0000, 1.0000],
+            [0.5659, 0.7036, 0.5124],
+            [0.0631, 0.0631, 0.0631],
+            [0.0631, 0.0631, 0.1231],
+            [0.0631, 0.0631, 0.0631],
+            [0.0776, 0.0631, 0.0631],
+            [0.0866, 0.0866, 0.0866],
         ]
         actual_samples = []
         actual_weights = []
@@ -99,7 +99,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         actual_samples = State(torch.cat(actual_samples).view((-1, 3)))
         self.assert_states_equal(actual_samples, expected_samples)
         np.testing.assert_array_almost_equal(
-            expected_weights, np.vstack(actual_weights)
+            expected_weights, np.vstack(actual_weights), decimal=3
         )
 
     def assert_states_equal(self, actual, expected):
