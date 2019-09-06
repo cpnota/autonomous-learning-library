@@ -35,8 +35,15 @@ class QDist(Approximation):
         l = bj.floor().clamp(0, len(atoms) - 1)
         u = bj.ceil().clamp(0, len(atoms) - 1)
         x = torch.arange(len(dist)).expand(len(atoms), len(dist)).transpose(0, 1)
+        print('tz_j', tz_j.mean().item())
+        print('bj', tz_j.mean().item())
+        print('l', l.mean().item())
+        print('u', u.mean().item())
         target_dist[x, l.long()] += dist * (u - bj)
         target_dist[x, u.long()] += dist * (bj - l)
+        # target_dist.index_add_(0, x.cuda(), dist * (u - bj))
+        # print('target_dist', target_dist.mean().item())
+        # target_dist.index_add_(0, x.cuda(), dist * (bj - l))
         return target_dist
 
 

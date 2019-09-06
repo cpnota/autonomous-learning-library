@@ -99,6 +99,13 @@ class C51(Agent):
             self.writer.add_loss(
                 "q_mean", (dist.detach() * self.q_dist.atoms).sum(dim=1).mean()
             )
+            print('states', states.raw.float().mean().item())
+            print('dist', dist.mean().item())
+            print('next_dist', next_dist.mean().item())
+            print('target_dist', target_dist.mean().item())
+            print('loss', loss.item())
+            print(shifted_atoms.mean().item())
+            exit()
 
     def _best_actions(self, states):
         probs = self.q_dist.eval(states)
