@@ -29,21 +29,39 @@ class QDist(Approximation):
         v_min = atoms[0]
         v_max = atoms[-1]
         delta_z = atoms[1] - atoms[0]
+        batch_size = len(dist)
+        n_atoms = len(atoms)
         # vectorized implementation of Algorithm 1
         tz_j = support.clamp(v_min, v_max)
         bj = ((tz_j - v_min) / delta_z)
         l = bj.floor().clamp(0, len(atoms) - 1)
         u = bj.ceil().clamp(0, len(atoms) - 1)
-        x = torch.arange(len(dist)).expand(len(atoms), len(dist)).transpose(0, 1)
-        print('tz_j', tz_j.mean().item())
-        print('bj', tz_j.mean().item())
-        print('l', l.mean().item())
-        print('u', u.mean().item())
-        target_dist[x, l.long()] += dist * (u - bj)
-        target_dist[x, u.long()] += dist * (bj - l)
-        # target_dist.index_add_(0, x.cuda(), dist * (u - bj))
-        # print('target_dist', target_dist.mean().item())
-        # target_dist.index_add_(0, x.cuda(), dist * (bj - l))
+        # print('tz_j', tz_j.mean().item())
+        # print('bj', tz_j.mean().item())
+        # print('l', l.mean().item())
+        # print('u', u.mean().item())
+
+        # This works on cuda 10, but nowhere else (cpu or cuda 9):
+        # This is what we're trying to do conceptually.
+        #  It may be better to switch to this version eventually.
+        # x = torch.arange(len(dist)).expand(len(atoms), len(dist)).transpose(0, 1)
+        # target_dist[x, l.long()] += dist * (u - bj)
+        # target_dist[x, u.long()] += dist * (bj - l)
+
+        # Instead we have to compute everything to an array first.
+        offset = (
+            torch.linspace(0, (batch_size - 1) * n_atoms, batch_size)
+            .long()
+            .unsqueeze(1)
+            .expand(batch_size, n_atoms)
+            .to(self.device)
+        )
+        target_dist.view(-1).index_add_(
+            0, (l.long() + offset).view(-1), (dist * (u - bj)).view(-1)
+        )
+        target_dist.view(-1).index_add_(
+            0, (u.long() + offset).view(-1), (dist * (bj - l)).view(-1)
+        )
         return target_dist
 
 
