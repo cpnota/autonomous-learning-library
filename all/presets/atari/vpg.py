@@ -19,7 +19,7 @@ def vpg(
         value_loss_scaling=0.25,
         feature_lr_scaling=1,
         min_batch_size=1000,
-        device=torch.device('cpu')
+        device=torch.device('cuda')
 ):
     def _vpg_atari(env, writer=DummyWriter()):
         feature_model = nature_features().to(device)

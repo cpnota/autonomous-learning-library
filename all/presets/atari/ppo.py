@@ -28,7 +28,7 @@ def ppo(
         minibatches=4,
         n_envs=8,
         n_steps=128,
-        device=torch.device("cpu"),
+        device=torch.device("cuda"),
 ):
     # Update epoch * minibatches times per update,
     # but we only update once per n_steps,

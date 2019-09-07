@@ -20,7 +20,7 @@ def vsarsa(
         initial_exploration=1.,
         lr=1e-3,
         n_envs=64,
-        device=torch.device('cpu')
+        device=torch.device('cuda')
 ):
     # counted by number of updates rather than number of frame
     final_exploration_frame /= action_repeat

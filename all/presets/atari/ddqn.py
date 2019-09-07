@@ -14,7 +14,7 @@ from .models import nature_ddqn
 
 def ddqn(
         # Common settings
-        device=torch.device('cpu'),
+        device=torch.device('cuda'),
         discount_factor=0.99,
         last_frame=40e6,
         # Adam optimizer settings
