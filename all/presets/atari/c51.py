@@ -12,33 +12,32 @@ from .models import nature_c51
 
 
 def c51(
-        # c51-specific hyperparameters
+        # Common settings
+        device=torch.device('cpu'),
+        discount_factor=0.99,
+        last_frame=40e6,
+        # Adam optimizer settings
+        lr=1e-4,
+        eps=1.5e-4,
+        # Training settings
+        minibatch_size=32,
+        update_frequency=4,
+        target_update_frequency=1000,
+        # Replay Buffer settings
+        replay_start_size=80000,
+        replay_buffer_size=1000000,
+        # Explicit exploration
+        initial_exploration=0.02,
+        final_exploration=0.,
+        # Distributional RL
         atoms=51,
         v_min=-10,
         v_max=10,
-        # Taken from Extended Data Table 1
-        # in https://www.nature.com/articles/nature14236
-        # except where noted.
-        action_repeat=4,
-        discount_factor=0.99,
-        eps=1.5e-4,
-        final_exploration_frame=1000000,
-        final_exploration=0.02, # originally 0.1
-        initial_exploration=1.,
-        lr=1e-4,
-        minibatch_size=32,
-        replay_buffer_size=800000, # originally 1e6
-        replay_start_size=50000,
-        target_update_frequency=1000,
-        update_frequency=4,
-        # other
-        last_frame=40e6,
-        device=torch.device('cpu')
 ):
     # counted by number of updates rather than number of frame
-    final_exploration_frame /= action_repeat
+    action_repeat = 4
     last_timestep = last_frame / action_repeat
-    last_update = last_timestep / update_frequency
+    last_update = (last_timestep - replay_start_size) / update_frequency
 
     def _c51(env, writer=DummyWriter()):
         model = nature_c51(env, atoms=atoms).to(device)
@@ -69,8 +68,8 @@ def c51(
                 exploration=LinearScheduler(
                     initial_exploration,
                     final_exploration,
-                    replay_start_size,
-                    final_exploration_frame,
+                    0,
+                    last_timestep,
                     name="epsilon",
                     writer=writer,
                 ),

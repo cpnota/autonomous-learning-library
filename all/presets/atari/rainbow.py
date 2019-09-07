@@ -24,8 +24,8 @@ def rainbow(
         update_frequency=4,
         target_update_frequency=1000,
         # Replay Buffer settings
-        replay_start_size=80000, # 80k
-        replay_buffer_size=1000000, # 1m
+        replay_start_size=80000,
+        replay_buffer_size=1000000,
         # Explicit exploration
         initial_exploration=0.02,
         final_exploration=0.,
