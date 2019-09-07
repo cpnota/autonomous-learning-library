@@ -13,36 +13,38 @@ from all.policies import GreedyPolicy
 from .models import nature_ddqn
 
 def ddqn(
-        # vanilla DQN parameters
-        action_repeat=4,
+        # Common settings
+        device=torch.device('cuda'),
         discount_factor=0.99,
-        eps=1.5e-4,
-        final_exploration_frame=1000000,
-        final_exploration=0.02,
-        initial_exploration=1.,
-        lr=1e-4,
-        minibatch_size=32,
-        replay_buffer_size=800000,
-        replay_start_size=50000,
-        target_update_frequency=1000,
-        update_frequency=4,
-        # Prioritized Replay
-        alpha=0.4,
-        beta=0.6,
-        # other
         last_frame=40e6,
-        device=torch.device('cpu')
+        # Adam optimizer settings
+        lr=1e-4,
+        eps=1.5e-4,
+        # Training settings
+        minibatch_size=32,
+        update_frequency=4,
+        target_update_frequency=1000,
+        # Replay Buffer settings
+        replay_start_size=80000,
+        replay_buffer_size=1000000,
+        # Explicit exploration
+        initial_exploration=1.,
+        final_exploration=0.01,
+        final_exploration_frame=4000000,
+        # Prioritized replay settings
+        alpha=0.5,
+        beta=0.5,
 ):
     '''
     Double Dueling DQN with Prioritized Experience Replay.
     '''
-    # counted by number of updates rather than number of frame
-    final_exploration_frame /= action_repeat
+    action_repeat = 4
     last_timestep = last_frame / action_repeat
-    last_update = last_timestep / update_frequency
+    last_update = (last_timestep - replay_start_size) / update_frequency
+    final_exploration_step = final_exploration_frame / action_repeat
 
     def _ddqn(env, writer=DummyWriter()):
-        model = nature_ddqn(env, frames=action_repeat).to(device)
+        model = nature_ddqn(env).to(device)
         optimizer = Adam(
             model.parameters(),
             lr=lr,
@@ -64,7 +66,7 @@ def ddqn(
                 initial_exploration,
                 final_exploration,
                 replay_start_size,
-                final_exploration_frame,
+                final_exploration_step - replay_start_size,
                 name="epsilon",
                 writer=writer
             )

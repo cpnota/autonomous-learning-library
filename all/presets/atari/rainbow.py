@@ -12,22 +12,27 @@ from .models import nature_rainbow
 
 
 def rainbow(
-        # vanilla DQN parameters
+        # Common settings
+        device=torch.device('cuda'),
         discount_factor=0.99,
-        eps=1.5e-4, # stability parameter for Adam
-        lr=1e-4,  # requires slightly smaller learning rate than dqn
+        last_frame=40e6,
+        # Adam optimizer settings
+        lr=1e-4,
+        eps=1.5e-4,
+        # Training settings
         minibatch_size=32,
-        replay_buffer_size=1000000,
-        replay_start_size=80000,
-        target_update_frequency=1000,
         update_frequency=4,
-        # explicit exploration in addition to noisy nets
+        target_update_frequency=1000,
+        # Replay Buffer settings
+        replay_start_size=80000,
+        replay_buffer_size=1000000,
+        # Explicit exploration
         initial_exploration=0.02,
         final_exploration=0.,
-        # prioritized replay
+        # Prioritized replay settings
         alpha=0.5,
         beta=0.5,
-        # multi-step learning
+        # Multi-step learning
         n_steps=3,
         # Distributional RL
         atoms=51,
@@ -35,9 +40,6 @@ def rainbow(
         v_max=10,
         # Noisy Nets
         sigma=0.5,
-        # Other
-        last_frame=40e6,
-        device=torch.device('cpu')
 ):
     '''
     A complete implementation of Rainbow.
