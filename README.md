@@ -11,6 +11,7 @@ As of today, `all` contains implementations of the following deep RL algorithms:
 - [x] Deep Deterministic Policy Gradient (DDPG)
 - [x] Deep Q-Learning (DQN) + extensions
 - [x] Proximal Policy Optimization (PPO)
+- [x] Rainbow (Rainbow)
 - [x] Soft Actor-Critic (SAC)
 
 It also contains implementations of the following "vanilla" agents, which provide useful baselines and perform better than you may expect:
