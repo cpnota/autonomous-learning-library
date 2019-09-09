@@ -20,7 +20,7 @@ def a2c(
         alpha=0.99,  # RMSprop momentum decay
         eps=1e-5,  # RMSprop stability
         n_envs=16,
-        device=torch.device("cpu"),
+        device=torch.device("cuda"),
 ):
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]

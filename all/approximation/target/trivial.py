@@ -11,7 +11,6 @@ class TrivialTarget(TargetNetwork):
 
     def init(self, model):
         self._model = model
-        self._model.training = False
 
     def update(self):
         pass

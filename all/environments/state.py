@@ -18,7 +18,7 @@ class State:
 
     @classmethod
     def from_list(cls, states):
-        raw = torch.cat([state.raw for state in states])
+        raw = torch.cat([state.features for state in states])
         done = torch.cat([state.mask for state in states])
         info = sum([state.info for state in states], [])
         return cls(raw, done, info)

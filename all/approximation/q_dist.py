@@ -14,7 +14,7 @@ class QDist(Approximation):
             v_min,
             v_max,
             name="q_dist",
-            **kwargs
+            **kwargs,
     ):
         model = QDistModule(model, n_actions, n_atoms)
         device = next(model.parameters()).device
@@ -29,14 +29,30 @@ class QDist(Approximation):
         v_min = atoms[0]
         v_max = atoms[-1]
         delta_z = atoms[1] - atoms[0]
+        batch_size = len(dist)
+        n_atoms = len(atoms)
         # vectorized implementation of Algorithm 1
         tz_j = support.clamp(v_min, v_max)
-        bj = ((tz_j - v_min) / delta_z)
+        bj = (tz_j - v_min) / delta_z
         l = bj.floor().clamp(0, len(atoms) - 1)
         u = bj.ceil().clamp(0, len(atoms) - 1)
-        x = torch.arange(len(dist)).expand(len(atoms), len(dist)).transpose(0, 1)
-        target_dist[x, l.long()] += dist * (u - bj)
-        target_dist[x, u.long()] += dist * (bj - l)
+        # This part is a little tricky:
+        # We have to flatten the matrix first and use index_add.
+        # This approach is taken from Curt Park (under the MIT license):
+        # https://github.com/Curt-Park/rainbow-is-all-you-need/blob/master/08.rainbow.ipynb
+        offset = (
+            torch.linspace(0, (batch_size - 1) * n_atoms, batch_size)
+            .long()
+            .unsqueeze(1)
+            .expand(batch_size, n_atoms)
+            .to(self.device)
+        )
+        target_dist.view(-1).index_add_(
+            0, (l.long() + offset).view(-1), (dist * (u - bj)).view(-1)
+        )
+        target_dist.view(-1).index_add_(
+            0, (u.long() + offset).view(-1), (dist * (bj - l)).view(-1)
+        )
         return target_dist
 
 

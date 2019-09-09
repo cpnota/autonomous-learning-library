@@ -1,14 +1,15 @@
 import torch
 from torch import nn
-from torch.nn import * # export everthing
+from torch.nn import *  # export everthing
 from torch.nn import functional as F
 import numpy as np
 from all.environments import State
 
+
 class ListNetwork(nn.Module):
-    '''
+    """
     Wraps a network such that States can be given as input.
-    '''
+    """
 
     def __init__(self, model, _=None):
         super().__init__()
@@ -18,10 +19,11 @@ class ListNetwork(nn.Module):
     def forward(self, state):
         return self.model(state.features.float()) * state.mask.float().unsqueeze(-1)
 
+
 class ListToList(nn.Module):
-    '''
+    """
     Wraps a network such that States can be given as inputs, and are received as output.
-    '''
+    """
 
     def __init__(self, model):
         super().__init__()
@@ -31,8 +33,9 @@ class ListToList(nn.Module):
     def forward(self, state):
         return State(self.model(state.features.float()), state.mask, state.info)
 
+
 class Aggregation(nn.Module):
-    '''len()
+    """len()
     Aggregation layer for the Dueling architecture.
 
     https://arxiv.org/abs/1511.06581
@@ -40,21 +43,21 @@ class Aggregation(nn.Module):
     an estimate of V with an estimate of the advantage.
     The advantage is normalized by substracting the average
     advantage so that we can propertly
-    '''
+    """
 
     def forward(self, value, advantages):
         return value + advantages - torch.mean(advantages, dim=1, keepdim=True)
 
 
 class Dueling(nn.Module):
-    '''
+    """
     Implementation of the head for the Dueling architecture.
 
     https://arxiv.org/abs/1511.06581
     This module computes a Q function by computing
     an estimate of V, and estimate of the advantage,
     and combining them with a special Aggregation layer.
-    '''
+    """
 
     def __init__(self, value_model, advantage_model):
         super(Dueling, self).__init__()
@@ -68,19 +71,39 @@ class Dueling(nn.Module):
         return self.aggregation(value, advantages)
 
 
-class Flatten(nn.Module): # pylint: disable=function-redefined
-    '''
+class CategoricalDueling(nn.Module):
+    """Dueling architecture for C51/Rainbow"""
+
+    def __init__(self, value_model, advantage_model):
+        super(CategoricalDueling, self).__init__()
+        self.value_model = value_model
+        self.advantage_model = advantage_model
+
+    def forward(self, features):
+        batch_size = len(features)
+        value_dist = self.value_model(features)
+        atoms = value_dist.shape[1]
+        advantage_dist = self.advantage_model(features).view((batch_size, -1, atoms))
+        advantage_mean = advantage_dist.mean(dim=1, keepdim=True)
+        return (
+            value_dist.view((batch_size, 1, atoms)) + advantage_dist - advantage_mean
+        ).view((batch_size, -1))
+
+
+class Flatten(nn.Module):  # pylint: disable=function-redefined
+    """
     Flatten a tensor, e.g., between conv2d and linear layers.
 
     The maintainers FINALLY added this to torch.nn, but I am
     leaving it in for compatible for the moment.
-    '''
+    """
+
     def forward(self, x):
         return x.view(x.size()[0], -1)
 
 
 class NoisyLinear(nn.Linear):
-    '''
+    """
     Implementation of Linear layer for NoisyNets
 
     https://arxiv.org/abs/1706.10295
@@ -88,17 +111,16 @@ class NoisyLinear(nn.Linear):
     Gaussian noise is added to the weights of the output layer, resulting in
     a stochastic policy. Exploration is implicitly learned at a per-state
     and per-action level, resulting in smarter exploration.
-    '''
+    """
 
     def __init__(self, in_features, out_features, sigma_init=0.017, bias=True):
         super(NoisyLinear, self).__init__(in_features, out_features, bias=bias)
-        self.sigma_weight = nn.Parameter(torch.Tensor(
-            out_features, in_features).fill_(sigma_init))
-        self.register_buffer(
-            "epsilon_weight", torch.zeros(out_features, in_features))
+        self.sigma_weight = nn.Parameter(
+            torch.Tensor(out_features, in_features).fill_(sigma_init)
+        )
+        self.register_buffer("epsilon_weight", torch.zeros(out_features, in_features))
         if bias:
-            self.sigma_bias = nn.Parameter(
-                torch.Tensor(out_features).fill_(sigma_init))
+            self.sigma_bias = nn.Parameter(torch.Tensor(out_features).fill_(sigma_init))
             self.register_buffer("epsilon_bias", torch.zeros(out_features))
         self.reset_parameters()
 
@@ -119,11 +141,55 @@ class NoisyLinear(nn.Linear):
             bias = bias + self.sigma_bias * self.epsilon_bias
         return F.linear(x, self.weight + self.sigma_weight * self.epsilon_weight, bias)
 
+class NoisyFactorizedLinear(nn.Linear):
+    """
+    NoisyNet layer with factorized gaussian noise
+
+    N.B. nn.Linear already initializes weight and bias to
+    """
+
+    def __init__(self, in_features, out_features, sigma_init=0.4, init_scale=3, bias=True):
+        self.init_scale = init_scale
+        super().__init__(in_features, out_features, bias=bias)
+        sigma_init = sigma_init / np.sqrt(in_features)
+        self.sigma_weight = nn.Parameter(
+            torch.Tensor(out_features, in_features).fill_(sigma_init)
+        )
+        self.register_buffer("epsilon_input", torch.zeros(1, in_features))
+        self.register_buffer("epsilon_output", torch.zeros(out_features, 1))
+        if bias:
+            self.sigma_bias = nn.Parameter(
+                torch.Tensor(out_features).fill_(sigma_init)
+            )
+
+    def reset_parameters(self):
+        std = np.sqrt(self.init_scale / self.in_features)
+        nn.init.uniform_(self.weight, -std, std)
+        nn.init.uniform_(self.bias, -std, std)
+
+    def forward(self, input):
+        if not self.training:
+            return F.linear(input, self.weight, self.bias)
+
+        torch.randn(self.epsilon_input.size(), out=self.epsilon_input)
+        torch.randn(self.epsilon_output.size(), out=self.epsilon_output)
+
+        func = lambda x: torch.sign(x) * torch.sqrt(torch.abs(x))
+        eps_in = func(self.epsilon_input)
+        eps_out = func(self.epsilon_output)
+
+        bias = self.bias
+        if bias is not None:
+            bias = bias + self.sigma_bias * eps_out.t()
+        noise_v = torch.mul(eps_in, eps_out)
+        return F.linear(input, self.weight + self.sigma_weight * noise_v, bias)
+
 class Linear0(nn.Linear):
     def reset_parameters(self):
-        nn.init.constant_(self.weight, 0.)
+        nn.init.constant_(self.weight, 0.0)
         if self.bias is not None:
-            nn.init.constant_(self.bias, 0.)
+            nn.init.constant_(self.bias, 0.0)
+
 
 class Scale(nn.Module):
     def __init__(self, scale):
@@ -133,14 +199,20 @@ class Scale(nn.Module):
     def forward(self, x):
         return x * self.scale
 
+
 class TanhActionBound(nn.Module):
     def __init__(self, action_space):
         super().__init__()
-        self.register_buffer('weight', torch.tensor((action_space.high - action_space.low) / 2))
-        self.register_buffer('bias', torch.tensor((action_space.high + action_space.low) / 2))
+        self.register_buffer(
+            "weight", torch.tensor((action_space.high - action_space.low) / 2)
+        )
+        self.register_buffer(
+            "bias", torch.tensor((action_space.high + action_space.low) / 2)
+        )
 
     def forward(self, x):
         return torch.tanh(x) * self.weight + self.bias
+
 
 class QModule(nn.Module):
     def __init__(self, model, num_actions):
@@ -156,6 +228,7 @@ class QModule(nn.Module):
             actions = torch.tensor(actions, device=self.device)
         return values.gather(1, actions.view(-1, 1)).squeeze(1)
 
+
 class VModule(nn.Module):
     def __init__(self, model):
         super().__init__()
@@ -164,6 +237,7 @@ class VModule(nn.Module):
 
     def forward(self, states):
         return self.model(states).squeeze(-1)
+
 
 class QModuleContinuous(nn.Module):
     def __init__(self, model):
@@ -175,7 +249,9 @@ class QModuleContinuous(nn.Module):
         x = torch.cat((states.features.float(), actions), dim=1)
         return self.model(x).squeeze(-1) * states.mask.float()
 
+
 def td_loss(loss):
     def _loss(estimates, errors):
         return loss(estimates, errors + estimates.detach())
+
     return _loss
