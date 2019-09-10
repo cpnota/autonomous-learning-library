@@ -1,4 +1,4 @@
-
+import csv
 import os
 import subprocess
 from abc import ABC, abstractmethod
@@ -24,6 +24,10 @@ class Writer(ABC):
     def add_schedule(self, name, value, step="frame"):
         pass
 
+    @abstractmethod
+    def add_summary(self, name, mean, std, step="frame"):
+        pass
+
 
 class DummyWriter(Writer):
     def add_loss(self, name, value, step="frame"):
@@ -36,6 +40,9 @@ class DummyWriter(Writer):
         pass
 
     def add_schedule(self, name, value, step="frame"):
+        pass
+
+    def add_summary(self, name, mean, std, step="frame"):
         pass
 
 
@@ -64,6 +71,13 @@ class ExperimentWriter(SummaryWriter, Writer):
 
     def add_scalar(self, name, value, step="frame"):
         super().add_scalar(self.env_name + "/" + name, value, self._get_step(step))
+
+    def add_summary(self, name, mean, std, step="frame"):
+        self.add_evaluation(name + '/mean', mean, step)
+        self.add_evaluation(name + '/std', std, step)
+
+        with open(os.path.join(self.log_dir, name + ".csv"), "a") as csvfile:
+            csv.writer(csvfile).writerow([self._get_step(step), mean, std])
 
     def _get_step(self, _type):
         if _type == "frame":
