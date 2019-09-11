@@ -5,8 +5,9 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from tensorboardX import SummaryWriter
 
+
 class Writer(ABC):
-    log_dir = 'runs'
+    log_dir = "runs"
 
     @abstractmethod
     def add_loss(self, name, value, step="frame"):
@@ -50,8 +51,13 @@ class ExperimentWriter(SummaryWriter, Writer):
     def __init__(self, agent_name, env_name, loss=True):
         self.env_name = env_name
         current_time = str(datetime.now())
+        os.makedirs(
+            os.path.join(
+                "runs", ("%s %s %s" % (agent_name, COMMIT_HASH, current_time)), env_name
+            )
+        )
         self.log_dir = os.path.join(
-            'runs', ("%s %s %s" % (agent_name, COMMIT_HASH, current_time))
+            "runs", ("%s %s %s" % (agent_name, COMMIT_HASH, current_time))
         )
         self._frames = 0
         self._episodes = 1
@@ -63,20 +69,20 @@ class ExperimentWriter(SummaryWriter, Writer):
             self.add_scalar("loss/" + name, value, step)
 
     def add_evaluation(self, name, value, step="frame"):
-        self.add_scalar('evaluation/' + name, value, self._get_step(step))
+        self.add_scalar("evaluation/" + name, value, self._get_step(step))
 
     def add_schedule(self, name, value, step="frame"):
         if self._loss:
-            self.add_scalar('schedule' + '/' + name, value, self._get_step(step))
+            self.add_scalar("schedule" + "/" + name, value, self._get_step(step))
 
     def add_scalar(self, name, value, step="frame"):
         super().add_scalar(self.env_name + "/" + name, value, self._get_step(step))
 
     def add_summary(self, name, mean, std, step="frame"):
-        self.add_evaluation(name + '/mean', mean, step)
-        self.add_evaluation(name + '/std', std, step)
+        self.add_evaluation(name + "/mean", mean, step)
+        self.add_evaluation(name + "/std", std, step)
 
-        with open(os.path.join(self.log_dir, name + ".csv"), "a") as csvfile:
+        with open(os.path.join(self.log_dir, self.env_name, name + ".csv"), "a") as csvfile:
             csv.writer(csvfile).writerow([self._get_step(step), mean, std])
 
     def _get_step(self, _type):
@@ -105,13 +111,14 @@ class ExperimentWriter(SummaryWriter, Writer):
 
 def get_commit_hash():
     result = subprocess.run(
-        ['git', 'rev-parse', '--short', 'HEAD'], stdout=subprocess.PIPE)
-    return result.stdout.decode('utf-8').rstrip()
+        ["git", "rev-parse", "--short", "HEAD"], stdout=subprocess.PIPE
+    )
+    return result.stdout.decode("utf-8").rstrip()
 
 
 COMMIT_HASH = get_commit_hash()
 
 try:
-    os.mkdir('runs')
+    os.mkdir("runs")
 except FileExistsError:
     pass
