@@ -20,10 +20,9 @@ def ppo(
         eps=1e-5,  # Adam stability
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.5,
-        min_lr_scale=0.1, # Maximum amount to anneal the lr
         clip_initial=0.1,
         clip_final=0.01,
-        final_anneal_frame=40e6, # Anneal LR and clip until here
+        final_frame=40e6, # Anneal LR and clip until here
         epochs=4,
         minibatches=4,
         n_envs=8,
@@ -33,7 +32,7 @@ def ppo(
     # Update epoch * minibatches times per update,
     # but we only update once per n_steps,
     # with n_envs and 4 frames per step
-    final_anneal_step = final_anneal_frame * epochs * minibatches / (n_steps * n_envs * 4)
+    final_anneal_step = final_frame * epochs * minibatches / (n_steps * n_envs * 4)
 
     def _ppo(envs, writer=DummyWriter()):
         env = envs[0]
@@ -54,8 +53,7 @@ def ppo(
             clip_grad=clip_grad,
             scheduler=CosineAnnealingLR(
                 feature_optimizer,
-                final_anneal_step,
-                eta_min=lr * min_lr_scale
+                final_anneal_step
             ),
             writer=writer
         )
@@ -67,8 +65,7 @@ def ppo(
             writer=writer,
             scheduler=CosineAnnealingLR(
                 value_optimizer,
-                final_anneal_step,
-                eta_min=lr * min_lr_scale
+                final_anneal_step
             ),
         )
         policy = SoftmaxPolicy(
@@ -80,8 +77,7 @@ def ppo(
             writer=writer,
             scheduler=CosineAnnealingLR(
                 policy_optimizer,
-                final_anneal_step,
-                eta_min=lr * min_lr_scale
+                final_anneal_step
             ),
         )
 

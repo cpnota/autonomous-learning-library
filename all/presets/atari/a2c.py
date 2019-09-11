@@ -1,6 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import RMSprop
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import A2C
 from all.bodies import DeepmindAtariBody
 from all.approximation import VNetwork, FeatureNetwork
@@ -11,17 +12,19 @@ from .models import nature_features, nature_value_head, nature_policy_head
 
 def a2c(
         # taken from stable-baselines
+        alpha=0.99,  # RMSprop momentum decay
+        clip_grad=0.5,
         discount_factor=0.99,
+        entropy_loss_scaling=0.01,
+        eps=1e-5,  # RMSprop stability
+        final_frame=40e6, # Anneal LR and clip until here
+        lr=7e-4,  # RMSprop learning rate
+        n_envs=16,
         n_steps=5,
         value_loss_scaling=0.25,
-        entropy_loss_scaling=0.01,
-        clip_grad=0.5,
-        lr=7e-4,  # RMSprop learning rate
-        alpha=0.99,  # RMSprop momentum decay
-        eps=1e-5,  # RMSprop stability
-        n_envs=16,
         device=torch.device("cuda"),
 ):
+    final_anneal_step = final_frame / (n_steps * n_envs * 4)
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
 
@@ -40,12 +43,20 @@ def a2c(
         features = FeatureNetwork(
             feature_model,
             feature_optimizer,
+            scheduler=CosineAnnealingLR(
+                feature_optimizer,
+                final_anneal_step,
+            ),
             clip_grad=clip_grad,
             writer=writer
         )
         v = VNetwork(
             value_model,
             value_optimizer,
+            scheduler=CosineAnnealingLR(
+                value_optimizer,
+                final_anneal_step,
+            ),
             loss_scaling=value_loss_scaling,
             clip_grad=clip_grad,
             writer=writer
@@ -54,6 +65,10 @@ def a2c(
             policy_model,
             policy_optimizer,
             env.action_space.n,
+            scheduler=CosineAnnealingLR(
+                policy_optimizer,
+                final_anneal_step,
+            ),
             entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer
