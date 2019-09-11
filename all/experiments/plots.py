@@ -7,7 +7,7 @@ def plot_returns_100(runs_dir):
     data = load_returns_100_data(runs_dir)
     lines = {}
     fig, axes = plt.subplots(1, len(data))
-    for i, env in enumerate(data):
+    for i, env in enumerate(sorted(data.keys())):
         ax = axes[i]
         subplot_returns_100(ax, env, data[env], lines)
     fig.legend(list(lines.values()), list(lines.keys()), loc="center right")
