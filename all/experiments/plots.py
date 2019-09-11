@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 
 def plot_returns_100(runs_dir):
     data = load_returns_100_data(runs_dir)
-
     lines = {}
     fig, axes = plt.subplots(1, len(data))
     for i, env in enumerate(data):
@@ -36,6 +35,7 @@ def load_returns_100_data(runs_dir):
 
     return data
 
+
 def subplot_returns_100(ax, env, data, lines):
     for agent in data:
         agent_data = data[agent]
@@ -48,6 +48,8 @@ def subplot_returns_100(ax, env, data, lines):
         else:
             line, = ax.plot(timesteps, mean, label=agent)
             lines[agent] = line
-        ax.fill_between(timesteps, mean + std, mean - std, alpha=0.2, color=lines[agent].get_color())
+        ax.fill_between(
+            timesteps, mean + std, mean - std, alpha=0.2, color=lines[agent].get_color()
+        )
         ax.set_title(env)
         ax.set_xlabel("timesteps")
