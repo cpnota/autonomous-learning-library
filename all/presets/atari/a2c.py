@@ -1,6 +1,6 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch.optim import RMSprop
+from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import A2C
 from all.bodies import DeepmindAtariBody
@@ -11,20 +11,22 @@ from .models import nature_features, nature_value_head, nature_policy_head
 
 
 def a2c(
-        # taken from stable-baselines
-        alpha=0.99,  # RMSprop momentum decay
-        clip_grad=0.5,
+        # Common settings
+        device=torch.device('cuda'),
         discount_factor=0.99,
+        last_frame=40e6,
+        # Adam optimizer settings
+        lr=7e-4,
+        eps=1.5e-4,
+        # Other optimization settings
+        clip_grad=0.5,
         entropy_loss_scaling=0.01,
-        eps=1e-5,  # RMSprop stability
-        final_frame=40e6, # Anneal LR and clip until here
-        lr=7e-4,  # RMSprop learning rate
+        value_loss_scaling=0.25,
+        # Batch settings
         n_envs=16,
         n_steps=5,
-        value_loss_scaling=0.25,
-        device=torch.device("cuda"),
 ):
-    final_anneal_step = final_frame / (n_steps * n_envs * 4)
+    final_anneal_step = last_frame / (n_steps * n_envs * 4)
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
 
@@ -32,13 +34,9 @@ def a2c(
         policy_model = nature_policy_head(envs[0]).to(device)
         feature_model = nature_features().to(device)
 
-        feature_optimizer = RMSprop(
-            feature_model.parameters(), alpha=alpha, lr=lr, eps=eps
-        )
-        value_optimizer = RMSprop(value_model.parameters(), alpha=alpha, lr=lr, eps=eps)
-        policy_optimizer = RMSprop(
-            policy_model.parameters(), alpha=alpha, lr=lr, eps=eps
-        )
+        feature_optimizer = Adam(feature_model.parameters(), lr=lr, eps=eps)
+        value_optimizer = Adam(value_model.parameters(), lr=lr, eps=eps)
+        policy_optimizer = Adam(policy_model.parameters(), lr=lr, eps=eps)
 
         features = FeatureNetwork(
             feature_model,
