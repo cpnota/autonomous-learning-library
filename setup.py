@@ -11,6 +11,7 @@ setup(
         "gym[atari,box2d]",    # atari environments
         "roboschool",    # open-source mujoco
         "numpy",         # math library
+        "matplotlib",    # plotting library
         "pylint",        # code quality tool
         "tensorboardX",  # visualize results
         "torch-testing", # testing library for pytorch
