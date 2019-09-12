@@ -21,7 +21,7 @@ def a2c(
         # Other optimization settings
         clip_grad=0.5,
         entropy_loss_scaling=0.01,
-        value_loss_scaling=0.25,
+        value_loss_scaling=0.5,
         # Batch settings
         n_envs=16,
         n_steps=5,
