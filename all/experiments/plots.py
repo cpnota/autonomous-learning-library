@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+
 def plot_returns_100(runs_dir):
     data = load_returns_100_data(runs_dir)
     lines = {}
@@ -53,3 +54,4 @@ def subplot_returns_100(ax, env, data, lines):
         )
         ax.set_title(env)
         ax.set_xlabel("timesteps")
+        ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 5))
