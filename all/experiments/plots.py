@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 
 
 
-def plot_returns_100(runs_dir):
+def plot_returns_100(runs_dir, timesteps=-1):
     data = load_returns_100_data(runs_dir)
     lines = {}
     fig, axes = plt.subplots(1, len(data))
     for i, env in enumerate(sorted(data.keys())):
         ax = axes[i]
-        subplot_returns_100(ax, env, data[env], lines)
+        subplot_returns_100(ax, env, data[env], lines, timesteps=timesteps)
     fig.legend(list(lines.values()), list(lines.keys()), loc="center right")
     plt.show()
 
@@ -37,20 +37,23 @@ def load_returns_100_data(runs_dir):
     return data
 
 
-def subplot_returns_100(ax, env, data, lines):
+def subplot_returns_100(ax, env, data, lines, timesteps=-1):
     for agent in data:
         agent_data = data[agent]
-        timesteps = agent_data[:, 0]
+        x = agent_data[:, 0]
         mean = agent_data[:, 1]
         std = agent_data[:, 2]
 
+        if timesteps > 0:
+            x[-1] = timesteps
+
         if agent in lines:
-            ax.plot(timesteps, mean, label=agent, color=lines[agent].get_color())
+            ax.plot(x, mean, label=agent, color=lines[agent].get_color())
         else:
-            line, = ax.plot(timesteps, mean, label=agent)
+            line, = ax.plot(x, mean, label=agent)
             lines[agent] = line
         ax.fill_between(
-            timesteps, mean + std, mean - std, alpha=0.2, color=lines[agent].get_color()
+            x, mean + std, mean - std, alpha=0.2, color=lines[agent].get_color()
         )
         ax.set_title(env)
         ax.set_xlabel("timesteps")
