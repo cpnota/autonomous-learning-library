@@ -2,6 +2,34 @@
 
 The Autonomous Learning Library (`all`) is an object-oriented deep reinforcement learning library in `pytorch`. The goal of the library is to provide implementations of modern reinforcement learning algorithms that reflect the way that reinforcement learning researchers think about agent design and to provide the components necessary to build and test new ideas with minimal overhead.
 
+## Why use `all`?
+
+The primary reason for using `all` over its many competitors is because it contains components that allow you to *build your own* reinforcement learning agents.
+We provide out-of-the-box modules for:
+
+- [x] Custom Q-Networks, V-Networks, policy networks, and feature networks
+- [x] Generic function approximation
+- [x] Target networks
+- [x] Polyak averaging
+- [x] Experience Replay
+- [x] Prioritized Experience Replay
+- [x] Advantage Estimation
+- [x] Generalized Advantage Estimation (GAE)
+- [x] Easy parameter and learning rate scheduling
+- [x] An enhanced `nn` module (includes dueling layers, noisy layers, action bounds, and the coveted `nn.Flatten`)
+- [x] `gym` to `pytorch` wrappers
+- [x] Atari wrappers
+- [x] An `Experiment` API for comparing and evaluating agents
+- [x] A `SlurmExperiment` API for running massive experiments on computing clusters
+- [x] A `Writer` object for easily logging information in `tensorboard`
+- [x] Plotting utilities for generating paper-worthy result plots
+
+Rather than being embedded in the agents, all of these modules are available for use by your own custom agents.
+Additionally, the included agents accept custom versions of any of the above objects.
+Have a new type of replay buffer in mind?
+Code it up and pass it directly to our `DQN` and `DDPG` implementations.
+Additionally, our agents were written with readibility as a primary concern, so they are easy to modify.
+
 ## Algorithms
 
 As of today, `all` contains implementations of the following deep RL algorithms:
@@ -23,32 +51,12 @@ It also contains implementations of the following "vanilla" agents, which provid
 
 We will try to stay up-to-date with advances in the field, but we do not intend to implement every algorithm. Rather, we prefer to maintain a smaller set of high-quality agents that have achieved notoriety in the field.
 
-## Why use `all`?
+We have labored to make sure that our implementations produce results comparable to published results.
+Here's a sampling of performance on several Atari games:
 
-The primary reason for using `all` over its many competitors is because it contains components that allow you to *build your own* reinforcement learning agents.
-We provide out-of-the-box modules for:
+![atari40](atari40.png)
 
-- [x] Custom Q-Networks, V-Networks, policy networks, and feature networks
-- [x] Generic function approximation
-- [x] Experience Replay
-- [x] Prioritized Experience Replay
-- [x] Advantage Estimation
-- [x] Generalized Advantage Estimation (GAE)
-- [x] Target networks
-- [x] Polyak averaging
-- [x] Easy parameter and learning rate scheduling
-- [x] An enhanced `nn` module (includes dueling layers, noisy layers, action bounds, and the coveted `nn.Flatten`)
-- [x] `gym` to `pytorch` wrappers
-- [x] Atari wrappers
-- [x] An `Experiment` API for comparing and evaluating agents
-- [x] A `SlurmExperiment` API for running massive experiments on computing clusters
-- [x] A `Writer` object for easily logging information in `tensorboard`
-
-Rather than being embedded in the agents, all of these modules are available for use by your own custom agents.
-Additionally, the included agents accept custom versions of any of the above objects.
-Have a new type of replay buffer in mind?
-Code it up and pass it directly to our `DQN` and `DDPG` implementations.
-Additionally, our agents were written with readibility as a primary concern, so they are easy to modify.
+These results were generated using the `all.presets.atari` module, the `SlurmExperiment` utility, and the `all.experiments.plots` module.
 
 ## Example
 

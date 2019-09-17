@@ -32,6 +32,9 @@ class MockWriter(Writer):
     def add_evaluation(self, name, value, step="frame"):
         self.add_scalar("evaluation/" + name, value, self._get_step(step))
 
+    def add_summary(self, name, mean, std, step="frame"):
+        pass
+
     def _get_step(self, _type):
         if _type == "frame":
             return self.frames

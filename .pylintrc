@@ -437,7 +437,8 @@ good-names=i,
            n,
            t,
            e,
-           kl
+           kl,
+           ax
 
 # Include a hint for the correct naming format with invalid-name.
 include-naming-hint=no
