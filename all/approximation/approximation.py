@@ -59,6 +59,11 @@ class Approximation():
         '''Run a forward pass of the target network.'''
         return self._target(*inputs)
 
+    def reinforce(self, input, target):
+        self.loss(input, target).backward()
+        self.step()
+        return self
+
     def loss(self, input, target):
         loss = self._loss(input, target)
         self._writer.add_loss(self._name, loss.detach())
@@ -75,26 +80,8 @@ class Approximation():
             self._writer.add_schedule(self._name + '/lr', self._optimizer.param_groups[0]['lr'])
             self._scheduler.step()
         self._checkpointer()
+        return self
 
     def zero_grad(self):
         self._optimizer.zero_grad()
-
-    def _enqueue(self, results):
-        self._cache.append(results)
-
-    def _dequeue(self, batch_size):
-        i = 0
-        num_items = 0
-        while num_items < batch_size and i < len(self._cache):
-            num_items += len(self._cache[i])
-            i += 1
-        if num_items != batch_size:
-            raise ValueError("Incompatible batch size.")
-        items = torch.cat(self._cache[:i])
-        self._cache = self._cache[i:]
-        return items
-
-class ConstantLR():
-    '''Dummy LRScheduler'''
-    def step(self):
-        pass
+        return self
