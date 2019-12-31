@@ -43,12 +43,11 @@ class DQN(Agent):
         if self._should_train():
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
                 self.minibatch_size)
-            td_errors = (
-                rewards +
-                self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0] -
-                self.q(states, actions)
-            )
-            self.q.reinforce(td_errors)
+            self.q.loss(
+                self.q(states, actions),
+                rewards + self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0]
+            ).backward()
+            self.q.step()
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and
