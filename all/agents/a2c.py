@@ -42,11 +42,11 @@ class A2C(Agent):
             states, actions, advantages = self._buffer.advantages(states)
             # forward pass
             features = self.features(states)
-            self.v(features)
-            self.policy(features, actions)
+            values = self.v(features)
+            log_pis = self.policy(features, actions)
             # backward pass
-            self.v.reinforce(advantages)
-            self.policy.reinforce(advantages)
+            self.v.reinforce(values, values.detach() + advantages)
+            self.policy.reinforce(log_pis, advantages)
             self.features.reinforce()
 
     def _make_buffer(self):
