@@ -59,10 +59,6 @@ class Approximation():
         '''Run a forward pass of the target network.'''
         return self._target(*inputs)
 
-    def reinforce(self, input, target):
-        self.loss(input, target).backward()
-        self.step()
-
     def loss(self, input, target):
         loss = self._loss(input, target)
         self._writer.add_loss(self._name, loss.detach())
