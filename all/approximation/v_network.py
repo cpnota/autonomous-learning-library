@@ -1,5 +1,5 @@
 from torch.nn.functional import mse_loss
-from all.nn import VModule, td_loss
+from all.nn import VModule
 from .approximation import Approximation
 
 class VNetwork(Approximation):
@@ -12,7 +12,6 @@ class VNetwork(Approximation):
             **kwargs
     ):
         model = VModule(model)
-        loss = td_loss(loss)
         super().__init__(
             model,
             optimizer,
