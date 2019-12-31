@@ -23,25 +23,23 @@ class StochasticPolicy(Approximation):
         self._log_probs = []
         self._entropy = []
 
-    def __call__(self, state, action=None):
+    def __call__(self, state, action=None, log_prob=False):
         outputs = self.model(state)
         distribution = self.distribution(outputs)
         if action is None:
             action = distribution.sample()
-            log_prob = distribution.log_prob(action)
-            log_prob.entropy = distribution.entropy()
-            return action, log_prob
-        log_prob = distribution.log_prob(action)
-        log_prob.entropy = distribution.entropy()
-        return log_prob
+            if log_prob:
+                _log_prob = distribution.log_prob(action)
+                _log_prob.entropy = distribution.entropy()
+                return action, _log_prob
+            return action
+        _log_prob = distribution.log_prob(action)
+        _log_prob.entropy = distribution.entropy()
+        return _log_prob
 
-    def eval(self, state, action=None):
+    def eval(self, state, action=None, log_prob=False):
         with torch.no_grad():
-            outputs = self.model(state)
-            distribution = self.distribution(outputs)
-            if action is None:
-                return distribution.sample()
-            return distribution.log_prob(action)
+            return self(state, action=action, log_prob=log_prob)
 
     def reinforce(self, log_probs, advantages, retain_graph=False):
         loss = self.loss(log_probs, advantages)
