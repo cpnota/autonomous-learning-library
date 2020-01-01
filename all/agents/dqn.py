@@ -49,7 +49,6 @@ class DQN(Agent):
             targets = rewards + self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0]
             loss = self.loss(self.q(states, actions), targets)
             self.q.reinforce(loss)
-            self.q.step()
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and
