@@ -1,7 +1,6 @@
 import os
 import torch
 from torch.nn import utils
-from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from .target import TrivialTarget
 from .checkpointer import PeriodicCheckpointer
@@ -15,7 +14,6 @@ class Approximation():
             optimizer,
             clip_grad=0,
             loss_scaling=1,
-            loss=mse_loss,
             name='approximation',
             scheduler=None,
             target=None,
@@ -29,7 +27,6 @@ class Approximation():
         self._target.init(model)
         self._updates = 0
         self._optimizer = optimizer
-        self._loss = loss
         self._loss_scaling = loss_scaling
         self._cache = []
         self._clip_grad = clip_grad
@@ -59,15 +56,12 @@ class Approximation():
         '''Run a forward pass of the target network.'''
         return self._target(*inputs)
 
-    def reinforce(self, input, target):
-        self.loss(input, target).backward()
+    def reinforce(self, loss):
+        loss = self._loss_scaling * loss
+        self._writer.add_loss(self._name, loss.detach())
+        loss.backward()
         self.step()
         return self
-
-    def loss(self, input, target):
-        loss = self._loss(input, target)
-        self._writer.add_loss(self._name, loss.detach())
-        return loss
 
     def step(self):
         '''Given that a bakcward pass has been made, run an optimization step.'''

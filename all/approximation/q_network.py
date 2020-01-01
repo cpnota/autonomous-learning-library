@@ -1,4 +1,3 @@
-from torch.nn.functional import mse_loss
 from all.nn import QModule
 from .approximation import Approximation
 
@@ -8,7 +7,6 @@ class QNetwork(Approximation):
             model,
             optimizer,
             num_actions,
-            loss=mse_loss,
             name='q',
             **kwargs
     ):
@@ -16,7 +14,6 @@ class QNetwork(Approximation):
         super().__init__(
             model,
             optimizer,
-            loss=loss,
             name=name,
             **kwargs
         )
