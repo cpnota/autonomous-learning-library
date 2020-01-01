@@ -1,4 +1,5 @@
 import torch
+from torch.nn.functional import mse_loss
 from ._agent import Agent
 
 
@@ -7,6 +8,7 @@ class DQN(Agent):
                  q,
                  policy,
                  replay_buffer,
+                 loss=mse_loss,
                  discount_factor=0.99,
                  minibatch_size=32,
                  replay_start_size=5000,
@@ -16,6 +18,7 @@ class DQN(Agent):
         self.q = q
         self.policy = policy
         self.replay_buffer = replay_buffer
+        self.loss = staticmethod(loss)
         # hyperparameters
         self.replay_start_size = replay_start_size
         self.update_frequency = update_frequency
@@ -43,10 +46,9 @@ class DQN(Agent):
         if self._should_train():
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
                 self.minibatch_size)
-            self.q.loss(
-                self.q(states, actions),
-                rewards + self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0]
-            ).backward()
+            targets = rewards + self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0]
+            loss = self.loss(self.q(states, actions), targets)
+            self.q.reinforce(loss)
             self.q.step()
 
     def _should_train(self):

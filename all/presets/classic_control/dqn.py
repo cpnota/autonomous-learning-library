@@ -1,7 +1,6 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
-from torch.nn.functional import mse_loss
 from all.agents import DQN
 from all.approximation import QNetwork, FixedTarget
 from all.logging import DummyWriter
@@ -31,7 +30,6 @@ def dqn(
             optimizer,
             env.action_space.n,
             target=FixedTarget(target_update_frequency),
-            loss=mse_loss,
             writer=writer
         )
         policy = GreedyPolicy(
