@@ -49,11 +49,13 @@ class DDPG(Agent):
                 self.discount_factor * self.q.target(next_states, self.policy.target(next_states)) -
                 self.q(states, torch.cat(actions))
             )
-            self.q.reinforce(weights * td_errors)
-            self.replay_buffer.update_priorities(td_errors)
+            loss = (weights * (td_errors ** 2)).mean()
+            loss.backward()
+            self.q.step()
+            self.replay_buffer.update_priorities(td_errors.abs())
 
             # train policy
-            loss = -self.q(states, self.policy.greedy(states), detach=False).mean()
+            loss = -self.q(states, self.policy.greedy(states)).mean()
             loss.backward()
             self.policy.step()
             self.q.zero_grad()

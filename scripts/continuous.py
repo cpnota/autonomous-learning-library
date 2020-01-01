@@ -1,5 +1,5 @@
 import argparse
-import roboschool
+import pybullet
 from all.environments import GymEnvironment
 from all.experiments import Experiment
 from all.presets import continuous
