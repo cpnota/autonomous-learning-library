@@ -90,7 +90,7 @@ class C51(Agent):
             # project the disribution back on the original set of atoms
             target_dist = self.q_dist.project(next_dist, shifted_atoms)
             # apply update
-            dist = self.q_dist(states, actions, detach=False)
+            dist = self.q_dist(states, actions)
             loss = self._loss(dist, target_dist, weights)
             loss.backward()
             self.q_dist.step()
