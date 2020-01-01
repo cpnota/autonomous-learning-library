@@ -64,7 +64,7 @@ class Approximation():
         return self
 
     def step(self):
-        '''Given that a bakcward pass has been made, run an optimization step.'''
+        '''Given that a backward pass has been made, run an optimization step.'''
         if self._clip_grad != 0:
             utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
         self._optimizer.step()

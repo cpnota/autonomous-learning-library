@@ -1,4 +1,5 @@
 import torch
+from torch.nn.functional import mse_loss
 from all.memory import GeneralizedAdvantageBuffer
 from ._agent import Agent
 
@@ -15,7 +16,8 @@ class PPO(Agent):
             n_envs=None,
             n_steps=4,
             discount_factor=0.99,
-            lam=0.95
+            lam=0.95,
+            entropy_loss_scaling=0.001,
     ):
         if n_envs is None:
             raise RuntimeError("Must specify n_envs.")
@@ -26,6 +28,7 @@ class PPO(Agent):
         self.n_steps = n_steps
         self.discount_factor = discount_factor
         self.lam = lam
+        self.entropy_loss_scaling = entropy_loss_scaling
         self._states = None
         self._actions = None
         self._epsilon = epsilon
@@ -67,19 +70,17 @@ class PPO(Agent):
 
     def _train_minibatch(self, states, actions, pi_0, advantages, targets):
         features = self.features(states)
-        self.policy(features, actions)
-        self.policy.reinforce(self._compute_policy_loss(pi_0, advantages))
-        self.v.reinforce(targets - self.v(features))
+        pi_i = self.policy(features, actions)
+        self.policy.reinforce(pi_i, self._policy_loss(pi_i, pi_0, advantages))
+        self.v.reinforce(mse_loss(self.v(features), targets))
         self.features.reinforce()
 
-    def _compute_policy_loss(self, pi_0, advantages):
-        def _policy_loss(pi_i):
-            ratios = torch.exp(pi_i - pi_0)
-            surr1 = ratios * advantages
-            epsilon = self._epsilon
-            surr2 = torch.clamp(ratios, 1.0 - epsilon, 1.0 + epsilon) * advantages
-            return -torch.min(surr1, surr2).mean()
-        return _policy_loss
+    def _policy_loss(self, pi_i, pi_0, advantages):
+        ratios = torch.exp(pi_i - pi_0)
+        surr1 = ratios * advantages
+        epsilon = self._epsilon
+        surr2 = torch.clamp(ratios, 1.0 - epsilon, 1.0 + epsilon) * advantages
+        return -torch.min(surr1, surr2).mean()
 
     def _make_buffer(self):
         return GeneralizedAdvantageBuffer(

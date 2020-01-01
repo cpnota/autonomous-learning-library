@@ -1,3 +1,4 @@
+from torch.nn.functional import mse_loss
 from all.memory import NStepAdvantageBuffer
 from ._agent import Agent
 
@@ -45,8 +46,8 @@ class A2C(Agent):
             values = self.v(features)
             log_pis = self.policy(features, actions)
             # backward pass
-            self.v.reinforce(values, values.detach() + advantages)
-            self.policy.reinforce(log_pis, advantages)
+            self.v.reinforce(mse_loss(values, values.detach() + advantages))
+            self.policy.reinforce(log_pis, -(log_pis * advantages).mean())
             self.features.reinforce()
 
     def _make_buffer(self):

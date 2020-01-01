@@ -41,16 +41,11 @@ class StochasticPolicy(Approximation):
         with torch.no_grad():
             return self(state, action=action, log_prob=log_prob)
 
-    def reinforce(self, log_probs, advantages, retain_graph=False):
-        loss = self.loss(log_probs, advantages)
-        loss.backward(retain_graph=retain_graph)
-        self.step()
-
-    def loss(self, log_probs, advantages):
-        policy_loss = (-log_probs.transpose(0, -1) * advantages.view(-1)).mean()
+    def reinforce(self, log_probs, policy_loss, retain_graph=False):
         entropy_loss = -log_probs.entropy.mean()
         loss = policy_loss + self._entropy_loss_scaling * entropy_loss
         self._writer.add_loss(self._name, loss)
         self._writer.add_loss(self._name + '/pg', policy_loss)
         self._writer.add_loss(self._name + '/entropy', entropy_loss)
-        return loss
+        loss.backward(retain_graph=retain_graph)
+        self.step()
