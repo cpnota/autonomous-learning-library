@@ -1,3 +1,4 @@
+# pylint: disable=unused-import
 import argparse
 import pybullet
 from all.environments import GymEnvironment
@@ -6,12 +7,10 @@ from all.presets import continuous
 
 # some example envs
 # can also enter ID directly
-envs = {
+ENVS = {
     "walker": "BipedalWalker-v2",
     "mountaincar": "MountainCarContinuous-v0",
     "lander": "LunarLanderContinuous-v2",
-    "hopper": "RoboschoolHopper-v1",
-    "cheetah": "RoboschoolHalfCheetah-v1",
 }
 
 
@@ -35,8 +34,8 @@ def run_atari():
     )
     args = parser.parse_args()
 
-    if args.env in envs:
-        env_id = envs[args.env]
+    if args.env in ENVS:
+        env_id = ENVS[args.env]
     else:
         env_id = args.env
 
@@ -44,7 +43,7 @@ def run_atari():
     agent_name = args.agent
     agent = getattr(continuous, agent_name)
 
-    experiment = Experiment(
+    Experiment(
         agent(device=args.device), env, frames=args.frames, render=args.render
     )
 
