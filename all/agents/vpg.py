@@ -31,7 +31,7 @@ class VPG(Agent):
             return self._initial(state)
         if not state.done:
             return self._act(state, reward)
-        return self._terminal(reward)
+        return self._terminal(state, reward)
 
     def _initial(self, state):
         features = self.features(state)
@@ -50,7 +50,7 @@ class VPG(Agent):
         self._log_pis.append(distribution.log_prob(action))
         return action
 
-    def _terminal(self, reward):
+    def _terminal(self, state, reward):
         self._rewards.append(reward)
         features = torch.cat(self._features)
         rewards = torch.tensor(self._rewards, device=features.device)
@@ -63,6 +63,9 @@ class VPG(Agent):
 
         if self._current_batch_size >= self.min_batch_size:
             self._train()
+
+        # have to return something
+        return self.policy.eval(self.features.eval(state)).sample()
 
     def _train(self):
         # forward pass
