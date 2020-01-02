@@ -20,7 +20,7 @@ class QDist(Approximation):
         device = next(model.parameters()).device
         self.n_actions = n_actions
         self.atoms = torch.linspace(v_min, v_max, steps=n_atoms).to(device)
-        super().__init__(model, optimizer, loss=cross_entropy_loss, name=name, **kwargs)
+        super().__init__(model, optimizer, name=name, **kwargs)
 
     def project(self, dist, support):
         # pylint: disable=invalid-name
@@ -79,9 +79,3 @@ class QDistModule(nn.Module):
         if isinstance(actions, list):
             actions = torch.cat(actions)
         return values[torch.arange(len(states)), actions]
-
-
-def cross_entropy_loss(dist, target_dist):
-    log_dist = torch.log(dist)
-    loss_v = -log_dist * target_dist
-    return loss_v.sum(dim=-1).mean()
