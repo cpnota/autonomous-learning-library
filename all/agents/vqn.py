@@ -1,4 +1,5 @@
 import torch
+from torch.nn.functional import mse_loss
 from ._agent import Agent
 
 
@@ -13,14 +14,12 @@ class VQN(Agent):
         self.previous_action = None
 
     def act(self, state, reward):
-        action = self.policy(state)
         if self.previous_state:
-            td_error = (
-                reward
-                + self.gamma * torch.max(self.q.target(state), dim=1)[0]
-                - self.q(self.previous_state, self.previous_action)
-            )
-            self.q.reinforce(td_error)
+            value = self.q(self.previous_state, self.previous_action)
+            target = reward + self.gamma * torch.max(self.q.target(state), dim=1)[0]
+            loss = mse_loss(value, target)
+            self.q.reinforce(loss)
+        action = self.policy(state)
         self.previous_state = state
         self.previous_action = action
         return action
