@@ -1,6 +1,8 @@
 from torch.nn.functional import mse_loss
+from all.logging import DummyWriter
 from all.memory import NStepAdvantageBuffer
 from ._agent import Agent
+
 
 
 class A2C(Agent):
@@ -11,7 +13,9 @@ class A2C(Agent):
             policy,
             n_envs=None,
             n_steps=4,
-            discount_factor=0.99
+            discount_factor=0.99,
+            entropy_loss_scaling=0.001,
+            writer=DummyWriter()
     ):
         if n_envs is None:
             raise RuntimeError("Must specify n_envs.")
@@ -21,6 +25,8 @@ class A2C(Agent):
         self.n_envs = n_envs
         self.n_steps = n_steps
         self.discount_factor = discount_factor
+        self.entropy_loss_scaling = entropy_loss_scaling
+        self.writer = writer
         self._states = None
         self._actions = None
         self._batch_size = n_envs * n_steps
@@ -31,7 +37,7 @@ class A2C(Agent):
         self._store_transitions(rewards)
         self._train(states)
         self._states = states
-        self._actions = self.policy.eval(self.features.eval(states))
+        self._actions = self.policy.eval(self.features.eval(states)).sample()
         return self._actions
 
     def _store_transitions(self, rewards):
@@ -44,11 +50,20 @@ class A2C(Agent):
             # forward pass
             features = self.features(states)
             values = self.v(features)
-            log_pis = self.policy(features, actions)
+            distribution = self.policy(features)
+            targets = values.detach() + advantages
+            # losses
+            value_loss = mse_loss(values, targets)
+            policy_gradient_loss = -(distribution.log_prob(actions) * advantages).mean()
+            entropy_loss = -distribution.entropy().mean()
+            policy_loss = policy_gradient_loss + self.entropy_loss_scaling * entropy_loss
             # backward pass
-            self.v.reinforce(mse_loss(values, values.detach() + advantages))
-            self.policy.reinforce(log_pis, -(log_pis * advantages).mean())
+            self.v.reinforce(value_loss)
+            self.policy.reinforce(policy_loss)
             self.features.reinforce()
+            # debugging
+            self.writer.add_loss('policy_gradient', policy_gradient_loss.detach())
+            self.writer.add_loss('entropy', entropy_loss.detach())
 
     def _make_buffer(self):
         return NStepAdvantageBuffer(

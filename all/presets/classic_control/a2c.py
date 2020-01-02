@@ -38,8 +38,6 @@ def a2c(
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
-            env.action_space.n,
-            entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer
         )
@@ -49,7 +47,9 @@ def a2c(
             policy,
             n_envs=n_envs,
             n_steps=n_steps,
-            discount_factor=discount_factor
+            discount_factor=discount_factor,
+            entropy_loss_scaling=entropy_loss_scaling,
+            writer=writer
         )
     return _a2c, n_envs
 
