@@ -10,7 +10,6 @@ from .models import fc_relu_features, fc_policy_head, fc_value_head
 
 def vpg(
         clip_grad=0,
-        entropy_loss_scaling=0.001,
         gamma=0.99,
         lr=5e-3,
         min_batch_size=500,
@@ -40,8 +39,6 @@ def vpg(
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
-            env.action_space.n,
-            entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer
         )
