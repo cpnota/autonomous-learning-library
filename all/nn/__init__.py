@@ -255,3 +255,7 @@ def td_loss(loss):
         return loss(estimates, errors + estimates.detach())
 
     return _loss
+
+def weighted_mse_loss(input, targets, weights, reduction='mean'):
+    weighted_errors = (weights * ((targets - input) ** 2))
+    return torch.mean(weighted_errors) if reduction == 'mean' else torch.sum(weighted_errors)
