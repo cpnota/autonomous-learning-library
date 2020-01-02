@@ -256,6 +256,12 @@ def td_loss(loss):
 
     return _loss
 
-def weighted_mse_loss(input, targets, weights, reduction='mean'):
-    weighted_errors = (weights * ((targets - input) ** 2))
-    return torch.mean(weighted_errors) if reduction == 'mean' else torch.sum(weighted_errors)
+def weighted_mse_loss(input, target, weight, reduction='mean'):
+    loss = (weight * ((target - input) ** 2))
+    return torch.mean(loss) if reduction == 'mean' else torch.sum(loss)
+
+def weighted_smooth_l1_loss(input, target, weight, reduction='mean'):
+    t = torch.abs(input - target)
+    loss = torch.where(t < 1, 0.5 * t ** 2, t - 0.5)
+    loss = weight * loss
+    return torch.mean(loss) if reduction == 'mean' else torch.sum(loss)

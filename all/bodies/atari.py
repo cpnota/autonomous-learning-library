@@ -4,7 +4,7 @@ from .rewards import ClipRewards
 from .vision import FrameStack
 
 class DeepmindAtariBody(Body):
-    def __init__(self, agent, lazy_frames=False, episodic_lives=False):
+    def __init__(self, agent, lazy_frames=False, episodic_lives=True):
         agent = FrameStack(agent, lazy=lazy_frames)
         agent = ClipRewards(agent)
         if episodic_lives:

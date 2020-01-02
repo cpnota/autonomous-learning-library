@@ -2,12 +2,12 @@
 import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork, FixedTarget
 from all.agents import DDQN
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.memory import PrioritizedReplayBuffer
+from all.nn import weighted_smooth_l1_loss
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
 from .models import nature_ddqn
@@ -78,7 +78,7 @@ def ddqn(
         )
         return DeepmindAtariBody(
             DDQN(q, policy, replay_buffer,
-                 loss=smooth_l1_loss,
+                 loss=weighted_smooth_l1_loss,
                  discount_factor=discount_factor,
                  minibatch_size=minibatch_size,
                  replay_start_size=replay_start_size,
