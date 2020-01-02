@@ -45,8 +45,6 @@ def vac(
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
-            envs[0].action_space.n,
-            entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer,
         )

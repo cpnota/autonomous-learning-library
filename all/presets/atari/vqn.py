@@ -1,7 +1,6 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import RMSprop
-from torch.nn.functional import smooth_l1_loss
 from all.approximation import QNetwork
 from all.agents import VQN
 from all.bodies import DeepmindAtariBody
@@ -33,7 +32,6 @@ def vqn(
             model,
             optimizer,
             env.action_space.n,
-            loss=smooth_l1_loss,
             writer=writer
         )
         policy = GreedyPolicy(
