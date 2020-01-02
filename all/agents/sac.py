@@ -1,4 +1,5 @@
 import torch
+from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from ._agent import Agent
 
@@ -54,7 +55,6 @@ class SAC(Agent):
 
     def _train(self):
         if self._should_train():
-            # randomly sample a batch of transitions
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
                 self.minibatch_size)
             actions = torch.cat(actions)
@@ -68,26 +68,16 @@ class SAC(Agent):
                     self.q_2.target(states, _actions),
                 ) - self.temperature * _log_probs
                 temperature_loss = ((_log_probs + self.entropy_target).detach().mean())
-                self.writer.add_loss('entropy', -_log_probs.mean())
-                self.writer.add_loss('v_mean', v_targets.mean())
-                self.writer.add_loss('r_mean', rewards.mean())
-                self.writer.add_loss('temperature_loss', temperature_loss)
-                self.writer.add_loss('temperature', self.temperature)
 
-            # update Q-functions
-            q_1_errors = q_targets - self.q_1(states, actions)
-            self.q_1.reinforce(q_1_errors)
-            q_2_errors = q_targets - self.q_2(states, actions)
-            self.q_2.reinforce(q_2_errors)
+            # update Q and V-functions
+            self.q_1.reinforce(mse_loss(self.q_1(states, actions), q_targets))
+            self.q_2.reinforce(mse_loss(self.q_2(states, actions), q_targets))
+            self.v.reinforce(mse_loss(self.v(states), v_targets))
 
-            # update V-function
-            v_errors = v_targets - self.v(states)
-            self.v.reinforce(v_errors)
-
-            # train policy
+            # update policy
             _actions, _log_probs = self.policy(states, log_prob=True)
             loss = -(
-                self.q_1(states, _actions, detach=False)
+                self.q_1(states, _actions)
                 - self.temperature * _log_probs
             ).mean()
             loss.backward()
@@ -96,6 +86,13 @@ class SAC(Agent):
 
             # adjust temperature
             self.temperature += self.lr_temperature * temperature_loss
+
+            # additional debugging info
+            self.writer.add_loss('entropy', -_log_probs.mean())
+            self.writer.add_loss('v_mean', v_targets.mean())
+            self.writer.add_loss('r_mean', rewards.mean())
+            self.writer.add_loss('temperature_loss', temperature_loss)
+            self.writer.add_loss('temperature', self.temperature)
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and
