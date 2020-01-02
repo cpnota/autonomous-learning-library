@@ -12,7 +12,6 @@ def vac(
         # taken from stable-baselines a2c
         discount_factor=0.99,
         value_loss_scaling=0.25,
-        entropy_loss_scaling=0.01,
         clip_grad=0.5,
         lr_pi=1e-4,
         lr_v=5e-4,
