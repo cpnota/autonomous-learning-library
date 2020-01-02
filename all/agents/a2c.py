@@ -14,7 +14,7 @@ class A2C(Agent):
             n_envs=None,
             n_steps=4,
             discount_factor=0.99,
-            entropy_loss_scaling=0.001,
+            entropy_loss_scaling=0.01,
             writer=DummyWriter()
     ):
         if n_envs is None:
