@@ -51,7 +51,6 @@ def dqn(
             env.action_space.n,
             scheduler=CosineAnnealingLR(optimizer, last_update),
             target=FixedTarget(target_update_frequency),
-            loss=smooth_l1_loss,
             writer=writer
         )
         policy = GreedyPolicy(
@@ -72,6 +71,7 @@ def dqn(
         )
         return DeepmindAtariBody(
             DQN(q, policy, replay_buffer,
+                loss=smooth_l1_loss,
                 discount_factor=discount_factor,
                 minibatch_size=minibatch_size,
                 replay_start_size=replay_start_size,
