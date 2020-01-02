@@ -38,7 +38,7 @@ def ppo(
         env = envs[0]
 
         value_model = nature_value_head().to(device)
-        policy_model = nature_policy_head(envs[0]).to(device)
+        policy_model = nature_policy_head(env).to(device)
         feature_model = nature_features().to(device)
 
         feature_optimizer = Adam(
