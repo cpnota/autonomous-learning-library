@@ -45,7 +45,7 @@ class SAC(Agent):
         self._store_transition(state, reward)
         self._train()
         self.state = state
-        self.action = self.policy.eval(state).sample()
+        self.action = self.policy.eval(state)[0]
         return self.action
 
     def _store_transition(self, state, reward):
@@ -59,8 +59,7 @@ class SAC(Agent):
             actions = torch.cat(actions)
 
             # compute targets for Q and V
-            distribution = self.policy.eval(states)
-            _actions, _log_probs = distribution.rsample()
+            _actions, _log_probs = self.policy.eval(states)
             q_targets = rewards + self.discount_factor * self.v.target(next_states)
             v_targets = torch.min(
                 self.q_1.target(states, _actions),
@@ -73,8 +72,7 @@ class SAC(Agent):
             self.v.reinforce(mse_loss(self.v(states), v_targets))
 
             # update policy
-            distribution2 = self.policy(states)
-            _actions2, _log_probs2 = distribution2.rsample()
+            _actions2, _log_probs2 = self.policy(states)
             loss = (-self.q_1(states, _actions2) + self.temperature * _log_probs2).mean()
             self.policy.reinforce(loss)
             self.q_1.zero_grad()
