@@ -3,8 +3,6 @@ import numpy as np
 from all.logging import DummyWriter
 from ._agent import Agent
 
-torch.set_printoptions(threshold=10000)
-
 
 class C51(Agent):
     """
@@ -90,12 +88,10 @@ class C51(Agent):
             # project the disribution back on the original set of atoms
             target_dist = self.q_dist.project(next_dist, shifted_atoms)
             # apply update
-            dist = self.q_dist(states, actions, detach=False)
+            dist = self.q_dist(states, actions)
             loss = self._loss(dist, target_dist, weights)
-            loss.backward()
-            self.q_dist.step()
+            self.q_dist.reinforce(loss)
             # useful for debugging
-            self.writer.add_loss("q_dist", loss.detach())
             self.writer.add_loss(
                 "q_mean", (dist.detach() * self.q_dist.atoms).sum(dim=1).mean()
             )

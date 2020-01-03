@@ -39,7 +39,6 @@ def ddqn(
             optimizer,
             env.action_space.n,
             target=FixedTarget(target_update_frequency),
-            loss=mse_loss,
             writer=writer
         )
         policy = GreedyPolicy(
@@ -61,6 +60,7 @@ def ddqn(
             device=device
         )
         return DDQN(q, policy, replay_buffer,
+                    loss=mse_loss,
                     discount_factor=discount_factor,
                     replay_start_size=replay_start_size,
                     update_frequency=update_frequency,

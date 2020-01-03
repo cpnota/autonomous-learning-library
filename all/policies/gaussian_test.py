@@ -14,31 +14,43 @@ class TestGaussian(unittest.TestCase):
             nn.Linear(STATE_DIM, ACTION_DIM * 2)
         )
         optimizer = torch.optim.RMSprop(self.model.parameters(), lr=0.01)
-        self.policy = GaussianPolicy(self.model, optimizer, ACTION_DIM)
+        self.policy = GaussianPolicy(self.model, optimizer)
 
     def test_output_shape(self):
         state = State(torch.randn(1, STATE_DIM))
-        action = self.policy(state)
+        action = self.policy(state).sample()
         self.assertEqual(action.shape, (1, ACTION_DIM))
         state = State(torch.randn(5, STATE_DIM))
-        action = self.policy(state)
+        action = self.policy(state).sample()
         self.assertEqual(action.shape, (5, ACTION_DIM))
 
     def test_reinforce_one(self):
         state = State(torch.randn(1, STATE_DIM))
-        self.policy(state)
-        self.policy.reinforce(torch.tensor([1]).float())
+        dist = self.policy(state)
+        action = dist.sample()
+        log_prob1 = dist.log_prob(action)
+        loss = -log_prob1.mean()
+        self.policy.reinforce(loss)
+
+        dist = self.policy(state)
+        log_prob2 = dist.log_prob(action)
+        print(log_prob2)
+
+        self.assertGreater(log_prob2.item(), log_prob1.item())
 
     def test_converge(self):
         state = State(torch.randn(1, STATE_DIM))
         target = torch.tensor([1., 2., -1.])
 
         for _ in range(0, 1000):
-            action = self.policy(state)
-            loss = torch.abs(target - action).mean()
-            self.policy.reinforce(-loss)
+            dist = self.policy(state)
+            action = dist.sample()
+            log_prob = dist.log_prob(action)
+            error = ((target - action) ** 2).mean()
+            loss = (error * log_prob).mean()
+            self.policy.reinforce(loss)
 
-        self.assertTrue(loss < 1)
+        self.assertTrue(error < 1)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,7 +1,6 @@
 import os
 import torch
 from torch.nn import utils
-from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from .target import TrivialTarget
 from .checkpointer import PeriodicCheckpointer
@@ -15,7 +14,6 @@ class Approximation():
             optimizer,
             clip_grad=0,
             loss_scaling=1,
-            loss=mse_loss,
             name='approximation',
             scheduler=None,
             target=None,
@@ -29,7 +27,6 @@ class Approximation():
         self._target.init(model)
         self._updates = 0
         self._optimizer = optimizer
-        self._loss = loss
         self._loss_scaling = loss_scaling
         self._cache = []
         self._clip_grad = clip_grad
@@ -44,18 +41,11 @@ class Approximation():
             os.path.join(writer.log_dir, name + '.pt')
         )
 
-    def __call__(self, *inputs, detach=True):
+    def __call__(self, *inputs):
         '''
         Run a forward pass of the model.
-
-        If detach=True, the computation graph is cached and the result is detached.
-        If detach=False, nothing is cached and instead returns the attached result.
         '''
-        result = self.model(*inputs)
-        if detach:
-            self._enqueue(result)
-            return result.detach()
-        return result
+        return self.model(*inputs)
 
     def eval(self, *inputs):
         '''Run a forward pass of the model in no_grad mode.'''
@@ -66,18 +56,15 @@ class Approximation():
         '''Run a forward pass of the target network.'''
         return self._target(*inputs)
 
-    def reinforce(self, errors, retain_graph=False):
-        '''Update the model using the cache and the errors passed in.'''
-        batch_size = len(errors)
-        cache = self._dequeue(batch_size)
-        if cache.requires_grad:
-            loss = self._loss(cache, errors) * self._loss_scaling
-            self._writer.add_loss(self._name, loss)
-            loss.backward(retain_graph=retain_graph)
-            self.step()
+    def reinforce(self, loss):
+        loss = self._loss_scaling * loss
+        self._writer.add_loss(self._name, loss.detach())
+        loss.backward()
+        self.step()
+        return self
 
     def step(self):
-        '''Given that a bakcward pass has been made, run an optimization step.'''
+        '''Given that a backward pass has been made, run an optimization step.'''
         if self._clip_grad != 0:
             utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
         self._optimizer.step()
@@ -87,26 +74,8 @@ class Approximation():
             self._writer.add_schedule(self._name + '/lr', self._optimizer.param_groups[0]['lr'])
             self._scheduler.step()
         self._checkpointer()
+        return self
 
     def zero_grad(self):
         self._optimizer.zero_grad()
-
-    def _enqueue(self, results):
-        self._cache.append(results)
-
-    def _dequeue(self, batch_size):
-        i = 0
-        num_items = 0
-        while num_items < batch_size and i < len(self._cache):
-            num_items += len(self._cache[i])
-            i += 1
-        if num_items != batch_size:
-            raise ValueError("Incompatible batch size.")
-        items = torch.cat(self._cache[:i])
-        self._cache = self._cache[i:]
-        return items
-
-class ConstantLR():
-    '''Dummy LRScheduler'''
-    def step(self):
-        pass
+        return self

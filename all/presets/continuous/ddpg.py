@@ -57,8 +57,6 @@ def ddpg(
         policy = DeterministicPolicy(
             policy_model,
             policy_optimizer,
-            env.action_space,
-            noise,
             target=PolyakTarget(polyak_rate),
             writer=writer
         )
@@ -72,10 +70,12 @@ def ddpg(
             q,
             policy,
             replay_buffer,
+            env.action_space,
+            noise=noise,
             replay_start_size=replay_start_size,
             discount_factor=discount_factor,
             update_frequency=update_frequency,
-            minibatch_size=minibatch_size
+            minibatch_size=minibatch_size,
         )
     return _ddpg
 

@@ -1,4 +1,5 @@
 import torch
+from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from ._agent import Agent
 
@@ -44,7 +45,7 @@ class SAC(Agent):
         self._store_transition(state, reward)
         self._train()
         self.state = state
-        self.action = self.policy.eval(state)
+        self.action = self.policy.eval(state)[0]
         return self.action
 
     def _store_transition(self, state, reward):
@@ -54,48 +55,38 @@ class SAC(Agent):
 
     def _train(self):
         if self._should_train():
-            # randomly sample a batch of transitions
-            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
-                self.minibatch_size)
+            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
             actions = torch.cat(actions)
 
             # compute targets for Q and V
-            with torch.no_grad():
-                _actions, _log_probs = self.policy(states, log_prob=True)
-                q_targets = rewards + self.discount_factor * self.v.target(next_states)
-                v_targets = torch.min(
-                    self.q_1.target(states, _actions),
-                    self.q_2.target(states, _actions),
-                ) - self.temperature * _log_probs
-                temperature_loss = ((_log_probs + self.entropy_target).detach().mean())
-                self.writer.add_loss('entropy', -_log_probs.mean())
-                self.writer.add_loss('v_mean', v_targets.mean())
-                self.writer.add_loss('r_mean', rewards.mean())
-                self.writer.add_loss('temperature_loss', temperature_loss)
-                self.writer.add_loss('temperature', self.temperature)
+            _actions, _log_probs = self.policy.eval(states)
+            q_targets = rewards + self.discount_factor * self.v.target(next_states)
+            v_targets = torch.min(
+                self.q_1.target(states, _actions),
+                self.q_2.target(states, _actions),
+            ) - self.temperature * _log_probs
 
-            # update Q-functions
-            q_1_errors = q_targets - self.q_1(states, actions)
-            self.q_1.reinforce(q_1_errors)
-            q_2_errors = q_targets - self.q_2(states, actions)
-            self.q_2.reinforce(q_2_errors)
+            # update Q and V-functions
+            self.q_1.reinforce(mse_loss(self.q_1(states, actions), q_targets))
+            self.q_2.reinforce(mse_loss(self.q_2(states, actions), q_targets))
+            self.v.reinforce(mse_loss(self.v(states), v_targets))
 
-            # update V-function
-            v_errors = v_targets - self.v(states)
-            self.v.reinforce(v_errors)
-
-            # train policy
-            _actions, _log_probs = self.policy(states, log_prob=True)
-            loss = -(
-                self.q_1(states, _actions, detach=False)
-                - self.temperature * _log_probs
-            ).mean()
-            loss.backward()
-            self.policy.step()
+            # update policy
+            _actions2, _log_probs2 = self.policy(states)
+            loss = (-self.q_1(states, _actions2) + self.temperature * _log_probs2).mean()
+            self.policy.reinforce(loss)
             self.q_1.zero_grad()
 
             # adjust temperature
-            self.temperature += self.lr_temperature * temperature_loss
+            temperature_grad = (_log_probs + self.entropy_target).mean()
+            self.temperature += self.lr_temperature * temperature_grad.detach()
+
+            # additional debugging info
+            self.writer.add_loss('entropy', -_log_probs.mean())
+            self.writer.add_loss('v_mean', v_targets.mean())
+            self.writer.add_loss('r_mean', rewards.mean())
+            self.writer.add_loss('temperature_grad', temperature_grad)
+            self.writer.add_loss('temperature', self.temperature)
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and

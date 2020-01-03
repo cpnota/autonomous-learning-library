@@ -38,7 +38,7 @@ def ppo(
         env = envs[0]
 
         value_model = nature_value_head().to(device)
-        policy_model = nature_policy_head(envs[0]).to(device)
+        policy_model = nature_policy_head(env).to(device)
         feature_model = nature_features().to(device)
 
         feature_optimizer = Adam(
@@ -71,8 +71,6 @@ def ppo(
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
-            env.action_space.n,
-            entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer,
             scheduler=CosineAnnealingLR(
@@ -100,6 +98,8 @@ def ppo(
                 n_steps=n_steps,
                 discount_factor=discount_factor,
                 lam=lam,
+                entropy_loss_scaling=entropy_loss_scaling,
+                writer=writer,
             )
         )
 

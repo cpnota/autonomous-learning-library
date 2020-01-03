@@ -12,7 +12,6 @@ def vac(
         # taken from stable-baselines a2c
         discount_factor=0.99,
         value_loss_scaling=0.25,
-        entropy_loss_scaling=0.01,
         clip_grad=0.5,
         lr_pi=1e-4,
         lr_v=5e-4,
@@ -45,8 +44,6 @@ def vac(
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
-            envs[0].action_space.n,
-            entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer,
         )

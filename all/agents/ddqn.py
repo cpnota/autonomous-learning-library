@@ -1,4 +1,5 @@
 import torch
+from all.nn import weighted_mse_loss
 from ._agent import Agent
 
 
@@ -14,15 +15,17 @@ class DDQN(Agent):
                  q,
                  policy,
                  replay_buffer,
+                 loss=weighted_mse_loss,
                  discount_factor=0.99,
                  minibatch_size=32,
                  replay_start_size=5000,
-                 update_frequency=1
+                 update_frequency=1,
                  ):
         # objects
         self.q = q
         self.policy = policy
         self.replay_buffer = replay_buffer
+        self.loss = staticmethod(loss)
         # hyperparameters
         self.replay_start_size = replay_start_size
         self.update_frequency = update_frequency
@@ -47,18 +50,19 @@ class DDQN(Agent):
             self.replay_buffer.store(self.state, self.action, reward, state)
 
     def _train(self):
-        '''
-        Selects next action using the trained network,
-        but computes target according to online network.
-        '''
         if self._should_train():
             (states, actions, rewards, next_states, weights) = self.replay_buffer.sample(
                 self.minibatch_size)
+
+            # update q-network
+            values = self.q(states, actions)
             next_actions = torch.argmax(self.q.eval(next_states), dim=1)
             targets = rewards + self.discount_factor * self.q.target(next_states, next_actions)
-            td_errors = targets - self.q(states, actions)
+            self.q.reinforce(self.loss(values, targets, weights))
+
+            # update replay buffer
+            td_errors = targets - values
             self.replay_buffer.update_priorities(td_errors.abs())
-            self.q.reinforce(weights * td_errors)
 
     def _should_train(self):
         return (self.frames_seen > self.replay_start_size and

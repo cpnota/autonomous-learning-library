@@ -1,3 +1,4 @@
+from torch.nn.functional import mse_loss
 from ._agent import Agent
 
 
@@ -14,12 +15,10 @@ class VSarsa(Agent):
     def act(self, state, reward):
         action = self.policy(state)
         if self.previous_state:
-            td_error = (
-                reward
-                + self.gamma * self.q.target(state, action)
-                - self.q(self.previous_state, self.previous_action)
-            )
-            self.q.reinforce(td_error)
+            value = self.q(self.previous_state, self.previous_action)
+            target = reward + self.gamma * self.q.target(state, action)
+            loss = mse_loss(value, target)
+            self.q.reinforce(loss)
         self.previous_state = state
         self.previous_action = action
         return action

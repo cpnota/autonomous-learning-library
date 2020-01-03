@@ -26,7 +26,7 @@ def vac(
         feature_optimizer = RMSprop(feature_model.parameters(), lr=lr_pi, alpha=alpha, eps=eps)
 
         v = VNetwork(value_model, value_optimizer, writer=writer)
-        policy = SoftmaxPolicy(policy_model, policy_optimizer, env.action_space.n, writer=writer)
+        policy = SoftmaxPolicy(policy_model, policy_optimizer, writer=writer)
         features = FeatureNetwork(feature_model, feature_optimizer)
 
         return VAC(features, v, policy, gamma=discount_factor)

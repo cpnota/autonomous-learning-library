@@ -1,21 +1,25 @@
 import torch
 from torch.nn import functional
 from all.nn import ListNetwork
-from .stochastic import StochasticPolicy
+from all.approximation import Approximation
 
 
-class SoftmaxPolicy(StochasticPolicy):
+class SoftmaxPolicy(Approximation):
     def __init__(
             self,
             model,
             optimizer,
-            _, # deprecated
+            name='policy',
             **kwargs
     ):
-        model = ListNetwork(model)
+        model = SoftmaxPolicyNetwork(model)
+        super().__init__(model, optimizer, name=name, **kwargs)
 
-        def distribution(outputs):
-            probs = functional.softmax(outputs, dim=-1)
-            return torch.distributions.Categorical(probs)
+class SoftmaxPolicyNetwork(ListNetwork):
+    def __init__(self, model):
+        super().__init__(model)
 
-        super().__init__(model, optimizer, distribution, **kwargs)
+    def forward(self, state):
+        outputs = super().forward(state)
+        probs = functional.softmax(outputs, dim=-1)
+        return torch.distributions.Categorical(probs)

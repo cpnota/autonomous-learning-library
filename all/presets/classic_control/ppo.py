@@ -10,7 +10,7 @@ from .models import fc_relu_features, fc_policy_head, fc_value_head
 def ppo(
         clip_grad=0.1,
         discount_factor=0.99,
-        # entropy_loss_scaling=0.001,
+        entropy_loss_scaling=0.001,
         lr=1e-3,
         epsilon=0.2,
         epochs=4,
@@ -39,8 +39,6 @@ def ppo(
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
-            env.action_space.n,
-            # entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer
         )
@@ -52,7 +50,9 @@ def ppo(
             epochs=epochs,
             n_envs=n_envs,
             n_steps=n_steps,
-            discount_factor=discount_factor
+            discount_factor=discount_factor,
+            entropy_loss_scaling=entropy_loss_scaling,
+            writer=writer
         )
     return _ppo, n_envs
 

@@ -43,8 +43,10 @@ def sac(
         lr_q=3e-4,
         lr_v=3e-4,
         lr_pi=3e-4,
+        eps=1.5e-4,
         lr_temperature=1e-5,
-        entropy_target_scaling=1,
+        temperature_initial=0.1,
+        entropy_target_scaling=1.,
         replay_start_size=5000,
         replay_buffer_size=1e6,
         minibatch_size=256,
@@ -55,7 +57,7 @@ def sac(
 ):
     def _sac(env, writer=DummyWriter()):
         q_1_model = fc_q(env).to(device)
-        q_1_optimizer = Adam(q_1_model.parameters(), lr=lr_q)
+        q_1_optimizer = Adam(q_1_model.parameters(), lr=lr_q, eps=eps)
         q_1 = QContinuous(
             q_1_model,
             q_1_optimizer,
@@ -64,7 +66,7 @@ def sac(
         )
 
         q_2_model = fc_q(env).to(device)
-        q_2_optimizer = Adam(q_2_model.parameters(), lr=lr_q)
+        q_2_optimizer = Adam(q_2_model.parameters(), lr=lr_q, eps=eps)
         q_2 = QContinuous(
             q_2_model,
             q_2_optimizer,
@@ -73,7 +75,7 @@ def sac(
         )
 
         v_model = fc_v(env).to(device)
-        v_optimizer = Adam(v_model.parameters(), lr=lr_v)
+        v_optimizer = Adam(v_model.parameters(), lr=lr_v, eps=eps)
         v = VNetwork(
             v_model,
             v_optimizer,
@@ -83,7 +85,7 @@ def sac(
         )
 
         policy_model = fc_policy(env).to(device)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
+        policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi, eps=eps)
         policy = SoftDeterministicPolicy(
             policy_model,
             policy_optimizer,
@@ -102,6 +104,7 @@ def sac(
             q_2,
             v,
             replay_buffer,
+            temperature_initial=temperature_initial,
             entropy_target=(-env.action_space.shape[0] * entropy_target_scaling),
             lr_temperature=lr_temperature,
             replay_start_size=replay_start_size,

@@ -118,7 +118,13 @@ class TestQDist(unittest.TestCase):
         target_dists = torch.tensor(
             [[0, 0, 1, 0, 0], [0, 0, 0, 0, 1], [0, 1, 0, 0, 0]]
         ).float()
-        self.q.reinforce(target_dists)
+
+        def _loss(dist, target_dist):
+            log_dist = torch.log(torch.clamp(dist, min=1e-5))
+            log_target_dist = torch.log(torch.clamp(target_dist, min=1e-5))
+            return (target_dist * (log_target_dist - log_dist)).sum(dim=-1).mean()
+
+        self.q.reinforce(_loss(original_probs, target_dists))
 
         new_probs = self.q(states, actions)
         tt.assert_almost_equal(
