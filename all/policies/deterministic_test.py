@@ -22,8 +22,6 @@ class TestDeterministic(unittest.TestCase):
         self.policy = DeterministicPolicy(
             self.model,
             self.optimizer,
-            self.space,
-            0.5
         )
 
     def test_output_shape(self):
@@ -33,18 +31,6 @@ class TestDeterministic(unittest.TestCase):
         state = State(torch.randn(5, STATE_DIM))
         action = self.policy(state)
         self.assertEqual(action.shape, (5, ACTION_DIM))
-
-    def test_clipping(self):
-        space = Box(np.array([-0.1, -0.1, -0.1]), np.array([0.1, 0.1, 0.1]))
-        self.policy = DeterministicPolicy(
-            self.model,
-            self.optimizer,
-            space,
-            0.5
-        )
-        state = State(torch.randn(1, STATE_DIM))
-        action = self.policy(state).detach().numpy()
-        np.testing.assert_array_almost_equal(action, np.array([[-0.1, -0.1, 0.1]]))
 
     def test_step_one(self):
         state = State(torch.randn(1, STATE_DIM))
@@ -56,7 +42,7 @@ class TestDeterministic(unittest.TestCase):
         target = torch.tensor([1., 2., -1.])
 
         for _ in range(0, 100):
-            action = self.policy.greedy(state)
+            action = self.policy(state)
             loss = torch.abs(target - action).mean()
             loss.backward()
             self.policy.step()
@@ -67,14 +53,12 @@ class TestDeterministic(unittest.TestCase):
         self.policy = DeterministicPolicy(
             self.model,
             self.optimizer,
-            self.space,
-            0.5,
             target=FixedTarget(3)
         )
 
         # choose initial action
         state = State(torch.ones(1, STATE_DIM))
-        action = self.policy.greedy(state)
+        action = self.policy(state)
         tt.assert_equal(action, torch.zeros(1, ACTION_DIM))
 
         # run update step, make sure target network doesn't change
