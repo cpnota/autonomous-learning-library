@@ -1,7 +1,5 @@
-import gym
+import pybullet
 import pybullet_envs
-import roboschool
-import pybulletgym
 from watch_classic import watch
 
 if __name__ == "__main__":
