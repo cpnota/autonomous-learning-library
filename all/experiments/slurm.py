@@ -100,6 +100,7 @@ class SlurmExperiment:
     def run_sbatch_script(self):
         result = subprocess.run(
             ['sbatch', SCRIPT_NAME],
-            stdout=subprocess.PIPE
+            stdout=subprocess.PIPE,
+            check=True
         )
         print(result.stdout.decode('utf-8').rstrip())

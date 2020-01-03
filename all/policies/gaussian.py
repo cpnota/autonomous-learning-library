@@ -11,11 +11,8 @@ class GaussianPolicy(Approximation):
             optimizer,
             **kwargs
     ):
-        model = GaussianPolicyNetwork(model)
-        optimizer = optimizer
-
         super().__init__(
-            model,
+            GaussianPolicyNetwork(model),
             optimizer,
             **kwargs
         )
