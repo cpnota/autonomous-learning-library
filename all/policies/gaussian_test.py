@@ -34,7 +34,6 @@ class TestGaussian(unittest.TestCase):
 
         dist = self.policy(state)
         log_prob2 = dist.log_prob(action)
-        print(log_prob2)
 
         self.assertGreater(log_prob2.item(), log_prob1.item())
 
