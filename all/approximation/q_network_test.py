@@ -56,39 +56,41 @@ class TestQNetwork(unittest.TestCase):
             model,
             optimizer,
             1,
-            loss=smooth_l1_loss,
             target=FixedTarget(3)
         )
         inputs = State(torch.tensor([1.]))
-        errors = torch.tensor([-1.])
 
-        policy_value = q(inputs).item()
+        def loss(policy_value):
+            target = policy_value - 1
+            return smooth_l1_loss(policy_value, target.detach())
+
+        policy_value = q(inputs)
         target_value = q.target(inputs).item()
-        np.testing.assert_equal(policy_value, -0.008584141731262207)
+        np.testing.assert_equal(policy_value.item(), -0.008584141731262207)
         np.testing.assert_equal(target_value, -0.008584141731262207)
 
-        q.reinforce(errors)
-        policy_value = q(inputs).item()
+        q.reinforce(loss(policy_value))
+        policy_value = q(inputs)
         target_value = q.target(inputs).item()
-        np.testing.assert_equal(policy_value, -0.20858412981033325)
+        np.testing.assert_equal(policy_value.item(), -0.20858412981033325)
         np.testing.assert_equal(target_value, -0.008584141731262207)
 
-        q.reinforce(errors)
-        policy_value = q(inputs).item()
+        q.reinforce(loss(policy_value))
+        policy_value = q(inputs)
         target_value = q.target(inputs).item()
-        np.testing.assert_equal(policy_value, -0.4085841178894043)
+        np.testing.assert_equal(policy_value.item(), -0.4085841178894043)
         np.testing.assert_equal(target_value, -0.008584141731262207)
 
-        q.reinforce(errors)
-        policy_value = q(inputs).item()
+        q.reinforce(loss(policy_value))
+        policy_value = q(inputs)
         target_value = q.target(inputs).item()
-        np.testing.assert_equal(policy_value, -0.6085841655731201)
+        np.testing.assert_equal(policy_value.item(), -0.6085841655731201)
         np.testing.assert_equal(target_value, -0.6085841655731201)
 
-        q.reinforce(errors)
-        policy_value = q(inputs).item()
+        q.reinforce(loss(policy_value))
+        policy_value = q(inputs)
         target_value = q.target(inputs).item()
-        np.testing.assert_equal(policy_value, -0.8085841536521912)
+        np.testing.assert_equal(policy_value.item(), -0.8085841536521912)
         np.testing.assert_equal(target_value, -0.6085841655731201)
 
 if __name__ == '__main__':
