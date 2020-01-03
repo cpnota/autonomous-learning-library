@@ -118,7 +118,7 @@ class TestQDist(unittest.TestCase):
         target_dists = torch.tensor(
             [[0, 0, 1, 0, 0], [0, 0, 0, 0, 1], [0, 1, 0, 0, 0]]
         ).float()
-        
+
         def _loss(dist, target_dist):
             log_dist = torch.log(torch.clamp(dist, min=1e-5))
             log_target_dist = torch.log(torch.clamp(target_dist, min=1e-5))
