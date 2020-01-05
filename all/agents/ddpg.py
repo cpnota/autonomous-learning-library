@@ -1,4 +1,5 @@
 import torch
+from torch.distributions.normal import Normal
 from all.nn import weighted_mse_loss
 from ._agent import Agent
 
@@ -23,7 +24,7 @@ class DDPG(Agent):
         self.update_frequency = update_frequency
         self.minibatch_size = minibatch_size
         self.discount_factor = discount_factor
-        self._noise = torch.distributions.normal.Normal(0, noise)
+        self._noise = Normal(0, noise * torch.tensor((action_space.high - action_space.low) / 2).to(policy.device))
         self._low = torch.tensor(action_space.low, device=policy.device)
         self._high = torch.tensor(action_space.high, device=policy.device)
         # data
@@ -46,7 +47,7 @@ class DDPG(Agent):
 
     def _choose_action(self, state):
         action = self.policy.eval(state)
-        action = action + self._noise.sample(action.shape).to(self.policy.device)
+        action = action + self._noise.sample()
         action = torch.min(action, self._high)
         action = torch.max(action, self._low)
         return action

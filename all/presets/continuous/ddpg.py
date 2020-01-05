@@ -1,6 +1,7 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from all import nn
 from all.agents import DDPG
 from all.approximation import QContinuous, PolyakTarget
@@ -12,36 +13,38 @@ from all.memory import ExperienceReplayBuffer
 def fc_value(env):
     return nn.Sequential(
         nn.Flatten(),
-        nn.Linear(env.state_space.shape[0] + env.action_space.shape[0], 64),
+        nn.Linear(env.state_space.shape[0] + env.action_space.shape[0], 400),
         nn.ReLU(),
-        nn.Linear(64, 64),
+        nn.Linear(400, 300),
         nn.ReLU(),
-        nn.Linear0(64, 1)
+        nn.Linear0(300, 1),
     )
 
 def fc_policy(env):
     return nn.Sequential(
         nn.Flatten(),
-        nn.Linear(env.state_space.shape[0], 64),
+        nn.Linear(env.state_space.shape[0], 400),
         nn.ReLU(),
-        nn.Linear(64, 64),
+        nn.Linear(400, 300),
         nn.ReLU(),
-        nn.Linear0(64, env.action_space.shape[0]),
-        nn.TanhActionBound(env.action_space)
+        nn.Linear0(300, env.action_space.shape[0]),
     )
 
 def ddpg(
-        lr_q=1e-3,
+        lr_q=3e-4,
         lr_pi=1e-4,
-        noise=0.1,
+        noise=0.2,
         replay_start_size=5000,
-        replay_buffer_size=50000,
+        replay_buffer_size=100000,
         minibatch_size=64,
         discount_factor=0.99,
         polyak_rate=0.001,
         update_frequency=1,
+        final_frame=2e6, # Anneal LR and clip until here
         device=torch.device('cuda')
 ):
+    final_anneal_step = (final_frame - replay_start_size) // update_frequency
+
     def _ddpg(env, writer=DummyWriter()):
         value_model = fc_value(env).to(device)
         value_optimizer = Adam(value_model.parameters(), lr=lr_q)
@@ -49,6 +52,10 @@ def ddpg(
             value_model,
             value_optimizer,
             target=PolyakTarget(polyak_rate),
+            scheduler=CosineAnnealingLR(
+                value_optimizer,
+                final_anneal_step
+            ),
             writer=writer
         )
 
@@ -57,7 +64,12 @@ def ddpg(
         policy = DeterministicPolicy(
             policy_model,
             policy_optimizer,
+            env.action_space,
             target=PolyakTarget(polyak_rate),
+            scheduler=CosineAnnealingLR(
+                policy_optimizer,
+                final_anneal_step
+            ),
             writer=writer
         )
 
