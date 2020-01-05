@@ -32,3 +32,8 @@ class DeterministicPolicyNetwork(ListNetwork):
 
     def _squash(self, x):
         return torch.tanh(x) * self._tanh_scale + self._tanh_mean
+
+    def to(self, device):
+        self._tanh_mean = self._tanh_mean.to(device)
+        self._tanh_scale = self._tanh_scale.to(device)
+        return super().to(device)
