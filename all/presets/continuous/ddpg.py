@@ -53,7 +53,7 @@ class Critic(nn.Module):
 def ddpg(
         lr_q=1e-3,
         lr_pi=1e-4,
-        weight_decay=1e-2,
+        weight_decay=1e-3,
         noise=0.2,
         replay_start_size=5000,
         replay_buffer_size=100000,
@@ -62,12 +62,14 @@ def ddpg(
         polyak_rate=0.001,
         update_frequency=1,
         final_frame=2e6, # Anneal LR and clip until here
+        hidden1=64,
+        hidden2=64,
         device=torch.device('cuda')
 ):
     final_anneal_step = (final_frame - replay_start_size) // update_frequency
 
     def _ddpg(env, writer=DummyWriter()):
-        value_model = Critic(env).to(device)
+        value_model = fc_value(env, hidden1, hidden2).to(device)
         value_optimizer = Adam(value_model.parameters(), lr=lr_q, weight_decay=weight_decay)
         q = QContinuous(
             value_model,
@@ -80,7 +82,7 @@ def ddpg(
             writer=writer
         )
 
-        policy_model = fc_policy(env).to(device)
+        policy_model = fc_policy(env, hidden1, hidden2).to(device)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
         policy = DeterministicPolicy(
             policy_model,
