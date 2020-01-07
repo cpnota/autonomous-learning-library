@@ -88,7 +88,7 @@ class PPO(Agent):
         self.features.reinforce()
         # debugging
         self.writer.add_loss('policy_gradient', policy_gradient_loss.detach())
-        self.writer.add_loss('entropy', entropy_loss.detach())
+        self.writer.add_loss('entropy', -entropy_loss.detach())
 
     def _policy_loss(self, pi_i, pi_0, advantages):
         ratios = torch.exp(pi_i - pi_0)
