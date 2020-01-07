@@ -33,8 +33,8 @@ class DQN(Agent):
     def act(self, state, reward):
         self._store_transition(state, reward)
         self._train()
-        self._state = state
-        self._action = self.policy(state)
+        self.state = state
+        self.action = self.policy(state)
         return self.action
 
     def _store_transition(self, state, reward):
