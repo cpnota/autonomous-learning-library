@@ -34,12 +34,11 @@ def c51(
         v_min=-10,
         v_max=10,
 ):
-    # counted by number of updates rather than number of frame
-    action_repeat = 4
-    last_timestep = last_frame / action_repeat
-    last_update = (last_timestep - replay_start_size) / update_frequency
-
     def _c51(env, writer=DummyWriter()):
+        action_repeat = 4
+        last_timestep = last_frame / action_repeat
+        last_update = (last_timestep - replay_start_size) / update_frequency
+
         model = nature_c51(env, atoms=atoms).to(device)
         optimizer = Adam(
             model.parameters(),

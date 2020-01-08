@@ -38,12 +38,13 @@ def ddqn(
     '''
     Double Dueling DQN with Prioritized Experience Replay.
     '''
-    action_repeat = 4
-    last_timestep = last_frame / action_repeat
-    last_update = (last_timestep - replay_start_size) / update_frequency
-    final_exploration_step = final_exploration_frame / action_repeat
 
     def _ddqn(env, writer=DummyWriter()):
+        action_repeat = 4
+        last_timestep = last_frame / action_repeat
+        last_update = (last_timestep - replay_start_size) / update_frequency
+        final_exploration_step = final_exploration_frame / action_repeat
+
         model = nature_ddqn(env).to(device)
         optimizer = Adam(
             model.parameters(),

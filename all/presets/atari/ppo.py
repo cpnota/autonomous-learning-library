@@ -29,13 +29,13 @@ def ppo(
         n_steps=128,
         device=torch.device("cuda"),
 ):
-    # Update epoch * minibatches times per update,
-    # but we only update once per n_steps,
-    # with n_envs and 4 frames per step
-    final_anneal_step = final_frame * epochs * minibatches / (n_steps * n_envs * 4)
-
     def _ppo(envs, writer=DummyWriter()):
         env = envs[0]
+
+        # Update epoch * minibatches times per update,
+        # but we only update once per n_steps,
+        # with n_envs and 4 frames per step
+        final_anneal_step = final_frame * epochs * minibatches / (n_steps * n_envs * 4)
 
         value_model = nature_value_head().to(device)
         policy_model = nature_policy_head(env).to(device)
