@@ -44,15 +44,11 @@ class PPO(Agent):
         self._buffer = self._make_buffer()
 
     def act(self, states, rewards):
-        self._store_transitions(self._states, self._actions, rewards)
+        self._buffer.store(self._states, self._actions, rewards)
         self._train(states)
         self._states = states
         self._actions = self.policy.eval(self.features.eval(states)).sample()
         return self._actions
-
-    def _store_transitions(self, states, actions, rewards):
-        if states:
-            self._buffer.store(states, actions, rewards)
 
     def _train(self, next_states):
         if len(self._buffer) >= self._batch_size:

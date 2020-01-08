@@ -33,15 +33,11 @@ class DDPG(Agent):
         self._frames_seen = 0
 
     def act(self, state, reward):
-        self._store_transition(self._state, self._action, reward, state)
+        self.replay_buffer.store(self._state, self._action, reward, state)
         self._train()
         self._state = state
         self._action = self._choose_action(state)
         return self._action
-
-    def _store_transition(self, state, action, reward, next_state):
-        if state and not state.done:
-            self.replay_buffer.store(state, action, reward, next_state)
 
     def _choose_action(self, state):
         action = self.policy.eval(state)
@@ -54,13 +50,11 @@ class DDPG(Agent):
         if self._should_train():
             # sample transitions from buffer
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
-
             # train q-network
             q_values = self.q(states, torch.cat(actions))
             targets = rewards + self.discount_factor * self.q.target(next_states, self.policy.target(next_states))
             loss = mse_loss(q_values, targets)
             self.q.reinforce(loss)
-
             # train policy
             greedy_actions = self.policy(states)
             loss = -self.q(states, greedy_actions).mean()

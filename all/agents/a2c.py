@@ -33,18 +33,13 @@ class A2C(Agent):
         self._actions = None
         self._batch_size = n_envs * n_steps
         self._buffer = self._make_buffer()
-        self._features = []
 
     def act(self, states, rewards):
-        self._store_transitions(self._states, self._actions, rewards)
+        self._buffer.store(self._states, self._actions, rewards)
         self._train(states)
         self._states = states
         self._actions = self.policy.eval(self.features.eval(states)).sample()
         return self._actions
-
-    def _store_transitions(self, states, actions, rewards):
-        if self._states:
-            self._buffer.store(states, actions, rewards)
 
     def _train(self, states):
         if len(self._buffer) >= self._batch_size:
