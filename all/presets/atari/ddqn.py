@@ -24,7 +24,7 @@ def ddqn(
         minibatch_size=32,
         update_frequency=4,
         target_update_frequency=1000,
-        # Replay Buffer settings
+        # Replay buffer settings
         replay_start_size=80000,
         replay_buffer_size=1000000,
         # Explicit exploration

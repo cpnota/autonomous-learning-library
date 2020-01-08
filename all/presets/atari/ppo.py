@@ -12,22 +12,26 @@ from .models import nature_features, nature_value_head, nature_policy_head
 
 
 def ppo(
-        # stable baselines hyperparameters
-        clip_grad=0.5,
+        # Common settings
+        device=torch.device('cuda'),
         discount_factor=0.99,
-        lam=0.95,  # GAE lambda (similar to e-traces)
+        last_frame=40e6,
+        # Adam optimizer settings
         lr=2.5e-4,  # Adam learning rate
         eps=1e-5,  # Adam stability
+        # Other optimization settings
+        clip_grad=0.5,
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.5,
         clip_initial=0.1,
         clip_final=0.01,
-        final_frame=40e6, # Anneal LR and clip until here
+        # Batch settings
         epochs=4,
         minibatches=4,
         n_envs=8,
         n_steps=128,
-        device=torch.device("cuda"),
+        # GAE settings
+        lam=0.95,
 ):
     def _ppo(envs, writer=DummyWriter()):
         env = envs[0]
@@ -35,7 +39,7 @@ def ppo(
         # Update epoch * minibatches times per update,
         # but we only update once per n_steps,
         # with n_envs and 4 frames per step
-        final_anneal_step = final_frame * epochs * minibatches / (n_steps * n_envs * 4)
+        final_anneal_step = last_frame * epochs * minibatches / (n_steps * n_envs * 4)
 
         value_model = nature_value_head().to(device)
         policy_model = nature_policy_head(env).to(device)

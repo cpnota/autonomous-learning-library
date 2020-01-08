@@ -1,6 +1,6 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
-from torch.optim import RMSprop
+from torch.optim import Adam
 from all.approximation import QNetwork
 from all.agents import VSarsa
 from all.bodies import DeepmindAtariBody
@@ -10,24 +10,26 @@ from all.policies import GreedyPolicy
 from .models import nature_ddqn
 
 def vsarsa(
-        action_repeat=4,
-        alpha=0.999, # RMSprop smoothing
+        # Common settings
+        device=torch.device('cuda'),
         discount_factor=0.99,
-        eps=1.5e-4,  # RMSprop stability
+        # Adam optimizer settings
+        lr=1e-3,
+        eps=1.5e-4,
+        # Exploration settings
         final_exploration_frame=1000000,
         final_exploration=0.02,
         initial_exploration=1.,
-        lr=1e-3,
+        # Parallel actors
         n_envs=64,
-        device=torch.device('cuda')
 ):
-    # counted by number of updates rather than number of frame
-    final_exploration_frame /= action_repeat
-
     def _vsarsa(envs, writer=DummyWriter()):
+        action_repeat = 4
+        final_exploration_timestep = final_exploration_frame / action_repeat
+
         env = envs[0]
         model = nature_ddqn(env).to(device)
-        optimizer = RMSprop(model.parameters(), lr=lr, alpha=alpha, eps=eps)
+        optimizer = Adam(model.parameters(), lr=lr, eps=eps)
         q = QNetwork(
             model,
             optimizer,
@@ -41,7 +43,7 @@ def vsarsa(
                 initial_exploration,
                 final_exploration,
                 0,
-                final_exploration_frame,
+                final_exploration_timestep,
                 name="epsilon",
                 writer=writer
             )
