@@ -1,95 +1,90 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
-from all import nn
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import SAC
 from all.approximation import QContinuous, PolyakTarget, VNetwork
+from all.bodies import TimeFeature
 from all.logging import DummyWriter
 from all.policies.soft_deterministic import SoftDeterministicPolicy
 from all.memory import ExperienceReplayBuffer
+from .models import fc_q, fc_v, fc_soft_policy
 
-
-def fc_q(env):
-    return nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(env.state_space.shape[0] + env.action_space.shape[0], 64),
-        nn.ReLU(),
-        nn.Linear(64, 64),
-        nn.ReLU(),
-        nn.Linear(64, 1)
-    )
-
-def fc_v(env):
-    return nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(env.state_space.shape[0], 64),
-        nn.ReLU(),
-        nn.Linear(64, 64),
-        nn.ReLU(),
-        nn.Linear(64, 1)
-    )
-
-def fc_policy(env):
-    return nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(env.state_space.shape[0], 64),
-        nn.ReLU(),
-        nn.Linear(64, 64),
-        nn.ReLU(),
-        nn.Linear0(64, env.action_space.shape[0] * 2),
-    )
 
 def sac(
-        lr_q=3e-4,
-        lr_v=3e-4,
-        lr_pi=3e-4,
-        eps=1.5e-4,
-        lr_temperature=1e-5,
-        temperature_initial=0.1,
-        entropy_target_scaling=1.,
+        # Common settings
+        device=torch.device('cuda'),
+        discount_factor=0.98,
+        last_frame=2e6,
+        # Adam optimizer settings
+        lr_q=1e-3,
+        lr_v=1e-3,
+        lr_pi=1e-4,
+        # Training settings
+        minibatch_size=100,
+        update_frequency=1,
+        polyak_rate=0.005,
+        # Replay Buffer settings
         replay_start_size=5000,
         replay_buffer_size=1e6,
-        minibatch_size=256,
-        discount_factor=0.99,
-        polyak_rate=0.005,
-        update_frequency=4,
-        device=torch.device('cuda')
+        # Exploration settings
+        temperature_initial=0.1,
+        lr_temperature=1e-5,
+        entropy_target_scaling=1.,
 ):
     def _sac(env, writer=DummyWriter()):
+        final_anneal_step = (last_frame - replay_start_size) // update_frequency
+
         q_1_model = fc_q(env).to(device)
-        q_1_optimizer = Adam(q_1_model.parameters(), lr=lr_q, eps=eps)
+        q_1_optimizer = Adam(q_1_model.parameters(), lr=lr_q)
         q_1 = QContinuous(
             q_1_model,
             q_1_optimizer,
+            scheduler=CosineAnnealingLR(
+                q_1_optimizer,
+                final_anneal_step
+            ),
             writer=writer,
             name='q_1'
         )
 
         q_2_model = fc_q(env).to(device)
-        q_2_optimizer = Adam(q_2_model.parameters(), lr=lr_q, eps=eps)
+        q_2_optimizer = Adam(q_2_model.parameters(), lr=lr_q)
         q_2 = QContinuous(
             q_2_model,
             q_2_optimizer,
+            scheduler=CosineAnnealingLR(
+                q_2_optimizer,
+                final_anneal_step
+            ),
             writer=writer,
             name='q_2'
         )
 
         v_model = fc_v(env).to(device)
-        v_optimizer = Adam(v_model.parameters(), lr=lr_v, eps=eps)
+        v_optimizer = Adam(v_model.parameters(), lr=lr_v)
         v = VNetwork(
             v_model,
             v_optimizer,
+            scheduler=CosineAnnealingLR(
+                v_optimizer,
+                final_anneal_step
+            ),
             target=PolyakTarget(polyak_rate),
             writer=writer,
             name='v',
         )
 
-        policy_model = fc_policy(env).to(device)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi, eps=eps)
+        policy_model = fc_soft_policy(env).to(device)
+        policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
         policy = SoftDeterministicPolicy(
             policy_model,
             policy_optimizer,
             env.action_space,
+            scheduler=CosineAnnealingLR(
+                policy_optimizer,
+                final_anneal_step
+            ),
             writer=writer
         )
 
@@ -98,7 +93,7 @@ def sac(
             device=device
         )
 
-        return SAC(
+        return TimeFeature(SAC(
             policy,
             q_1,
             q_2,
@@ -112,5 +107,5 @@ def sac(
             update_frequency=update_frequency,
             minibatch_size=minibatch_size,
             writer=writer
-        )
+        ))
     return _sac

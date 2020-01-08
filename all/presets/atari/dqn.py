@@ -40,11 +40,13 @@ def dqn(
 
     def _dqn(env, writer=DummyWriter()):
         model = nature_dqn(env).to(device)
+
         optimizer = Adam(
             model.parameters(),
             lr=lr,
             eps=eps
         )
+
         q = QNetwork(
             model,
             optimizer,
@@ -53,6 +55,7 @@ def dqn(
             target=FixedTarget(target_update_frequency),
             writer=writer
         )
+
         policy = GreedyPolicy(
             q,
             env.action_space.n,
@@ -65,10 +68,12 @@ def dqn(
                 writer=writer
             )
         )
+
         replay_buffer = ExperienceReplayBuffer(
             replay_buffer_size,
             device=device
         )
+
         return DeepmindAtariBody(
             DQN(q, policy, replay_buffer,
                 loss=smooth_l1_loss,

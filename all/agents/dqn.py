@@ -44,8 +44,7 @@ class DQN(Agent):
 
     def _train(self):
         if self._should_train():
-            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
-                self.minibatch_size)
+            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
             values = self.q(states, actions)
             targets = rewards + self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0]
             loss = self.loss(values, targets)

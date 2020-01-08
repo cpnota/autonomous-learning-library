@@ -1,63 +1,61 @@
 # /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
 import torch
 from torch.optim import Adam
-from all import nn
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import DDPG
 from all.approximation import QContinuous, PolyakTarget
+from all.bodies import TimeFeature
 from all.logging import DummyWriter
 from all.policies import DeterministicPolicy
 from all.memory import ExperienceReplayBuffer
+from .models import fc_q, fc_deterministic_policy
 
-
-def fc_value(env):
-    return nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(env.state_space.shape[0] + env.action_space.shape[0], 64),
-        nn.ReLU(),
-        nn.Linear(64, 64),
-        nn.ReLU(),
-        nn.Linear0(64, 1)
-    )
-
-def fc_policy(env):
-    return nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(env.state_space.shape[0], 64),
-        nn.ReLU(),
-        nn.Linear(64, 64),
-        nn.ReLU(),
-        nn.Linear0(64, env.action_space.shape[0]),
-        nn.TanhActionBound(env.action_space)
-    )
 
 def ddpg(
+        # Common settings
+        device=torch.device('cuda'),
+        discount_factor=0.98,
+        last_frame=2e6,
+        # Adam optimizer settings
         lr_q=1e-3,
-        lr_pi=1e-4,
-        noise=0.1,
-        replay_start_size=5000,
-        replay_buffer_size=50000,
-        minibatch_size=64,
-        discount_factor=0.99,
-        polyak_rate=0.001,
+        lr_pi=1e-3,
+        # Training settings
+        minibatch_size=100,
         update_frequency=1,
-        device=torch.device('cuda')
+        polyak_rate=0.005,
+        # Replay Buffer settings
+        replay_start_size=5000,
+        replay_buffer_size=1e6,
+        # Exploration settings
+        noise=0.1,
 ):
     def _ddpg(env, writer=DummyWriter()):
-        value_model = fc_value(env).to(device)
-        value_optimizer = Adam(value_model.parameters(), lr=lr_q)
+        final_anneal_step = (last_frame - replay_start_size) // update_frequency
+
+        q_model = fc_q(env).to(device)
+        q_optimizer = Adam(q_model.parameters(), lr=lr_q)
         q = QContinuous(
-            value_model,
-            value_optimizer,
+            q_model,
+            q_optimizer,
             target=PolyakTarget(polyak_rate),
+            scheduler=CosineAnnealingLR(
+                q_optimizer,
+                final_anneal_step
+            ),
             writer=writer
         )
 
-        policy_model = fc_policy(env).to(device)
+        policy_model = fc_deterministic_policy(env).to(device)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
         policy = DeterministicPolicy(
             policy_model,
             policy_optimizer,
+            env.action_space,
             target=PolyakTarget(polyak_rate),
+            scheduler=CosineAnnealingLR(
+                policy_optimizer,
+                final_anneal_step
+            ),
             writer=writer
         )
 
@@ -66,7 +64,7 @@ def ddpg(
             device=device
         )
 
-        return DDPG(
+        return TimeFeature(DDPG(
             q,
             policy,
             replay_buffer,
@@ -76,7 +74,7 @@ def ddpg(
             discount_factor=discount_factor,
             update_frequency=update_frequency,
             minibatch_size=minibatch_size,
-        )
+        ))
     return _ddpg
 
 

@@ -22,6 +22,7 @@ class TestDeterministic(unittest.TestCase):
         self.policy = DeterministicPolicy(
             self.model,
             self.optimizer,
+            self.space
         )
 
     def test_output_shape(self):
@@ -39,20 +40,21 @@ class TestDeterministic(unittest.TestCase):
 
     def test_converge(self):
         state = State(torch.randn(1, STATE_DIM))
-        target = torch.tensor([1., 2., -1.])
+        target = torch.tensor([0.25, 0.5, -0.5])
 
-        for _ in range(0, 100):
+        for _ in range(0, 200):
             action = self.policy(state)
-            loss = torch.abs(target - action).mean()
+            loss = ((target - action) ** 2).mean()
             loss.backward()
             self.policy.step()
 
-        self.assertTrue(loss < 0.1)
+        self.assertLess(loss, 0.001)
 
     def test_target(self):
         self.policy = DeterministicPolicy(
             self.model,
             self.optimizer,
+            self.space,
             target=FixedTarget(3)
         )
 
@@ -76,7 +78,8 @@ class TestDeterministic(unittest.TestCase):
         self.policy.step()
         tt.assert_allclose(
             self.policy.eval(state),
-            torch.tensor([[-0.686739, -0.686739, -0.686739]])
+            torch.tensor([[-0.595883, -0.595883, -0.595883]]),
+            atol=1e-4,
         )
 
 if __name__ == '__main__':
