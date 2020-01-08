@@ -1,5 +1,11 @@
+import warnings
 from abc import abstractmethod, ABC
 import torch
+
+# Some builds of pytorch throw this unhelpful warning.
+# We can safely disable it.
+# https://discuss.pytorch.org/t/got-warning-couldnt-retrieve-source-code-for-container/7689/7
+warnings.simplefilter("Couldn't retrieve source code")
 
 class Checkpointer(ABC):
     @abstractmethod
