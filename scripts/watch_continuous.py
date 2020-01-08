@@ -5,6 +5,7 @@ import pybullet_envs
 from all.bodies import TimeFeature
 from all.environments import GymEnvironment
 from all.experiments import GreedyAgent, watch
+from continuous import ENVS
 
 
 def watch_continuous():
@@ -22,7 +23,13 @@ def watch_continuous():
         help="Playback speed",
     )
     args = parser.parse_args()
-    env = GymEnvironment(args.env, device=args.device)
+
+    if args.env in ENVS:
+        env_id = ENVS[args.env]
+    else:
+        env_id = args.env
+
+    env = GymEnvironment(env_id, device=args.device)
     agent = TimeFeature(GreedyAgent.load(args.dir, env))
     watch(agent, env, fps=args.fps)
 
