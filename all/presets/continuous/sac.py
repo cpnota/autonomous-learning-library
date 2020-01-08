@@ -2,44 +2,14 @@
 import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from all import nn
 from all.agents import SAC
 from all.approximation import QContinuous, PolyakTarget, VNetwork
 from all.bodies import TimeFeature
 from all.logging import DummyWriter
 from all.policies.soft_deterministic import SoftDeterministicPolicy
 from all.memory import ExperienceReplayBuffer
+from .models import fc_q, fc_v, fc_soft_policy
 
-
-def fc_q(env):
-    return nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(env.state_space.shape[0] + env.action_space.shape[0] + 1, 400),
-        nn.ReLU(),
-        nn.Linear(400, 300),
-        nn.ReLU(),
-        nn.Linear(300, 1)
-    )
-
-def fc_v(env):
-    return nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(env.state_space.shape[0] + 1, 400),
-        nn.ReLU(),
-        nn.Linear(400, 300),
-        nn.ReLU(),
-        nn.Linear(300, 1)
-    )
-
-def fc_policy(env):
-    return nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(env.state_space.shape[0] + 1, 400),
-        nn.ReLU(),
-        nn.Linear(400, 300),
-        nn.ReLU(),
-        nn.Linear0(300, env.action_space.shape[0] * 2),
-    )
 
 def sac(
         lr_q=1e-3,
@@ -57,9 +27,9 @@ def sac(
         final_frame=2e6, # Anneal LR and clip until here
         device=torch.device('cuda')
 ):
-    final_anneal_step = (final_frame - replay_start_size) // update_frequency
-
     def _sac(env, writer=DummyWriter()):
+        final_anneal_step = (final_frame - replay_start_size) // update_frequency
+
         q_1_model = fc_q(env).to(device)
         q_1_optimizer = Adam(q_1_model.parameters(), lr=lr_q)
         q_1 = QContinuous(
@@ -100,7 +70,7 @@ def sac(
             name='v',
         )
 
-        policy_model = fc_policy(env).to(device)
+        policy_model = fc_soft_policy(env).to(device)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
         policy = SoftDeterministicPolicy(
             policy_model,

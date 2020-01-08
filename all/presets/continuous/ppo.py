@@ -2,34 +2,14 @@
 import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from all import nn
 from all.agents import PPO
 from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import TimeFeature
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import GaussianPolicy
+from .models import fc_actor_critic
 
-def fc_features(env):
-    return nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(env.state_space.shape[0] + 1, 400),
-        nn.ReLU(),
-    )
-
-def fc_v():
-    return nn.Sequential(
-        nn.Linear(400, 300),
-        nn.ReLU(),
-        nn.Linear(300, 1)
-    )
-
-def fc_policy(env):
-    return nn.Sequential(
-        nn.Linear(400, 300),
-        nn.ReLU(),
-        nn.Linear(300, env.action_space.shape[0] * 2)
-    )
 
 def ppo(
         clip_grad=0.5,
@@ -48,16 +28,14 @@ def ppo(
         n_steps=128,
         device=torch.device("cuda"),
 ):
-    # Update epoch * minibatches times per update,
-    # but we only update once per n_steps
-    final_anneal_step = final_frame * epochs * minibatches / (n_steps * n_envs)
-
     def _ppo(envs, writer=DummyWriter()):
+        final_anneal_step = final_frame * epochs * minibatches / (n_steps * n_envs)
         env = envs[0]
 
-        value_model = fc_v().to(device)
-        policy_model = fc_policy(env).to(device)
-        feature_model = fc_features(env).to(device)
+        feature_model, value_model, policy_model = fc_actor_critic(env)
+        feature_model.to(device)
+        value_model.to(device)
+        policy_model.to(device)
 
         feature_optimizer = Adam(
             feature_model.parameters(), lr=lr, eps=eps
