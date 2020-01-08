@@ -10,12 +10,12 @@ class SAC(Agent):
                  q_2,
                  v,
                  replay_buffer,
-                 entropy_target=-2., # usually -action_space.size[0]
-                 temperature_initial=0.1,
-                 lr_temperature=1e-4,
                  discount_factor=0.99,
+                 entropy_target=-2.,
+                 lr_temperature=1e-4,
                  minibatch_size=32,
                  replay_start_size=5000,
+                 temperature_initial=0.1,
                  update_frequency=1,
                  writer=DummyWriter()
                  ):
@@ -27,34 +27,32 @@ class SAC(Agent):
         self.replay_buffer = replay_buffer
         self.writer = writer
         # hyperparameters
-        self.replay_start_size = replay_start_size
-        self.update_frequency = update_frequency
-        self.minibatch_size = minibatch_size
         self.discount_factor = discount_factor
-        # vars for learning the temperature
         self.entropy_target = entropy_target
-        self.temperature = temperature_initial
         self.lr_temperature = lr_temperature
-        # data
-        self.env = None
-        self.state = None
-        self.action = None
-        self.frames_seen = 0
+        self.minibatch_size = minibatch_size
+        self.replay_start_size = replay_start_size
+        self.temperature = temperature_initial
+        self.update_frequency = update_frequency
+        # private
+        self._state = None
+        self._action = None
+        self._frames_seen = 0
 
     def act(self, state, reward):
-        self._store_transition(state, reward)
+        self._store_transition(self._state, self._action, reward, state)
         self._train()
-        self.state = state
-        self.action = self.policy.eval(state)[0]
-        return self.action
+        self._state = state
+        self._action = self.policy.eval(state)[0]
+        return self._action
 
-    def _store_transition(self, state, reward):
-        if self.state and not self.state.done:
-            self.frames_seen += 1
-            self.replay_buffer.store(self.state, self.action, reward, state)
+    def _store_transition(self, state, action, reward, next_state):
+        if state and not state.done:
+            self.replay_buffer.store(state, action, reward, next_state)
 
     def _train(self):
         if self._should_train():
+            # sample from replay buffer
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
             actions = torch.cat(actions)
 
@@ -89,5 +87,5 @@ class SAC(Agent):
             self.writer.add_loss('temperature', self.temperature)
 
     def _should_train(self):
-        return (self.frames_seen > self.replay_start_size and
-                self.frames_seen % self.update_frequency == 0)
+        self._frames_seen += 1
+        return self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0
