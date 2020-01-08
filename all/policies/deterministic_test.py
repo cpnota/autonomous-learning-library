@@ -22,6 +22,7 @@ class TestDeterministic(unittest.TestCase):
         self.policy = DeterministicPolicy(
             self.model,
             self.optimizer,
+            self.space
         )
 
     def test_output_shape(self):
@@ -53,6 +54,7 @@ class TestDeterministic(unittest.TestCase):
         self.policy = DeterministicPolicy(
             self.model,
             self.optimizer,
+            self.space,
             target=FixedTarget(3)
         )
 
