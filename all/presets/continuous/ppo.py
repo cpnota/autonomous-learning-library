@@ -12,24 +12,29 @@ from .models import fc_actor_critic
 
 
 def ppo(
-        clip_grad=0.5,
+        # Common settings
+        device=torch.device('cuda'),
         discount_factor=0.98,
-        lam=0.95,  # GAE lambda
+        lam=0.95,
+        last_frame=2e6,
+        # Adam optimizer settings
         lr=3e-4,  # Adam learning rate
         eps=1e-5,  # Adam stability
+        # Loss scaling
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.5,
-        clip_initial=0.2,
+        # Training settings
         clip_final=0.01,
-        final_frame=2e6, # Anneal LR and clip until here
+        clip_grad=0.5,
+        clip_initial=0.2,
         epochs=20,
         minibatches=4,
+        # Batch settings
         n_envs=32,
         n_steps=128,
-        device=torch.device("cuda"),
 ):
     def _ppo(envs, writer=DummyWriter()):
-        final_anneal_step = final_frame * epochs * minibatches / (n_steps * n_envs)
+        final_anneal_step = last_frame * epochs * minibatches / (n_steps * n_envs)
         env = envs[0]
 
         feature_model, value_model, policy_model = fc_actor_critic(env)

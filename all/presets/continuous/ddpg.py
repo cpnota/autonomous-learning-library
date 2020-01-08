@@ -12,20 +12,25 @@ from .models import fc_q, fc_deterministic_policy
 
 
 def ddpg(
+        # Common settings
+        device=torch.device('cuda'),
+        discount_factor=0.98,
+        last_frame=2e6,
+        # Adam optimizer settings
         lr_q=1e-3,
-        lr_pi=1e-3,
-        noise=0.1,
+        lr_pi=1e-4,
+        # Training settings
+        minibatch_size=100,
+        update_frequency=1,
+        polyak_rate=0.005,
+        # Replay Buffer settings
         replay_start_size=5000,
         replay_buffer_size=1e6,
-        minibatch_size=100,
-        discount_factor=0.99,
-        polyak_rate=0.005,
-        update_frequency=1,
-        final_frame=2e6, # Anneal LR and clip until here
-        device=torch.device('cuda')
+        # Exploration settings
+        noise=0.1,
 ):
     def _ddpg(env, writer=DummyWriter()):
-        final_anneal_step = (final_frame - replay_start_size) // update_frequency
+        final_anneal_step = (last_frame - replay_start_size) // update_frequency
 
         q_model = fc_q(env).to(device)
         q_optimizer = Adam(q_model.parameters(), lr=lr_q)

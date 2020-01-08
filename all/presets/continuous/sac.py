@@ -12,23 +12,28 @@ from .models import fc_q, fc_v, fc_soft_policy
 
 
 def sac(
+        # Common settings
+        device=torch.device('cuda'),
+        discount_factor=0.98,
+        last_frame=2e6,
+        # Adam optimizer settings
         lr_q=1e-3,
         lr_v=1e-3,
         lr_pi=1e-4,
-        lr_temperature=1e-5,
-        temperature_initial=0.1,
-        entropy_target_scaling=1.,
+        # Training settings
+        minibatch_size=100,
+        update_frequency=2,
+        polyak_rate=0.005,
+        # Replay Buffer settings
         replay_start_size=5000,
         replay_buffer_size=1e6,
-        minibatch_size=100,
-        discount_factor=0.98,
-        polyak_rate=0.005,
-        update_frequency=2,
-        final_frame=2e6, # Anneal LR and clip until here
-        device=torch.device('cuda')
+        # Exploration settings
+        temperature_initial=0.1,
+        lr_temperature=1e-5,
+        entropy_target_scaling=1.,
 ):
     def _sac(env, writer=DummyWriter()):
-        final_anneal_step = (final_frame - replay_start_size) // update_frequency
+        final_anneal_step = (last_frame - replay_start_size) // update_frequency
 
         q_1_model = fc_q(env).to(device)
         q_1_optimizer = Adam(q_1_model.parameters(), lr=lr_q)
