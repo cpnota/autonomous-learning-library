@@ -18,7 +18,7 @@ def ddpg(
         last_frame=2e6,
         # Adam optimizer settings
         lr_q=1e-3,
-        lr_pi=1e-4,
+        lr_pi=1e-1,
         # Training settings
         minibatch_size=100,
         update_frequency=1,
