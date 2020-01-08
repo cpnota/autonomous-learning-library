@@ -50,11 +50,13 @@ class DDPG(Agent):
         if self._should_train():
             # sample transitions from buffer
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
+
             # train q-network
             q_values = self.q(states, torch.cat(actions))
             targets = rewards + self.discount_factor * self.q.target(next_states, self.policy.target(next_states))
             loss = mse_loss(q_values, targets)
             self.q.reinforce(loss)
+
             # train policy
             greedy_actions = self.policy(states)
             loss = -self.q(states, greedy_actions).mean()

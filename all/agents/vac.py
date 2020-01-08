@@ -24,11 +24,15 @@ class VAC(Agent):
         if self._features:
             # forward pass
             values = self.v(self._features)
+
+            # compute targets
             targets = reward + self.gamma * self.v.target(self.features.target(state))
             advantages = targets - values.detach()
+
             # compute losses
             value_loss = mse_loss(values, targets)
             policy_loss = -(advantages * self._distribution.log_prob(self._action)).mean()
+
             # backward pass
             self.v.reinforce(value_loss)
             self.policy.reinforce(policy_loss)

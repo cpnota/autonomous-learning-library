@@ -45,20 +45,26 @@ class A2C(Agent):
         if len(self._buffer) >= self._batch_size:
             # load trajectories from buffer
             states, actions, advantages = self._buffer.advantages(states)
+
             # forward pass
             features = self.features(states)
             values = self.v(features)
             distribution = self.policy(features)
+
+            # compute targets
             targets = values.detach() + advantages
+
             # compute losses
             value_loss = mse_loss(values, targets)
             policy_gradient_loss = -(distribution.log_prob(actions) * advantages).mean()
             entropy_loss = -distribution.entropy().mean()
             policy_loss = policy_gradient_loss + self.entropy_loss_scaling * entropy_loss
+
             # backward pass
             self.v.reinforce(value_loss)
             self.policy.reinforce(policy_loss)
             self.features.reinforce()
+
             # debugging
             self.writer.add_loss('policy_gradient', policy_gradient_loss.detach())
             self.writer.add_loss('entropy', entropy_loss.detach())

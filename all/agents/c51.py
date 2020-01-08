@@ -80,16 +80,14 @@ class C51(Agent):
             # forward pass
             dist = self.q_dist(states, actions)
             # compute target distribution
-            next_actions = self._best_actions(next_states)
-            next_dist = self.q_dist.target(next_states, next_actions)
-            shifted_atoms = (
-                rewards.view((-1, 1)) + self.discount_factor * self.q_dist.atoms
-            )
-            target_dist = self.q_dist.project(next_dist, shifted_atoms)
+            target_dist = self._compute_target_dist(next_states, rewards)
             # compute loss
-            loss = self._loss(dist, target_dist, weights)
+            kl = self._kl(dist, target_dist)
+            loss = (weights * kl).mean()
             # backward pass
             self.q_dist.reinforce(loss)
+            # update replay buffer priorities
+            self.replay_buffer.update_priorities(kl.detach())
             # debugging
             self.writer.add_loss(
                 "q_mean", (dist.detach() * self.q_dist.atoms).sum(dim=1).mean()
@@ -99,9 +97,15 @@ class C51(Agent):
         self._frames_seen += 1
         return self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0
 
-    def _loss(self, dist, target_dist, weights):
+    def _compute_target_dist(self, states, rewards):
+        actions = self._best_actions(states)
+        dist = self.q_dist.target(states, actions)
+        shifted_atoms = (
+            rewards.view((-1, 1)) + self.discount_factor * self.q_dist.atoms
+        )
+        return self.q_dist.project(dist, shifted_atoms)
+
+    def _kl(self, dist, target_dist):
         log_dist = torch.log(torch.clamp(dist, min=self.eps))
         log_target_dist = torch.log(torch.clamp(target_dist, min=self.eps))
-        kl = (target_dist * (log_target_dist - log_dist)).sum(dim=-1)
-        self.replay_buffer.update_priorities(kl.detach())
-        return (weights * kl).mean()
+        return (target_dist * (log_target_dist - log_dist)).sum(dim=-1)
