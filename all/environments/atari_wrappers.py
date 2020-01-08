@@ -175,6 +175,10 @@ class LifeLostEnv(gym.Wrapper):
         gym.Wrapper.__init__(self, env)
         self.lives = 0
 
+    def reset(self):
+        self.lives = 0
+        return self.env.reset()
+
     def step(self, action):
         obs, reward, done, _ = self.env.step(action)
         lives = self.env.unwrapped.ale.lives()

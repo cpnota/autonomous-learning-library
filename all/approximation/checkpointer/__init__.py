@@ -2,10 +2,6 @@ import warnings
 from abc import abstractmethod, ABC
 import torch
 
-# Some builds of pytorch throw this unhelpful warning.
-# We can safely disable it.
-# https://discuss.pytorch.org/t/got-warning-couldnt-retrieve-source-code-for-container/7689/7
-warnings.simplefilter("Couldn't retrieve source code")
 
 class Checkpointer(ABC):
     @abstractmethod
@@ -35,6 +31,10 @@ class PeriodicCheckpointer(Checkpointer):
     def init(self, model, filename):
         self._model = model
         self._filename = filename
+        # Some builds of pytorch throw this unhelpful warning.
+        # We can safely disable it.
+        # https://discuss.pytorch.org/t/got-warning-couldnt-retrieve-source-code-for-container/7689/7
+        warnings.filterwarnings("ignore", message="Couldn't retrieve source code")
 
     def __call__(self):
         if self._updates % self.frequency == 0:

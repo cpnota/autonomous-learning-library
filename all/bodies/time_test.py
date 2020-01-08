@@ -30,13 +30,13 @@ class TimeFeatureTest(unittest.TestCase):
         state = State(torch.randn(1, 4))
         self.agent.act(state, 0)
         tt.assert_allclose(self.test_agent.last_state.features, torch.tensor(
-            [[0.3923, -0.2236, -0.3195, -1.2050, 0.0000]]), atol=1e-04)
+            [[0.3923, -0.2236, -0.3195, -1.2050, 0.]]), atol=1e-04)
         self.agent.act(state, 0)
         tt.assert_allclose(self.test_agent.last_state.features, torch.tensor(
-            [[0.3923, -0.2236, -0.3195, -1.2050, 1.0000]]), atol=1e-04)
+            [[0.3923, -0.2236, -0.3195, -1.2050, 1e-3]]), atol=1e-04)
         self.agent.act(state, 0)
         tt.assert_allclose(self.test_agent.last_state.features, torch.tensor(
-            [[0.3923, -0.2236, -0.3195, -1.2050, 2.0000]]), atol=1e-04)
+            [[0.3923, -0.2236, -0.3195, -1.2050, 2e-3]]), atol=1e-04)
 
     def test_reset(self):
         state = State(torch.randn(1, 4))
@@ -45,16 +45,16 @@ class TimeFeatureTest(unittest.TestCase):
             [[0.3923, -0.2236, -0.3195, -1.2050, 0.0000]]), atol=1e-04)
         self.agent.act(state, 0)
         tt.assert_allclose(self.test_agent.last_state.features, torch.tensor(
-            [[0.3923, -0.2236, -0.3195, -1.2050, 1.0000]]), atol=1e-04)
+            [[0.3923, -0.2236, -0.3195, -1.2050, 1e-3]]), atol=1e-04)
         self.agent.act(State(state.features, DONE), 0)
         tt.assert_allclose(self.test_agent.last_state.features, torch.tensor(
-            [[0.3923, -0.2236, -0.3195, -1.2050, 2.0000]]), atol=1e-04)
+            [[0.3923, -0.2236, -0.3195, -1.2050, 2e-3]]), atol=1e-04)
         self.agent.act(State(state.features), 0)
         tt.assert_allclose(self.test_agent.last_state.features, torch.tensor(
             [[0.3923, -0.2236, -0.3195, -1.2050, 0.0000]]), atol=1e-04)
         self.agent.act(state, 0)
         tt.assert_allclose(self.test_agent.last_state.features, torch.tensor(
-            [[0.3923, -0.2236, -0.3195, -1.2050, 1.0000]]), atol=1e-04)
+            [[0.3923, -0.2236, -0.3195, -1.2050, 1e-3]]), atol=1e-04)
 
     def test_multi_env(self):
         state = State(torch.randn(2, 2))
@@ -63,16 +63,16 @@ class TimeFeatureTest(unittest.TestCase):
             [[0.3923, -0.2236, 0.], [-0.3195, -1.2050, 0.]]), atol=1e-04)
         self.agent.act(state, 0)
         tt.assert_allclose(self.test_agent.last_state.features, torch.tensor(
-            [[0.3923, -0.2236, 1.], [-0.3195, -1.2050, 1.]]), atol=1e-04)
+            [[0.3923, -0.2236, 1e-3], [-0.3195, -1.2050, 1e-3]]), atol=1e-04)
         self.agent.act(State(state.features, torch.tensor([1., 0.])), 0)
         tt.assert_allclose(self.test_agent.last_state.features, torch.tensor(
-            [[0.3923, -0.2236, 2.], [-0.3195, -1.2050, 2.]]), atol=1e-04)
+            [[0.3923, -0.2236, 2e-3], [-0.3195, -1.2050, 2e-3]]), atol=1e-04)
         self.agent.act(state, 0)
         tt.assert_allclose(self.test_agent.last_state.features, torch.tensor(
-            [[0.3923, -0.2236, 3.], [-0.3195, -1.2050, 0.]]), atol=1e-04)
+            [[0.3923, -0.2236, 3e-3], [-0.3195, -1.2050, 0.]]), atol=1e-04)
         self.agent.act(state, 0)
         tt.assert_allclose(self.test_agent.last_state.features, torch.tensor(
-            [[0.3923, -0.2236, 4.], [-0.3195, -1.2050, 1.]]), atol=1e-04)
+            [[0.3923, -0.2236, 4e-3], [-0.3195, -1.2050, 1e-3]]), atol=1e-04)
 
 if __name__ == '__main__':
     unittest.main()
