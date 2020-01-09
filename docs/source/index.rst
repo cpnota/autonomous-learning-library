@@ -1,9 +1,18 @@
 The Autonomous Learning Library
 ===============================
 
+The Autonomous Learning Library is a toolkit for building and evaluating reinforcement learning agents.
+This documentation is under construction!
+
 .. toctree::
     :maxdepth: 2
-    :caption: Contents:
+    :caption: User Guide:
+
+    guide/getting_started
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Modules:
 
     modules/agents
     modules/approximation
