@@ -2,18 +2,6 @@ import torch
 from all.environments import State
 from .approximation import Approximation
 
-class FeatureModule(torch.nn.Module):
-    def __init__(self, model):
-        super().__init__()
-        self.model = model
-
-    def forward(self, states):
-        features = self.model(states.features.float())
-        return State(
-            features,
-            mask=states.mask,
-            info=states.info
-        )
 
 class FeatureNetwork(Approximation):
     def __init__(self, model, optimizer=None, name='feature', **kwargs):
@@ -50,3 +38,16 @@ class FeatureNetwork(Approximation):
         self._cache = []
         self._out = []
         return torch.cat(graphs), torch.cat(grads)
+
+class FeatureModule(torch.nn.Module):
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+
+    def forward(self, states):
+        features = self.model(states.features.float())
+        return State(
+            features,
+            mask=states.mask,
+            info=states.info
+        )
