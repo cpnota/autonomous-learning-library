@@ -198,18 +198,6 @@ class TanhActionBound(nn.Module):
     def forward(self, x):
         return torch.tanh(x) * self.weight + self.bias
 
-
-class QModuleContinuous(nn.Module):
-    def __init__(self, model):
-        super().__init__()
-        self.device = next(model.parameters()).device
-        self.model = model
-
-    def forward(self, states, actions):
-        x = torch.cat((states.features.float(), actions), dim=1)
-        return self.model(x).squeeze(-1) * states.mask.float()
-
-
 def td_loss(loss):
     def _loss(estimates, errors):
         return loss(estimates, errors + estimates.detach())

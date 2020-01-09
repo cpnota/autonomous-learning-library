@@ -1,4 +1,5 @@
-from all.nn import QModuleContinuous
+import torch
+from all.nn import RLNetwork
 from .approximation import Approximation
 
 class QContinuous(Approximation):
@@ -16,3 +17,8 @@ class QContinuous(Approximation):
             name=name,
             **kwargs
         )
+
+class QModuleContinuous(RLNetwork):
+    def forward(self, states, actions):
+        x = torch.cat((states.features.float(), actions), dim=1)
+        return super().forward(x).squeeze(-1) * states.mask.float()
