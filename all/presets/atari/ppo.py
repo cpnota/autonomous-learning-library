@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import PPO
@@ -13,7 +11,7 @@ from .models import nature_features, nature_value_head, nature_policy_head
 
 def ppo(
         # Common settings
-        device=torch.device('cuda'),
+        device="cuda",
         discount_factor=0.99,
         last_frame=40e6,
         # Adam optimizer settings

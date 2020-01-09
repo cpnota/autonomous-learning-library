@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from torch.nn.functional import mse_loss
 from all.agents import DDQN
@@ -13,7 +11,7 @@ from .models import dueling_fc_relu_q
 
 def ddqn(
         # Common settings
-        device=torch.device('cpu'),
+        device="cpu",
         discount_factor=0.99,
         # Adam optimizer settings
         lr=1e-4,

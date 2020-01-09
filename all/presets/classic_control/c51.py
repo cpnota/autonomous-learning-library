@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from all.agents import C51
 from all.approximation import QDist
@@ -11,7 +9,7 @@ from .models import fc_relu_dist_q
 
 def c51(
         # Common settings
-        device=torch.device('cpu'),
+        device="cpu",
         discount_factor=0.99,
         # Adam optimizer settings
         lr=1e-4,

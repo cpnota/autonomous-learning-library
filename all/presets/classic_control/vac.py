@@ -1,4 +1,3 @@
-import torch
 from torch.optim import Adam
 from all.agents import VAC
 from all.approximation import VNetwork, FeatureNetwork
@@ -9,7 +8,7 @@ from .models import fc_relu_features, fc_policy_head, fc_value_head
 
 def vac(
         # Common settings
-        device=torch.device('cpu'),
+        device="cpu",
         discount_factor=0.99,
         # Adam optimizer settings
         lr_v=5e-3,

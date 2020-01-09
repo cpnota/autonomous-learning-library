@@ -1,4 +1,3 @@
-import torch
 from torch.optim import Adam
 from all.agents import VAC
 from all.approximation import VNetwork, FeatureNetwork
@@ -10,7 +9,7 @@ from .models import nature_features, nature_value_head, nature_policy_head
 
 def vac(
         # Common settings
-        device=torch.device('cuda'),
+        device="cuda",
         discount_factor=0.99,
         # Adam optimizer settings
         lr_v=5e-4,

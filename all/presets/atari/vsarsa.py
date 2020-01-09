@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from all.approximation import QNetwork
 from all.agents import VSarsa
@@ -11,7 +9,7 @@ from .models import nature_ddqn
 
 def vsarsa(
         # Common settings
-        device=torch.device('cuda'),
+        device="cuda",
         discount_factor=0.99,
         # Adam optimizer settings
         lr=1e-3,

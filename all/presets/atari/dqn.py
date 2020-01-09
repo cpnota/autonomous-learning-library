@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.nn.functional import smooth_l1_loss
@@ -15,7 +13,7 @@ from .models import nature_dqn
 
 def dqn(
         # Common settings
-        device=torch.device('cuda'),
+        device="cuda",
         discount_factor=0.99,
         last_frame=40e6,
         # Adam optimizer settings

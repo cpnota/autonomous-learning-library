@@ -1,15 +1,19 @@
-.. all documentation master file, created by
-   sphinx-quickstart on Thu Jan  9 11:09:27 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to all's documentation!
+The Autonomous Learning Library
 ===============================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+.. automodule:: all
+    :members:
 
+.. automodule:: all.presets.atari
+    :members:
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Contents:
+
+.. toctree::
+    :maxdepth: 1
+    :caption: RL Algorithms
 
 
 Indices and tables

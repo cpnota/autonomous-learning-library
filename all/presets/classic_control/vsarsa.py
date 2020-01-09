@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from all.agents import VSarsa
 from all.approximation import QNetwork
@@ -9,7 +7,7 @@ from .models import fc_relu_q
 
 def vsarsa(
         # Common settings
-        device=torch.device('cpu'),
+        device="cpu",
         gamma=0.99,
         # Adam optimizer settings
         lr=1e-2,

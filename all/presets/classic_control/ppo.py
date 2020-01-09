@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from all.agents import PPO
 from all.approximation import VNetwork, FeatureNetwork
@@ -9,7 +7,7 @@ from .models import fc_relu_features, fc_policy_head, fc_value_head
 
 def ppo(
         # Common settings
-        device=torch.device('cpu'),
+        device="cpu",
         discount_factor=0.99,
         # Adam optimizer settings
         lr=1e-3,
