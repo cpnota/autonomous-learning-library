@@ -18,7 +18,7 @@ class TestQNetwork(unittest.TestCase):
         )
         def optimizer(params):
             return torch.optim.SGD(params, lr=0.1)
-        self.q = QNetwork(self.model, optimizer, ACTIONS)
+        self.q = QNetwork(self.model, optimizer)
 
     def test_eval_list(self):
         states = State(
@@ -55,7 +55,6 @@ class TestQNetwork(unittest.TestCase):
         q = QNetwork(
             model,
             optimizer,
-            1,
             target=FixedTarget(3)
         )
         inputs = State(torch.tensor([1.]))
