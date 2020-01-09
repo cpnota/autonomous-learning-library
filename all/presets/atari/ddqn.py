@@ -52,7 +52,6 @@ def ddqn(
         q = QNetwork(
             model,
             optimizer,
-            env.action_space.n,
             scheduler=CosineAnnealingLR(optimizer, last_update),
             target=FixedTarget(target_update_frequency),
             writer=writer

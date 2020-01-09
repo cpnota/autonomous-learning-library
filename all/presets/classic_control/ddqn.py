@@ -39,7 +39,6 @@ def ddqn(
         q = QNetwork(
             model,
             optimizer,
-            env.action_space.n,
             target=FixedTarget(target_update_frequency),
             writer=writer
         )

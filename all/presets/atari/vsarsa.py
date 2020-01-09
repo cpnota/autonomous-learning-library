@@ -31,7 +31,6 @@ def vsarsa(
         q = QNetwork(
             model,
             optimizer,
-            env.action_space.n,
             writer=writer
         )
         policy = GreedyPolicy(

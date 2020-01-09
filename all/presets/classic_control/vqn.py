@@ -21,7 +21,7 @@ def vqn(
         env = envs[0]
         model = fc_relu_q(env).to(device)
         optimizer = Adam(model.parameters(), lr=lr, eps=eps)
-        q = QNetwork(model, optimizer, env.action_space.n, writer=writer)
+        q = QNetwork(model, optimizer, writer=writer)
         policy = GreedyPolicy(q, env.action_space.n, epsilon=epsilon)
         return VQN(q, policy, gamma=gamma)
     return _vqn, n_envs
