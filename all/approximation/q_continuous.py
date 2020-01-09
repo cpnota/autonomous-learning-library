@@ -10,7 +10,7 @@ class QContinuous(Approximation):
             name='q',
             **kwargs
     ):
-        model = QModuleContinuous(model)
+        model = QContinuousModule(model)
         super().__init__(
             model,
             optimizer,
@@ -18,7 +18,7 @@ class QContinuous(Approximation):
             **kwargs
         )
 
-class QModuleContinuous(RLNetwork):
+class QContinuousModule(RLNetwork):
     def forward(self, states, actions):
         x = torch.cat((states.features.float(), actions), dim=1)
-        return super().forward(x).squeeze(-1) * states.mask.float()
+        return self.model(x).squeeze(-1) * states.mask.float()
