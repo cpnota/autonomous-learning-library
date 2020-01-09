@@ -64,7 +64,7 @@ class QDistModule(nn.Module):
         self.device = next(model.parameters()).device
         self.terminal = torch.zeros((n_atoms)).to(self.device)
         self.terminal[(n_atoms // 2)] = 1.0
-        self.model = nn.ListNetwork(model)
+        self.model = nn.RLNetwork(model)
         self.count = 0
 
     def forward(self, states, actions=None):

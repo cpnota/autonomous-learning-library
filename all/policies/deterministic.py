@@ -1,6 +1,6 @@
 import torch
 from all.approximation import Approximation
-from all.nn import ListNetwork
+from all.nn import RLNetwork
 
 
 class DeterministicPolicy(Approximation):
@@ -20,7 +20,7 @@ class DeterministicPolicy(Approximation):
             **kwargs
         )
 
-class DeterministicPolicyNetwork(ListNetwork):
+class DeterministicPolicyNetwork(RLNetwork):
     def __init__(self, model, space):
         super().__init__(model)
         self._action_dim = space.shape[0]

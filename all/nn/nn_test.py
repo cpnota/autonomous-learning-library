@@ -33,7 +33,7 @@ class TestNN(unittest.TestCase):
 
     def test_list(self):
         model = nn.Linear(2, 2)
-        net = nn.ListNetwork(model, (2,))
+        net = nn.RLNetwork(model, (2,))
         features = torch.randn((4, 2))
         done = torch.tensor([1, 1, 0, 1], dtype=torch.uint8)
         out = net(State(features, done))

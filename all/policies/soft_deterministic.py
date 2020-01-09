@@ -1,6 +1,6 @@
 import torch
 from all.approximation import Approximation
-from all.nn import ListNetwork
+from all.nn import RLNetwork
 
 class SoftDeterministicPolicy(Approximation):
     def __init__(
@@ -15,7 +15,7 @@ class SoftDeterministicPolicy(Approximation):
         super().__init__(model, optimizer, name=name, **kwargs)
 
 
-class SoftDeterministicPolicyNetwork(ListNetwork):
+class SoftDeterministicPolicyNetwork(RLNetwork):
     def __init__(self, model, space):
         super().__init__(model)
         self._action_dim = space.shape[0]

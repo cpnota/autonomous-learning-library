@@ -2,7 +2,7 @@ import torch
 from torch.distributions.independent import Independent
 from torch.distributions.normal import Normal
 from all.approximation import Approximation
-from all.nn import ListNetwork
+from all.nn import RLNetwork
 
 
 class GaussianPolicy(Approximation):
@@ -21,7 +21,7 @@ class GaussianPolicy(Approximation):
             **kwargs
         )
 
-class GaussianPolicyNetwork(ListNetwork):
+class GaussianPolicyNetwork(RLNetwork):
     def __init__(self, model, space):
         super().__init__(model)
         self._center = torch.tensor((space.high + space.low) / 2).to(self.device)

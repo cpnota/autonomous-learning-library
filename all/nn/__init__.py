@@ -6,7 +6,7 @@ import numpy as np
 from all.environments import State
 
 
-class ListNetwork(nn.Module):
+class RLNetwork(nn.Module):
     """
     Wraps a network such that States can be given as input.
     """
@@ -218,7 +218,7 @@ class QModule(nn.Module):
     def __init__(self, model, num_actions):
         super().__init__()
         self.device = next(model.parameters()).device
-        self.model = ListNetwork(model, (num_actions,))
+        self.model = RLNetwork(model, (num_actions,))
 
     def forward(self, states, actions=None):
         values = self.model(states)
@@ -233,7 +233,7 @@ class VModule(nn.Module):
     def __init__(self, model):
         super().__init__()
         self.device = next(model.parameters()).device
-        self.model = ListNetwork(model, (1,))
+        self.model = RLNetwork(model, (1,))
 
     def forward(self, states):
         return self.model(states).squeeze(-1)

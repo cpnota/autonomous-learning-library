@@ -1,6 +1,6 @@
 import torch
 from torch.nn import functional
-from all.nn import ListNetwork
+from all.nn import RLNetwork
 from all.approximation import Approximation
 
 
@@ -15,7 +15,7 @@ class SoftmaxPolicy(Approximation):
         model = SoftmaxPolicyNetwork(model)
         super().__init__(model, optimizer, name=name, **kwargs)
 
-class SoftmaxPolicyNetwork(ListNetwork):
+class SoftmaxPolicyNetwork(RLNetwork):
     def __init__(self, model):
         super().__init__(model)
 
