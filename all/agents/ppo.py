@@ -44,24 +44,22 @@ class PPO(Agent):
         self._buffer = self._make_buffer()
 
     def act(self, states, rewards):
-        self._store_transitions(self._states, self._actions, rewards)
+        self._buffer.store(self._states, self._actions, rewards)
         self._train(states)
         self._states = states
         self._actions = self.policy.eval(self.features.eval(states)).sample()
         return self._actions
 
-    def _store_transitions(self, states, actions, rewards):
-        if states:
-            self._buffer.store(states, actions, rewards)
-
     def _train(self, next_states):
         if len(self._buffer) >= self._batch_size:
             # load trajectories from buffer
             states, actions, advantages = self._buffer.advantages(next_states)
+
             # compute target values
             features = self.features.eval(states)
             pi_0 = self.policy.eval(features).log_prob(actions)
             targets = self.v.eval(features) + advantages
+
             # train for several epochs
             for _ in range(self.epochs):
                 self._train_epoch(states, actions, advantages, targets, pi_0)
@@ -75,6 +73,7 @@ class PPO(Agent):
             first = n * minibatch_size
             last = first + minibatch_size
             i = indexes[first:last]
+
             # perform a single training step
             self._train_minibatch(states[i], actions[i], pi_0[i], advantages[i], targets[i])
 
@@ -84,15 +83,18 @@ class PPO(Agent):
         values = self.v(features)
         distribution = self.policy(features)
         pi_i = distribution.log_prob(actions)
+
         # compute losses
         value_loss = mse_loss(values, targets)
         policy_gradient_loss = self._clipped_policy_gradient_loss(pi_0, pi_i, advantages)
         entropy_loss = -distribution.entropy().mean()
         policy_loss = policy_gradient_loss + self.entropy_loss_scaling * entropy_loss
+
         # backward pass
         self.v.reinforce(value_loss)
         self.policy.reinforce(policy_loss)
         self.features.reinforce()
+
         # debugging
         self.writer.add_loss('policy_gradient', policy_gradient_loss.detach())
         self.writer.add_loss('entropy', -entropy_loss.detach())

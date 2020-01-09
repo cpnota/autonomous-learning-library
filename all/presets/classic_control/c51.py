@@ -10,17 +10,25 @@ from .models import fc_relu_dist_q
 
 
 def c51(
-        atoms=101,
-        minibatch_size=128,
-        replay_buffer_size=20000,
+        # Common settings
+        device=torch.device('cpu'),
         discount_factor=0.99,
-        update_frequency=1,
+        # Adam optimizer settings
         lr=1e-4,
+        # Training settings
+        minibatch_size=128,
+        update_frequency=1,
+        # Replay buffer settings
+        replay_start_size=1000,
+        replay_buffer_size=20000,
+        # Exploration settings
         initial_exploration=1.00,
         final_exploration=0.02,
         final_exploration_frame=10000,
-        replay_start_size=1000,
-        device=torch.device("cpu"),
+        # Distributional RL
+        atoms=101,
+        v_min=-100,
+        v_max=100
 ):
     def _c51(env, writer=DummyWriter()):
         model = fc_relu_dist_q(env, atoms=atoms).to(device)
@@ -30,8 +38,8 @@ def c51(
             optimizer,
             env.action_space.n,
             atoms,
-            v_min=-100,
-            v_max=100,
+            v_min=v_min,
+            v_max=v_max,
             writer=writer,
         )
         replay_buffer = ExperienceReplayBuffer(replay_buffer_size, device=device)

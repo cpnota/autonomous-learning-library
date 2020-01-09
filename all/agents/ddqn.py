@@ -31,39 +31,35 @@ class DDQN(Agent):
         self.update_frequency = update_frequency
         self.minibatch_size = minibatch_size
         self.discount_factor = discount_factor
-        # data
-        self.env = None
-        self.state = None
-        self.action = None
-        self.frames_seen = 0
+        # private
+        self._state = None
+        self._action = None
+        self._frames_seen = 0
 
     def act(self, state, reward):
-        self._store_transition(state, reward)
+        self.replay_buffer.store(self._state, self._action, reward, state)
         self._train()
-        self.state = state
-        self.action = self.policy(state)
-        return self.action
-
-    def _store_transition(self, state, reward):
-        if self.state and not self.state.done:
-            self.frames_seen += 1
-            self.replay_buffer.store(self.state, self.action, reward, state)
+        self._state = state
+        self._action = self.policy(state)
+        return self._action
 
     def _train(self):
         if self._should_train():
-            (states, actions, rewards, next_states, weights) = self.replay_buffer.sample(
-                self.minibatch_size)
-
-            # update q-network
+            # sample transitions from buffer
+            (states, actions, rewards, next_states, weights) = self.replay_buffer.sample(self.minibatch_size)
+            # forward pass
             values = self.q(states, actions)
+            # compute targets
             next_actions = torch.argmax(self.q.eval(next_states), dim=1)
             targets = rewards + self.discount_factor * self.q.target(next_states, next_actions)
-            self.q.reinforce(self.loss(values, targets, weights))
-
-            # update replay buffer
+            # compute loss
+            loss = self.loss(values, targets, weights)
+            # backward pass
+            self.q.reinforce(loss)
+            # update replay buffer priorities
             td_errors = targets - values
             self.replay_buffer.update_priorities(td_errors.abs())
 
     def _should_train(self):
-        return (self.frames_seen > self.replay_start_size and
-                self.frames_seen % self.update_frequency == 0)
+        self._frames_seen += 1
+        return self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0

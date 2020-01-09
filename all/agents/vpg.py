@@ -74,21 +74,28 @@ class VPG(Agent):
             for (features, _, _)
             in self._trajectories
         ])
+
+        # forward passes for log_pis were stored during execution
+        log_pis = torch.cat([log_pis for (_, _, log_pis) in self._trajectories])
+
+        # compute targets
         targets = torch.cat([
             self._compute_discounted_returns(rewards)
             for (_, rewards, _)
             in self._trajectories
         ])
-        log_pis = torch.cat([log_pis for (_, _, log_pis) in self._trajectories])
         advantages = targets - values.detach()
+
         # compute losses
         value_loss = mse_loss(values, targets)
         policy_loss = -(advantages * log_pis).mean()
+
         # backward pass
         self.v.reinforce(value_loss)
         self.policy.reinforce(policy_loss)
         self.features.reinforce()
-        # cleanups
+
+        # cleanup
         self._trajectories = []
         self._current_batch_size = 0
 

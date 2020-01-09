@@ -33,15 +33,11 @@ class DDPG(Agent):
         self._frames_seen = 0
 
     def act(self, state, reward):
-        self._store_transition(self._state, self._action, reward, state)
+        self.replay_buffer.store(self._state, self._action, reward, state)
         self._train()
         self._state = state
         self._action = self._choose_action(state)
         return self._action
-
-    def _store_transition(self, state, action, reward, next_state):
-        if state and not state.done:
-            self.replay_buffer.store(state, action, reward, next_state)
 
     def _choose_action(self, state):
         action = self.policy.eval(state)

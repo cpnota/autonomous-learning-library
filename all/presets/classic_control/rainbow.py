@@ -12,21 +12,26 @@ from .models import fc_relu_rainbow
 
 
 def rainbow(
-        device=torch.device("cpu"),
-        # vanilla DQN hyperparameters
+        # Common settings
+        device=torch.device('cpu'),
         discount_factor=0.99,
+        # Adam optimizer settings
         lr=2e-4,
+        # Training settings
         minibatch_size=64,
+        update_frequency=1,
+        # Replay buffer settings
         replay_buffer_size=20000,
         replay_start_size=1000,
-        update_frequency=1,
-        # prioritized replay
-        alpha=0.2,  # priority scaling
-        beta=0.6,  # importance sampling adjustment
-        # multi-step learning
+        # Prioritized replay settings
+        alpha=0.5,
+        beta=0.5,
+        # Multi-step learning
         n_steps=5,
         # Distributional RL
         atoms=101,
+        v_min=-100,
+        v_max=100,
         # Noisy Nets
         sigma=0.5,
 ):
@@ -50,8 +55,8 @@ def rainbow(
             optimizer,
             env.action_space.n,
             atoms,
-            v_min=-100,
-            v_max=100,
+            v_min=v_min,
+            v_max=v_max,
             writer=writer,
         )
         # replay_buffer = ExperienceReplayBuffer(replay_buffer_size, device=device)

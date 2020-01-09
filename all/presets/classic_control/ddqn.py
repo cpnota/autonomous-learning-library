@@ -12,21 +12,25 @@ from .models import dueling_fc_relu_q
 
 
 def ddqn(
-        minibatch_size=32,
-        replay_buffer_size=20000,
+        # Common settings
+        device=torch.device('cpu'),
         discount_factor=0.99,
-        update_frequency=1,
+        # Adam optimizer settings
         lr=1e-4,
-        replay_start_size=1000,
+        # Training settings
+        minibatch_size=32,
+        update_frequency=1,
         target_update_frequency=1000,
-        # exploration
+        # Replay buffer settings
+        replay_start_size=1000,
+        replay_buffer_size=20000,
+        # Exploration settings
         initial_exploration=1.00,
         final_exploration=0.02,
         final_exploration_frame=10000,
-        # Prioritized Replay
-        alpha=0.2,  # priority scaling
-        beta=0.6,  # importance sampling adjustment
-        device=torch.device('cpu')
+        # Prioritized replay settings
+        alpha=0.2,
+        beta=0.6,
 ):
     '''
     Double Dueling DQN with Prioritized Experience Replay.

@@ -28,8 +28,9 @@ class ExperienceReplayBuffer(ReplayBuffer):
         self.pos = 0
         self.device = device
 
-    def store(self, states, action, reward, next_states):
-        self._add((states, action, reward, next_states))
+    def store(self, state, action, reward, next_state):
+        if state is not None and not state.done:
+            self._add((state, action, reward, next_state))
 
     def sample(self, batch_size):
         keys = np.random.choice(len(self.buffer), batch_size, replace=True)
@@ -84,9 +85,11 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
         self._epsilon = epsilon
         self._cache = None
 
-    def store(self, states, action, reward, next_states):
+    def store(self, state, action, reward, next_state):
+        if state is None or state.done:
+            return
         idx = self.pos
-        super()._add((states, action, reward, next_states))
+        super()._add((state, action, reward, next_state))
         self._it_sum[idx] = self._max_priority ** self._alpha
         self._it_min[idx] = self._max_priority ** self._alpha
 
@@ -154,6 +157,9 @@ class NStepReplayBuffer(ReplayBuffer):
         self._reward = 0.
 
     def store(self, state, action, reward, next_state):
+        if state is None or state.done:
+            return
+
         self._states.append(state)
         self._actions.append(action)
         self._rewards.append(reward)

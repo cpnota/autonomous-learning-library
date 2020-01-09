@@ -9,11 +9,13 @@ from .models import fc_relu_features, fc_policy_head, fc_value_head
 
 
 def vpg(
-        clip_grad=0,
+        # Common settings
+        device=torch.device('cpu'),
         gamma=0.99,
+        # Adam optimizer settings
         lr=5e-3,
+        # Batch settings
         min_batch_size=500,
-        device=torch.device('cpu')
 ):
     def _vpg(env, writer=DummyWriter()):
         feature_model = fc_relu_features(env).to(device)
@@ -27,19 +29,16 @@ def vpg(
         features = FeatureNetwork(
             feature_model,
             feature_optimizer,
-            clip_grad=clip_grad,
             writer=writer
         )
         v = VNetwork(
             value_model,
             value_optimizer,
-            clip_grad=clip_grad,
             writer=writer
         )
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
-            clip_grad=clip_grad,
             writer=writer
         )
         return VPG(features, v, policy, gamma=gamma, min_batch_size=min_batch_size)

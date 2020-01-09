@@ -26,9 +26,9 @@ def a2c(
         n_envs=16,
         n_steps=5,
 ):
-    final_anneal_step = last_frame / (n_steps * n_envs * 4)
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
+        final_anneal_step = last_frame / (n_steps * n_envs * 4)
 
         value_model = nature_value_head().to(device)
         policy_model = nature_policy_head(env).to(device)

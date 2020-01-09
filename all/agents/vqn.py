@@ -9,17 +9,23 @@ class VQN(Agent):
         self.q = q
         self.policy = policy
         self.gamma = gamma
-        self.env = None
-        self.previous_state = None
-        self.previous_action = None
+        self._state = None
+        self._action = None
 
     def act(self, state, reward):
-        if self.previous_state:
-            value = self.q(self.previous_state, self.previous_action)
-            target = reward + self.gamma * torch.max(self.q.target(state), dim=1)[0]
-            loss = mse_loss(value, target)
-            self.q.reinforce(loss)
+        self._train(reward, state)
         action = self.policy(state)
-        self.previous_state = state
-        self.previous_action = action
+        self._state = state
+        self._action = action
         return action
+
+    def _train(self, reward, next_state):
+        if self._state:
+            # forward pass
+            value = self.q(self._state, self._action)
+            # compute target
+            target = reward + self.gamma * torch.max(self.q.target(next_state), dim=1)[0]
+            # compute loss
+            loss = mse_loss(value, target)
+            # backward pass
+            self.q.reinforce(loss)

@@ -23,7 +23,7 @@ def rainbow(
         minibatch_size=32,
         update_frequency=4,
         target_update_frequency=1000,
-        # Replay Buffer settings
+        # Replay buffer settings
         replay_start_size=80000,
         replay_buffer_size=1000000,
         # Explicit exploration
@@ -52,11 +52,12 @@ def rainbow(
     5. Distributional RL
     6. Noisy nets
     '''
-    action_repeat = 4
-    last_timestep = last_frame / action_repeat
-    last_update = (last_timestep - replay_start_size) / update_frequency
 
     def _rainbow(env, writer=DummyWriter()):
+        action_repeat = 4
+        last_timestep = last_frame / action_repeat
+        last_update = (last_timestep - replay_start_size) / update_frequency
+
         model = nature_rainbow(env, atoms=atoms, sigma=sigma).to(device)
         optimizer = Adam(model.parameters(), lr=lr, eps=eps)
         q = QDist(

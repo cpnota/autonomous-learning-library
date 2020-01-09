@@ -8,15 +8,22 @@ from all.policies import SoftmaxPolicy
 from .models import fc_relu_features, fc_policy_head, fc_value_head
 
 def ppo(
-        clip_grad=0.1,
+        # Common settings
+        device=torch.device('cpu'),
         discount_factor=0.99,
-        entropy_loss_scaling=0.001,
+        # Adam optimizer settings
         lr=1e-3,
+        # Other optimization settings
+        clip_grad=0.1,
+        entropy_loss_scaling=0.001,
         epsilon=0.2,
+        # Batch settings
         epochs=4,
+        minibatches=4,
         n_envs=8,
         n_steps=8,
-        device=torch.device('cpu')
+        # GAE settings
+        lam=0.95,
 ):
     def _ppo(envs, writer=DummyWriter()):
         env = envs[0]
@@ -48,6 +55,8 @@ def ppo(
             policy,
             epsilon=epsilon,
             epochs=epochs,
+            lam=lam,
+            minibatches=minibatches,
             n_envs=n_envs,
             n_steps=n_steps,
             discount_factor=discount_factor,

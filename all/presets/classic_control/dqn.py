@@ -10,17 +10,22 @@ from all.policies import GreedyPolicy
 from .models import fc_relu_q
 
 def dqn(
-        minibatch_size=32,
-        replay_buffer_size=20000,
-        target_update_frequency=1000,
+        # Common settings
+        device=torch.device('cpu'),
         discount_factor=0.99,
-        update_frequency=1,
+        # Adam optimizer settings
         lr=1e-4,
-        initial_exploration=1.00,
-        final_exploration=0.02,
-        final_exploration_frame=10000,
+        # Training settings
+        minibatch_size=32,
+        update_frequency=1,
+        target_update_frequency=1000,
+        # Replay buffer settings
         replay_start_size=1000,
-        device=torch.device('cpu')
+        replay_buffer_size=20000,
+        # Exploration settings
+        initial_exploration=1.,
+        final_exploration=0.01,
+        final_exploration_frame=4000000,
 ):
     def _dqn(env, writer=DummyWriter()):
         model = fc_relu_q(env).to(device)

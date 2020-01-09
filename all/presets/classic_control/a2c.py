@@ -9,13 +9,17 @@ from .models import fc_relu_features, fc_policy_head, fc_value_head
 
 
 def a2c(
-        clip_grad=0.1,
+        # Common settings
+        device=torch.device('cpu'),
         discount_factor=0.99,
-        entropy_loss_scaling=0.001,
+        # Adam optimizer settings
         lr=3e-3,
+        # Other optimization settings
+        clip_grad=0.1,
+        entropy_loss_scaling=0.001,
+        # Batch settings
         n_envs=4,
         n_steps=32,
-        device=torch.device('cpu')
 ):
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
