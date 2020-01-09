@@ -5,6 +5,24 @@ from ._agent import Agent
 
 
 class A2C(Agent):
+    """
+    A2C is policy gradient method in the actor-critic family.
+    It is the synchronous variant of the *Asychronous* Advantage Actor Critic (A3C).
+    The key distiguishing feature between A2C/A3C and prior actor critic methods
+    is the use of parallel actors interaction with a parallel set of environments.
+    This mitigates the need for a replay buffer by providing a different mechanism
+    for decorrelating samples.
+    https://arxiv.org/abs/1602.01783
+
+    Args:
+        features (FeatureNetwork): Shared feature layers.
+        v (VNetwork): Value head which approximates the state-value function.
+        policy (StochasticPolicy): Policy head which outputs an action distribution.
+        discount_factor (float): Discount factor for future rewards.
+        n_envs (int): Number of parallel actors/environments
+        n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
+        writer (Writer): Used for logging.
+    """
     def __init__(
             self,
             features,
