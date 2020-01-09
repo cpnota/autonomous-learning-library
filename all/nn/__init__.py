@@ -19,21 +19,6 @@ class RLNetwork(nn.Module):
     def forward(self, state):
         return self.model(state.features.float()) * state.mask.float().unsqueeze(-1)
 
-
-class ListToList(nn.Module):
-    """
-    Wraps a network such that States can be given as inputs, and are received as output.
-    """
-
-    def __init__(self, model):
-        super().__init__()
-        self.model = model
-        self.device = next(model.parameters()).device
-
-    def forward(self, state):
-        return State(self.model(state.features.float()), state.mask, state.info)
-
-
 class Aggregation(nn.Module):
     """len()
     Aggregation layer for the Dueling architecture.
