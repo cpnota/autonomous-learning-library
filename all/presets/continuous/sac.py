@@ -22,7 +22,7 @@ def sac(
         lr_pi=1e-4,
         # Training settings
         minibatch_size=100,
-        update_frequency=1,
+        update_frequency=2,
         polyak_rate=0.005,
         # Replay Buffer settings
         replay_start_size=5000,
