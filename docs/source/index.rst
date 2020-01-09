@@ -5,11 +5,7 @@ The Autonomous Learning Library
     :maxdepth: 2
     :caption: Contents:
 
-.. toctree::
-    :maxdepth: 2
-    :caption: Presets
-
-    modules/atari
+    modules/presets
 
 Indices and tables
 ==================
