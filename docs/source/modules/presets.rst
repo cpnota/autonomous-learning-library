@@ -1,9 +1,9 @@
-Presets
-=======
+all.presets
+===========
 
 .. toctree::
     :maxdepth: 2
-    :caption: Presets
+    :caption: all.presets
 
     presets/atari
     presets/classic
