@@ -1,4 +1,4 @@
-from all.nn import VModule
+from all.nn import RLNetwork
 from .approximation import Approximation
 
 class VNetwork(Approximation):
@@ -16,3 +16,7 @@ class VNetwork(Approximation):
             name=name,
             **kwargs
         )
+
+class VModule(RLNetwork):
+    def forward(self, states):
+        return super().forward(states).squeeze(-1)

@@ -214,16 +214,6 @@ class TanhActionBound(nn.Module):
         return torch.tanh(x) * self.weight + self.bias
 
 
-class VModule(nn.Module):
-    def __init__(self, model):
-        super().__init__()
-        self.device = next(model.parameters()).device
-        self.model = RLNetwork(model, (1,))
-
-    def forward(self, states):
-        return self.model(states).squeeze(-1)
-
-
 class QModuleContinuous(nn.Module):
     def __init__(self, model):
         super().__init__()
