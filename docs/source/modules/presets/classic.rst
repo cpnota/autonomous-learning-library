@@ -1,8 +1,8 @@
 .. _classic:
 
 
-Classic Control
-===============
+all.presets.classic_control
+===========================
 
 .. automodsumm:: all.presets.classic_control
 

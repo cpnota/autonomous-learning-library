@@ -1,8 +1,8 @@
 .. _atari:
 
 
-Atari
-=====
+all.presets.atari
+=================
 
 .. automodsumm:: all.presets.atari
 

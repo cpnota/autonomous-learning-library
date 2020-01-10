@@ -1,8 +1,8 @@
 .. _continuous:
 
 
-Continuous
-==========
+all.presets.continuous
+======================
 
 .. automodsumm:: all.presets.continuous
 
