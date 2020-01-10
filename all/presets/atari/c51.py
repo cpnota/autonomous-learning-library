@@ -32,6 +32,28 @@ def c51(
         v_min=-10,
         v_max=10,
 ):
+    """
+    C51 Atari preset.
+
+    Args:
+        device (str): The device to load the parameters and buffers onto for this agent
+        discount_factor (float): Discount factor for future rewards
+        last_frame (int): Number of frames to train for.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        target_update_frequency (int): Number of timesteps between updates the target network.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        initial_exploration (int): Initial probability of choosing a random action,
+            decayed over course of training.
+        final_exploration (int): Final probability of choosing a random action.
+        atoms (int): The number of atoms in the categorical distribution used to represent
+            the distributional value function.
+        v_min (int): The expected return corresponding to the smallest atom.
+        v_max (int): The expected return correspodning to the larget atom.
+    """
     def _c51(env, writer=DummyWriter()):
         action_repeat = 4
         last_timestep = last_frame / action_repeat

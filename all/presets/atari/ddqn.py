@@ -33,10 +33,29 @@ def ddqn(
         alpha=0.5,
         beta=0.5,
 ):
-    '''
-    Double Dueling DQN with Prioritized Experience Replay.
-    '''
+    """
+    Dueling Double DQN with Prioritized Experience Replay (PER).
 
+    Args:
+        device (str): The device to load the parameters and buffers onto for this agent
+        discount_factor (float): Discount factor for future rewards
+        last_frame (int): Number of frames to train for.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        target_update_frequency (int): Number of timesteps between updates the target network.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        initial_exploration (int): Initial probability of choosing a random action,
+            decayed until final_exploration_frame.
+        final_exploration (int): Final probability of choosing a random action.
+        final_exploration_frame (int): The frame where the exploration decay stops.
+        alpha (float): Amount of prioritization in the prioritized experience replay buffer.
+            (0 = no prioritization, 1 = full prioritization)
+        beta (float): The strength of the importance sampling correction for prioritized experience replay.
+            (0 = no correction, 1 = full correction)
+    """
     def _ddqn(env, writer=DummyWriter()):
         action_repeat = 4
         last_timestep = last_frame / action_repeat

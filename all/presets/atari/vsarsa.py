@@ -21,6 +21,20 @@ def vsarsa(
         # Parallel actors
         n_envs=64,
 ):
+    """
+    Vanilla SARSA Atari preset.
+
+    Args:
+        device (str): The device to load the parameters and buffers onto for this agent
+        discount_factor (float): Discount factor for future rewards
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        initial_exploration (int): Initial probability of choosing a random action,
+            decayed until final_exploration_frame.
+        final_exploration (int): Final probability of choosing a random action.
+        final_exploration_frame (int): The frame where the exploration decay stops.
+        n_envs (int): Number of parallel environments.
+    """
     def _vsarsa(envs, writer=DummyWriter()):
         action_repeat = 4
         final_exploration_timestep = final_exploration_frame / action_repeat

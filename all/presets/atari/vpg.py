@@ -21,6 +21,21 @@ def vpg(
         value_loss_scaling=0.25,
         min_batch_size=1000,
 ):
+    """
+    Vanilla Policy Gradient Atari preset.
+
+    Args:
+        device (str): The device to load the parameters and buffers onto for this agent
+        discount_factor (float): Discount factor for future rewards
+        last_frame (int): Number of frames to train for.
+        lr_v (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        clip_grad (float): The maximum magnitude of the gradient for any given parameter.
+            Set to 0 to disable.
+        value_loss_scaling (float): Coefficient for the value function loss.
+        min_batch_size (int): Continue running complete episodes until at least this many
+            states have been seen since the last update.
+    """
     final_anneal_step = last_frame / (min_batch_size * 4)
 
     def _vpg_atari(env, writer=DummyWriter()):

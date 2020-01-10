@@ -39,18 +39,33 @@ def rainbow(
         # Noisy Nets
         sigma=0.5,
 ):
-    '''
-    A complete implementation of Rainbow.
+    """
+    Rainbow Atari Preset.
 
-    The following enhancements have been applied:
-    1. Double Q-learning
-    2. Prioritized Replay
-    3. Dueling networks
-    4. Multi-step learning
-    5. Distributional RL
-    6. Noisy nets
-    '''
-
+    Args:
+        device (str): The device to load the parameters and buffers onto for this agent
+        discount_factor (float): Discount factor for future rewards
+        last_frame (int): Number of frames to train for.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        target_update_frequency (int): Number of timesteps between updates the target network.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        initial_exploration (int): Initial probability of choosing a random action,
+            decayed over course of training.
+        final_exploration (int): Final probability of choosing a random action.
+        alpha (float): Amount of prioritization in the prioritized experience replay buffer.
+            (0 = no prioritization, 1 = full prioritization)
+        beta (float): The strength of the importance sampling correction for prioritized experience replay.
+            (0 = no correction, 1 = full correction)
+        atoms (int): The number of atoms in the categorical distribution used to represent
+            the distributional value function.
+        v_min (int): The expected return corresponding to the smallest atom.
+        v_max (int): The expected return correspodning to the larget atom.
+        sigma (float): Initial noisy network noise.
+    """
     def _rainbow(env, writer=DummyWriter()):
         action_repeat = 4
         last_timestep = last_frame / action_repeat

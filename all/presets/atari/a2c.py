@@ -24,7 +24,8 @@ def a2c(
         n_envs=16,
         n_steps=5,
 ):
-    """A2C Atari preset.
+    """
+    A2C Atari preset.
 
     Args:
         device (str): The device to load the parameters and buffers onto for this agent
@@ -36,7 +37,7 @@ def a2c(
             Set to 0 to disable.
         entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
         value_loss_scaling (float): Coefficient for the value function loss.
-        n_envs (int): Number of parallel actors.
+        n_envs (int): Number of parallel environments.
         n_steps (int): Length of each rollout.
     """
     def _a2c(envs, writer=DummyWriter()):
