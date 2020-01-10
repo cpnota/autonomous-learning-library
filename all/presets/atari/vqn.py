@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from all.approximation import QNetwork
 from all.agents import VQN
@@ -11,18 +9,32 @@ from .models import nature_ddqn
 
 def vqn(
         # Common settings
-        device=torch.device('cuda'),
+        device="cuda",
         discount_factor=0.99,
         # Adam optimizer settings
         lr=1e-3,
         eps=1.5e-4,
         # Exploration settings
-        final_exploration_frame=1000000,
-        final_exploration=0.02,
         initial_exploration=1.,
+        final_exploration=0.02,
+        final_exploration_frame=1000000,
         # Parallel actors
         n_envs=64,
 ):
+    """
+    Vanilla Q-Network Atari preset.
+
+    Args:
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        initial_exploration (int): Initial probability of choosing a random action,
+            decayed until final_exploration_frame.
+        final_exploration (int): Final probability of choosing a random action.
+        final_exploration_frame (int): The frame where the exploration decay stops.
+        n_envs (int): Number of parallel environments.
+    """
     def _vqn(envs, writer=DummyWriter()):
         action_repeat = 4
         final_exploration_timestep = final_exploration_frame / action_repeat
@@ -33,7 +45,6 @@ def vqn(
         q = QNetwork(
             model,
             optimizer,
-            env.action_space.n,
             writer=writer
         )
         policy = GreedyPolicy(
@@ -49,6 +60,6 @@ def vqn(
             )
         )
         return DeepmindAtariBody(
-            VQN(q, policy, gamma=discount_factor),
+            VQN(q, policy, discount_factor=discount_factor),
         )
     return _vqn, n_envs

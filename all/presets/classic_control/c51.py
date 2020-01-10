@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from all.agents import C51
 from all.approximation import QDist
@@ -11,7 +9,7 @@ from .models import fc_relu_dist_q
 
 def c51(
         # Common settings
-        device=torch.device('cpu'),
+        device="cpu",
         discount_factor=0.99,
         # Adam optimizer settings
         lr=1e-4,
@@ -30,6 +28,26 @@ def c51(
         v_min=-100,
         v_max=100
 ):
+    """
+    C51 classic control preset.
+
+    Args:
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        last_frame (int): Number of frames to train.
+        lr (float): Learning rate for the Adam optimizer.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        initial_exploration (int): Initial probability of choosing a random action,
+            decayed over course of training.
+        final_exploration (int): Final probability of choosing a random action.
+        atoms (int): The number of atoms in the categorical distribution used to represent
+            the distributional value function.
+        v_min (int): The expected return corresponding to the smallest atom.
+        v_max (int): The expected return correspodning to the larget atom.
+    """
     def _c51(env, writer=DummyWriter()):
         model = fc_relu_dist_q(env, atoms=atoms).to(device)
         optimizer = Adam(model.parameters(), lr=lr)

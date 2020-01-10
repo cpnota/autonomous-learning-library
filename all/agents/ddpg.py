@@ -4,14 +4,36 @@ from torch.nn.functional import mse_loss
 from ._agent import Agent
 
 class DDPG(Agent):
+    """
+    Deep Deterministic Policy Gradient (DDPG).
+    DDPG extends the ideas of DQN to a continuous action setting.
+    Unlike DQN, which uses a single joint Q/policy network, DDPG uses
+    separate networks for approximating the Q-function and approximating the policy.
+    The policy network outputs a vector action in some continuous space.
+    A small amount of noise is added to aid exploration. The Q-network
+    is used to train the policy network. A replay buffer is used to
+    allow for batch updates and decorrelation of the samples.
+    https://arxiv.org/abs/1509.02971
+
+    Args:
+        q (QContinuous): An Approximation of the continuous action Q-function.
+        policy (DeterministicPolicy): An Approximation of a deterministic policy.
+        replay_buffer (ReplayBuffer): The experience replay buffer.
+        action_space (gym.spaces.Box): Description of the action space.
+        discount_factor (float): Discount factor for future rewards.
+        minibatch_size (int): The number of experiences to sample in each training update.
+        noise (float): the amount of noise to add to each action (before scaling).
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        update_frequency (int): Number of timesteps per training update.
+    """
     def __init__(self,
                  q,
                  policy,
                  replay_buffer,
                  action_space,
-                 noise=0.1,
                  discount_factor=0.99,
                  minibatch_size=32,
+                 noise=0.1,
                  replay_start_size=5000,
                  update_frequency=1,
                  ):

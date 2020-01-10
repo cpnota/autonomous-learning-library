@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from all.agents import DQN
 from all.approximation import QNetwork, FixedTarget
@@ -11,7 +9,7 @@ from .models import fc_relu_q
 
 def dqn(
         # Common settings
-        device=torch.device('cpu'),
+        device="cpu",
         discount_factor=0.99,
         # Adam optimizer settings
         lr=1e-4,
@@ -27,13 +25,29 @@ def dqn(
         final_exploration=0.01,
         final_exploration_frame=4000000,
 ):
+    """
+    DQN classic control preset.
+
+    Args:
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        lr (float): Learning rate for the Adam optimizer.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        target_update_frequency (int): Number of timesteps between updates the target network.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        initial_exploration (int): Initial probability of choosing a random action,
+            decayed until final_exploration_frame.
+        final_exploration (int): Final probability of choosing a random action.
+        final_exploration_frame (int): The frame where the exploration decay stops.
+    """
     def _dqn(env, writer=DummyWriter()):
         model = fc_relu_q(env).to(device)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(
             model,
             optimizer,
-            env.action_space.n,
             target=FixedTarget(target_update_frequency),
             writer=writer
         )

@@ -1,4 +1,3 @@
-import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import VPG
@@ -11,7 +10,7 @@ from .models import nature_features, nature_value_head, nature_policy_head
 
 def vpg(
         # Common settings
-        device=torch.device('cuda'),
+        device="cuda",
         discount_factor=0.99,
         last_frame=40e6,
         # Adam optimizer settings
@@ -22,6 +21,21 @@ def vpg(
         value_loss_scaling=0.25,
         min_batch_size=1000,
 ):
+    """
+    Vanilla Policy Gradient Atari preset.
+
+    Args:
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        last_frame (int): Number of frames to train.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        clip_grad (float): The maximum magnitude of the gradient for any given parameter.
+            Set to 0 to disable.
+        value_loss_scaling (float): Coefficient for the value function loss.
+        min_batch_size (int): Continue running complete episodes until at least this many
+            states have been seen since the last update.
+    """
     final_anneal_step = last_frame / (min_batch_size * 4)
 
     def _vpg_atari(env, writer=DummyWriter()):
@@ -66,7 +80,7 @@ def vpg(
         )
 
         return DeepmindAtariBody(
-            VPG(features, v, policy, gamma=discount_factor, min_batch_size=min_batch_size),
+            VPG(features, v, policy, discount_factor=discount_factor, min_batch_size=min_batch_size),
             episodic_lives=True
         )
     return _vpg_atari

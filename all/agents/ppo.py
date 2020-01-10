@@ -6,6 +6,26 @@ from ._agent import Agent
 
 
 class PPO(Agent):
+    """
+    Proximal Policy Optimization (PPO).
+    PPO is an actor-critic style policy gradient algorithm that allows for the reuse of samples
+    by using importance weighting. This often increases sample efficiency compared to algorithms
+    such as A2C. To avoid overfitting, PPO uses a special "clipped" objective that prevents
+    the algorithm from changing the current policy too quickly.
+
+    Args:
+        features (FeatureNetwork): Shared feature layers.
+        v (VNetwork): Value head which approximates the state-value function.
+        policy (StochasticPolicy): Policy head which outputs an action distribution.
+        discount_factor (float): Discount factor for future rewards.
+        entropy_loss_scaling (float): Contribution of the entropy loss to the total policy loss.
+        epochs (int): Number of times to reuse each sample.
+        lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
+        minibatches (int): The number of minibatches to split each batch into.
+        n_envs (int): Number of parallel actors/environments.
+        n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
+        writer (Writer): Used for logging.
+    """
     def __init__(
             self,
             features,

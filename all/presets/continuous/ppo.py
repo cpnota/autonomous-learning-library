@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import PPO
@@ -13,9 +11,8 @@ from .models import fc_actor_critic
 
 def ppo(
         # Common settings
-        device=torch.device('cuda'),
+        device="cuda",
         discount_factor=0.98,
-        lam=0.95,
         last_frame=2e6,
         # Adam optimizer settings
         lr=3e-4,  # Adam learning rate
@@ -24,15 +21,37 @@ def ppo(
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.5,
         # Training settings
-        clip_final=0.01,
         clip_grad=0.5,
         clip_initial=0.2,
+        clip_final=0.01,
         epochs=20,
         minibatches=4,
         # Batch settings
         n_envs=32,
         n_steps=128,
+        # GAE settings
+        lam=0.95,
 ):
+    """
+    PPO continuous control preset.
+
+    Args:
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        last_frame (int): Number of frames to train.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
+        value_loss_scaling (float): Coefficient for the value function loss.
+        clip_grad (float): The maximum magnitude of the gradient for any given parameter. Set to 0 to disable.
+        clip_initial (float): Value for epsilon in the clipped PPO objective function at the beginning of training.
+        clip_final (float): Value for epsilon in the clipped PPO objective function at the end of training.
+        epochs (int): Number of times to iterature through each batch.
+        minibatches (int): The number of minibatches to split each batch into.
+        n_envs (int): Number of parallel actors.
+        n_steps (int): Length of each rollout.
+        lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
+    """
     def _ppo(envs, writer=DummyWriter()):
         final_anneal_step = last_frame * epochs * minibatches / (n_steps * n_envs)
         env = envs[0]

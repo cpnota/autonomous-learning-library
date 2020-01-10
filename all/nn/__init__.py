@@ -6,7 +6,7 @@ import numpy as np
 from all.environments import State
 
 
-class ListNetwork(nn.Module):
+class RLNetwork(nn.Module):
     """
     Wraps a network such that States can be given as input.
     """
@@ -18,21 +18,6 @@ class ListNetwork(nn.Module):
 
     def forward(self, state):
         return self.model(state.features.float()) * state.mask.float().unsqueeze(-1)
-
-
-class ListToList(nn.Module):
-    """
-    Wraps a network such that States can be given as inputs, and are received as output.
-    """
-
-    def __init__(self, model):
-        super().__init__()
-        self.model = model
-        self.device = next(model.parameters()).device
-
-    def forward(self, state):
-        return State(self.model(state.features.float()), state.mask, state.info)
-
 
 class Aggregation(nn.Module):
     """len()
@@ -212,43 +197,6 @@ class TanhActionBound(nn.Module):
 
     def forward(self, x):
         return torch.tanh(x) * self.weight + self.bias
-
-
-class QModule(nn.Module):
-    def __init__(self, model, num_actions):
-        super().__init__()
-        self.device = next(model.parameters()).device
-        self.model = ListNetwork(model, (num_actions,))
-
-    def forward(self, states, actions=None):
-        values = self.model(states)
-        if actions is None:
-            return values
-        if isinstance(actions, list):
-            actions = torch.tensor(actions, device=self.device)
-        return values.gather(1, actions.view(-1, 1)).squeeze(1)
-
-
-class VModule(nn.Module):
-    def __init__(self, model):
-        super().__init__()
-        self.device = next(model.parameters()).device
-        self.model = ListNetwork(model, (1,))
-
-    def forward(self, states):
-        return self.model(states).squeeze(-1)
-
-
-class QModuleContinuous(nn.Module):
-    def __init__(self, model):
-        super().__init__()
-        self.device = next(model.parameters()).device
-        self.model = model
-
-    def forward(self, states, actions):
-        x = torch.cat((states.features.float(), actions), dim=1)
-        return self.model(x).squeeze(-1) * states.mask.float()
-
 
 def td_loss(loss):
     def _loss(estimates, errors):

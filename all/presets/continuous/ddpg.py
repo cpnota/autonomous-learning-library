@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import DDPG
@@ -13,7 +11,7 @@ from .models import fc_q, fc_deterministic_policy
 
 def ddpg(
         # Common settings
-        device=torch.device('cuda'),
+        device="cuda",
         discount_factor=0.98,
         last_frame=2e6,
         # Adam optimizer settings
@@ -29,6 +27,22 @@ def ddpg(
         # Exploration settings
         noise=0.1,
 ):
+    """
+    DDPG continuous control preset.
+
+    Args:
+        device (str): The device to load parameters and buffers onto for this agent..
+        discount_factor (float): Discount factor for future rewards.
+        last_frame (int): Number of frames to train.
+        lr_q (float): Learning rate for the Q network.
+        lr_pi (float): Learning rate for the policy network.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        polyak_rate (float): Speed with which to update the target network towards the online network.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        noise (float): The amount of exploration noise to add.
+    """
     def _ddpg(env, writer=DummyWriter()):
         final_anneal_step = (last_frame - replay_start_size) // update_frequency
 

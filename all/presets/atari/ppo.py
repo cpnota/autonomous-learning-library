@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import PPO
@@ -13,7 +11,7 @@ from .models import nature_features, nature_value_head, nature_policy_head
 
 def ppo(
         # Common settings
-        device=torch.device('cuda'),
+        device="cuda",
         discount_factor=0.99,
         last_frame=40e6,
         # Adam optimizer settings
@@ -33,6 +31,27 @@ def ppo(
         # GAE settings
         lam=0.95,
 ):
+    """
+    PPO Atari preset.
+
+    Args:
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        last_frame (int): Number of frames to train.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        clip_grad (float): The maximum magnitude of the gradient for any given parameter.
+            Set to 0 to disable.
+        entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
+        value_loss_scaling (float): Coefficient for the value function loss.
+        clip_initial (float): Value for epsilon in the clipped PPO objective function at the beginning of training.
+        clip_final (float): Value for epsilon in the clipped PPO objective function at the end of training.
+        epochs (int): Number of times to iterature through each batch.
+        minibatches (int): The number of minibatches to split each batch into.
+        n_envs (int): Number of parallel actors.
+        n_steps (int): Length of each rollout.
+        lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
+    """
     def _ppo(envs, writer=DummyWriter()):
         env = envs[0]
 
