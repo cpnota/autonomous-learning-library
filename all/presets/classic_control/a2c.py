@@ -19,6 +19,19 @@ def a2c(
         n_envs=4,
         n_steps=32,
 ):
+    """
+    A2C classic control preset.
+
+    Args:
+        device (str): The device to load the parameters and buffers onto for this agent
+        discount_factor (float): Discount factor for future rewards
+        lr (float): Learning rate for the Adam optimizer.
+        clip_grad (float): The maximum magnitude of the gradient for any given parameter.
+            Set to 0 to disable.
+        entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
+        n_envs (int): Number of parallel environments.
+        n_steps (int): Length of each rollout.
+    """
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
         feature_model = fc_relu_features(env).to(device)

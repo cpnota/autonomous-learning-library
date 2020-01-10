@@ -23,6 +23,23 @@ def ppo(
         # GAE settings
         lam=0.95,
 ):
+    """
+    PPO classic control preset.
+
+    Args:
+        device (str): The device to load the parameters and buffers onto for this agent
+        discount_factor (float): Discount factor for future rewards
+        lr (float): Learning rate for the Adam optimizer.
+        clip_grad (float): The maximum magnitude of the gradient for any given parameter.
+            Set to 0 to disable.
+        entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
+        epsilon (float): Value for epsilon in the clipped PPO objective function.
+        epochs (int): Number of times to iterature through each batch.
+        minibatches (int): The number of minibatches to split each batch into.
+        n_envs (int): Number of parallel actors.
+        n_steps (int): Length of each rollout.
+        lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
+    """
     def _ppo(envs, writer=DummyWriter()):
         env = envs[0]
         feature_model = fc_relu_features(env).to(device)

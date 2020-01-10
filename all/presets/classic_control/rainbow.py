@@ -34,17 +34,27 @@ def rainbow(
         sigma=0.5,
 ):
     """
-    A complete implementation of Rainbow.
+    Rainbow classic control preset.
 
-    The following enhancements have been applied:
-    1. Double Q-learning
-    2. Prioritized Replay
-    3. Dueling networks
-    4. Multi-step learning
-    5. Distributional RL
-    6. Noisy nets
+    Args:
+        device (str): The device to load the parameters and buffers onto for this agent
+        discount_factor (float): Discount factor for future rewards
+        lr (float): Learning rate for the Adam optimizer.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        alpha (float): Amount of prioritization in the prioritized experience replay buffer.
+            (0 = no prioritization, 1 = full prioritization)
+        beta (float): The strength of the importance sampling correction for prioritized experience replay.
+            (0 = no correction, 1 = full correction)
+        n_steps (int): The number of steps for n-step Q-learning.
+        atoms (int): The number of atoms in the categorical distribution used to represent
+            the distributional value function.
+        v_min (int): The expected return corresponding to the smallest atom.
+        v_max (int): The expected return correspodning to the larget atom.
+        sigma (float): Initial noisy network noise.
     """
-
     def _rainbow(env, writer=DummyWriter()):
         model = fc_relu_rainbow(env, atoms=atoms, sigma=sigma).to(device)
         optimizer = Adam(model.parameters(), lr=lr)

@@ -15,6 +15,16 @@ def vac(
         lr_pi=1e-3,
         eps=1e-5,
 ):
+    """
+    Vanilla Actor-Critic classic control preset.
+
+    Args:
+        device (str): The device to load the parameters and buffers onto for this agent
+        discount_factor (float): Discount factor for future rewards
+        lr_v (float): Learning rate for value network.
+        lr_pi (float): Learning rate for policy network and feature network.
+        eps (float): Stability parameters for the Adam optimizer.
+    """
     def _vac(env, writer=DummyWriter()):
         value_model = fc_value_head().to(device)
         policy_model = fc_policy_head(env).to(device)

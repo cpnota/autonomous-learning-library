@@ -60,6 +60,7 @@ def rainbow(
             (0 = no prioritization, 1 = full prioritization)
         beta (float): The strength of the importance sampling correction for prioritized experience replay.
             (0 = no correction, 1 = full correction)
+        n_steps (int): The number of steps for n-step Q-learning.
         atoms (int): The number of atoms in the categorical distribution used to represent
             the distributional value function.
         v_min (int): The expected return corresponding to the smallest atom.

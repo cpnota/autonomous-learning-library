@@ -28,7 +28,7 @@ def vpg(
         device (str): The device to load the parameters and buffers onto for this agent
         discount_factor (float): Discount factor for future rewards
         last_frame (int): Number of frames to train for.
-        lr_v (float): Learning rate for the Adam optimizer.
+        lr (float): Learning rate for the Adam optimizer.
         eps (float): Stability parameters for the Adam optimizer.
         clip_grad (float): The maximum magnitude of the gradient for any given parameter.
             Set to 0 to disable.

@@ -17,6 +17,17 @@ def vsarsa(
         # Parallel actors
         n_envs=1,
 ):
+    """
+    Vanilla SARSA classic control preset.
+
+    Args:
+        device (str): The device to load the parameters and buffers onto for this agent
+        discount_factor (float): Discount factor for future rewards
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        epsilon (int): Probability of choosing a random action.
+        n_envs (int): Number of parallel environments.
+    """
     def _vsarsa(envs, writer=DummyWriter()):
         env = envs[0]
         model = fc_relu_q(env).to(device)
