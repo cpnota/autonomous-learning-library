@@ -43,9 +43,9 @@ def rainbow(
     Rainbow Atari Preset.
 
     Args:
-        device (str): The device to load the parameters and buffers onto for this agent
-        discount_factor (float): Discount factor for future rewards
-        last_frame (int): Number of frames to train for.
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        last_frame (int): Number of frames to train.
         lr (float): Learning rate for the Adam optimizer.
         eps (float): Stability parameters for the Adam optimizer.
         minibatch_size (int): Number of experiences to sample in each training update.

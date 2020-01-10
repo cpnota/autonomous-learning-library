@@ -23,11 +23,10 @@ def a2c(
     A2C classic control preset.
 
     Args:
-        device (str): The device to load the parameters and buffers onto for this agent
-        discount_factor (float): Discount factor for future rewards
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
         lr (float): Learning rate for the Adam optimizer.
-        clip_grad (float): The maximum magnitude of the gradient for any given parameter.
-            Set to 0 to disable.
+        clip_grad (float): The maximum magnitude of the gradient for any given parameter. Set to 0 to disable.
         entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
         n_envs (int): Number of parallel environments.
         n_steps (int): Length of each rollout.

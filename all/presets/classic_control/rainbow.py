@@ -37,8 +37,8 @@ def rainbow(
     Rainbow classic control preset.
 
     Args:
-        device (str): The device to load the parameters and buffers onto for this agent
-        discount_factor (float): Discount factor for future rewards
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
         lr (float): Learning rate for the Adam optimizer.
         minibatch_size (int): Number of experiences to sample in each training update.
         update_frequency (int): Number of timesteps per training update.

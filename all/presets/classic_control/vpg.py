@@ -19,9 +19,9 @@ def vpg(
     Vanilla Policy Gradient classic control preset.
 
     Args:
-        device (str): The device to load the parameters and buffers onto for this agent
-        discount_factor (float): Discount factor for future rewards
-        last_frame (int): Number of frames to train for.
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        last_frame (int): Number of frames to train.
         lr (float): Learning rate for the Adam optimizer.
         min_batch_size (int): Continue running complete episodes until at least this many
             states have been seen since the last update.

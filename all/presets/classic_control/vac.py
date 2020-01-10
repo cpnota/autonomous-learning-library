@@ -19,8 +19,8 @@ def vac(
     Vanilla Actor-Critic classic control preset.
 
     Args:
-        device (str): The device to load the parameters and buffers onto for this agent
-        discount_factor (float): Discount factor for future rewards
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
         lr_v (float): Learning rate for value network.
         lr_pi (float): Learning rate for policy network and feature network.
         eps (float): Stability parameters for the Adam optimizer.

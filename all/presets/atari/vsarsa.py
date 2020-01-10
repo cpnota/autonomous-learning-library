@@ -25,8 +25,8 @@ def vsarsa(
     Vanilla SARSA Atari preset.
 
     Args:
-        device (str): The device to load the parameters and buffers onto for this agent
-        discount_factor (float): Discount factor for future rewards
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
         lr (float): Learning rate for the Adam optimizer.
         eps (float): Stability parameters for the Adam optimizer.
         initial_exploration (int): Initial probability of choosing a random action,
