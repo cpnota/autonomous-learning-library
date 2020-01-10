@@ -1,7 +1,7 @@
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.approximation import QDist, FixedTarget
-from all.agents import C51
+from all.agents import Rainbow
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer
@@ -77,7 +77,7 @@ def rainbow(
         )
         replay_buffer = NStepReplayBuffer(n_steps, discount_factor, replay_buffer)
 
-        agent = C51(
+        agent = Rainbow(
             q,
             replay_buffer,
             exploration=LinearScheduler(

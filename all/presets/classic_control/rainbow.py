@@ -1,5 +1,5 @@
 from torch.optim import Adam
-from all.agents import C51
+from all.agents import Rainbow
 from all.approximation import QDist
 from all.logging import DummyWriter
 from all.memory import (
@@ -65,7 +65,7 @@ def rainbow(
             device=device
         )
         replay_buffer = NStepReplayBuffer(n_steps, discount_factor, replay_buffer)
-        return C51(
+        return Rainbow(
             q,
             replay_buffer,
             exploration=0.,

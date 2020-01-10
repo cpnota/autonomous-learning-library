@@ -6,29 +6,37 @@ from ._agent import Agent
 
 class C51(Agent):
     """
-    Implementation of C51, a categorical DQN agent
-
+    C51 is a categorical DQN agent.
+    Rather than making a point estimate of the Q-function,
+    it estimates a categorical distribution over possible values.
     The 51 refers to the number of atoms used in the
     categorical distribution used to estimate the
-    value distribution. Thought this is the canonical
-    name of the agent, this agent is compatible with
-    any number of atoms.
+    value distribution.
+    https://arxiv.org/abs/1707.06887
 
-    Also note that this implementation uses a "double q"
-    style update, which is believed to be less prone
-    towards overestimation.
+    Args:
+        q_dist (QDist): Approximation of the Q distribution.
+        replay_buffer (ReplayBuffer): The experience replay buffer.
+        discount_factor (float): Discount factor for future rewards.
+        eps (float): Stability parameter for computing the loss function.
+        exploration (float): The probability of choosing a random action.
+        minibatch_size (int): The number of experiences to sample in
+            each training update.
+        replay_start_size (int): Number of experiences in replay buffer
+            when training begins.
+        update_frequency (int): Number of timesteps per training update.
     """
 
     def __init__(
             self,
             q_dist,
             replay_buffer,
-            exploration=0.02,
             discount_factor=0.99,
+            eps=1e-5,
+            exploration=0.02,
             minibatch_size=32,
             replay_start_size=5000,
             update_frequency=1,
-            eps=1e-5, # stability parameter for loss
             writer=DummyWriter(),
     ):
         # objects
