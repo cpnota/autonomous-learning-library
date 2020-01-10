@@ -4,12 +4,30 @@ from ._agent import Agent
 
 
 class DQN(Agent):
+    '''
+    Deep Q-Network (DQN) was one of the original deep reinforcement learning algorithms.
+    It extends the ideas behind Q-learning to work well with modern convolution networks.
+    The core innovation is the use of a replay buffer, which allows the use of batch-style
+    updates with decorrelated samples. It also uses a "target" network in order to
+    improve the stability of updates.
+    https://www.nature.com/articles/nature14236
+
+    Args:
+        q (QNetwork): An Approximation of the Q function.
+        policy (GreedyPolicy): A policy derived from the Q-function.
+        replay_buffer (ReplayBuffer): The experience replay buffer.
+        discount_factor (float): Discount factor for future rewards.
+        loss (function): The weighted loss function to use.
+        minibatch_size (int): The number of experiences to sample in each training update.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        update_frequency (int): Number of timesteps per training update.
+    '''
     def __init__(self,
                  q,
                  policy,
                  replay_buffer,
-                 loss=mse_loss,
                  discount_factor=0.99,
+                 loss=mse_loss,
                  minibatch_size=32,
                  replay_start_size=5000,
                  update_frequency=1

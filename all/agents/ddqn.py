@@ -5,18 +5,30 @@ from ._agent import Agent
 
 class DDQN(Agent):
     '''
-    Double Deep Q-Network
+    Double Deep Q-Network (DDQN) is an enchancment to DQN
+    that uses a "double Q-style" update, wherein the online
+    network is used to select target actions and the target
+    network is used to evaluate these actions during training.
+    https://arxiv.org/abs/1509.06461
 
-    In additional to the introduction of "double" Q-learning,
-    this agent also supports prioritized experience replay
-    if replay_buffer is a prioritized buffer.
+    This agent also adds support for prioritized experience replay (PER).
+
+    Args:
+        q (QNetwork): An Approximation of the Q function.
+        policy (GreedyPolicy): A policy derived from the Q-function.
+        replay_buffer (ReplayBuffer): The experience replay buffer.
+        discount_factor (float): Discount factor for future rewards.
+        loss (function): The weighted loss function to use.
+        minibatch_size (int): The number of experiences to sample in each training update.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        update_frequency (int): Number of timesteps per training update.
     '''
     def __init__(self,
                  q,
                  policy,
                  replay_buffer,
-                 loss=weighted_mse_loss,
                  discount_factor=0.99,
+                 loss=weighted_mse_loss,
                  minibatch_size=32,
                  replay_start_size=5000,
                  update_frequency=1,
