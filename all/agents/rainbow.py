@@ -2,6 +2,7 @@ from .c51 import C51
 
 class Rainbow(C51):
     """
+    Rainbow: Combining Improvements in Deep Reinforcement Learning.
     Rainbow combines C51 with 5 other "enhancements" to
     DQN: double Q-learning, dueling networks, noisy networks
     prioritized reply, n-step rollouts.
