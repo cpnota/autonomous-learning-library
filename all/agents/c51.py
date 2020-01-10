@@ -20,10 +20,8 @@ class C51(Agent):
         discount_factor (float): Discount factor for future rewards.
         eps (float): Stability parameter for computing the loss function.
         exploration (float): The probability of choosing a random action.
-        minibatch_size (int): The number of experiences to sample in
-            each training update.
-        replay_start_size (int): Number of experiences in replay buffer
-            when training begins.
+        minibatch_size (int): The number of experiences to sample in each training update.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
         update_frequency (int): Number of timesteps per training update.
     """
 
