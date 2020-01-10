@@ -65,7 +65,7 @@ def vpg(
         )
 
         return DeepmindAtariBody(
-            VPG(features, v, policy, gamma=discount_factor, min_batch_size=min_batch_size),
+            VPG(features, v, policy, discount_factor=discount_factor, min_batch_size=min_batch_size),
             episodic_lives=True
         )
     return _vpg_atari

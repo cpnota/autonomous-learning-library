@@ -46,6 +46,6 @@ def vqn(
             )
         )
         return DeepmindAtariBody(
-            VQN(q, policy, gamma=discount_factor),
+            VQN(q, policy, discount_factor=discount_factor),
         )
     return _vqn, n_envs

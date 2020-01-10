@@ -9,7 +9,7 @@ from .models import fc_relu_features, fc_policy_head, fc_value_head
 def vpg(
         # Common settings
         device="cpu",
-        gamma=0.99,
+        discount_factor=0.99,
         # Adam optimizer settings
         lr=5e-3,
         # Batch settings
@@ -39,7 +39,7 @@ def vpg(
             policy_optimizer,
             writer=writer
         )
-        return VPG(features, v, policy, gamma=gamma, min_batch_size=min_batch_size)
+        return VPG(features, v, policy, discount_factor=discount_factor, min_batch_size=min_batch_size)
     return _vpg
 
 

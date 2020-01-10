@@ -5,10 +5,10 @@ from ._agent import Agent
 
 class VQN(Agent):
     '''Vanilla Q-Network'''
-    def __init__(self, q, policy, gamma=1):
+    def __init__(self, q, policy, discount_factor=1):
         self.q = q
         self.policy = policy
-        self.gamma = gamma
+        self.discount_factor = discount_factor
         self._state = None
         self._action = None
 
@@ -24,7 +24,7 @@ class VQN(Agent):
             # forward pass
             value = self.q(self._state, self._action)
             # compute target
-            target = reward + self.gamma * torch.max(self.q.target(next_state), dim=1)[0]
+            target = reward + self.discount_factor * torch.max(self.q.target(next_state), dim=1)[0]
             # compute loss
             loss = mse_loss(value, target)
             # backward pass

@@ -46,6 +46,6 @@ def vsarsa(
             )
         )
         return DeepmindAtariBody(
-            VSarsa(q, policy, gamma=discount_factor),
+            VSarsa(q, policy, discount_factor=discount_factor),
         )
     return _vsarsa, n_envs

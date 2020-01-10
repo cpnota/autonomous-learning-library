@@ -3,12 +3,27 @@ from ._agent import Agent
 
 
 class VAC(Agent):
-    '''Vanilla Actor-Critic'''
-    def __init__(self, features, v, policy, gamma=1):
+    '''
+    Vanilla Actor-Critic (VAC).
+    VAC is an implementation of the actor-critic alogorithm found in the Sutton and Barto (2018) textbook.
+    This implementation tweaks the algorithm slightly by using a shared feature layer.
+    It is also compatible with the use of parallel environments.
+    https://papers.nips.cc/paper/1786-actor-critic-algorithms.pdf
+
+    Args:
+        features (FeatureNetwork): Shared feature layers.
+        v (VNetwork): Value head which approximates the state-value function.
+        policy (StochasticPolicy): Policy head which outputs an action distribution.
+        discount_factor (float): Discount factor for future rewards.
+        n_envs (int): Number of parallel actors/environments
+        n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
+        writer (Writer): Used for logging.
+    '''
+    def __init__(self, features, v, policy, discount_factor=1):
         self.features = features
         self.v = v
         self.policy = policy
-        self.gamma = gamma
+        self.discount_factor = discount_factor
         self._features = None
         self._distribution = None
         self._action = None
@@ -26,7 +41,7 @@ class VAC(Agent):
             values = self.v(self._features)
 
             # compute targets
-            targets = reward + self.gamma * self.v.target(self.features.target(state))
+            targets = reward + self.discount_factor * self.v.target(self.features.target(state))
             advantages = targets - values.detach()
 
             # compute losses

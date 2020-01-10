@@ -4,21 +4,37 @@ from all.environments import State
 from ._agent import Agent
 
 class VPG(Agent):
-    '''Vanilla Policy Gradient'''
+    '''
+    Vanilla Policy Gradient (VPG/REINFORCE).
+    VPG (also known as REINFORCE) is the least biased implementation of the policy gradient theorem.
+    It uses complete episode rollouts as unbiased estimates of the Q-function, rather than the n-step
+    rollouts found in most actor-critic algorithms. The state-value function approximation reduces
+    varience, but does not introduce any bias. This implementation introduces two tweaks. First,
+    it uses a shared feature layer. Second, it introduces the capacity for training on multiple
+    episodes at once. These enhancements often improve learning without sacrifice the essential
+    character of the algorithm.
+
+    Args:
+        features (FeatureNetwork): Shared feature layers.
+        v (VNetwork): Value head which approximates the state-value function.
+        policy (StochasticPolicy): Policy head which outputs an action distribution.
+        discount_factor (float): Discount factor for future rewards.
+        min_batch_size (int): Updates will occurs when an episode ends after at least
+            this many state-action pairs are seen. Set this to a large value in order
+            to train on multiple episodes at once.
+    '''
     def __init__(
             self,
             features,
             v,
             policy,
-            gamma=0.99,
-            # run complete episodes until we have
-            # seen at least min_batch_size states
+            discount_factor=0.99,
             min_batch_size=1
     ):
         self.features = features
         self.v = v
         self.policy = policy
-        self.gamma = gamma
+        self.discount_factor = discount_factor
         self.min_batch_size = min_batch_size
         self._current_batch_size = 0
         self._trajectories = []
@@ -104,7 +120,7 @@ class VPG(Agent):
         t = len(returns) - 1
         discounted_return = 0
         for reward in torch.flip(rewards, dims=(0,)):
-            discounted_return = reward + self.gamma * discounted_return
+            discounted_return = reward + self.discount_factor * discounted_return
             returns[t] = discounted_return
             t -= 1
         return returns

@@ -8,7 +8,7 @@ from .models import fc_relu_q
 def vqn(
         # Common settings
         device="cpu",
-        gamma=0.99,
+        discount_factor=0.99,
         # Adam optimizer settings
         lr=1e-2,
         eps=1e-5,
@@ -23,6 +23,6 @@ def vqn(
         optimizer = Adam(model.parameters(), lr=lr, eps=eps)
         q = QNetwork(model, optimizer, writer=writer)
         policy = GreedyPolicy(q, env.action_space.n, epsilon=epsilon)
-        return VQN(q, policy, gamma=gamma)
+        return VQN(q, policy, discount_factor=discount_factor)
     return _vqn, n_envs
  

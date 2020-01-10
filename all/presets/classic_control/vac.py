@@ -28,5 +28,5 @@ def vac(
         policy = SoftmaxPolicy(policy_model, policy_optimizer, writer=writer)
         features = FeatureNetwork(feature_model, feature_optimizer)
 
-        return VAC(features, v, policy, gamma=discount_factor)
+        return VAC(features, v, policy, discount_factor=discount_factor)
     return _vac

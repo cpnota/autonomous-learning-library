@@ -8,7 +8,7 @@ from .models import fc_relu_q
 def vsarsa(
         # Common settings
         device="cpu",
-        gamma=0.99,
+        discount_factor=0.99,
         # Adam optimizer settings
         lr=1e-2,
         eps=1e-5,
@@ -23,6 +23,6 @@ def vsarsa(
         optimizer = Adam(model.parameters(), lr=lr, eps=eps)
         q = QNetwork(model, optimizer, writer=writer)
         policy = GreedyPolicy(q, env.action_space.n, epsilon=epsilon)
-        return VSarsa(q, policy, gamma=gamma)
+        return VSarsa(q, policy, discount_factor=discount_factor)
     return _vsarsa, n_envs
  

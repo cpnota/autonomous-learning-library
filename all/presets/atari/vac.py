@@ -52,6 +52,6 @@ def vac(
         )
 
         return DeepmindAtariBody(
-            VAC(features, v, policy, gamma=discount_factor),
+            VAC(features, v, policy, discount_factor=discount_factor),
         )
     return _vac, n_envs
