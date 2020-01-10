@@ -15,3 +15,13 @@ tensorboard:
 
 benchmark:
 	tensorboard --logdir benchmarks/runs --port=6007
+
+clean:
+	rm -rf dist
+	rm -rf build
+
+build: clean
+	python setup.py sdist bdist_wheel
+
+deploy: lint test build
+	twine upload dist/*
