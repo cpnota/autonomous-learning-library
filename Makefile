@@ -21,7 +21,7 @@ clean:
 	rm -rf build
 
 build: clean
-	setup.py sdist bdist_wheel
+	python setup.py sdist bdist_wheel
 
 deploy: lint test build
 	twine upload dist/*
