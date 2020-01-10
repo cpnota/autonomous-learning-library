@@ -1,7 +1,7 @@
 # python
 *.pyc
 __pycache__
-all.egg-info
+autonomous_learning_library.egg-info
 
 # build directories
 /build
