@@ -4,8 +4,21 @@ from ._agent import Agent
 
 
 class VQN(Agent):
-    '''Vanilla Q-Network'''
-    def __init__(self, q, policy, discount_factor=1):
+    '''
+    Vanilla Q-Network (VQN).
+    VQN is an implementation of the Q-learning algorithm found in the Sutton and Barto (2018) textbook.
+    Q-learning algorithms attempt to learning the optimal policy while executing a (generally)
+    suboptimal policy (typically epsilon-greedy). In theory, This allows the agent to gain the benefits
+    of exploration without sacrificing the performance of the final policy. However, the cost of this
+    is that Q-learning is generally less stable than its on-policy bretheren, SARSA.
+    http://www.cs.rhul.ac.uk/~chrisw/new_thesis.pdf
+
+    Args:
+        q (QNetwork): An Approximation of the Q function.
+        policy (GreedyPolicy): A policy derived from the Q-function.
+        discount_factor (float): Discount factor for future rewards.
+    '''
+    def __init__(self, q, policy, discount_factor=0.99):
         self.q = q
         self.policy = policy
         self.discount_factor = discount_factor

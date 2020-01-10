@@ -3,8 +3,19 @@ from ._agent import Agent
 
 
 class VSarsa(Agent):
-    '''Vanilla SARSA'''
-    def __init__(self, q, policy, discount_factor=1):
+    '''
+    Vanilla SARSA (VSarsa).
+    SARSA (State-Action-Reward-State-Action) is an on-policy alternative to Q-learning. Unlike Q-learning,
+    SARSA attempts to learn the Q-function for the current policy rather than the optimal policy. This
+    approach is more stable but may not result in the optimal policy. However, this problem can be mitigated
+    by decaying the exploration rate over time.
+
+    Args:
+        q (QNetwork): An Approximation of the Q function.
+        policy (GreedyPolicy): A policy derived from the Q-function.
+        discount_factor (float): Discount factor for future rewards.
+    '''
+    def __init__(self, q, policy, discount_factor=0.99):
         self.q = q
         self.policy = policy
         self.discount_factor = discount_factor

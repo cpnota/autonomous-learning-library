@@ -13,6 +13,7 @@ class VPG(Agent):
     it uses a shared feature layer. Second, it introduces the capacity for training on multiple
     episodes at once. These enhancements often improve learning without sacrifice the essential
     character of the algorithm.
+    https://link.springer.com/article/10.1007/BF00992696
 
     Args:
         features (FeatureNetwork): Shared feature layers.
