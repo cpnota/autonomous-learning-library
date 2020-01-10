@@ -4,5 +4,7 @@
 all.agents
 =================
 
+.. automodsumm:: all.agents
+
 .. automodule:: all.agents
     :members:

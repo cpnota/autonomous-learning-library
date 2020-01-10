@@ -6,9 +6,9 @@ from ._agent import Agent
 
 class C51(Agent):
     """
-    C51 is a categorical DQN agent.
+    A categorical DQN agent (C51).
     Rather than making a point estimate of the Q-function,
-    it estimates a categorical distribution over possible values.
+    C51 estimates a categorical distribution over possible values.
     The 51 refers to the number of atoms used in the
     categorical distribution used to estimate the
     value distribution.

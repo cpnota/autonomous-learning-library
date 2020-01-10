@@ -5,7 +5,8 @@ from ._agent import Agent
 
 class DQN(Agent):
     '''
-    Deep Q-Network (DQN) was one of the original deep reinforcement learning algorithms.
+    Deep Q-Network (DQN).
+    DQN was one of the original deep reinforcement learning algorithms.
     It extends the ideas behind Q-learning to work well with modern convolution networks.
     The core innovation is the use of a replay buffer, which allows the use of batch-style
     updates with decorrelated samples. It also uses a "target" network in order to

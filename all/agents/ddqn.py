@@ -5,13 +5,14 @@ from ._agent import Agent
 
 class DDQN(Agent):
     '''
-    Double Deep Q-Network (DDQN) is an enchancment to DQN
-    that uses a "double Q-style" update, wherein the online
-    network is used to select target actions and the target
-    network is used to evaluate these actions during training.
+    Double Deep Q-Network (DDQN).
+    DDQN is an enchancment to DQN that uses a "double Q-style" update,
+    wherein the online network is used to select target actions
+    and the target network is used to evaluate these actions.
     https://arxiv.org/abs/1509.06461
-
-    This agent also adds support for prioritized experience replay (PER).
+    This agent also adds support for weighted replay buffers, such
+    as priotized experience replay (PER).
+    https://arxiv.org/abs/1511.05952
 
     Args:
         q (QNetwork): An Approximation of the Q function.

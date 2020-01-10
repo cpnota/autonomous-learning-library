@@ -6,9 +6,10 @@ from ._agent import Agent
 
 class A2C(Agent):
     """
+    Advantage Actor-Critic (A2C).
     A2C is policy gradient method in the actor-critic family.
-    It is the synchronous variant of the *Asychronous* Advantage Actor Critic (A3C).
-    The key distiguishing feature between A2C/A3C and prior actor critic methods
+    It is the synchronous variant of the *Asychronous* Advantage Actor-Critic (A3C).
+    The key distiguishing feature between A2C/A3C and prior actor-critic methods
     is the use of parallel actors interaction with a parallel set of environments.
     This mitigates the need for a replay buffer by providing a different mechanism
     for decorrelating samples.

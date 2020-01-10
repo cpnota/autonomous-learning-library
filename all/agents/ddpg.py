@@ -5,10 +5,10 @@ from ._agent import Agent
 
 class DDPG(Agent):
     """
-    Deep Deterministic Policy Gradient (DDPG) extends the ideas
-    of DQN to a continuous action setting. Unlike DQN, which uses
-    a single joint Q/policy network, DDPG uses separate networks for
-    approximating the Q-function and approximating the policy.
+    Deep Deterministic Policy Gradient (DDPG).
+    DDPG extends the ideas of DQN to a continuous action setting.
+    Unlike DQN, which uses a single joint Q/policy network, DDPG uses 
+    separate networks for approximating the Q-function and approximating the policy.
     The policy network outputs a vector action in some continuous space.
     A small amount of noise is added to aid exploration. The Q-network
     is used to train the policy network. A replay buffer is used to
