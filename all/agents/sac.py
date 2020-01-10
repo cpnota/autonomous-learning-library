@@ -4,6 +4,30 @@ from all.logging import DummyWriter
 from ._agent import Agent
 
 class SAC(Agent):
+    """
+    Soft Actor-Critic (SAC).
+    SAC is a proposed improvement to DDPG that replaces the standard
+    mean-squared Bellman error (MSBE) objective with a "maximum entropy"
+    objective that impoves exploration. It also uses a few other tricks,
+    such as the "Clipped Double-Q Learning" trick introduced by TD3.
+    This implementation uses automatic temperature adjustment to replace the
+    difficult to set temperature parameter with a more easily tuned
+    entropy target parameter.
+    https://arxiv.org/abs/1801.01290
+
+    Args:
+        policy (DeterministicPolicy): An Approximation of a deterministic policy.
+        q1 (QContinuous): An Approximation of the continuous action Q-function.
+        q2 (QContinuous): An Approximation of the continuous action Q-function.
+        v (VNetwork): An Approximation of the state-value function.
+        replay_buffer (ReplayBuffer): The experience replay buffer.
+        discount_factor (float): Discount factor for future rewards.
+        entropy_target (float): The desired entropy of the policy. Usually -env.action_space.shape[0]
+        minibatch_size (int): The number of experiences to sample in each training update.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        temperature_initial (float): The initial temperature used in the maximum entropy objective.
+        update_frequency (int): Number of timesteps per training update.
+    """
     def __init__(self,
                  policy,
                  q_1,
