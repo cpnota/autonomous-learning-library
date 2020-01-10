@@ -3,6 +3,10 @@
 __pycache__
 all.egg-info
 
+# build directories
+/build
+/dist
+
 # editor
 .vscode
 .idea
