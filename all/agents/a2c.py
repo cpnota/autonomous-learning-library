@@ -60,10 +60,10 @@ class A2C(Agent):
         self._actions = self.policy.eval(self.features.eval(states)).sample()
         return self._actions
 
-    def _train(self, states):
+    def _train(self, next_states):
         if len(self._buffer) >= self._batch_size:
             # load trajectories from buffer
-            states, actions, advantages = self._buffer.advantages(states)
+            states, actions, advantages = self._buffer.advantages(next_states)
 
             # forward pass
             features = self.features(states)
