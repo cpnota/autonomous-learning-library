@@ -82,7 +82,6 @@ class C51(Agent):
         if self._should_train():
             # sample transitions from buffer
             states, actions, rewards, next_states, weights = self.replay_buffer.sample(self.minibatch_size)
-            actions = torch.cat(actions)
             # forward pass
             dist = self.q_dist(states, actions)
             # compute target distribution
