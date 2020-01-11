@@ -1,12 +1,13 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="all",
-    version="0.3.3",
-    description=("A reinforcement learning library in python"),
+    name="autonomous-learning-library",
+    version="0.3.4",
+    description=("A library for building reinforcement learning agents in Pytorch"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",
-    author="Autonomous Learning Lab",
+    author="Chris Nota",
+    author_email='cnota@cs.umass.edu',
     install_requires=[
         "gym[atari,box2d]",    # atari environments
         "numpy",         # math library
