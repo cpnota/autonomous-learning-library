@@ -3,12 +3,12 @@
 The `autonomous-learning-library` is an object-oriented deep reinforcement learning (DRL) library for PyTorch.
 The goal of the library is to provide the necessary components for quickly building and evaluating novel reinforcement learning agents,
 as well as providing high-quality reference implementations of modern DRL algorithms.
-The full documentation can be found at the following URL: [autonomous-learning-library.readthedocs.io](autonomous-learning-library.readthedocs.io).
+The full documentation can be found at the following URL: [https://autonomous-learning-library.readthedocs.io](https://autonomous-learning-library.readthedocs.io).
 
 ## Building New Agents
 
 The primary goal of the `autonomous-learning-library` is to facilitate the rapid development of new reinforcement learning agents by providing common functionality out-of-the-box.
-See the [Getting Started](autonomous-learning-library.readthedocs.io) guide for a full description of the functionality provided by the `autonomous-learning-library`.
+See the [Getting Started](https://autonomous-learning-library.readthedocs.io) guide for a full description of the functionality provided by the `autonomous-learning-library`.
 Additionally, we provide an [example project](https://github.com/cpnota/all-example-project) which demonstrates the best practices for building new agents.
 
 ## High-Quality Reference Implementations
