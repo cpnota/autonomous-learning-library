@@ -24,7 +24,8 @@ setup(
     ],
     extras_require={
         "pytorch": [
-            "pytorch",
+            "torch",
+            "torchvision",
             "tensorboard"
         ],
         "docs": [
