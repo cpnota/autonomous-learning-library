@@ -47,10 +47,18 @@ class GreedyAgent(Agent):
             if self.feature:
                 state = self.feature(state)
             if isinstance(self.action_space, gym.spaces.Discrete):
-                return torch.argmax(self.policy(state), dim=1)
+                return self.choose_discrete(state)
             if isinstance(self.action_space, gym.spaces.Box):
                 return self.choose_continuous(state)
             raise TypeError('Unknown action space')
+
+    def choose_discrete(self, state):
+        ret = self.policy(state)
+        if isinstance(ret, torch.Tensor):
+            return torch.argmax(self.policy(state), dim=1)
+        if isinstance(ret, torch.distributions.distribution.Distribution):
+            return ret.sample()
+        return ret # unknown type, return it and pray!
 
     def choose_continuous(self, state):
         ret = self.policy(state)
