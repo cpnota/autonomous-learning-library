@@ -60,40 +60,42 @@ If you just want to test out some cool agents, the `scripts` directory contains 
 python scripts/atari.py Breakout a2c
 ```
 
-
+You can watch the training progress using:
 
 ```
-make tensorboard
+tensorboard --logdir runs
 ```
 
 and opening your browser to http://localhost:6006.
-
-To run an Atari benchmark in CUDA mode (warning: this could take several hours to run, depending on your machine):
-
-```
-python scripts/atari.py Pong dqn
-```
-
-If you want to run in `cpu` mode (~10x slower on my machine), you can add ```--device cpu```:
+Once the model is trained to your satisfaction, you can watch the trained model play using:
 
 ```
-python scipts/atari.py Pong dqn --device cpu
+python scripts/watch_atari.py Breakout "runs/_a2c [id]"
 ```
 
-### Testing Your Installation
+where `id` is the ID of your particular run. You should should be able to find it using tab completion or by looking in the `runs` directory.
+The `autonomous-learning-library` also contains presets and scripts for classic control and PyBullet environments.
 
+## Contributing
+
+Contributions and suggestions are welcome!
+However, require a high-level of code quality, including automated unit tests for common modules and linting.
 The unit tests may be run using:
 
 ```
 make test
 ```
 
-If the unit tests pass with no errors, it is more than likely that your installation works! The unit test run every agent using both `cpu` and `cuda` for a few timesteps/episodes.
+The linter (pylint) can be run using:
+
+```
+make lint
+```
 
 
 
 ## Note
 
-This library was built at the [Autonomous Learning Laboratory](http://all.cs.umass.edu) (ALL) at the [University of Massachusetts, Amherst](https://www.umass.edu).
+This library was built in the [Autonomous Learning Laboratory](http://all.cs.umass.edu) (ALL) at the [University of Massachusetts, Amherst](https://www.umass.edu).
 It was written and is currently maintained by Chris Nota (@cpnota).
 The views expressed or implied in this repository do not necessarily reflect the views of the ALL.
