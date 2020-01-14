@@ -16,10 +16,10 @@ class QDist(Approximation):
             name="q_dist",
             **kwargs,
     ):
-        model = QDistModule(model, n_actions, n_atoms)
         device = next(model.parameters()).device
         self.n_actions = n_actions
         self.atoms = torch.linspace(v_min, v_max, steps=n_atoms).to(device)
+        model = QDistModule(model, n_actions, self.atoms)
         super().__init__(model, optimizer, name=name, **kwargs)
 
     def project(self, dist, support):
@@ -57,13 +57,14 @@ class QDist(Approximation):
 
 
 class QDistModule(nn.Module):
-    def __init__(self, model, n_actions, n_atoms):
+    def __init__(self, model, n_actions, atoms):
         super().__init__()
+        self.atoms = atoms
         self.n_actions = n_actions
-        self.n_atoms = n_atoms
+        self.n_atoms = len(atoms)
         self.device = next(model.parameters()).device
-        self.terminal = torch.zeros((n_atoms)).to(self.device)
-        self.terminal[(n_atoms // 2)] = 1.0
+        self.terminal = torch.zeros((self.n_atoms)).to(self.device)
+        self.terminal[(self.n_atoms // 2)] = 1.0
         self.model = nn.RLNetwork(model)
         self.count = 0
 
@@ -79,3 +80,9 @@ class QDistModule(nn.Module):
         if isinstance(actions, list):
             actions = torch.cat(actions)
         return values[torch.arange(len(states)), actions]
+
+    def to(self, device):
+        self.device = device
+        self.atoms = self.atoms.to(device)
+        self.terminal = self.terminal.to(device)
+        return super().to(device)

@@ -55,6 +55,8 @@ class GreedyAgent(Agent):
     def choose_discrete(self, state):
         ret = self.policy(state)
         if isinstance(ret, torch.Tensor):
+            if len(ret.shape) == 3: # categorical dqn
+                return torch.argmax((ret * self.policy.atoms).sum(dim=2), dim=1)
             return torch.argmax(self.policy(state), dim=1)
         if isinstance(ret, torch.distributions.distribution.Distribution):
             return ret.sample()
@@ -80,7 +82,7 @@ class GreedyAgent(Agent):
                 feature = torch.load(os.path.join(dirname, filename)).to(env.device)
             if filename == 'policy.pt':
                 policy = torch.load(os.path.join(dirname, filename)).to(env.device)
-            if filename == 'q.pt':
+            if filename in ('q.pt', 'q_dist.pt'):
                 q = torch.load(os.path.join(dirname, filename)).to(env.device)
 
         agent = GreedyAgent(
