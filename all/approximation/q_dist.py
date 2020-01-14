@@ -56,7 +56,7 @@ class QDist(Approximation):
         return target_dist
 
 
-class QDistModule(nn.Module):
+class QDistModule(torch.nn.Module):
     def __init__(self, model, n_actions, atoms):
         super().__init__()
         self.atoms = atoms
