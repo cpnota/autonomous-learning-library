@@ -20,7 +20,9 @@ formats: all
 python:
   version: 3.7
   install:
-    - method: setuptools
+    - method: pip
       path: .
       extra_requirements:
         - docs
+    - method: setuptools
+      path: .
