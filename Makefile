@@ -1,7 +1,6 @@
 install:
-	pip install https://download.pytorch.org/whl/cu100/torch-1.1.0-cp37-cp37m-linux_x86_64.whl
-	pip install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp37-cp37m-linux_x86_64.whl
-	pip install tensorflow
+	conda install pytorch torchvision cudatoolkit=10.1 -c pytorch
+	pip install tensorboard
 	pip install -e .
 
 lint:
