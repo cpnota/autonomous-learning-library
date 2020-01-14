@@ -1,5 +1,5 @@
 '''
-Quick demo of a2c running on slurm.
+Quick demo of a2c running on slurm, a distributed cluster.
 Note that it only runs for 1 million frames.
 For real experiments, you will surely need a modified version of this script.
 '''
