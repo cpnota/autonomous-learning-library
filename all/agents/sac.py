@@ -74,7 +74,6 @@ class SAC(Agent):
         if self._should_train():
             # sample from replay buffer
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
-            actions = torch.cat(actions)
 
             # compute targets for Q and V
             _actions, _log_probs = self.policy.eval(states)

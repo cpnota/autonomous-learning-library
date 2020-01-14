@@ -20,7 +20,7 @@ class TestExperienceReplayBuffer(unittest.TestCase):
 
     def test_run(self):
         states = torch.arange(0, 20)
-        actions = torch.arange(0, 20)
+        actions = torch.arange(0, 20).view((-1, 1))
         rewards = torch.arange(0, 20)
         expected_samples = torch.tensor(
             [
@@ -61,7 +61,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
 
     def test_run(self):
         states = State(torch.arange(0, 20))
-        actions = torch.arange(0, 20)
+        actions = torch.arange(0, 20).view((-1, 1))
         rewards = torch.arange(0, 20)
         expected_samples = State(
             torch.tensor(
