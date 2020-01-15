@@ -117,7 +117,7 @@ class PPO(Agent):
 
         # debugging
         self.writer.add_loss('policy_gradient', policy_gradient_loss.detach())
-        self.writer.add_loss('entropy', -entropy_loss.detach())
+        self.writer.add_loss('entropy', entropy_loss.detach())
 
     def _clipped_policy_gradient_loss(self, pi_0, pi_i, advantages):
         ratios = torch.exp(pi_i - pi_0)
