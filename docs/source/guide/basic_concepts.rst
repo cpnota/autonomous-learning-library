@@ -120,6 +120,67 @@ These are all handled through the appropriate configuration of ``Approximation``
 Instead, the ``Agent`` implementation is able to focus exclusively on its sole purpose: defining the RL algorithm itself.
 By encapsulating these details in ``Approximation``, we are able to follow the `single responsibility principle <https://en.wikipedia.org/wiki/Single_responsibility_principle>`_.
 
+A few other quick things to note: ``f.eval(x)`` runs a forward pass in ``torch.no_grad()``.
+``f.target(x)`` calls the *target network* (an advanced concept used in algorithms such as DQN. S, for example, David Silver's `course notes <http://www0.cs.ucl.ac.uk/staff/d.silver/web/Talks_files/deep_rl.pdf>`_) associated with the ``Approximation``, also with ``torch.no_grad()``.
+The ``autonomous-learning-library`` provides a few thin wrappers over ``Approximation`` for particular purposes, such as ``QNetwork``, ``VNetwork``, ``FeatureNetwork``, and several ``Policy`` implementations.
+
+Environment
+-----------
+
+The importance of the ``Environment`` in reinforcement learning nearly goes without saying.
+In the ``autonomous-learning-library``, the prepackaged environments are simply wrappers for `OpenAI Gym <http://gym.openai.com>`_, the defacto standard library for RL environments.
+
+.. figure:: ./ale.png
+
+    Some environments included in the Atari suite in Gym. This picture is just so you don't get bored.
+
+
+We add a few additional features:
+
+1) ``gym`` primarily uses ``numpy.array`` for representing states and actions. We automatically convert to and from ``torch.Tensor`` objects so that agent implemenetations need not consider the difference.
+2) We add properties to the environment for ``state``, ``reward``, etc. This simplifies the control loop and is generally useful.
+3) We apply common preprocessors, such as several standard Atari wrappers. However, where possible, we prefer to perform preprocessing using ``Body`` objects to maximize the flexibility of the agents.
+
+Below, we show how several different types of environments can be created:
+
+.. code-block:: python
+
+    from all.environments import AtariEnvironment, GymEnvironment
+
+    # create an Atari environment on the gpu
+    env = AtariEnvironment('Breakout', device='cuda')
+
+    # create a classic control environment on the compute
+    env = GymEnvironment('CartPole-v0')
+
+    # create a PyBullet environment on the cpu
+    import pybullet_envs
+    env = GymEnvironment('HalfCheetahBulletEnv-v0')
+
+Now we can write our first control loop:
+
+.. code-block:: python
+
+    # initialize the environment
+    env.reset()
+
+    # Loop for some arbitrary number of timesteps.
+    for timesteps in range(1000000):
+        env.render()
+        action = agent.act(env.state, env.reward)
+        env.step(action)
+
+        if env.done:
+            # terminal update
+            agent.act(env.state, env.reward)
+
+            # reset the environment
+            env.reset()
+
+Of course, this control loop is not exactly feature-packed.
+Generally, it's better to use the ``Experiment`` API described later.
+
+
 Presets
 -------
 
