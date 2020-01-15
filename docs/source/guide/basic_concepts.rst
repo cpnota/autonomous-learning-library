@@ -184,5 +184,125 @@ Generally, it's better to use the ``Experiment`` API described later.
 Presets
 -------
 
-In the ``autonomous-learning-library``, agents are *compositional*, which means that the behavior of a given ``Agent`` depends on 
+In the ``autonomous-learning-library``, agents are *compositional*, which means that the behavior of a given ``Agent`` depends on the behavior of several other objects.
+Users can compose agents with specific behavior by passing appropriate objects into the constructor of the high-level algorithms contained in ``all.agents``.
+The library provides a number of functions which compose these objects in specific ways such that they are appropriate for a given set of environment.
+We call such a function a ``preset``, and several such presets are contained in the ``all.presets`` package.
+(This is an example of the more general `factory method pattern <https://en.wikipedia.org/wiki/Factory_method_pattern>`_).
 
+For example, ``all.agents.vqn`` contains a high-level description of a vanilla Q-learning algorithm.
+In order to actually apply this agent to a problem, for example, a classic control problem, we might define the following preset:
+
+.. code-block:: python
+
+    # The outer function signature contains the set of hyperparameters
+    def vqn(
+        # Common settings
+        device="cpu",
+        # Hyperparameters
+        discount_factor=0.99,
+        lr=1e-2,
+        exploration=0.1,
+    ):
+        # The inner function creates a closure over the hyperparameters passed into the outer function.
+        # It accepts an "env" object which is passed right before the Experiment begins, as well as
+        # the writer created by the Experiment which defines the logging parameters.
+        def _vqn(env, writer=DummyWriter()):
+            # create a pytorch model
+            model = nn.Sequential(
+                nn.Linear(env.state_space.shape[0], 64),
+                nn.ReLU(),
+                nn.Linear(64, env.action_space.n),
+            ).to(device)
+
+            # create a pytorch optimizer for the model
+            optimizer = Adam(model.parameters(), lr=lr)
+
+            # create an Approximation of the Q-function
+            q = QNetwork(model, optimizer, writer=writer)
+
+            # create a Policy object derived from the Q-function
+            policy = GreedyPolicy(q, env.action_space.n, epsilon=exploration)
+
+            # instansiate the agent
+            return VQN(q, policy, discount_factor=discount_factor)
+
+        # return the inner function
+        return _vqn
+
+Notice how there is an "outer function" and an "inner" function.
+This approach allows the separation of configuration and instansiation.
+While this may seem redundant, it can sometimes be useful.
+For example, say we wanted to run the same agent on multiple environments.
+This can be done as follows:
+
+.. code-block:: python
+
+    agent = vqn()
+    envs = [, GymEnvironment('MountainCar-v0')]
+    some_custom_runner(agent(), GymEnvironment('CartPole-v0'))
+    some_custom_runner(agent(), GymEnvironment('MountainCar-v0'))
+
+Now, each call to ``some_custom_runner`` receives a unique instance of the agent.
+This is sometimes achieved in other libraries by providing a "reset" function.
+We find our approach allows us to keep the ``Agent`` interface clean,
+and is overall more elegant and less error prone.
+
+Experiment
+----------
+
+Finally, we have all of the components necessary to introduce the ``Experiment`` object.
+``Experiment`` is the built-in control loop for running reinforcement learning experiment.
+It instansiates its own ``Writer`` object, which is then passed to each of the agents, and runs each agent on each environment passed to it for some number of timesteps (frames) or episodes).
+Here is a quick example:
+
+.. code-block:: python
+
+    from gym import envs
+    from all.experiments import Experiment
+    from all.presets import atari
+    from all.environments import AtariEnvironment
+
+    agents = [
+        atari.dqn(),
+        atari.ddqn(),
+        atari.c51(),
+        atari.rainbow(),
+        atari.a2c(),
+        atari.ppo(),
+    ]
+
+    envs = [AtariEnvironment(env, device='cuda') for env in ['BeamRider', 'Breakout', 'Pong', 'Qbert', 'SpaceInvaders']]
+
+    Experiment(agents, envs, frames=10e6)
+
+The above block executes each run sequentially.
+This could take a very long time, even on a fast GPU!
+If you have access to a cluster running Slurm, you can replace ``Experiment`` with ``SlurmExperiment`` to speed things up substantially (the magic of submitting jobs is handled behind the scenes).
+
+By default, ``Experiment`` will write the results to ``./runs``.
+You can view the results in ``tensorboard`` by running the following command:
+
+.. code-block:: bash
+
+    tensorboard --logdir runs
+
+In addition to the ``tensorboard`` logs, every 100 episodes, the mean and standard deviation of the previous 100 episode returns are written to ``runs/[agent]/[env]/returns100.csv``.
+This is much faster to read and plot than Tensorboard's proprietary format.
+The library contains an automatically plotting utility that generates appropriate plots for an *entire* ``runs`` directory as follows:
+
+.. code-block:: python
+
+    from all.experiments import plot_returns_100
+    plot_returns_100('./runs')
+
+This will generate a plot that looks like the following (after tweaking the whitespace through the ``matplotlib`` UI):
+
+.. image:: ../../../benchmarks/atari40.png
+
+You can also pass optional parameters to ``Experiment`` to change its behavior.
+Instead of specificying ``frames``, you can specify a maximum number of ``episodes``.
+You can set ``render=True`` to watch the agent during training (generally not recommended: it slows the agent considerably!).
+You can set ``quiet=True`` to silence command line output.
+Finally, you can set ``write_loss=False`` to disable writing debugging information to ``tensorboard``.
+These files can become large, so this is recommended if you have limited storage!
