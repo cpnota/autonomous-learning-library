@@ -124,8 +124,8 @@ A few other quick things to note: ``f.eval(x)`` runs a forward pass in ``torch.n
 ``f.target(x)`` calls the *target network* (an advanced concept used in algorithms such as DQN. S, for example, David Silver's `course notes <http://www0.cs.ucl.ac.uk/staff/d.silver/web/Talks_files/deep_rl.pdf>`_) associated with the ``Approximation``, also with ``torch.no_grad()``.
 The ``autonomous-learning-library`` provides a few thin wrappers over ``Approximation`` for particular purposes, such as ``QNetwork``, ``VNetwork``, ``FeatureNetwork``, and several ``Policy`` implementations.
 
-Environment
------------
+Environments
+------------
 
 The importance of the ``Environment`` in reinforcement learning nearly goes without saying.
 In the ``autonomous-learning-library``, the prepackaged environments are simply wrappers for `OpenAI Gym <http://gym.openai.com>`_, the defacto standard library for RL environments.
