@@ -9,6 +9,7 @@ This documentation is under construction!
     :caption: User Guide:
 
     guide/getting_started
+    guide/basic_concepts
 
 .. toctree::
     :maxdepth: 2
