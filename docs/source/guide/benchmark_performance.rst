@@ -6,11 +6,11 @@ For this reason, in order to ensuring the correctness of the preset agents provi
 we benchmark each algorithm after every major change.
 We also discuss the performance of our implementations relative to published results.
 
-Atari Presets
--------------
+Atari Benchmark
+---------------
 
-To benchmark the Atari presets, we ran each agent for 10 million timesteps (40 million in-game frames).
-The learning rate is decayed over the course of training using cosine annealing.
+To benchmark the ``all.presets.atari`` presets, we ran each agent for 10 million timesteps (40 million in-game frames).
+The learning rate was decayed over the course of training using cosine annealing.
 The environment implementation uses the following wrappers:
 
 * NoopResetEnv (adds a random number of noops at the beginning of each game reset)
@@ -38,3 +38,26 @@ We can see that at the 10 million timestep mark, our results are similar or slig
 Our ``dqn`` and ``ddqn`` in particular were better almost across the board.
 While there are almost certainly some minor implementation differences,
 our agents achieved very similar behavior to the agents tested by DeepMind.
+
+PyBullet Benchmark
+------------------
+
+[PyBullet](https://pybullet.org/wordpress/) provides a free alternative to the popular MuJoCo robots environments.
+While MuJoCo requires a license key and can be difficult for independent researchers to afford, PyBullet is free and open.
+Additionally, the PyBullet environments are widely considered more challenging, making them a more discriminant test bed.
+For these reasons, we chose to benchmark the ``all.presets.continuous`` presets using PyBullet.
+
+Similar to the Atari benchmark, we ran each agent for 10 million timesteps (in this case, timesteps are equal to frames).
+The learning rate was decayed over the course of training using cosine annealing.
+To reduce the variance of the updates, we added an extra time feature to the state (t * 0.001, where t is the current timestep).
+The results were as follows:
+
+.. image:: ../../../benchmarks/pybullet.png
+
+PPO was omitted from the plot for Humanoid because it achieved very large negative returns which interfered with the scale of the graph.
+Note, however, that our implementation of soft actor-critic (SAC) is able to solve even this difficult environment.
+
+Because most research papers still use MuJoCo, direct comparisons are difficult to come by.
+However, George Sung helpfully benchmarked TD3 and DDPG on several PyBullet environments [here](https://github.com/georgesung/TD3).
+However, he only ran each environment for 1 million timesteps and tuned his hyperparameters accordingly.
+Generally, our agents achieved higher final perfomance but converged more slowly.
