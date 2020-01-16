@@ -11,6 +11,7 @@ This documentation is under construction!
     guide/getting_started
     guide/basic_concepts
     guide/creating_agent
+    guide/benchmark_performance
 
 .. toctree::
     :maxdepth: 2
