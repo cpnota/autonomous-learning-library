@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
+    'sphinx.ext.autosectionlabel',
     'sphinx_automodapi.automodapi',
     'sphinx_rtd_theme'
 ]
@@ -41,6 +42,12 @@ extensions = [
 # Autosummary settings
 autodoc_default_flags = ['members']
 autosummary_generate = True
+
+# Mock requirements to save resources during doc build machine setup
+autodoc_mock_imports = [
+    'torch',
+    'torchvision',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

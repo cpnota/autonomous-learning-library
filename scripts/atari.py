@@ -15,7 +15,7 @@ def run_atari():
         help="The name of the device to run the agent on (e.g. cpu, cuda, cuda:0)",
     )
     parser.add_argument(
-        "--frames", type=int, default=200e6, help="The number of training frames"
+        "--frames", type=int, default=40e6, help="The number of training frames"
     )
     args = parser.parse_args()
 
@@ -23,7 +23,7 @@ def run_atari():
     agent_name = args.agent
     agent = getattr(atari, agent_name)
 
-    Experiment(agent(device=args.device), env, frames=args.frames)
+    Experiment(agent(device=args.device, last_frame=args.frames), env, frames=args.frames)
 
 
 if __name__ == "__main__":

@@ -3,12 +3,20 @@
 The `autonomous-learning-library` is an object-oriented deep reinforcement learning (DRL) library for PyTorch.
 The goal of the library is to provide the necessary components for quickly building and evaluating novel reinforcement learning agents,
 as well as providing high-quality reference implementations of modern DRL algorithms.
-The full documentation can be found at the following URL: [autonomous-learning-library.readthedocs.io](autonomous-learning-library.readthedocs.io).
+The full documentation can be found at the following URL: [https://autonomous-learning-library.readthedocs.io](https://autonomous-learning-library.readthedocs.io).
 
-## Building New Agents
+## Tools for Building New Agents
 
-The primary goal of the `autonomous-learning-library` is to facilitate the rapid development of new reinforcement learning agents by providing common functionality out-of-the-box.
-See the [Getting Started](autonomous-learning-library.readthedocs.io) guide for a full description of the functionality provided by the `autonomous-learning-library`.
+The primary goal of the `autonomous-learning-library` is to facilitate the rapid development of new reinforcement learning agents by providing common tools for building and evaluation agents, such as:
+
+* A flexible function `Approximation` API that integrates features such as target networks, gradient clipping, learning rate schedules, model checkpointing, multi-headed networks, loss scaling, logging, and more.
+* Various memory buffers, including prioritized experience replay (PER), generalized advantage estimation (GAE), and more.
+* A `torch`-based `Environment` interface that simplies agent implementations by cutting out the `numpy` middleman.
+* Common wrappers and agent enhancements for replicating standard benchmarks.
+* [Slurm](https://slurm.schedmd.com/documentation.html) integration for running large-scale experiments.
+* Plotting and logging utilities including `tensorboard` integration and utilities for generating common plots.
+
+See the [documentation](https://autonomous-learning-library.readthedocs.io) guide for a full description of the functionality provided by the `autonomous-learning-library`.
 Additionally, we provide an [example project](https://github.com/cpnota/all-example-project) which demonstrates the best practices for building new agents.
 
 ## High-Quality Reference Implementations
@@ -50,7 +58,13 @@ Alternately, you can install directly from this repository:
 git clone https://github.com/cpnota/autonomous-learning-library.git
 cd autonomous-learning-library
 pip install -e .
-``` 
+```
+
+You can also install the prerequisites using:
+
+```
+pip install autonomous-learning-library[pytorch]
+```
 
 ## Running the Presets
 
@@ -75,24 +89,6 @@ python scripts/watch_atari.py Breakout "runs/_a2c [id]"
 
 where `id` is the ID of your particular run. You should should be able to find it using tab completion or by looking in the `runs` directory.
 The `autonomous-learning-library` also contains presets and scripts for classic control and PyBullet environments.
-
-## Contributing
-
-Contributions and suggestions are welcome!
-However, require a high-level of code quality, including automated unit tests for common modules and linting.
-The unit tests may be run using:
-
-```
-make test
-```
-
-The linter (pylint) can be run using:
-
-```
-make lint
-```
-
-
 
 ## Note
 

@@ -7,7 +7,7 @@ setup(
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",
     author="Chris Nota",
-    author_email='cnota@cs.umass.edu',
+    author_email="cnota@cs.umass.edu",
     install_requires=[
         "gym[atari,box2d]",    # atari environments
         "numpy",         # math library
@@ -22,4 +22,17 @@ setup(
         # "torch",       # deep learning library
         # "torchvision", # install alongside pytorch
     ],
+    extras_require={
+        "pytorch": [
+            "torch",
+            "torchvision",
+            "tensorboard"
+        ],
+        "docs": [
+            "sphinx",
+            "sphinx-autobuild",
+            "sphinx-rtd-theme",
+            "sphinx-automodapi"
+        ]
+    },
 )
