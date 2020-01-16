@@ -9,12 +9,12 @@ The full documentation can be found at the following URL: [https://autonomous-le
 
 The primary goal of the `autonomous-learning-library` is to facilitate the rapid development of new reinforcement learning agents by providing common tools for building and evaluation agents, such as:
 
-    * A flexible function `Approximation` API that integrates features such as target networks, gradient clipping, learning rate schedules, model checkpointing, multi-headed networks, loss scaling, logging, and more.
-    * Various memory buffers, including prioritized experience replay (PER), generalized advantage estimation (GAE), and more.
-    * A `torch`-based `Environment` interface that simplies agent implementations by cutting out the `numpy` middleman.
-    * Common wrappers and agent enhancements for replicating standard benchmarks.
-    * [Slurm](https://slurm.schedmd.com/documentation.html) integration for running large-scale experiments.
-    * Plotting and logging utilities including `tensorboard` integration and utilities for generating common plots.
+* A flexible function `Approximation` API that integrates features such as target networks, gradient clipping, learning rate schedules, model checkpointing, multi-headed networks, loss scaling, logging, and more.
+* Various memory buffers, including prioritized experience replay (PER), generalized advantage estimation (GAE), and more.
+* A `torch`-based `Environment` interface that simplies agent implementations by cutting out the `numpy` middleman.
+* Common wrappers and agent enhancements for replicating standard benchmarks.
+* [Slurm](https://slurm.schedmd.com/documentation.html) integration for running large-scale experiments.
+* Plotting and logging utilities including `tensorboard` integration and utilities for generating common plots.
 
 See the [documentation](https://autonomous-learning-library.readthedocs.io) guide for a full description of the functionality provided by the `autonomous-learning-library`.
 Additionally, we provide an [example project](https://github.com/cpnota/all-example-project) which demonstrates the best practices for building new agents.
