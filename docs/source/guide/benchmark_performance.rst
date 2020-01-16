@@ -5,6 +5,7 @@ Reinforcement learning algorithms are difficult to debug and test.
 For this reason, in order to ensuring the correctness of the preset agents provided by the ``autonomous-learning-library``,
 we benchmark each algorithm after every major change.
 We also discuss the performance of our implementations relative to published results.
+For our hyperparameters for each domain, see :ref:`all.presets`.
 
 Atari Benchmark
 ---------------

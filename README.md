@@ -58,7 +58,13 @@ Alternately, you can install directly from this repository:
 git clone https://github.com/cpnota/autonomous-learning-library.git
 cd autonomous-learning-library
 pip install -e .
-``` 
+```
+
+You can also install the prerequisites using:
+
+```
+pip install autonomous-learning-library[pytorch]
+```
 
 ## Running the Presets
 
@@ -83,24 +89,6 @@ python scripts/watch_atari.py Breakout "runs/_a2c [id]"
 
 where `id` is the ID of your particular run. You should should be able to find it using tab completion or by looking in the `runs` directory.
 The `autonomous-learning-library` also contains presets and scripts for classic control and PyBullet environments.
-
-## Contributing
-
-Contributions and suggestions are welcome!
-However, require a high-level of code quality, including automated unit tests for common modules and linting.
-The unit tests may be run using:
-
-```
-make test
-```
-
-The linter (pylint) can be run using:
-
-```
-make lint
-```
-
-
 
 ## Note
 
