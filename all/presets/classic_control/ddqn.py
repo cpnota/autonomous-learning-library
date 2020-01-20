@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from torch.nn.functional import mse_loss
 from all.agents import DDQN
@@ -12,34 +10,55 @@ from .models import dueling_fc_relu_q
 
 
 def ddqn(
-        minibatch_size=32,
-        replay_buffer_size=20000,
+        # Common settings
+        device="cpu",
         discount_factor=0.99,
-        update_frequency=1,
+        # Adam optimizer settings
         lr=1e-4,
-        replay_start_size=1000,
+        # Training settings
+        minibatch_size=32,
+        update_frequency=1,
         target_update_frequency=1000,
-        # exploration
+        # Replay buffer settings
+        replay_start_size=1000,
+        replay_buffer_size=20000,
+        # Exploration settings
         initial_exploration=1.00,
         final_exploration=0.02,
         final_exploration_frame=10000,
-        # Prioritized Replay
-        alpha=0.2,  # priority scaling
-        beta=0.6,  # importance sampling adjustment
-        device=torch.device('cpu')
+        # Prioritized replay settings
+        alpha=0.2,
+        beta=0.6,
 ):
-    '''
-    Double Dueling DQN with Prioritized Experience Replay.
-    '''
+    """
+    Dueling Double DQN with Prioritized Experience Replay (PER).
+
+    Args:
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        last_frame (int): Number of frames to train.
+        lr (float): Learning rate for the Adam optimizer.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        target_update_frequency (int): Number of timesteps between updates the target network.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        initial_exploration (int): Initial probability of choosing a random action,
+            decayed until final_exploration_frame.
+        final_exploration (int): Final probability of choosing a random action.
+        final_exploration_frame (int): The frame where the exploration decay stops.
+        alpha (float): Amount of prioritization in the prioritized experience replay buffer.
+            (0 = no prioritization, 1 = full prioritization)
+        beta (float): The strength of the importance sampling correction for prioritized experience replay.
+            (0 = no correction, 1 = full correction)
+    """
     def _ddqn(env, writer=DummyWriter()):
         model = dueling_fc_relu_q(env).to(device)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(
             model,
             optimizer,
-            env.action_space.n,
             target=FixedTarget(target_update_frequency),
-            loss=mse_loss,
             writer=writer
         )
         policy = GreedyPolicy(
@@ -61,6 +80,7 @@ def ddqn(
             device=device
         )
         return DDQN(q, policy, replay_buffer,
+                    loss=mse_loss,
                     discount_factor=discount_factor,
                     replay_start_size=replay_start_size,
                     update_frequency=update_frequency,

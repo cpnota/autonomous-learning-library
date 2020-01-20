@@ -26,6 +26,8 @@ class GeneralizedAdvantageBuffer:
         return len(self._states) * self.n_envs
 
     def store(self, states, actions, rewards):
+        if states is None:
+            return
         if not self._states:
             self._states = [states]
             self._actions = [actions]

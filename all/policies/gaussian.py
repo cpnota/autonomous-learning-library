@@ -1,28 +1,44 @@
 import torch
-from all.nn import ListNetwork
-from .stochastic import StochasticPolicy
+from torch.distributions.independent import Independent
+from torch.distributions.normal import Normal
+from all.approximation import Approximation
+from all.nn import RLNetwork
 
 
-class GaussianPolicy(StochasticPolicy):
+class GaussianPolicy(Approximation):
     def __init__(
             self,
             model,
             optimizer,
-            action_dim,
+            space,
+            name='policy',
             **kwargs
     ):
-        model = ListNetwork(model)
-        optimizer = optimizer
-
-        def distribution(outputs):
-            means = outputs[:, 0:action_dim]
-            logvars = outputs[:, action_dim:]
-            std = logvars.mul(0.5).exp_()
-            return torch.distributions.normal.Normal(means, std)
-
         super().__init__(
-            model,
+            GaussianPolicyNetwork(model, space),
             optimizer,
-            distribution,
+            name=name,
             **kwargs
         )
+
+class GaussianPolicyNetwork(RLNetwork):
+    def __init__(self, model, space):
+        super().__init__(model)
+        self._center = torch.tensor((space.high + space.low) / 2).to(self.device)
+        self._scale = torch.tensor((space.high - space.low) / 2).to(self.device)
+
+    def forward(self, state):
+        outputs = super().forward(state)
+        action_dim = outputs.shape[1] // 2
+        means = self._squash(torch.tanh(outputs[:, 0:action_dim]))
+        logvars = outputs[:, action_dim:] * self._scale
+        std = logvars.exp_()
+        return Independent(Normal(means, std), 1)
+
+    def _squash(self, x):
+        return torch.tanh(x) * self._scale + self._center
+
+    def to(self, device):
+        self._center = self._center.to(device)
+        self._scale = self._scale.to(device)
+        return super().to(device)

@@ -1,5 +1,5 @@
-from torch.nn.functional import mse_loss
-from all.nn import QModuleContinuous, td_loss
+import torch
+from all.nn import RLNetwork
 from .approximation import Approximation
 
 class QContinuous(Approximation):
@@ -7,16 +7,18 @@ class QContinuous(Approximation):
             self,
             model,
             optimizer,
-            loss=mse_loss,
             name='q',
             **kwargs
     ):
-        model = QModuleContinuous(model)
-        loss = td_loss(loss)
+        model = QContinuousModule(model)
         super().__init__(
             model,
             optimizer,
-            loss=loss,
             name=name,
             **kwargs
         )
+
+class QContinuousModule(RLNetwork):
+    def forward(self, states, actions):
+        x = torch.cat((states.features.float(), actions), dim=1)
+        return self.model(x).squeeze(-1) * states.mask.float()

@@ -1,6 +1,6 @@
 import torch
 from all.approximation import Approximation
-from all.nn import ListNetwork
+from all.nn import RLNetwork
 
 
 class DeterministicPolicy(Approximation):
@@ -9,36 +9,31 @@ class DeterministicPolicy(Approximation):
             model,
             optimizer,
             space,
-            noise,
             name='policy',
             **kwargs
     ):
-        model = ListNetwork(model)
+        model = DeterministicPolicyNetwork(model, space)
         super().__init__(
             model,
             optimizer,
             name=name,
             **kwargs
         )
-        self.noise = torch.distributions.normal.Normal(0, noise)
-        self._low = torch.tensor(space.low, device=self.device)
-        self._high = torch.tensor(space.high, device=self.device)
-        self._log_probs = []
-        self._entropy = []
 
-    def __call__(self, state, action=None, prob=None):
-        outputs = self.model(state).detach()
-        outputs = outputs + self.noise.sample(outputs.shape).to(self.device)
-        outputs = torch.min(outputs, self._high)
-        outputs = torch.max(outputs, self._low)
-        return outputs
+class DeterministicPolicyNetwork(RLNetwork):
+    def __init__(self, model, space):
+        super().__init__(model)
+        self._action_dim = space.shape[0]
+        self._tanh_scale = torch.tensor((space.high - space.low) / 2).to(self.device)
+        self._tanh_mean = torch.tensor((space.high + space.low) / 2).to(self.device)
 
-    def greedy(self, state):
-        return self.model(state)
+    def forward(self, state):
+        return self._squash(super().forward(state))
 
-    def reinforce(self, _):
-        raise NotImplementedError(
-            'Deterministic policies are trainted through backpropagation.' +
-            'Call backward() on a loss derived from the action' +
-            'and then call policy.step()'
-        )
+    def _squash(self, x):
+        return torch.tanh(x) * self._tanh_scale + self._tanh_mean
+
+    def to(self, device):
+        self._tanh_mean = self._tanh_mean.to(device)
+        self._tanh_scale = self._tanh_scale.to(device)
+        return super().to(device)

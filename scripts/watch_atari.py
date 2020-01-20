@@ -1,6 +1,7 @@
 import argparse
+from all.bodies import DeepmindAtariBody
 from all.environments import AtariEnvironment
-from all.experiments import load_and_watch
+from all.experiments import GreedyAgent, watch
 
 
 def watch_atari():
@@ -12,9 +13,15 @@ def watch_atari():
         default="cpu",
         help="The name of the device to run the agent on (e.g. cpu, cuda, cuda:0)",
     )
+    parser.add_argument(
+        "--fps",
+        default=60,
+        help="Playback speed",
+    )
     args = parser.parse_args()
     env = AtariEnvironment(args.env, device=args.device)
-    load_and_watch(args.dir, env)
+    agent = DeepmindAtariBody(GreedyAgent.load(args.dir, env))
+    watch(agent, env, fps=args.fps)
 
 if __name__ == "__main__":
     watch_atari()

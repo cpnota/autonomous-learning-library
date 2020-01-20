@@ -25,13 +25,11 @@ class Agent(ABC, Schedulable):
         This method allows the agent to do whatever is necessary for itself on a given timestep.
         However, the agent must ultimately return an action.
 
-        Parameters
-        ----------
-        state: The environment state at the current timestep
-        reward: The reward from the previous timestep
-        info (optional): The info object from the environment
+        Args:
+            state (all.environment.State): The environment state at the current timestep.
+            reward (torch.Tensor): The reward from the previous timestep.
+            info (:obj:, optional): The info object from the environment.
 
-        Returns
-        _______
-        action: The action to take at the current timestep
+        Returns:
+            torch.Tensor: The action to take at the current timestep.
         """

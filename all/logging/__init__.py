@@ -111,7 +111,10 @@ class ExperimentWriter(SummaryWriter, Writer):
 
 def get_commit_hash():
     result = subprocess.run(
-        ["git", "rev-parse", "--short", "HEAD"], stdout=subprocess.PIPE
+        ["git", "rev-parse", "--short", "HEAD"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        check=False
     )
     return result.stdout.decode("utf-8").rstrip()
 

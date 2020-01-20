@@ -1,24 +1,38 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="all",
-    version="0.3.3",
-    description=("A reinforcement learning library in python"),
+    name="autonomous-learning-library",
+    version="0.4.0",
+    description=("A library for building reinforcement learning agents in Pytorch"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",
-    author="Autonomous Learning Lab",
+    author="Chris Nota",
+    author_email="cnota@cs.umass.edu",
     install_requires=[
         "gym[atari,box2d]",    # atari environments
-        "roboschool",    # open-source mujoco
         "numpy",         # math library
         "matplotlib",    # plotting library
+        "opencv-python", # used by atari wrappers
+        "pybullet",      # continuous environments
         "pylint",        # code quality tool
         "tensorboardX",  # visualize results
         "torch-testing", # testing library for pytorch
-        "opencv-python", # used by atari wrappers
         # these should be installed globally:
         # "tensorflow",  # needed for tensorboard
         # "torch",       # deep learning library
         # "torchvision", # install alongside pytorch
     ],
+    extras_require={
+        "pytorch": [
+            "torch",
+            "torchvision",
+            "tensorboard"
+        ],
+        "docs": [
+            "sphinx",
+            "sphinx-autobuild",
+            "sphinx-rtd-theme",
+            "sphinx-automodapi"
+        ]
+    },
 )

@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import A2C
@@ -12,26 +10,42 @@ from .models import nature_features, nature_value_head, nature_policy_head
 
 def a2c(
         # Common settings
-        device=torch.device('cuda'),
+        device="cuda",
         discount_factor=0.99,
         last_frame=40e6,
         # Adam optimizer settings
         lr=7e-4,
         eps=1.5e-4,
         # Other optimization settings
-        clip_grad=0.5,
+        clip_grad=0.1,
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.5,
         # Batch settings
         n_envs=16,
         n_steps=5,
 ):
-    final_anneal_step = last_frame / (n_steps * n_envs * 4)
+    """
+    A2C Atari preset.
+
+    Args:
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        last_frame (int): Number of frames to train.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        clip_grad (float): The maximum magnitude of the gradient for any given parameter.
+            Set to 0 to disable.
+        entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
+        value_loss_scaling (float): Coefficient for the value function loss.
+        n_envs (int): Number of parallel environments.
+        n_steps (int): Length of each rollout.
+    """
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
+        final_anneal_step = last_frame / (n_steps * n_envs * 4)
 
         value_model = nature_value_head().to(device)
-        policy_model = nature_policy_head(envs[0]).to(device)
+        policy_model = nature_policy_head(env).to(device)
         feature_model = nature_features().to(device)
 
         feature_optimizer = Adam(feature_model.parameters(), lr=lr, eps=eps)
@@ -62,12 +76,10 @@ def a2c(
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
-            env.action_space.n,
             scheduler=CosineAnnealingLR(
                 policy_optimizer,
                 final_anneal_step,
             ),
-            entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer
         )
@@ -80,6 +92,8 @@ def a2c(
                 n_envs=n_envs,
                 n_steps=n_steps,
                 discount_factor=discount_factor,
+                entropy_loss_scaling=entropy_loss_scaling,
+                writer=writer
             ),
         )
 

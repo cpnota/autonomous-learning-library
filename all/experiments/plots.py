@@ -7,6 +7,8 @@ def plot_returns_100(runs_dir, timesteps=-1):
     data = load_returns_100_data(runs_dir)
     lines = {}
     fig, axes = plt.subplots(1, len(data))
+    if len(data) == 1:
+        axes = [axes]
     for i, env in enumerate(sorted(data.keys())):
         ax = axes[i]
         subplot_returns_100(ax, env, data[env], lines, timesteps=timesteps)

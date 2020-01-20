@@ -1,5 +1,5 @@
-from torch.nn.functional import mse_loss
-from all.nn import QModule, td_loss
+import torch
+from all.nn import RLNetwork
 from .approximation import Approximation
 
 class QNetwork(Approximation):
@@ -7,17 +7,22 @@ class QNetwork(Approximation):
             self,
             model,
             optimizer,
-            num_actions,
-            loss=mse_loss,
             name='q',
             **kwargs
     ):
-        model = QModule(model, num_actions)
-        loss = td_loss(loss)
+        model = QModule(model)
         super().__init__(
             model,
             optimizer,
-            loss=loss,
             name=name,
             **kwargs
         )
+
+class QModule(RLNetwork):
+    def forward(self, states, actions=None):
+        values = super().forward(states)
+        if actions is None:
+            return values
+        if isinstance(actions, list):
+            actions = torch.tensor(actions, device=self.device)
+        return values.gather(1, actions.view(-1, 1)).squeeze(1)

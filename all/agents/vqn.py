@@ -1,26 +1,44 @@
 import torch
+from torch.nn.functional import mse_loss
 from ._agent import Agent
 
 
 class VQN(Agent):
-    '''Vanilla Q-Network'''
-    def __init__(self, q, policy, gamma=1):
+    '''
+    Vanilla Q-Network (VQN).
+    VQN is an implementation of the Q-learning algorithm found in the Sutton and Barto (2018) textbook.
+    Q-learning algorithms attempt to learning the optimal policy while executing a (generally)
+    suboptimal policy (typically epsilon-greedy). In theory, This allows the agent to gain the benefits
+    of exploration without sacrificing the performance of the final policy. However, the cost of this
+    is that Q-learning is generally less stable than its on-policy bretheren, SARSA.
+    http://www.cs.rhul.ac.uk/~chrisw/new_thesis.pdf
+
+    Args:
+        q (QNetwork): An Approximation of the Q function.
+        policy (GreedyPolicy): A policy derived from the Q-function.
+        discount_factor (float): Discount factor for future rewards.
+    '''
+    def __init__(self, q, policy, discount_factor=0.99):
         self.q = q
         self.policy = policy
-        self.gamma = gamma
-        self.env = None
-        self.previous_state = None
-        self.previous_action = None
+        self.discount_factor = discount_factor
+        self._state = None
+        self._action = None
 
     def act(self, state, reward):
+        self._train(reward, state)
         action = self.policy(state)
-        if self.previous_state:
-            td_error = (
-                reward
-                + self.gamma * torch.max(self.q.target(state), dim=1)[0]
-                - self.q(self.previous_state, self.previous_action)
-            )
-            self.q.reinforce(td_error)
-        self.previous_state = state
-        self.previous_action = action
+        self._state = state
+        self._action = action
         return action
+
+    def _train(self, reward, next_state):
+        if self._state:
+            # forward pass
+            value = self.q(self._state, self._action)
+            # compute target
+            target = reward + self.discount_factor * torch.max(self.q.target(next_state), dim=1)[0]
+            # compute loss
+            loss = mse_loss(value, target)
+            # backward pass
+            self.q.reinforce(loss)

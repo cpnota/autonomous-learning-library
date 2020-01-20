@@ -1,36 +1,30 @@
-# The Autonomous Learning Library: An Object-Oriented Deep Reinforcement Learning Library in Pytorch
+# The Autonomous Learning Library: A PyTorch Library for Building Reinforcement Learning Agents
 
-The Autonomous Learning Library (`all`) is an object-oriented deep reinforcement learning library in `pytorch`. The goal of the library is to provide implementations of modern reinforcement learning algorithms that reflect the way that reinforcement learning researchers think about agent design and to provide the components necessary to build and test new ideas with minimal overhead.
+The `autonomous-learning-library` is an object-oriented deep reinforcement learning (DRL) library for PyTorch.
+The goal of the library is to provide the necessary components for quickly building and evaluating novel reinforcement learning agents,
+as well as providing high-quality reference implementations of modern DRL algorithms.
+The full documentation can be found at the following URL: [https://autonomous-learning-library.readthedocs.io](https://autonomous-learning-library.readthedocs.io).
 
-## Why use `all`?
+## Tools for Building New Agents
 
-The primary reason for using `all` over its many competitors is because it contains components that allow you to *build your own* reinforcement learning agents.
-We provide out-of-the-box modules for:
+The primary goal of the `autonomous-learning-library` is to facilitate the rapid development of new reinforcement learning agents by providing common tools for building and evaluation agents, such as:
 
-- [x] Custom Q-Networks, V-Networks, policy networks, and feature networks
-- [x] Generic function approximation
-- [x] Target networks
-- [x] Polyak averaging
-- [x] Experience Replay
-- [x] Prioritized Experience Replay
-- [x] Advantage Estimation
-- [x] Generalized Advantage Estimation (GAE)
-- [x] Easy parameter and learning rate scheduling
-- [x] An enhanced `nn` module (includes dueling layers, noisy layers, action bounds, and the coveted `nn.Flatten`)
-- [x] `gym` to `pytorch` wrappers
-- [x] Atari wrappers
-- [x] An `Experiment` API for comparing and evaluating agents
-- [x] A `SlurmExperiment` API for running massive experiments on computing clusters
-- [x] A `Writer` object for easily logging information in `tensorboard`
-- [x] Plotting utilities for generating paper-worthy result plots
+* A flexible function `Approximation` API that integrates features such as target networks, gradient clipping, learning rate schedules, model checkpointing, multi-headed networks, loss scaling, logging, and more.
+* Various memory buffers, including prioritized experience replay (PER), generalized advantage estimation (GAE), and more.
+* A `torch`-based `Environment` interface that simplies agent implementations by cutting out the `numpy` middleman.
+* Common wrappers and agent enhancements for replicating standard benchmarks.
+* [Slurm](https://slurm.schedmd.com/documentation.html) integration for running large-scale experiments.
+* Plotting and logging utilities including `tensorboard` integration and utilities for generating common plots.
 
-Rather than being embedded in the agents, all of these modules are available for use by your own custom agents.
-Additionally, the included agents accept custom versions of any of the above objects.
-Have a new type of replay buffer in mind?
-Code it up and pass it directly to our `DQN` and `DDPG` implementations.
-Additionally, our agents were written with readibility as a primary concern, so they are easy to modify.
+See the [documentation](https://autonomous-learning-library.readthedocs.io) guide for a full description of the functionality provided by the `autonomous-learning-library`.
+Additionally, we provide an [example project](https://github.com/cpnota/all-example-project) which demonstrates the best practices for building new agents.
 
-## Algorithms
+## High-Quality Reference Implementations
+
+The `autonomous-learning-library` separates reinforcement learning agents into two modules: `all.agents`, which provides flexible, high-level implementations of many common algorithms which can be adapted to new problems and environments, and `all.presets` which provides specific instansiations of these agents tuned for particular sets of environments, including Atari games, classic control tasks, and PyBullet robotics simulations. Some benchmark results showing results on-par with published results can be found below:
+
+![atari40](benchmarks/atari40.png)
+![pybullet](benchmarks/pybullet.png)
 
 As of today, `all` contains implementations of the following deep RL algorithms:
 
@@ -49,131 +43,55 @@ It also contains implementations of the following "vanilla" agents, which provid
 - [x] Vanilla Q-Learning
 - [x] Vanilla Sarsa
 
-We will try to stay up-to-date with advances in the field, but we do not intend to implement every algorithm. Rather, we prefer to maintain a smaller set of high-quality agents that have achieved notoriety in the field.
-
-We have labored to make sure that our implementations produce results comparable to published results.
-Here's a sampling of performance on several Atari games:
-
-![atari40](atari40.png)
-
-These results were generated using the `all.presets.atari` module, the `SlurmExperiment` utility, and the `all.experiments.plots` module.
-
-## Example
-
-Our agents implement a single method: `action = agent.act(state, reward)`.
-Much of the complexity is handled behind the scenes, making the final API simple.
-Unlike many libraries, we do not combine the learning algorithm and the training loop.
-Instead, our agents can be embedded in existing applications and trained in the online setting.
-
-The `all.presets` includes agents that preconfigured for certain types of environments.
-It can be used as follows:
-
-```python
-from all.presets.atari import dqn
-from all.environments import AtariEnvironment
-
-env = AtariEnvironment('Breakout')
-agent = dqn(lr=3e-4)(env)
-
-while True:
-    if env.done:
-        env.reset()
-    else:
-        env.step(action)
-    env.render()
-    action = agent.act(env.state, env.reward)
-```
-
-However, generally we recommend using the `Experiment` API, which adds many additional features:
-
-```python
-from all.presets.atari import a2c, dqn
-from all.environments import AtariEnvironment
-from all.experiments import Experiment
-
-# use graphics card for much faster training
-device = 'cuda'
-experiment = Experiment(AtariEnvironment('Breakout', device=device), frames=10e6)
-experiment.run(a2c(device=device))
-experiment.run(dqn(device=device))
-```
-
-Results can be viewed by typing:
-
-```
-make tensorboard
-```
-
 ## Installation
 
-This library is built on top of `pytorch`.
-If you don't want your trials to take forever, it is highly recommended that you make sure your installation has CUDA support (and that you have a CUDA compatible GPU).
-You'll also need `tensorflow` in order to use `tensorboard` (used for storing and plotting runs).
+First, you will need a new version of [PyTorch](https://pytorch.org) (>1.3), as well as [Tensorboard](https://pypi.org/project/tensorboard/).
+Then, you can install the `autonomous-learning-library` through PyPi:
 
-There are two ways to install the `autonomous-learning-library` : a "light" installation, which assumes that the major dependencies are already installed, and a "full" installation which installs everything from scratch.
+```
+pip install autonomous-learning-library
+```
 
-### Light Installation
+Alternately, you can install directly from this repository:
 
-Use this if you already have `pytorch` and `tensorflow` installed.
-Simply run:
-
-```bash
+```
+git clone https://github.com/cpnota/autonomous-learning-library.git
+cd autonomous-learning-library
 pip install -e .
 ```
 
-Presto! If you have any trouble with installing the Gym environments, check out their [GitHub page](https://github.com/openai/gym) and try whatever they recommend in [current year].
-
-### Full Installation
-
-If you're on Linux and don't have `pytorch` or `tensorflow` installed, we did you the courtesy of providing a helpful install script:
-
-```bash
-make install
-```
-
-With any luck, the `all` library should now be installed!
-
-### Testing Your Installation
-
-The unit tests may be run using:
+You can also install the prerequisites using:
 
 ```
-make test
+pip install autonomous-learning-library[pytorch]
 ```
-
-If the unit tests pass with no errors, it is more than likely that your installation works! The unit test run every agent using both `cpu` and `cuda` for a few timesteps/episodes.
 
 ## Running the Presets
 
-You can easily benchmark the included algorithms using the scripts in `./benchmarks`.
-To run a simple `CartPole` benchmark, run:
+If you just want to test out some cool agents, the `scripts` directory contains the basic code for doing so.
 
 ```
-python scripts/classic.py CartPole-v1 dqn
+python scripts/atari.py Breakout a2c
 ```
 
-Results are printed to the console, and can also be viewed by running:
+You can watch the training progress using:
 
 ```
-make tensorboard
+tensorboard --logdir runs
 ```
 
 and opening your browser to http://localhost:6006.
-
-To run an Atari benchmark in CUDA mode (warning: this could take several hours to run, depending on your machine):
-
-```
-python scripts/atari.py Pong dqn
-```
-
-If you want to run in `cpu` mode (~10x slower on my machine), you can add ```--device cpu```:
+Once the model is trained to your satisfaction, you can watch the trained model play using:
 
 ```
-python scipts/atari.py Pong dqn --device cpu
+python scripts/watch_atari.py Breakout "runs/_a2c [id]"
 ```
+
+where `id` is the ID of your particular run. You should should be able to find it using tab completion or by looking in the `runs` directory.
+The `autonomous-learning-library` also contains presets and scripts for classic control and PyBullet environments.
 
 ## Note
 
-This library was built at the [Autonomous Learning Laboratory](http://all.cs.umass.edu) (ALL) at the [University of Massachusetts, Amherst](https://www.umass.edu).
+This library was built in the [Autonomous Learning Laboratory](http://all.cs.umass.edu) (ALL) at the [University of Massachusetts, Amherst](https://www.umass.edu).
 It was written and is currently maintained by Chris Nota (@cpnota).
 The views expressed or implied in this repository do not necessarily reflect the views of the ALL.

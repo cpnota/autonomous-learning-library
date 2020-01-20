@@ -1,7 +1,4 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
-from torch.nn.functional import mse_loss
 from all.agents import DQN
 from all.approximation import QNetwork, FixedTarget
 from all.logging import DummyWriter
@@ -11,27 +8,47 @@ from all.policies import GreedyPolicy
 from .models import fc_relu_q
 
 def dqn(
-        minibatch_size=32,
-        replay_buffer_size=20000,
-        target_update_frequency=1000,
+        # Common settings
+        device="cpu",
         discount_factor=0.99,
-        update_frequency=1,
+        # Adam optimizer settings
         lr=1e-4,
-        initial_exploration=1.00,
-        final_exploration=0.02,
-        final_exploration_frame=10000,
+        # Training settings
+        minibatch_size=32,
+        update_frequency=1,
+        target_update_frequency=1000,
+        # Replay buffer settings
         replay_start_size=1000,
-        device=torch.device('cpu')
+        replay_buffer_size=20000,
+        # Exploration settings
+        initial_exploration=1.,
+        final_exploration=0.01,
+        final_exploration_frame=4000000,
 ):
+    """
+    DQN classic control preset.
+
+    Args:
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        lr (float): Learning rate for the Adam optimizer.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        target_update_frequency (int): Number of timesteps between updates the target network.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        initial_exploration (int): Initial probability of choosing a random action,
+            decayed until final_exploration_frame.
+        final_exploration (int): Final probability of choosing a random action.
+        final_exploration_frame (int): The frame where the exploration decay stops.
+    """
     def _dqn(env, writer=DummyWriter()):
         model = fc_relu_q(env).to(device)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(
             model,
             optimizer,
-            env.action_space.n,
             target=FixedTarget(target_update_frequency),
-            loss=mse_loss,
             writer=writer
         )
         policy = GreedyPolicy(

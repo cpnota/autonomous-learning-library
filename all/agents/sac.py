@@ -1,20 +1,45 @@
 import torch
+from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from ._agent import Agent
 
 class SAC(Agent):
+    """
+    Soft Actor-Critic (SAC).
+    SAC is a proposed improvement to DDPG that replaces the standard
+    mean-squared Bellman error (MSBE) objective with a "maximum entropy"
+    objective that impoves exploration. It also uses a few other tricks,
+    such as the "Clipped Double-Q Learning" trick introduced by TD3.
+    This implementation uses automatic temperature adjustment to replace the
+    difficult to set temperature parameter with a more easily tuned
+    entropy target parameter.
+    https://arxiv.org/abs/1801.01290
+
+    Args:
+        policy (DeterministicPolicy): An Approximation of a deterministic policy.
+        q1 (QContinuous): An Approximation of the continuous action Q-function.
+        q2 (QContinuous): An Approximation of the continuous action Q-function.
+        v (VNetwork): An Approximation of the state-value function.
+        replay_buffer (ReplayBuffer): The experience replay buffer.
+        discount_factor (float): Discount factor for future rewards.
+        entropy_target (float): The desired entropy of the policy. Usually -env.action_space.shape[0]
+        minibatch_size (int): The number of experiences to sample in each training update.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        temperature_initial (float): The initial temperature used in the maximum entropy objective.
+        update_frequency (int): Number of timesteps per training update.
+    """
     def __init__(self,
                  policy,
                  q_1,
                  q_2,
                  v,
                  replay_buffer,
-                 entropy_target=-2., # usually -action_space.size[0]
-                 temperature_initial=0.1,
-                 lr_temperature=1e-4,
                  discount_factor=0.99,
+                 entropy_target=-2.,
+                 lr_temperature=1e-4,
                  minibatch_size=32,
                  replay_start_size=5000,
+                 temperature_initial=0.1,
                  update_frequency=1,
                  writer=DummyWriter()
                  ):
@@ -26,77 +51,60 @@ class SAC(Agent):
         self.replay_buffer = replay_buffer
         self.writer = writer
         # hyperparameters
-        self.replay_start_size = replay_start_size
-        self.update_frequency = update_frequency
-        self.minibatch_size = minibatch_size
         self.discount_factor = discount_factor
-        # vars for learning the temperature
         self.entropy_target = entropy_target
-        self.temperature = temperature_initial
         self.lr_temperature = lr_temperature
-        # data
-        self.env = None
-        self.state = None
-        self.action = None
-        self.frames_seen = 0
+        self.minibatch_size = minibatch_size
+        self.replay_start_size = replay_start_size
+        self.temperature = temperature_initial
+        self.update_frequency = update_frequency
+        # private
+        self._state = None
+        self._action = None
+        self._frames_seen = 0
 
     def act(self, state, reward):
-        self._store_transition(state, reward)
+        self.replay_buffer.store(self._state, self._action, reward, state)
         self._train()
-        self.state = state
-        self.action = self.policy.eval(state)
-        return self.action
-
-    def _store_transition(self, state, reward):
-        if self.state and not self.state.done:
-            self.frames_seen += 1
-            self.replay_buffer.store(self.state, self.action, reward, state)
+        self._state = state
+        self._action = self.policy.eval(state)[0]
+        return self._action
 
     def _train(self):
         if self._should_train():
-            # randomly sample a batch of transitions
-            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
-                self.minibatch_size)
-            actions = torch.cat(actions)
+            # sample from replay buffer
+            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
 
             # compute targets for Q and V
-            with torch.no_grad():
-                _actions, _log_probs = self.policy(states, log_prob=True)
-                q_targets = rewards + self.discount_factor * self.v.target(next_states)
-                v_targets = torch.min(
-                    self.q_1.target(states, _actions),
-                    self.q_2.target(states, _actions),
-                ) - self.temperature * _log_probs
-                temperature_loss = ((_log_probs + self.entropy_target).detach().mean())
-                self.writer.add_loss('entropy', -_log_probs.mean())
-                self.writer.add_loss('v_mean', v_targets.mean())
-                self.writer.add_loss('r_mean', rewards.mean())
-                self.writer.add_loss('temperature_loss', temperature_loss)
-                self.writer.add_loss('temperature', self.temperature)
+            _actions, _log_probs = self.policy.eval(states)
+            q_targets = rewards + self.discount_factor * self.v.target(next_states)
+            v_targets = torch.min(
+                self.q_1.target(states, _actions),
+                self.q_2.target(states, _actions),
+            ) - self.temperature * _log_probs
 
-            # update Q-functions
-            q_1_errors = q_targets - self.q_1(states, actions)
-            self.q_1.reinforce(q_1_errors)
-            q_2_errors = q_targets - self.q_2(states, actions)
-            self.q_2.reinforce(q_2_errors)
+            # update Q and V-functions
+            self.q_1.reinforce(mse_loss(self.q_1(states, actions), q_targets))
+            self.q_2.reinforce(mse_loss(self.q_2(states, actions), q_targets))
+            self.v.reinforce(mse_loss(self.v(states), v_targets))
 
-            # update V-function
-            v_errors = v_targets - self.v(states)
-            self.v.reinforce(v_errors)
-
-            # train policy
-            _actions, _log_probs = self.policy(states, log_prob=True)
-            loss = -(
-                self.q_1(states, _actions, detach=False)
-                - self.temperature * _log_probs
-            ).mean()
-            loss.backward()
-            self.policy.step()
+            # update policy
+            _actions2, _log_probs2 = self.policy(states)
+            loss = (-self.q_1(states, _actions2) + self.temperature * _log_probs2).mean()
+            self.policy.reinforce(loss)
             self.q_1.zero_grad()
 
             # adjust temperature
-            self.temperature += self.lr_temperature * temperature_loss
+            temperature_grad = (_log_probs + self.entropy_target).mean()
+            self.temperature += self.lr_temperature * temperature_grad.detach()
+
+            # additional debugging info
+            self.writer.add_loss('entropy', -_log_probs.mean())
+            self.writer.add_loss('v_mean', v_targets.mean())
+            self.writer.add_loss('r_mean', rewards.mean())
+            self.writer.add_loss('temperature_grad', temperature_grad)
+            self.writer.add_loss('temperature', self.temperature)
 
     def _should_train(self):
-        return (self.frames_seen > self.replay_start_size and
-                self.frames_seen % self.update_frequency == 0)
+        self._frames_seen += 1
+        return self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0

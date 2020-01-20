@@ -1,5 +1,3 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import PPO
@@ -12,33 +10,58 @@ from .models import nature_features, nature_value_head, nature_policy_head
 
 
 def ppo(
-        # stable baselines hyperparameters
-        clip_grad=0.5,
+        # Common settings
+        device="cuda",
         discount_factor=0.99,
-        lam=0.95,  # GAE lambda (similar to e-traces)
+        last_frame=40e6,
+        # Adam optimizer settings
         lr=2.5e-4,  # Adam learning rate
         eps=1e-5,  # Adam stability
+        # Other optimization settings
+        clip_grad=0.5,
         entropy_loss_scaling=0.01,
         value_loss_scaling=0.5,
         clip_initial=0.1,
         clip_final=0.01,
-        final_frame=40e6, # Anneal LR and clip until here
+        # Batch settings
         epochs=4,
         minibatches=4,
         n_envs=8,
         n_steps=128,
-        device=torch.device("cuda"),
+        # GAE settings
+        lam=0.95,
 ):
-    # Update epoch * minibatches times per update,
-    # but we only update once per n_steps,
-    # with n_envs and 4 frames per step
-    final_anneal_step = final_frame * epochs * minibatches / (n_steps * n_envs * 4)
+    """
+    PPO Atari preset.
 
+    Args:
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        last_frame (int): Number of frames to train.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        clip_grad (float): The maximum magnitude of the gradient for any given parameter.
+            Set to 0 to disable.
+        entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
+        value_loss_scaling (float): Coefficient for the value function loss.
+        clip_initial (float): Value for epsilon in the clipped PPO objective function at the beginning of training.
+        clip_final (float): Value for epsilon in the clipped PPO objective function at the end of training.
+        epochs (int): Number of times to iterature through each batch.
+        minibatches (int): The number of minibatches to split each batch into.
+        n_envs (int): Number of parallel actors.
+        n_steps (int): Length of each rollout.
+        lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
+    """
     def _ppo(envs, writer=DummyWriter()):
         env = envs[0]
 
+        # Update epoch * minibatches times per update,
+        # but we only update once per n_steps,
+        # with n_envs and 4 frames per step
+        final_anneal_step = last_frame * epochs * minibatches / (n_steps * n_envs * 4)
+
         value_model = nature_value_head().to(device)
-        policy_model = nature_policy_head(envs[0]).to(device)
+        policy_model = nature_policy_head(env).to(device)
         feature_model = nature_features().to(device)
 
         feature_optimizer = Adam(
@@ -71,8 +94,6 @@ def ppo(
         policy = SoftmaxPolicy(
             policy_model,
             policy_optimizer,
-            env.action_space.n,
-            entropy_loss_scaling=entropy_loss_scaling,
             clip_grad=clip_grad,
             writer=writer,
             scheduler=CosineAnnealingLR(
@@ -100,6 +121,8 @@ def ppo(
                 n_steps=n_steps,
                 discount_factor=discount_factor,
                 lam=lam,
+                entropy_loss_scaling=entropy_loss_scaling,
+                writer=writer,
             )
         )
 

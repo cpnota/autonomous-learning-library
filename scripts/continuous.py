@@ -1,21 +1,27 @@
+# pylint: disable=unused-import
 import argparse
-import roboschool
+import pybullet
+import pybullet_envs
 from all.environments import GymEnvironment
 from all.experiments import Experiment
 from all.presets import continuous
 
 # some example envs
 # can also enter ID directly
-envs = {
-    "walker": "BipedalWalker-v2",
+ENVS = {
+    # classic continuous environments
     "mountaincar": "MountainCarContinuous-v0",
     "lander": "LunarLanderContinuous-v2",
-    "hopper": "RoboschoolHopper-v1",
-    "cheetah": "RoboschoolHalfCheetah-v1",
+    # Bullet robotics environments
+    "ant": "AntBulletEnv-v0",
+    "cheetah": "HalfCheetahBulletEnv-v0",
+    "humanoid": "HumanoidBulletEnv-v0",
+    "hopper": "HopperBulletEnv-v0",
+    "walker": "Walker2DBulletEnv-v0"
 }
 
 
-def run_atari():
+def run():
     parser = argparse.ArgumentParser(description="Run a continuous actions benchmark.")
     parser.add_argument("env", help="Name of the env (see envs)")
     parser.add_argument(
@@ -35,8 +41,8 @@ def run_atari():
     )
     args = parser.parse_args()
 
-    if args.env in envs:
-        env_id = envs[args.env]
+    if args.env in ENVS:
+        env_id = ENVS[args.env]
     else:
         env_id = args.env
 
@@ -44,10 +50,10 @@ def run_atari():
     agent_name = args.agent
     agent = getattr(continuous, agent_name)
 
-    experiment = Experiment(
+    Experiment(
         agent(device=args.device), env, frames=args.frames, render=args.render
     )
 
 
 if __name__ == "__main__":
-    run_atari()
+    run()

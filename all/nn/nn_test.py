@@ -33,7 +33,7 @@ class TestNN(unittest.TestCase):
 
     def test_list(self):
         model = nn.Linear(2, 2)
-        net = nn.ListNetwork(model, (2,))
+        net = nn.RLNetwork(model, (2,))
         features = torch.randn((4, 2))
         done = torch.tensor([1, 1, 0, 1], dtype=torch.uint8)
         out = net(State(features, done))
@@ -61,38 +61,6 @@ class TestNN(unittest.TestCase):
                     [-0.2543002, -0.2041451],
                 ]
             ),
-        )
-
-    def test_list_to_list(self):
-        model = nn.Linear(2, 2)
-        net = nn.ListToList(model)
-        x = State(torch.randn(5, 2), torch.tensor([1, 1, 1, 0, 1]))
-        out = net(x)
-        tt.assert_almost_equal(
-            out.features,
-            torch.tensor(
-                [
-                    [0.0479, -0.2268],
-                    [0.2347, 0.0743],
-                    [0.0185, 0.0815],
-                    [0.2204, 0.0868],
-                    [0.4235, 0.1040],
-                ]
-            ),
-            decimal=3,
-        )
-        x = State(torch.randn(3, 2))
-        out = net(x)
-        tt.assert_almost_equal(
-            out.features,
-            torch.tensor([[0.651, 0.335], [-0.254, -0.204], [0.123, 0.218]]),
-            decimal=3,
-        )
-
-        x = State(torch.randn(2))
-        out = net(x)
-        tt.assert_almost_equal(
-            out.features, torch.tensor([0.3218211, 0.3707529]), decimal=3
         )
 
     def test_tanh_action_bound(self):

@@ -1,9 +1,7 @@
-# /Users/cpnota/repos/autonomous-learning-library/all/approximation/value/action/torch.py
-import torch
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.approximation import QDist, FixedTarget
-from all.agents import C51
+from all.agents import Rainbow
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer
@@ -13,7 +11,7 @@ from .models import nature_rainbow
 
 def rainbow(
         # Common settings
-        device=torch.device('cuda'),
+        device="cuda",
         discount_factor=0.99,
         last_frame=40e6,
         # Adam optimizer settings
@@ -23,7 +21,7 @@ def rainbow(
         minibatch_size=32,
         update_frequency=4,
         target_update_frequency=1000,
-        # Replay Buffer settings
+        # Replay buffer settings
         replay_start_size=80000,
         replay_buffer_size=1000000,
         # Explicit exploration
@@ -41,22 +39,39 @@ def rainbow(
         # Noisy Nets
         sigma=0.5,
 ):
-    '''
-    A complete implementation of Rainbow.
+    """
+    Rainbow Atari Preset.
 
-    The following enhancements have been applied:
-    1. Double Q-learning
-    2. Prioritized Replay
-    3. Dueling networks
-    4. Multi-step learning
-    5. Distributional RL
-    6. Noisy nets
-    '''
-    action_repeat = 4
-    last_timestep = last_frame / action_repeat
-    last_update = (last_timestep - replay_start_size) / update_frequency
-
+    Args:
+        device (str): The device to load parameters and buffers onto for this agent.
+        discount_factor (float): Discount factor for future rewards.
+        last_frame (int): Number of frames to train.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        target_update_frequency (int): Number of timesteps between updates the target network.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        initial_exploration (int): Initial probability of choosing a random action,
+            decayed over course of training.
+        final_exploration (int): Final probability of choosing a random action.
+        alpha (float): Amount of prioritization in the prioritized experience replay buffer.
+            (0 = no prioritization, 1 = full prioritization)
+        beta (float): The strength of the importance sampling correction for prioritized experience replay.
+            (0 = no correction, 1 = full correction)
+        n_steps (int): The number of steps for n-step Q-learning.
+        atoms (int): The number of atoms in the categorical distribution used to represent
+            the distributional value function.
+        v_min (int): The expected return corresponding to the smallest atom.
+        v_max (int): The expected return correspodning to the larget atom.
+        sigma (float): Initial noisy network noise.
+    """
     def _rainbow(env, writer=DummyWriter()):
+        action_repeat = 4
+        last_timestep = last_frame / action_repeat
+        last_update = (last_timestep - replay_start_size) / update_frequency
+
         model = nature_rainbow(env, atoms=atoms, sigma=sigma).to(device)
         optimizer = Adam(model.parameters(), lr=lr, eps=eps)
         q = QDist(
@@ -78,7 +93,7 @@ def rainbow(
         )
         replay_buffer = NStepReplayBuffer(n_steps, discount_factor, replay_buffer)
 
-        agent = C51(
+        agent = Rainbow(
             q,
             replay_buffer,
             exploration=LinearScheduler(
