@@ -7,6 +7,7 @@ from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
 from .models import fc_relu_q
 
+
 def dqn(
         # Common settings
         device="cpu",
@@ -51,25 +52,25 @@ def dqn(
             target=FixedTarget(target_update_frequency),
             writer=writer
         )
-        policy = GreedyPolicy(
+        replay_buffer = ExperienceReplayBuffer(
+            replay_buffer_size, device=device)
+        return DQN(
             q,
-            env.action_space.n,
-            epsilon=LinearScheduler(
+            replay_buffer,
+            discount_factor=discount_factor,
+            exploration=LinearScheduler(
                 initial_exploration,
                 final_exploration,
                 replay_start_size,
                 final_exploration_frame,
                 name="epsilon",
                 writer=writer
-            )
+            ),
+            minibatch_size=minibatch_size,
+            n_actions=env.action_space.n,
+            replay_start_size=replay_start_size,
+            update_frequency=update_frequency,
         )
-        replay_buffer = ExperienceReplayBuffer(
-            replay_buffer_size, device=device)
-        return DQN(q, policy, replay_buffer,
-                   discount_factor=discount_factor,
-                   replay_start_size=replay_start_size,
-                   update_frequency=update_frequency,
-                   minibatch_size=minibatch_size)
     return _dqn
 
 

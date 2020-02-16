@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch.nn.functional import mse_loss
 from ._agent import Agent
@@ -18,31 +19,35 @@ class DQN(Agent):
         policy (GreedyPolicy): A policy derived from the Q-function.
         replay_buffer (ReplayBuffer): The experience replay buffer.
         discount_factor (float): Discount factor for future rewards.
+        exploration (float): The probability of choosing a random action.
         loss (function): The weighted loss function to use.
         minibatch_size (int): The number of experiences to sample in each training update.
+        n_actions (int): The number of available actions.
         replay_start_size (int): Number of experiences in replay buffer when training begins.
         update_frequency (int): Number of timesteps per training update.
     '''
     def __init__(self,
                  q,
-                 policy,
                  replay_buffer,
                  discount_factor=0.99,
+                 exploration=0.1,
                  loss=mse_loss,
                  minibatch_size=32,
+                 n_actions=None,
                  replay_start_size=5000,
-                 update_frequency=1
+                 update_frequency=1,
                  ):
         # objects
         self.q = q
-        self.policy = policy
         self.replay_buffer = replay_buffer
         self.loss = staticmethod(loss)
         # hyperparameters
+        self.discount_factor = discount_factor
+        self.exploration = exploration
+        self.minibatch_size = minibatch_size
+        self.n_actions = n_actions
         self.replay_start_size = replay_start_size
         self.update_frequency = update_frequency
-        self.minibatch_size = minibatch_size
-        self.discount_factor = discount_factor
         # private
         self._state = None
         self._action = None
@@ -52,8 +57,25 @@ class DQN(Agent):
         self.replay_buffer.store(self._state, self._action, reward, state)
         self._train()
         self._state = state
-        self._action = self.policy(state)
+        self._action = self._choose_action(state)
         return self._action
+
+    def eval(self, state, _):
+        return self._greedy_action(state)
+
+    def _choose_action(self, state):
+        if self._should_explore():
+            return torch.randint(self.n_actions, (len(state),), device=self.q.device)
+        return self._greedy_action(state)
+
+    def _should_explore(self):
+        return (
+            len(self.replay_buffer) < self.replay_start_size
+            or np.random.rand() < self.exploration
+        )
+
+    def _greedy_action(self, state):
+        return torch.argmax(self.q.eval(state), dim=1)
 
     def _train(self):
         if self._should_train():

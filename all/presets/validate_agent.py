@@ -10,13 +10,18 @@ def validate_agent(make_agent, env):
 
 def validate_single_env_agent(make_agent, env):
     agent = make_agent(env, writer=DummyWriter())
-    # Run two episodes, enough to
-    # exercise all parts of the agent
-    # in most cases.
+    # Run two episodes, enough to exercise
+    # all parts of the agent in most cases.
     for _ in range(2):
         env.reset()
         while not env.done:
             env.step(agent.act(env.state, env.reward))
+        agent.act(env.state, env.reward)
+    # Run two additional episodes in eval mode
+    for _ in range(2):
+        env.reset()
+        while not env.done:
+            env.step(agent.eval(env.state, env.reward))
         agent.act(env.state, env.reward)
 
 def validate_multi_env_agent(make_agent, base_env):
