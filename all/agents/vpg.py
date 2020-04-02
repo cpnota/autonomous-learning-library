@@ -50,6 +50,9 @@ class VPG(Agent):
             return self._act(state, reward)
         return self._terminal(state, reward)
 
+    def eval(self, state, _):
+        return self.policy.eval(self.features.eval(state)).sample()
+
     def _initial(self, state):
         features = self.features(state)
         distribution = self.policy(features)

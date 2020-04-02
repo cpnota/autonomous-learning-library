@@ -35,6 +35,9 @@ class VAC(Agent):
         self._action = self._distribution.sample()
         return self._action
 
+    def eval(self, state, _):
+        return self.policy.eval(self.features.eval(state)).sample()
+
     def _train(self, state, reward):
         if self._features:
             # forward pass

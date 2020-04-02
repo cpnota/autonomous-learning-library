@@ -70,6 +70,9 @@ class SAC(Agent):
         self._action = self.policy.eval(state)[0]
         return self._action
 
+    def eval(self, state, _):
+        return self.policy.eval(state)[0]
+
     def _train(self):
         if self._should_train():
             # sample from replay buffer

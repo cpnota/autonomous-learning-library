@@ -61,12 +61,12 @@ class DQN(Agent):
         return self._action
 
     def eval(self, state, _):
-        return self._greedy_action(state)
+        return self._best_action(state)
 
     def _choose_action(self, state):
         if self._should_explore():
             return torch.randint(self.n_actions, (len(state),), device=self.q.device)
-        return self._greedy_action(state)
+        return self._best_action(state)
 
     def _should_explore(self):
         return (
@@ -74,7 +74,7 @@ class DQN(Agent):
             or np.random.rand() < self.exploration
         )
 
-    def _greedy_action(self, state):
+    def _best_action(self, state):
         return torch.argmax(self.q.eval(state), dim=1)
 
     def _train(self):

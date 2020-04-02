@@ -42,3 +42,15 @@ def validate_multi_env_agent(make_agent, base_env):
                 env.reset()
             elif action is not None:
                 env.step(action)
+
+    # run a few additional steps in eval mode
+    for _ in range(10):
+        states = State.from_list([env.state for env in envs])
+        rewards = [env.reward for env in envs]
+        rewards = torch.tensor(rewards, device=base_env.device).float()
+        actions = agent.eval(states, rewards)
+        for (action, env) in zip(actions, envs):
+            if env.done:
+                env.reset()
+            elif action is not None:
+                env.step(action)

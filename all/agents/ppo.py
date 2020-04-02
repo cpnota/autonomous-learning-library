@@ -70,6 +70,9 @@ class PPO(Agent):
         self._actions = self.policy.eval(self.features.eval(states)).sample()
         return self._actions
 
+    def eval(self, states, _):
+        return self.policy.eval(self.features.eval(states)).sample()
+
     def _train(self, next_states):
         if len(self._buffer) >= self._batch_size:
             # load trajectories from buffer

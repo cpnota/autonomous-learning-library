@@ -32,6 +32,9 @@ class VQN(Agent):
         self._action = action
         return action
 
+    def eval(self, state, _):
+        return torch.argmax(self.q.eval(state), dim=1)
+
     def _train(self, reward, next_state):
         if self._state:
             # forward pass

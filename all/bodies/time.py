@@ -9,9 +9,15 @@ class TimeFeature(Body):
         super().__init__(agent)
 
     def act(self, state, reward):
+        return self.agent.act(self._append_time_feature(state), reward)
+
+    def eval(self, state, reward):
+        return self.agent.eval(self._append_time_feature(state), reward)
+
+    def _append_time_feature(self, state):
         if self.timestep is None:
             self.timestep = torch.zeros(len(state), device=state.features.device)
         features = torch.cat((state.features, self.scale * self.timestep.view((-1, 1))), dim=1)
         state = State(features, state.mask, state.info)
-        self.timestep = state.mask * (self.timestep + 1)
-        return self.agent.act(state, reward)
+        self.timestep = state.mask.float() * (self.timestep + 1)
+        return state
