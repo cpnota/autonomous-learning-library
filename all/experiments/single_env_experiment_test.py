@@ -31,7 +31,8 @@ class MockWriter(Writer):
         self.add_scalar("evaluation/" + name, value, self._get_step(step))
 
     def add_summary(self, name, mean, std, step="frame"):
-        pass
+        self.add_evaluation(name + "/mean", mean, step)
+        self.add_evaluation(name + "/std", std, step)
 
     def _get_step(self, _type):
         if _type == "frame":
@@ -69,6 +70,19 @@ class TestSingleEnvExperiment(unittest.TestCase):
         np.testing.assert_equal(
             experiment._writer.data["evaluation/returns/episode"]["steps"],
             np.array([1, 2, 3]),
+        )
+
+    def test_writes_test_returns(self):
+        experiment = MockExperiment(dqn(), self.env, quiet=True)
+        experiment.train(episodes=5)
+        experiment.test(episodes=3)
+        np.testing.assert_equal(
+            experiment._writer.data["evaluation/test/returns/mean"]["values"],
+            np.array([23.]),
+        )
+        np.testing.assert_equal(
+            experiment._writer.data["evaluation/test/returns/std"]["steps"],
+            np.array([97]),
         )
 
     def test_writes_loss(self):
