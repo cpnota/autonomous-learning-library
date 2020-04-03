@@ -4,7 +4,7 @@ import torch
 from all.presets.classic_control import a2c
 from all.environments import GymEnvironment
 from all.experiments import ParallelEnvExperiment
-from single_env_experiment_test import MockWriter
+from all.experiments.single_env_experiment_test import MockWriter
 
 # pylint: disable=protected-access
 class MockExperiment(ParallelEnvExperiment):
