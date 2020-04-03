@@ -1,4 +1,7 @@
-from .experiment import run_experiment, Experiment, SingleEnvExperiment, ParallelEnvExperiment
+from .run_experiment import run_experiment
+from .experiment import Experiment
+from .single_env_experiment import SingleEnvExperiment
+from .parallel_env_experiment import ParallelEnvExperiment
 from .plots import plot_returns_100
 from .slurm import SlurmExperiment
 from .watch import GreedyAgent, watch, load_and_watch
