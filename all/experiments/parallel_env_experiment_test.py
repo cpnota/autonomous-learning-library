@@ -18,36 +18,34 @@ class TestParalleleEnvExperiment(unittest.TestCase):
         np.random.seed(0)
         torch.manual_seed(0)
         self.env = GymEnvironment('CartPole-v0')
-        self.env.seed(0)
-        self.experiment = None
+        self.experiment = MockExperiment(a2c(), self.env, quiet=True)
+        for i, env in enumerate(self.experiment._env):
+            env.seed(i)
 
     def test_adds_label(self):
-        experiment = MockExperiment(a2c(), self.env, quiet=True)
-        self.assertEqual(experiment._writer.label, "_a2c_CartPole-v0")
+        self.assertEqual(self.experiment._writer.label, "_a2c_CartPole-v0")
 
     def test_writes_training_returns_eps(self):
-        experiment = MockExperiment(a2c(), self.env, quiet=True)
-        experiment.train(episodes=3)
+        self.experiment.train(episodes=3)
         np.testing.assert_equal(
-            experiment._writer.data["evaluation/returns/episode"]["steps"],
+            self.experiment._writer.data["evaluation/returns/episode"]["steps"],
             np.array([1, 2, 3]),
         )
         np.testing.assert_equal(
-            experiment._writer.data["evaluation/returns/episode"]["values"],
-            np.array([11., 12., 14]),
+            self.experiment._writer.data["evaluation/returns/episode"]["values"],
+            np.array([10., 11., 17.]),
         )
 
     def test_writes_test_returns(self):
-        experiment = MockExperiment(a2c(), self.env, quiet=True)
-        experiment.train(episodes=5)
-        experiment.test(episodes=3)
+        self.experiment.train(episodes=5)
+        self.experiment.test(episodes=3)
         np.testing.assert_equal(
-            experiment._writer.data["evaluation/test/returns/mean"]["values"],
-            np.array([23.]),
+            self.experiment._writer.data["evaluation/test/returns/mean"]["values"],
+            np.array([16.]),
         )
         np.testing.assert_equal(
-            experiment._writer.data["evaluation/test/returns/std"]["steps"],
-            np.array([97]),
+            self.experiment._writer.data["evaluation/test/returns/std"]["steps"],
+            np.array([196]),
         )
 
     def test_writes_loss(self):
