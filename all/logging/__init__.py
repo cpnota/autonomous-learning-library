@@ -45,4 +45,3 @@ class DummyWriter(Writer):
 
     def add_summary(self, name, mean, std, step="frame"):
         pass
-

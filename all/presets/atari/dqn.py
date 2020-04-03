@@ -5,7 +5,6 @@ from all.approximation import QNetwork, FixedTarget
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
-from all.policies import GreedyPolicy
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from .models import nature_dqn

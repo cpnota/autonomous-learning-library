@@ -4,7 +4,6 @@ from all.approximation import QNetwork, FixedTarget
 from all.logging import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
-from all.policies import GreedyPolicy
 from .models import fc_relu_q
 
 
