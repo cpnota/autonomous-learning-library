@@ -6,6 +6,7 @@ from .writer import ExperimentWriter
 from .experiment import Experiment
 
 class ParallelEnvExperiment(Experiment):
+    '''An Experiment object for training and testing agents that use parallel training environments.'''
     def __init__(
             self,
             agent,
