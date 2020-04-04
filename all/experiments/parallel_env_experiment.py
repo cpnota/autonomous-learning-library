@@ -23,6 +23,14 @@ class ParallelEnvExperiment(Experiment):
         self._frame = 1
         self._episode = 1
 
+    @property
+    def frame(self):
+        return self._frame
+
+    @property
+    def episode(self):
+        return self._episode
+
     def train(self, frames=np.inf, episodes=np.inf):
         returns = self._reset()
         while not self._done(frames, episodes):
@@ -43,7 +51,7 @@ class ParallelEnvExperiment(Experiment):
                 dtype=torch.float,
                 device=self._env[0].device
             )
-            actions = self._agent.act(states, rewards)
+            actions = self._agent.eval(states, rewards)
 
             for i, env in enumerate(self._env):
                 if env.done:
@@ -63,15 +71,7 @@ class ParallelEnvExperiment(Experiment):
                         env.step(action)
                 self._frame += 1
 
-        self._writer.add_summary('test/returns', np.mean(saved_returns), np.std(saved_returns))
-
-    @property
-    def frame(self):
-        return self._frame
-
-    @property
-    def episode(self):
-        return self._episode
+        self._writer.add_summary('returns-test', np.mean(saved_returns), np.std(saved_returns))
 
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes

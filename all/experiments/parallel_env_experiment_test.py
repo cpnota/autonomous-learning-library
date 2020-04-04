@@ -40,11 +40,11 @@ class TestParalleleEnvExperiment(unittest.TestCase):
         self.experiment.train(episodes=5)
         self.experiment.test(episodes=3)
         np.testing.assert_equal(
-            self.experiment._writer.data["evaluation/test/returns/mean"]["values"],
+            self.experiment._writer.data["evaluation/returns-test/mean"]["values"],
             np.array([16.]),
         )
         np.testing.assert_equal(
-            self.experiment._writer.data["evaluation/test/returns/std"]["steps"],
+            self.experiment._writer.data["evaluation/returns-test/std"]["steps"],
             np.array([196]),
         )
 

@@ -75,6 +75,7 @@ class SingleEnvExperiment(Experiment):
         action = self._agent.act(self._env.state, self._env.reward)
         returns = 0
 
+        # loop until the episode is finished
         while not self._env.done:
             if self._render:
                 self._env.render()
