@@ -16,8 +16,8 @@ class ParallelEnvExperiment(Experiment):
     ):
         super().__init__(self._make_writer(agent[0].__name__, env.name, write_loss), quiet)
         make_agent, n_envs = agent
-        self._env = env.duplicate(n_envs)
-        self._agent = make_agent(self._env, self._writer)
+        self._envs = env.duplicate(n_envs)
+        self._agent = make_agent(self._envs, self._writer)
         self._n_envs = n_envs
         self._render = render
         self._frame = 1
@@ -45,15 +45,15 @@ class ParallelEnvExperiment(Experiment):
         save_returns = [True] * self._n_envs
 
         while len(saved_returns) < episodes:
-            states = State.from_list([env.state for env in self._env])
+            states = State.from_list([env.state for env in self._envs])
             rewards = torch.tensor(
-                [env.reward for env in self._env],
+                [env.reward for env in self._envs],
                 dtype=torch.float,
-                device=self._env[0].device
+                device=self._envs[0].device
             )
             actions = self._agent.eval(states, rewards)
 
-            for i, env in enumerate(self._env):
+            for i, env in enumerate(self._envs):
                 if env.done:
                     returns[i] += env.reward
                     if save_returns[i]:
@@ -69,7 +69,6 @@ class ParallelEnvExperiment(Experiment):
                     if action is not None:
                         returns[i] += env.reward
                         env.step(action)
-                self._frame += 1
 
         self._writer.add_summary('returns-test', np.mean(saved_returns), np.std(saved_returns))
 
@@ -77,25 +76,25 @@ class ParallelEnvExperiment(Experiment):
         return self._frame > frames or self._episode > episodes
 
     def _reset(self):
-        for env in self._env:
+        for env in self._envs:
             env.reset()
         rewards = torch.zeros(
             (self._n_envs),
             dtype=torch.float,
-            device=self._env[0].device
+            device=self._envs[0].device
         )
         return rewards
 
     def _step(self, returns):
-        states = State.from_list([env.state for env in self._env])
+        states = State.from_list([env.state for env in self._envs])
         rewards = torch.tensor(
-            [env.reward for env in self._env],
+            [env.reward for env in self._envs],
             dtype=torch.float,
-            device=self._env[0].device
+            device=self._envs[0].device
         )
         actions = self._agent.act(states, rewards)
 
-        for i, env in enumerate(self._env):
+        for i, env in enumerate(self._envs):
             self._step_env(i, env, actions[i], returns)
 
     def _step_env(self, i, env, action, returns):

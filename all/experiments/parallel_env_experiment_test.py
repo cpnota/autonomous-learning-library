@@ -19,7 +19,7 @@ class TestParalleleEnvExperiment(unittest.TestCase):
         torch.manual_seed(0)
         self.env = GymEnvironment('CartPole-v0')
         self.experiment = MockExperiment(a2c(), self.env, quiet=True)
-        for i, env in enumerate(self.experiment._env):
+        for i, env in enumerate(self.experiment._envs):
             env.seed(i)
 
     def test_adds_label(self):
@@ -38,14 +38,14 @@ class TestParalleleEnvExperiment(unittest.TestCase):
 
     def test_writes_test_returns(self):
         self.experiment.train(episodes=5)
-        self.experiment.test(episodes=3)
+        self.experiment.test(episodes=4)
         np.testing.assert_equal(
             self.experiment._writer.data["evaluation/returns-test/mean"]["values"],
-            np.array([16.]),
+            np.array([18.]),
         )
         np.testing.assert_equal(
             self.experiment._writer.data["evaluation/returns-test/std"]["steps"],
-            np.array([196]),
+            np.array([104.]),
         )
 
     def test_writes_loss(self):
