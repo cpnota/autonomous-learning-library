@@ -20,8 +20,18 @@ class ParallelEnvExperiment(Experiment):
         self._agent = make_agent(self._envs, self._writer)
         self._n_envs = n_envs
         self._render = render
+
+        # training state
+        self._returns = []
         self._frame = 1
         self._episode = 1
+
+        # test state
+        self._test_episodes = 100
+        self._test_episodes_started = 0
+        self._test_returns = []
+        self._should_save_returns = [True] * self._n_envs
+
 
     @property
     def frame(self):
@@ -32,48 +42,16 @@ class ParallelEnvExperiment(Experiment):
         return self._episode
 
     def train(self, frames=np.inf, episodes=np.inf):
-        returns = self._reset()
-        while not self._done(frames, episodes):
-            self._step(returns)
+        self._reset()
+        while not (self._frame > frames or self._episode > episodes):
+            self._step()
 
     def test(self, episodes=100):
-        saved_returns = [] # returns for all episodes
-        returns = self._reset() # returns for current episodes
-
-        # only save  the returns from the first n episodes started
-        episodes_started = self._n_envs
-        save_returns = [True] * self._n_envs
-
-        while len(saved_returns) < episodes:
-            states = State.from_list([env.state for env in self._envs])
-            rewards = torch.tensor(
-                [env.reward for env in self._envs],
-                dtype=torch.float,
-                device=self._envs[0].device
-            )
-            actions = self._agent.eval(states, rewards)
-
-            for i, env in enumerate(self._envs):
-                if env.done:
-                    returns[i] += env.reward
-                    if save_returns[i]:
-                        saved_returns.append(returns[i].item())
-                        self._log_test_episode(len(saved_returns), returns[i].item())
-                    env.reset()
-                    returns[i] = 0
-                    if episodes_started > episodes:
-                        save_returns[i] = False
-                    episodes_started += 1
-                else:
-                    action = actions[i]
-                    if action is not None:
-                        returns[i] += env.reward
-                        env.step(action)
-
-        self._writer.add_summary('returns-test', np.mean(saved_returns), np.std(saved_returns))
-
-    def _done(self, frames, episodes):
-        return self._frame > frames or self._episode > episodes
+        self._test_reset(episodes)
+        while len(self._test_returns) < episodes:
+            self._test_step()
+        self._log_test(self._test_returns)
+        return np.mean(self._test_returns), np.std(self._test_returns)
 
     def _reset(self):
         for env in self._envs:
@@ -83,32 +61,69 @@ class ParallelEnvExperiment(Experiment):
             dtype=torch.float,
             device=self._envs[0].device
         )
-        return rewards
+        self._returns = rewards
 
-    def _step(self, returns):
-        states = State.from_list([env.state for env in self._envs])
-        rewards = torch.tensor(
+    def _step(self):
+        states = self._aggregate_states()
+        rewards = self._aggregate_rewards()
+        actions = self._agent.act(states, rewards)
+        self._step_envs(actions)
+
+    def _step_envs(self, actions):
+        for i, env in enumerate(self._envs):
+            if env.done:
+                self._returns[i] += env.reward
+                self._log_training_episode(self._returns[i].item(), 0)
+                env.reset()
+                self._returns[i] = 0
+                self._episode += 1
+            else:
+                action = actions[i]
+                if action is not None:
+                    self._returns[i] += env.reward
+                    env.step(action)
+                    self._frame += 1
+
+    def _test_reset(self, episodes):
+        self._reset()
+        self._test_episodes = episodes
+        self._test_episodes_started = 0
+        self._test_returns = []
+        self._should_save_returns = [True] * self._n_envs
+
+    def _test_step(self):
+        states = self._aggregate_states()
+        rewards = self._aggregate_rewards()
+        actions = self._agent.eval(states, rewards)
+        self._test_step_envs(actions)
+
+    def _test_step_envs(self, actions):
+        for i, env in enumerate(self._envs):
+            if env.done:
+                self._returns[i] += env.reward
+                if self._should_save_returns[i]:
+                    self._test_returns.append(self._returns[i].item())
+                    self._log_test_episode(len(self._test_returns), self._returns[i].item())
+                if self._test_episodes_started > self._test_episodes:
+                    self._should_save_returns[i] = False
+                env.reset()
+                self._returns[i] = 0
+                self._test_episodes_started += 1
+            else:
+                action = actions[i]
+                if action is not None:
+                    self._returns[i] += env.reward
+                    env.step(action)
+
+    def _aggregate_states(self):
+        return State.from_list([env.state for env in self._envs])
+
+    def _aggregate_rewards(self):
+        return torch.tensor(
             [env.reward for env in self._envs],
             dtype=torch.float,
             device=self._envs[0].device
         )
-        actions = self._agent.act(states, rewards)
-
-        for i, env in enumerate(self._envs):
-            self._step_env(i, env, actions[i], returns)
-
-    def _step_env(self, i, env, action, returns):
-        if env.done:
-            returns[i] += env.reward
-            self._log_training_episode(returns[i].item(), 0)
-            env.reset()
-            returns[i] = 0
-            self._episode += 1
-        else:
-            if action is not None:
-                returns[i] += env.reward
-                env.step(action)
-                self._frame += 1
 
     def _make_writer(self, agent_name, env_name, write_loss):
         return ExperimentWriter(self, agent_name, env_name, loss=write_loss)
