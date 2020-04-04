@@ -20,12 +20,12 @@ class Experiment(ABC):
     @property
     @abstractmethod
     def frame(self):
-        pass
+        '''The index of the current training frame.'''
 
     @property
     @abstractmethod
     def episode(self):
-        pass
+        '''The index of the current training episode'''
 
     @abstractmethod
     def train(self, frames=np.inf, episodes=np.inf):
