@@ -1,6 +1,6 @@
 import argparse
 from all.environments import GymEnvironment
-from all.experiments import Experiment
+from all.experiments import run_experiment
 from all.presets import classic_control
 
 
@@ -12,7 +12,7 @@ def run_classic():
         help="Name of the agent (e.g. sarsa). See presets for available agents.",
     )
     parser.add_argument(
-        "--episodes", type=int, default=2000, help="The number of training frames"
+        "--frames", type=int, default=20000, help="The number of training frames"
     )
     parser.add_argument(
         "--device",
@@ -25,7 +25,7 @@ def run_classic():
     agent_name = args.agent
     agent = getattr(classic_control, agent_name)
 
-    Experiment(agent(device=args.device), env, episodes=args.episodes)
+    run_experiment(agent(device=args.device), env, args.frames)
 
 
 if __name__ == "__main__":

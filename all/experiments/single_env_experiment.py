@@ -29,7 +29,7 @@ class SingleEnvExperiment(Experiment):
             episode_return = self._run_test_episode()
             returns.append(episode_return)
             self._log_test_episode(episode, episode_return)
-        self._writer.add_summary('test/returns', np.mean(returns), np.std(returns))
+        self._writer.add_summary('test-returns', np.mean(returns), np.std(returns))
 
     @property
     def frame(self):
@@ -66,7 +66,11 @@ class SingleEnvExperiment(Experiment):
     def _run_test_episode(self):
         action, returns = self._reset()
         while not self._env.done:
-            action, returns = self._step(action, returns)
+            if self._render:
+                self._env.render()
+            self._env.step(action)
+            action = self._agent.eval(self._env.state, self._env.reward)
+            returns += self._env.reward
         return returns
 
     def _reset(self):

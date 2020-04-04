@@ -12,18 +12,18 @@ def dqn(
         device="cpu",
         discount_factor=0.99,
         # Adam optimizer settings
-        lr=1e-4,
+        lr=1e-3,
         # Training settings
-        minibatch_size=32,
+        minibatch_size=64,
         update_frequency=1,
-        target_update_frequency=1000,
+        target_update_frequency=100,
         # Replay buffer settings
         replay_start_size=1000,
-        replay_buffer_size=20000,
+        replay_buffer_size=10000,
         # Exploration settings
         initial_exploration=1.,
-        final_exploration=0.01,
-        final_exploration_frame=4000000,
+        final_exploration=0.,
+        final_exploration_frame=10000,
 ):
     """
     DQN classic control preset.

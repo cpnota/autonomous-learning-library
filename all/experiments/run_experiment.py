@@ -1,4 +1,3 @@
-from collections.abc import Iterable
 from .single_env_experiment import SingleEnvExperiment
 from .parallel_env_experiment import ParallelEnvExperiment
 
@@ -12,10 +11,10 @@ def run_experiment(
         quiet=False,
         write_loss=True,
 ):
-    if not isinstance(agents, Iterable):
+    if not isinstance(agents, list):
         agents = [agents]
 
-    if not isinstance(envs, Iterable):
+    if not isinstance(envs, list):
         envs = [envs]
 
     for env in envs:
