@@ -19,6 +19,9 @@ class SingleEnvExperiment(Experiment):
         self._frame = 1
         self._episode = 1
 
+        if render:
+            self._env.render(mode="human")
+
     @property
     def frame(self):
         return self._frame
@@ -51,7 +54,6 @@ class SingleEnvExperiment(Experiment):
 
         # loop until the episode is finished
         while not self._env.done:
-            self._frame += 1
             if self._render:
                 self._env.render()
             self._env.step(action)

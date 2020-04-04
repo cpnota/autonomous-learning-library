@@ -32,6 +32,9 @@ class ParallelEnvExperiment(Experiment):
         self._test_returns = []
         self._should_save_returns = [True] * self._n_envs
 
+        if render:
+            for _env in self._envs:
+                _env.render(mode="human")
 
     @property
     def frame(self):

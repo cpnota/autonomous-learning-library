@@ -3,7 +3,7 @@ import argparse
 import pybullet
 import pybullet_envs
 from all.environments import GymEnvironment
-from all.experiments import Experiment
+from all.experiments import run_experiment
 from all.presets import continuous
 
 # some example envs
@@ -25,19 +25,18 @@ def run():
     parser = argparse.ArgumentParser(description="Run a continuous actions benchmark.")
     parser.add_argument("env", help="Name of the env (see envs)")
     parser.add_argument(
-        "agent",
-        help="Name of the agent (e.g. actor_critic). See presets for available agents.",
-    )
-    parser.add_argument(
-        "--frames", type=int, default=2e6, help="The number of training frames"
+        "agent", help="Name of the agent (e.g. ddpg). See presets for available agents."
     )
     parser.add_argument(
         "--device",
         default="cuda",
-        help="The name of the device to run the agent on (e.g. cpu, cuda, cuda:0)",
+        help="The name of the device to run the agent on (e.g. cpu, cuda, cuda:0).",
     )
     parser.add_argument(
-        "--render", default=False, help="Whether to render the environment."
+        "--frames", type=int, default=2e6, help="The number of training frames."
+    )
+    parser.add_argument(
+        "--render", type=bool, default=False, help="Render the environment."
     )
     args = parser.parse_args()
 
@@ -50,9 +49,7 @@ def run():
     agent_name = args.agent
     agent = getattr(continuous, agent_name)
 
-    Experiment(
-        agent(device=args.device), env, frames=args.frames, render=args.render
-    )
+    run_experiment(agent(device=args.device), env, frames=args.frames, render=args.render)
 
 
 if __name__ == "__main__":
