@@ -54,7 +54,7 @@ class ParallelEnvExperiment(Experiment):
         while len(self._test_returns) < episodes:
             self._test_step()
         self._log_test(self._test_returns)
-        return np.mean(self._test_returns), np.std(self._test_returns)
+        return self._test_returns
 
     def _reset(self):
         for env in self._envs:

@@ -3,6 +3,14 @@ import numpy as np
 
 
 class Experiment(ABC):
+    '''
+    An Experiment manages the basic train/test loop and logs results.
+
+    Args:
+            writer (:torch.logging.writer:): A Writer object used for logging.
+            quiet (bool): If False, the Experiment will print information about
+                episode returns to standard out.
+    '''
     def __init__(self, writer, quiet):
         self._writer = writer
         self._quiet = quiet
@@ -21,11 +29,27 @@ class Experiment(ABC):
 
     @abstractmethod
     def train(self, frames=np.inf, episodes=np.inf):
-        pass
+        '''
+        Train the agent for a certain number of frames or episodes.
+        If both frames and episodes are specified, then the training loop will exit
+        when either condition is satisfied.
+
+        Args:
+                frames (int): The maximum number of training frames.
+                episodes (bool): The maximum number of training episodes.
+        '''
 
     @abstractmethod
-    def test(self, frames=np.inf, episodes=np.inf):
-        pass
+    def test(self, episodes=100):
+        '''
+        Test the agent in eval mode for a certain number of episodes.
+
+        Args:
+            episodes (int): The number of test epsiodes.
+
+        Returns:
+            list(float): A list of all returns received during testing.
+        '''
 
     def _log_training_episode(self, returns, fps):
         if not self._quiet:

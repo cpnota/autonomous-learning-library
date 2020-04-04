@@ -41,7 +41,7 @@ class SingleEnvExperiment(Experiment):
             returns.append(episode_return)
             self._log_test_episode(episode, episode_return)
         self._log_test(returns)
-        return np.mean(returns), np.std(returns)
+        return returns
 
     def _run_training_episode(self):
         # initialize timer

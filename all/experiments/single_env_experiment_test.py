@@ -75,11 +75,10 @@ class TestSingleEnvExperiment(unittest.TestCase):
     def test_writes_test_returns(self):
         experiment = MockExperiment(dqn(), self.env, quiet=True)
         experiment.train(episodes=5)
-        mean, std = experiment.test(episodes=4)
+        returns = experiment.test(episodes=4)
         expected_mean = 10.25
         expected_std = 1.0897247358851685
-        np.testing.assert_equal(mean, expected_mean)
-        np.testing.assert_equal(std, expected_std)
+        np.testing.assert_equal(np.mean(returns), expected_mean)
         np.testing.assert_equal(
             experiment._writer.data["evaluation/returns-test/mean"]["values"],
             np.array([expected_mean]),

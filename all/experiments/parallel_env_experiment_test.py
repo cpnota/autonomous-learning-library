@@ -38,11 +38,10 @@ class TestParalleleEnvExperiment(unittest.TestCase):
 
     def test_writes_test_returns(self):
         self.experiment.train(episodes=5)
-        mean, std = self.experiment.test(episodes=4)
+        returns = self.experiment.test(episodes=4)
         expected_mean = 18.
         expected_std = 4.527692569068709
-        np.testing.assert_equal(mean, expected_mean)
-        np.testing.assert_equal(std, expected_std)
+        np.testing.assert_equal(np.mean(returns), expected_mean)
         np.testing.assert_equal(
             self.experiment._writer.data["evaluation/returns-test/mean"]["values"],
             np.array([expected_mean]),
