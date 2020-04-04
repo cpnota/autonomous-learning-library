@@ -71,6 +71,9 @@ class ParallelEnvExperiment(Experiment):
 
     def _step_envs(self, actions):
         for i, env in enumerate(self._envs):
+            if self._render:
+                env.render()
+
             if env.done:
                 self._returns[i] += env.reward
                 self._log_training_episode(self._returns[i].item(), 0)
@@ -99,6 +102,8 @@ class ParallelEnvExperiment(Experiment):
 
     def _test_step_envs(self, actions):
         for i, env in enumerate(self._envs):
+            if self._render:
+                env.render()
             if env.done:
                 self._returns[i] += env.reward
                 if self._should_save_returns[i]:
