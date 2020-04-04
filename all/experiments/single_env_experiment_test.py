@@ -82,7 +82,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         )
         np.testing.assert_equal(
             experiment._writer.data["evaluation/returns-test/std"]["steps"],
-            np.array([193.]),
+            np.array([97.]),
         )
 
     def test_writes_loss(self):
