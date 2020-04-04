@@ -19,6 +19,14 @@ class SingleEnvExperiment(Experiment):
         self._frame = 1
         self._episode = 1
 
+    @property
+    def frame(self):
+        return self._frame
+
+    @property
+    def episode(self):
+        return self._episode
+
     def train(self, frames=np.inf, episodes=np.inf):
         while not self._done(frames, episodes):
             self._run_training_episode()
@@ -29,29 +37,27 @@ class SingleEnvExperiment(Experiment):
             episode_return = self._run_test_episode()
             returns.append(episode_return)
             self._log_test_episode(episode, episode_return)
-        self._writer.add_summary('test-returns', np.mean(returns), np.std(returns))
-
-    @property
-    def frame(self):
-        return self._frame
-
-    @property
-    def episode(self):
-        return self._episode
-
-    def _done(self, frames, episodes):
-        return self._frame > frames or self._episode > episodes
+        self._log_test(returns)
 
     def _run_training_episode(self):
         # initialize timer
         start_time = timer()
         start_frame = self._frame
 
-        # run the episode
-        action, returns = self._reset()
+        # initialize the episode
+        self._env.reset()
+        action = self._agent.act(self._env.state, self._env.reward)
+        returns = 0
+
+        # loop until the episode is finished
         while not self._env.done:
             self._frame += 1
-            action, returns = self._step(action, returns)
+            if self._render:
+                self._env.render()
+            self._env.step(action)
+            action = self._agent.act(self._env.state, self._env.reward)
+            returns += self._env.reward
+            self._frame += 1
 
         # stop the timer
         end_time = timer()
@@ -64,25 +70,22 @@ class SingleEnvExperiment(Experiment):
         self._episode += 1
 
     def _run_test_episode(self):
-        action, returns = self._reset()
+        # initialize the episode
+        self._env.reset()
+        action = self._agent.act(self._env.state, self._env.reward)
+        returns = 0
+
         while not self._env.done:
             if self._render:
                 self._env.render()
             self._env.step(action)
             action = self._agent.eval(self._env.state, self._env.reward)
             returns += self._env.reward
+
         return returns
 
-    def _reset(self):
-        self._env.reset()
-        return self._agent.act(self._env.state, self._env.reward), 0
-
-    def _step(self, action, returns):
-        if self._render:
-            self._env.render()
-        self._env.step(action)
-        action = self._agent.act(self._env.state, self._env.reward)
-        return action, returns + self._env.reward
+    def _done(self, frames, episodes):
+        return self._frame > frames or self._episode > episodes
 
     def _make_writer(self, agent_name, env_name, write_loss):
         return ExperimentWriter(self, agent_name, env_name, loss=write_loss)

@@ -9,13 +9,6 @@ class Experiment(ABC):
         self._best_returns = -np.inf
         self._returns100 = []
 
-    @abstractmethod
-    def train(self, frames=np.inf, episodes=np.inf):
-        pass
-
-    def eval(self, frames=np.inf, episodes=np.inf):
-        pass
-
     @property
     @abstractmethod
     def frame(self):
@@ -24,6 +17,14 @@ class Experiment(ABC):
     @property
     @abstractmethod
     def episode(self):
+        pass
+
+    @abstractmethod
+    def train(self, frames=np.inf, episodes=np.inf):
+        pass
+
+    @abstractmethod
+    def test(self, frames=np.inf, episodes=np.inf):
         pass
 
     def _log_training_episode(self, returns, fps):
@@ -45,3 +46,6 @@ class Experiment(ABC):
     def _log_test_episode(self, episode, returns):
         if not self._quiet:
             print('test episode: {}, returns: {}'.format(episode, returns))
+
+    def _log_test(self, returns):
+        self._writer.add_summary('returns-test', np.mean(returns), np.std(returns))
