@@ -15,9 +15,6 @@ class SoftmaxPolicy(Approximation):
         model = SoftmaxPolicyNetwork(model)
         super().__init__(model, optimizer, name=name, **kwargs)
 
-    def eval(self, state):
-        return torch.argmax(super().eval(state).probs, dim=1)
-
 
 class SoftmaxPolicyNetwork(RLNetwork):
     def __init__(self, model):
@@ -26,4 +23,6 @@ class SoftmaxPolicyNetwork(RLNetwork):
     def forward(self, state):
         outputs = super().forward(state)
         probs = functional.softmax(outputs, dim=-1)
-        return torch.distributions.Categorical(probs)
+        if self.training:
+            return torch.distributions.Categorical(probs)
+        return torch.argmax(probs, dim=1)

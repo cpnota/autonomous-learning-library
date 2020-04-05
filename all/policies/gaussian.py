@@ -21,9 +21,6 @@ class GaussianPolicy(Approximation):
             **kwargs
         )
 
-    def eval(self, states):
-        return super().eval(states).mean
-
 class GaussianPolicyNetwork(RLNetwork):
     def __init__(self, model, space):
         super().__init__(model)
@@ -34,6 +31,10 @@ class GaussianPolicyNetwork(RLNetwork):
         outputs = super().forward(state)
         action_dim = outputs.shape[1] // 2
         means = self._squash(torch.tanh(outputs[:, 0:action_dim]))
+
+        if not self.training:
+            return means
+
         logvars = outputs[:, action_dim:] * self._scale
         std = logvars.exp_()
         return Independent(Normal(means, std), 1)
