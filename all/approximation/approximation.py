@@ -85,10 +85,26 @@ class Approximation():
         '''
         return self.model(*inputs)
 
-    def eval(self, *inputs):
+    def no_grad(self, *inputs):
         '''Run a forward pass of the model in no_grad mode.'''
         with torch.no_grad():
             return self.model(*inputs)
+
+    def eval(self, *inputs):
+        '''
+        Run a forward pass of the model in eval mode with no_grad.
+        The model is returned to its previous mode afer the forward pass is made.
+        '''
+        with torch.no_grad():
+            # check current mode
+            mode = self.model.training
+            # switch to eval mode
+            self.model.eval()
+            # run forward pass
+            result = self.model(*inputs)
+            # change to original mode
+            self.model.train(mode)
+            return result
 
     def target(self, *inputs):
         '''Run a forward pass of the target network.'''

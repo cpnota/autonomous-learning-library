@@ -27,13 +27,13 @@ class VQN(Agent):
 
     def act(self, state, reward):
         self._train(reward, state)
-        action = self.policy(state)
+        action = self.policy.no_grad(state)
         self._state = state
         self._action = action
         return action
 
     def eval(self, state, _):
-        return torch.argmax(self.q.eval(state), dim=1)
+        return self.policy.eval(state)
 
     def _train(self, reward, next_state):
         if self._state:

@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 from torch.nn.functional import mse_loss
 from ._agent import Agent
@@ -28,24 +27,22 @@ class DQN(Agent):
     '''
     def __init__(self,
                  q,
+                 policy,
                  replay_buffer,
                  discount_factor=0.99,
-                 exploration=0.1,
                  loss=mse_loss,
                  minibatch_size=32,
-                 n_actions=None,
                  replay_start_size=5000,
                  update_frequency=1,
                  ):
         # objects
         self.q = q
+        self.policy = policy
         self.replay_buffer = replay_buffer
         self.loss = staticmethod(loss)
         # hyperparameters
         self.discount_factor = discount_factor
-        self.exploration = exploration
         self.minibatch_size = minibatch_size
-        self.n_actions = n_actions
         self.replay_start_size = replay_start_size
         self.update_frequency = update_frequency
         # private
@@ -57,25 +54,11 @@ class DQN(Agent):
         self.replay_buffer.store(self._state, self._action, reward, state)
         self._train()
         self._state = state
-        self._action = self._choose_action(state)
+        self._action = self.policy.no_grad(state)
         return self._action
 
     def eval(self, state, _):
-        return self._best_action(state)
-
-    def _choose_action(self, state):
-        if self._should_explore():
-            return torch.randint(self.n_actions, (len(state),), device=self.q.device)
-        return self._best_action(state)
-
-    def _should_explore(self):
-        return (
-            len(self.replay_buffer) < self.replay_start_size
-            or np.random.rand() < self.exploration
-        )
-
-    def _best_action(self, state):
-        return torch.argmax(self.q.eval(state), dim=1)
+        return self.policy.eval(state)
 
     def _train(self):
         if self._should_train():

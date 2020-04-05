@@ -1,4 +1,3 @@
-import torch
 from torch.nn.functional import mse_loss
 from ._agent import Agent
 
@@ -24,14 +23,14 @@ class VSarsa(Agent):
         self._action = None
 
     def act(self, state, reward):
-        action = self.policy(state)
+        action = self.policy.no_grad(state)
         self._train(reward, state, action)
         self._state = state
         self._action = action
         return action
 
     def eval(self, state, _):
-        return torch.argmax(self.q.eval(state), dim=1)
+        return self.policy.eval(state)
 
     def _train(self, reward, next_state, next_action):
         if self._state:

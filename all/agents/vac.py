@@ -36,7 +36,7 @@ class VAC(Agent):
         return self._action
 
     def eval(self, state, _):
-        return self.policy.eval(self.features.eval(state)).sample()
+        return self.policy.eval(self.features.eval(state))
 
     def _train(self, state, reward):
         if self._features:

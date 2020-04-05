@@ -4,6 +4,7 @@ from all.approximation import QNetwork, FixedTarget
 from all.logging import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
+from all.policies import GreedyPolicy
 from .models import fc_relu_q
 
 
@@ -51,22 +52,26 @@ def dqn(
             target=FixedTarget(target_update_frequency),
             writer=writer
         )
-        replay_buffer = ExperienceReplayBuffer(
-            replay_buffer_size, device=device)
-        return DQN(
+        policy = GreedyPolicy(
             q,
-            replay_buffer,
-            discount_factor=discount_factor,
-            exploration=LinearScheduler(
+            env.action_space.n,
+            epsilon=LinearScheduler(
                 initial_exploration,
                 final_exploration,
                 replay_start_size,
                 final_exploration_frame,
                 name="epsilon",
                 writer=writer
-            ),
+            )
+        )
+        replay_buffer = ExperienceReplayBuffer(
+            replay_buffer_size, device=device)
+        return DQN(
+            q,
+            policy,
+            replay_buffer,
+            discount_factor=discount_factor,
             minibatch_size=minibatch_size,
-            n_actions=env.action_space.n,
             replay_start_size=replay_start_size,
             update_frequency=update_frequency,
         )
