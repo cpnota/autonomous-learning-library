@@ -22,7 +22,7 @@ class GaussianPolicy(Approximation):
         )
 
     def eval(self, states):
-        return super().eval(states).loc
+        return super().eval(states).mean
 
 class GaussianPolicyNetwork(RLNetwork):
     def __init__(self, model, space):

@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from .abstract import Environment
 from .state import State
+gym.logger.set_level(40)
 
 class GymEnvironment(Environment):
     def __init__(self, env, device=torch.device('cpu')):
