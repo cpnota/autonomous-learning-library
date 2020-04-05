@@ -57,7 +57,7 @@ class DDQN(Agent):
         return self._action
 
     def eval(self, state, _):
-        return torch.argmax(self.q.eval(state), dim=1)
+        return self.policy.eval(state)
 
     def _train(self):
         if self._should_train():

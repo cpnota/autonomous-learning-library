@@ -33,7 +33,7 @@ class VQN(Agent):
         return action
 
     def eval(self, state, _):
-        return torch.argmax(self.q.eval(state), dim=1)
+        return self.policy.eval(state)
 
     def _train(self, reward, next_state):
         if self._state:
