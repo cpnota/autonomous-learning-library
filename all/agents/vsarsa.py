@@ -1,3 +1,4 @@
+import torch
 from torch.nn.functional import mse_loss
 from ._agent import Agent
 
@@ -28,6 +29,9 @@ class VSarsa(Agent):
         self._state = state
         self._action = action
         return action
+
+    def eval(self, state, _):
+        return torch.argmax(self.q.eval(state), dim=1)
 
     def _train(self, reward, next_state, next_action):
         if self._state:

@@ -19,3 +19,6 @@ class GreedyPolicy(Schedulable):
         with torch.no_grad():
             action_scores = self.q.eval(state)
         return torch.argmax(action_scores, dim=1)
+
+    def eval(self, state, action=None, prob=False):
+        return self(state, action=action, prob=prob)

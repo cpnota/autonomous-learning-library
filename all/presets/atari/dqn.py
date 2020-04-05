@@ -5,7 +5,6 @@ from all.approximation import QNetwork, FixedTarget
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
-from all.policies import GreedyPolicy
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from .models import nature_dqn
@@ -72,32 +71,30 @@ def dqn(
             writer=writer
         )
 
-        policy = GreedyPolicy(
-            q,
-            env.action_space.n,
-            epsilon=LinearScheduler(
-                initial_exploration,
-                final_exploration,
-                replay_start_size,
-                final_exploration_step - replay_start_size,
-                name="epsilon",
-                writer=writer
-            )
-        )
-
         replay_buffer = ExperienceReplayBuffer(
             replay_buffer_size,
             device=device
         )
 
         return DeepmindAtariBody(
-            DQN(q, policy, replay_buffer,
-                loss=smooth_l1_loss,
+            DQN(
+                q,
+                replay_buffer,
                 discount_factor=discount_factor,
+                exploration=LinearScheduler(
+                    initial_exploration,
+                    final_exploration,
+                    replay_start_size,
+                    final_exploration_step - replay_start_size,
+                    name="epsilon",
+                    writer=writer
+                ),
+                loss=smooth_l1_loss,
                 minibatch_size=minibatch_size,
+                n_actions=env.action_space.n,
                 replay_start_size=replay_start_size,
                 update_frequency=update_frequency,
-                ),
+            ),
             lazy_frames=True
         )
     return _dqn

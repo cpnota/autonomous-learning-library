@@ -10,17 +10,21 @@ class FrameStack(Body):
         self._lazy = lazy
 
     def act(self, state, reward):
+        return self.agent.act(self._stack(state), reward)
+
+    def eval(self, state, reward):
+        return self.agent.eval(self._stack(state), reward)
+
+    def _stack(self, state):
         if not self._frames:
             self._frames = [state.raw] * self._size
         else:
             self._frames = self._frames[1:] + [state.raw]
 
         if self._lazy:
-            state = LazyState(self._frames, state.mask, state.info)
-        else:
-            state = State(torch.cat(self._frames, dim=1), state.mask, state.info)
+            return LazyState(self._frames, state.mask, state.info)
 
-        return self.agent.act(state, reward)
+        return State(torch.cat(self._frames, dim=1), state.mask, state.info)
 
 class LazyState(State):
     @property

@@ -2,7 +2,7 @@ import argparse
 import os
 import subprocess
 import sys
-from .experiment import Experiment
+from .run_experiment import run_experiment
 
 SCRIPT_NAME = 'experiment.sh'
 OUT_DIR = 'out'
@@ -19,6 +19,7 @@ class SlurmExperiment:
             agents,
             envs,
             frames,
+            test_episodes=100,
             job_name='autonomous-learning-library',
             sbatch_args=None,
     ):
@@ -31,6 +32,7 @@ class SlurmExperiment:
         self.agents = agents
         self.envs = envs
         self.frames = frames
+        self.test_episodes = test_episodes
         self.job_name = job_name
         self.sbatch_args = sbatch_args or {}
         self.parse_args()
@@ -58,7 +60,7 @@ class SlurmExperiment:
         task_id = int(os.environ['SLURM_ARRAY_TASK_ID'])
         env = self.envs[int(task_id / len(self.agents))]
         agent = self.agents[task_id % len(self.agents)]
-        Experiment(agent, env, frames=self.frames, write_loss=False)
+        run_experiment(agent, env, self.frames, test_episodes=self.test_episodes, write_loss=False)
 
     def queue_jobs(self):
         self.create_sbatch_script()

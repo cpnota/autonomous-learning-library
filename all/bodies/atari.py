@@ -13,9 +13,16 @@ class DeepmindAtariBody(Body):
 
 class EpisodicLives(Body):
     def act(self, state, reward):
+
+        return self.agent.act(self._done_on_life_lost(state), reward)
+
+    def eval(self, state, reward):
+        return self.agent.eval(self._done_on_life_lost(state), reward)
+
+    def _done_on_life_lost(self, state):
         for i in range(len(state)):
             if state.info[i]['life_lost']:
                 mask = state.mask.clone()
                 mask[i] = 0
                 state = State(state.raw, mask=mask, info=state.info)
-        return self.agent.act(state, reward)
+        return state

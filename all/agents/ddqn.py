@@ -53,8 +53,11 @@ class DDQN(Agent):
         self.replay_buffer.store(self._state, self._action, reward, state)
         self._train()
         self._state = state
-        self._action = self.policy(state)
+        self._action = self.policy.eval(state)
         return self._action
+
+    def eval(self, state, _):
+        return torch.argmax(self.q.eval(state), dim=1)
 
     def _train(self):
         if self._should_train():

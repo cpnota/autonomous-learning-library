@@ -33,3 +33,14 @@ class Agent(ABC, Schedulable):
         Returns:
             torch.Tensor: The action to take at the current timestep.
         """
+
+    @abstractmethod
+    def eval(self, state, reward):
+        """
+        Select an action for the current timestep in evaluation mode.
+
+        Unlike act, this method should NOT update the internal parameters of the agent.
+        Most of the time, this method should return the greedy action according to the current policy.
+        This method is useful when using evaluation methodologies that distinguish between the performance
+        of the agent during training and the performance of the resulting policy.
+        """

@@ -60,6 +60,9 @@ class C51(Agent):
         self._action = self._choose_action(state)
         return self._action
 
+    def eval(self, state, _):
+        return self._best_actions(state)
+
     def _choose_action(self, state):
         if self._should_explore():
             return torch.randint(

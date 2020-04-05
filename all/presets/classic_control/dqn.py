@@ -4,26 +4,26 @@ from all.approximation import QNetwork, FixedTarget
 from all.logging import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
-from all.policies import GreedyPolicy
 from .models import fc_relu_q
+
 
 def dqn(
         # Common settings
         device="cpu",
         discount_factor=0.99,
         # Adam optimizer settings
-        lr=1e-4,
+        lr=1e-3,
         # Training settings
-        minibatch_size=32,
+        minibatch_size=64,
         update_frequency=1,
-        target_update_frequency=1000,
+        target_update_frequency=100,
         # Replay buffer settings
         replay_start_size=1000,
-        replay_buffer_size=20000,
+        replay_buffer_size=10000,
         # Exploration settings
         initial_exploration=1.,
-        final_exploration=0.01,
-        final_exploration_frame=4000000,
+        final_exploration=0.,
+        final_exploration_frame=10000,
 ):
     """
     DQN classic control preset.
@@ -51,25 +51,25 @@ def dqn(
             target=FixedTarget(target_update_frequency),
             writer=writer
         )
-        policy = GreedyPolicy(
+        replay_buffer = ExperienceReplayBuffer(
+            replay_buffer_size, device=device)
+        return DQN(
             q,
-            env.action_space.n,
-            epsilon=LinearScheduler(
+            replay_buffer,
+            discount_factor=discount_factor,
+            exploration=LinearScheduler(
                 initial_exploration,
                 final_exploration,
                 replay_start_size,
                 final_exploration_frame,
                 name="epsilon",
                 writer=writer
-            )
+            ),
+            minibatch_size=minibatch_size,
+            n_actions=env.action_space.n,
+            replay_start_size=replay_start_size,
+            update_frequency=update_frequency,
         )
-        replay_buffer = ExperienceReplayBuffer(
-            replay_buffer_size, device=device)
-        return DQN(q, policy, replay_buffer,
-                   discount_factor=discount_factor,
-                   replay_start_size=replay_start_size,
-                   update_frequency=update_frequency,
-                   minibatch_size=minibatch_size)
     return _dqn
 
 

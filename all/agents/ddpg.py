@@ -61,6 +61,9 @@ class DDPG(Agent):
         self._action = self._choose_action(state)
         return self._action
 
+    def eval(self, state, _):
+        return self.policy.eval(state)
+
     def _choose_action(self, state):
         action = self.policy.eval(state)
         action = action + self._noise.sample()
