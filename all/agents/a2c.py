@@ -61,7 +61,7 @@ class A2C(Agent):
         return self._actions
 
     def eval(self, states, _):
-        return self.policy.eval(self.features.eval(states)).sample()
+        return self.policy.eval(self.features.eval(states))
 
     def _train(self, next_states):
         if len(self._buffer) >= self._batch_size:
