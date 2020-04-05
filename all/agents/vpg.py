@@ -85,7 +85,7 @@ class VPG(Agent):
             self._train()
 
         # have to return something
-        return self.policy.eval(self.features.eval(state)).sample()
+        return self.policy.no_grad(self.features.no_grad(state)).sample()
 
     def _train(self):
         # forward pass

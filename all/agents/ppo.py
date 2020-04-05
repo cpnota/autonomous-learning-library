@@ -67,7 +67,7 @@ class PPO(Agent):
         self._buffer.store(self._states, self._actions, rewards)
         self._train(states)
         self._states = states
-        self._actions = self.policy.eval(self.features.eval(states)).sample()
+        self._actions = self.policy.no_grad(self.features.no_grad(states)).sample()
         return self._actions
 
     def eval(self, states, _):
@@ -79,9 +79,9 @@ class PPO(Agent):
             states, actions, advantages = self._buffer.advantages(next_states)
 
             # compute target values
-            features = self.features.eval(states)
-            pi_0 = self.policy.eval(features).log_prob(actions)
-            targets = self.v.eval(features) + advantages
+            features = self.features.no_grad(states)
+            pi_0 = self.policy.no_grad(features).log_prob(actions)
+            targets = self.v.no_grad(features) + advantages
 
             # train for several epochs
             for _ in range(self.epochs):

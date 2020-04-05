@@ -21,6 +21,9 @@ class GaussianPolicy(Approximation):
             **kwargs
         )
 
+    def eval(self, states):
+        return super().eval(states).loc
+
 class GaussianPolicyNetwork(RLNetwork):
     def __init__(self, model, space):
         super().__init__(model)

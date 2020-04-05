@@ -53,7 +53,7 @@ class DDQN(Agent):
         self.replay_buffer.store(self._state, self._action, reward, state)
         self._train()
         self._state = state
-        self._action = self.policy.eval(state)
+        self._action = self.policy.no_grad(state)
         return self._action
 
     def eval(self, state, _):
@@ -66,7 +66,7 @@ class DDQN(Agent):
             # forward pass
             values = self.q(states, actions)
             # compute targets
-            next_actions = torch.argmax(self.q.eval(next_states), dim=1)
+            next_actions = torch.argmax(self.q.no_grad(next_states), dim=1)
             targets = rewards + self.discount_factor * self.q.target(next_states, next_actions)
             # compute loss
             loss = self.loss(values, targets, weights)

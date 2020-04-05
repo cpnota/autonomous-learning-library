@@ -65,7 +65,7 @@ class DDPG(Agent):
         return self.policy.eval(state)
 
     def _choose_action(self, state):
-        action = self.policy.eval(state)
+        action = self.policy.no_grad(state)
         action = action + self._noise.sample()
         action = torch.min(action, self._high)
         action = torch.max(action, self._low)

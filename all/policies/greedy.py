@@ -13,12 +13,13 @@ class GreedyPolicy(Schedulable):
         self.num_actions = num_actions
         self.epsilon = epsilon
 
-    def __call__(self, state, action=None, prob=False):
+    def __call__(self, state):
         if np.random.rand() < self.epsilon:
             return torch.randint(self.num_actions, (len(state),), device=self.q.device)
-        with torch.no_grad():
-            action_scores = self.q.eval(state)
-        return torch.argmax(action_scores, dim=1)
+        return torch.argmax(self.q.no_grad(state), dim=1)
 
-    def eval(self, state, action=None, prob=False):
-        return self(state, action=action, prob=prob)
+    def no_grad(self, state):
+        return self(state)
+
+    def eval(self, state):
+        return torch.argmax(self.q.eval(state), dim=1)

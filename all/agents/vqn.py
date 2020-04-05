@@ -27,7 +27,7 @@ class VQN(Agent):
 
     def act(self, state, reward):
         self._train(reward, state)
-        action = self.policy(state)
+        action = self.policy.no_grad(state)
         self._state = state
         self._action = action
         return action
