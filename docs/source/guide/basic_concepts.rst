@@ -9,9 +9,9 @@ Agent-Based Design
 
 One of the core philosophies in the autonomous-learning-library is that RL should be agent-based, not algorithm-based.
 To see what we mean by this, check out the OpenAI Baselines implementation of DQN.
-There's a giant function called learn which accepts an environment and a bunch of hyperparameters at the heart of which there is a control loop which calls many different functions.
+There's a giant function called ``learn`` which accepts an environment and a bunch of hyperparameters, at the heart of which there is a control loop which calls many different functions.
 Which part of this function is the agent? Which part is the environment? Which part is something else?
-We call this implementation algorithm-based because the central abstraction is a function called learn which provides the complete specification if an algorithm.
+We call this implementation algorithm-based because the central abstraction is a function called ``learn`` which provides the complete specification of an algorithm.
 What should the proper abstraction for agent be, then? We have to look no further than the following famous diagram:
 
 .. image:: ./rl.jpg
@@ -29,10 +29,15 @@ Here's the ``Agent`` interface in the autonomous-learning-library:
         def act(self, state, reward):
             pass
 
-That's it.
-When and how it trains is nobody's business except the ``Agent`` itself.
-When the ``Agent`` is allowed to act is determined by the control loop.
-What might an implementation of this look like? Here's the act function from our DQN implementation:
+        @abstractmethod
+        def eval(self, state, reward):
+            pass
+
+The ``act`` function is called when training the agent.
+The ``eval`` function is called when evaluating the agent, e.g., after a training run has completed.
+When and how the ``Agent`` trains inside of this function is nobody's business except the ``Agent`` itself.
+When the ``Agent`` is allowed to act is determined by some outer control loop, and is not of concern to the ``Agent``.
+What might an implementation of ``act`` look like? Here's the act function from our DQN implementation:
 
 .. code-block:: python
 
@@ -45,12 +50,13 @@ What might an implementation of this look like? Here's the act function from our
 
 That's it. ``_store_transition()`` and ``_train()`` are private helper methods.
 There is no reason for the control loop to know anything about these details.
+There is no tight coupling between the ``Agent`` and the control loop.
 This approach simplifies both our ``Agent`` implementation and the control loop itself.
 
 Separating the control loop logic from the ``Agent`` logic allows greater flexibility in the way agents are used.
 In fact, ``Agent`` is entirely decoupled from the ``Environment`` interface.
-This means that our agents can be used outside of standard research environments, such as by being part of a REST api, a multi-agent system, etc.
-Any code that passes a ``State`` and a reward is compatible with our agents.
+This means that our agents can be used outside of standard research environments, such as part of a REST api, a multi-agent system, etc.
+Any code that passes a ``State`` and a scalar reward is compatible with our agents.
 
 Function Approximation
 ----------------------
@@ -62,7 +68,8 @@ Almost everything a deep reinforcement learning agent does is predicated on *fun
 For this reason, one of the central abstractions in the ``autonomous-learning-library`` is ``Approximation``.
 By building agents that rely on the ``Approximation`` abstraction rather than directly interfacing with PyTorch ``Module`` and ``Optimizer`` objects,
 we can add to or modify the functionality of an Agent without altering its source code (this is known as the `Open-Closed Principle <https://en.wikipedia.org/wiki/Open–closed_principle>`_).
-The default ``Approximation`` object allows us to achieve a high level of code reuse by encapsulating common functionality such as logging, model checkpointing, target networks, learning rate schedules and gradient clipping. The Approximation object in turn relies on a set of abstractions that allow users to alter its behavior.
+The default ``Approximation`` object allows us to achieve a high level of code reuse by encapsulating common functionality such as logging, model checkpointing, target networks, learning rate schedules and gradient clipping.
+The ``Approximation`` object in turn relies on a set of abstractions that allow users to alter its behavior.
 Let's look at a simple usage of ``Approximation`` in solving a very easy supervised learning task:
 
 .. code-block:: python
