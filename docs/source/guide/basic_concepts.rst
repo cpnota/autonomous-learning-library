@@ -67,7 +67,7 @@ Almost everything a deep reinforcement learning agent does is predicated on *fun
 
 For this reason, one of the central abstractions in the ``autonomous-learning-library`` is ``Approximation``.
 By building agents that rely on the ``Approximation`` abstraction rather than directly interfacing with PyTorch ``Module`` and ``Optimizer`` objects,
-we can add to or modify the functionality of an Agent without altering its source code (this is known as the `Open-Closed Principle <https://en.wikipedia.org/wiki/Open–closed_principle>`_).
+we can add to or modify the functionality of an ``Agent`` without altering its source code (this is known as the `Open-Closed Principle <https://en.wikipedia.org/wiki/Open–closed_principle>`_).
 The default ``Approximation`` object allows us to achieve a high level of code reuse by encapsulating common functionality such as logging, model checkpointing, target networks, learning rate schedules and gradient clipping.
 The ``Approximation`` object in turn relies on a set of abstractions that allow users to alter its behavior.
 Let's look at a simple usage of ``Approximation`` in solving a very easy supervised learning task:
@@ -127,7 +127,8 @@ These are all handled through the appropriate configuration of ``Approximation``
 Instead, the ``Agent`` implementation is able to focus exclusively on its sole purpose: defining the RL algorithm itself.
 By encapsulating these details in ``Approximation``, we are able to follow the `single responsibility principle <https://en.wikipedia.org/wiki/Single_responsibility_principle>`_.
 
-A few other quick things to note: ``f.eval(x)`` runs a forward pass in ``torch.no_grad()``.
+A few other quick things to note: ``f.no_grad(x)`` runs a forward pass with ``torch.no_grad()``, speeding computation.
+``f.eval(x)`` does the same, but also puts the model in `eval` mode first, (e.g., ``BatchNorm`` or ``Dropout`` layers), and then puts the model back into its previous mode before returning. 
 ``f.target(x)`` calls the *target network* (an advanced concept used in algorithms such as DQN. S, for example, David Silver's `course notes <http://www0.cs.ucl.ac.uk/staff/d.silver/web/Talks_files/deep_rl.pdf>`_) associated with the ``Approximation``, also with ``torch.no_grad()``.
 The ``autonomous-learning-library`` provides a few thin wrappers over ``Approximation`` for particular purposes, such as ``QNetwork``, ``VNetwork``, ``FeatureNetwork``, and several ``Policy`` implementations.
 
@@ -185,7 +186,7 @@ Now we can write our first control loop:
             env.reset()
 
 Of course, this control loop is not exactly feature-packed.
-Generally, it's better to use the ``Experiment`` API described later.
+Generally, it's better to use the ``Experiment`` module described later.
 
 
 Presets
@@ -240,7 +241,7 @@ In order to actually apply this agent to a problem, for example, a classic contr
 Notice how there is an "outer function" and an "inner" function.
 This approach allows the separation of configuration and instansiation.
 While this may seem redundant, it can sometimes be useful.
-For example, say we wanted to run the same agent on multiple environments.
+For example, suppose we want to run the same agent on multiple environments.
 This can be done as follows:
 
 .. code-block:: python
@@ -258,15 +259,15 @@ and is overall more elegant and less error prone.
 Experiment
 ----------
 
-Finally, we have all of the components necessary to introduce the ``Experiment`` object.
-``Experiment`` is the built-in control loop for running reinforcement learning experiment.
+Finally, we have all of the components necessary to introduce the ``run_experiment`` helper function.
+``run_experiment`` is the built-in control loop for running reinforcement learning experiment.
 It instansiates its own ``Writer`` object, which is then passed to each of the agents, and runs each agent on each environment passed to it for some number of timesteps (frames) or episodes).
 Here is a quick example:
 
 .. code-block:: python
 
     from gym import envs
-    from all.experiments import Experiment
+    from all.experiments import run_experiment
     from all.presets import atari
     from all.environments import AtariEnvironment
 
@@ -281,13 +282,13 @@ Here is a quick example:
 
     envs = [AtariEnvironment(env, device='cuda') for env in ['BeamRider', 'Breakout', 'Pong', 'Qbert', 'SpaceInvaders']]
 
-    Experiment(agents, envs, frames=10e6)
+    run_experiment(agents, envs, 10e6)
 
 The above block executes each run sequentially.
 This could take a very long time, even on a fast GPU!
-If you have access to a cluster running Slurm, you can replace ``Experiment`` with ``SlurmExperiment`` to speed things up substantially (the magic of submitting jobs is handled behind the scenes).
+If you have access to a cluster running Slurm, you can replace ``run_experiment`` with ``SlurmExperiment`` to speed things up substantially (the magic of submitting jobs is handled behind the scenes).
 
-By default, ``Experiment`` will write the results to ``./runs``.
+By default, ``run_experiment`` will write the results to ``./runs``.
 You can view the results in ``tensorboard`` by running the following command:
 
 .. code-block:: bash
@@ -307,9 +308,15 @@ This will generate a plot that looks like the following (after tweaking the whit
 
 .. image:: ../../../benchmarks/atari40.png
 
-You can also pass optional parameters to ``Experiment`` to change its behavior.
-Instead of specificying ``frames``, you can specify a maximum number of ``episodes``.
+An optional parameter is ``test_episodes``, which is set to 100 by default.
+After running for the given number of frames, the agent will be evaluated for a number of episodes specified by ``test_episodes`` with training disabled.
+This is useful measuring the final performance of an agent.
+
+You can also pass optional parameters to ``run_experiment`` to change its behavior.
 You can set ``render=True`` to watch the agent during training (generally not recommended: it slows the agent considerably!).
 You can set ``quiet=True`` to silence command line output.
-Finally, you can set ``write_loss=False`` to disable writing debugging information to ``tensorboard``.
+Lastly, you can set ``write_loss=False`` to disable writing debugging information to ``tensorboard``.
 These files can become large, so this is recommended if you have limited storage!
+
+Finally, ``run_experiment`` relies on an underlying ``Experiment`` API.
+If you don't like the behavior of ``run_experiment``, you can reuse the underlying ``Experiment`` objects to change it.
