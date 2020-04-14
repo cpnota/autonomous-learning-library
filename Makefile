@@ -1,7 +1,5 @@
 install:
-	conda install pytorch torchvision cudatoolkit=10.1 -c pytorch
-	pip install tensorboard
-	pip install -e .
+	pip install -e .[dev]
 
 lint:
 	pylint all --rcfile=.pylintrc
