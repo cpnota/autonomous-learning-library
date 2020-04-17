@@ -20,7 +20,7 @@ class ExperimentWriter(SummaryWriter, Writer):
         experiment (all.experiments.Experiment): The Experiment associated with the Writer object.
         agent_name (str): The name of the Agent the Experiment is being performed on
         env_name (str): The name of the environment the Experiment is being performed in
-        loss (bool, optional): Whether or not to log loss/scheduling metrics, or only evaluation and summary metrics.  
+        loss (bool, optional): Whether or not to log loss/scheduling metrics, or only evaluation and summary metrics.
     '''
     def __init__(self, experiment, agent_name, env_name, loss=True):
         self.env_name = env_name
