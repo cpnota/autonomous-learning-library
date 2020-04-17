@@ -53,7 +53,7 @@ class Experiment(ABC):
 
     def _log_training_episode(self, returns, fps):
         if not self._quiet:
-            print('episode: {}, frame: {}, fps: {}, returns: {}'.format(self.episode, self.frame, fps, returns))
+            print('episode: {}, frame: {}, fps: {}, returns: {}'.format(self.episode, self.frame, int(fps), returns))
         if returns > self._best_returns:
             self._best_returns = returns
         self._returns100.append(returns)
