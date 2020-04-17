@@ -17,6 +17,8 @@ setup(
             'all-watch-atari=scripts.watch_atari:main',
             'all-watch-classic=scripts.watch_classic:main',
             'all-watch-continuous=scripts.watch_continuous:main',
+            'all-benchmark-atari=benchmarks.atari40:main',
+            'all-benchmark-pybullet=benchmarks.pybullet:main',
         ],
     },
     install_requires=[
