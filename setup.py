@@ -14,6 +14,9 @@ setup(
             'all-classic=scripts.classic:main',
             'all-continuous=scripts.continuous:main',
             'all-plot=scripts.plot:main',
+            'all-watch-atari=scripts.watch_atari:main',
+            'all-watch-classic=scripts.watch_classic:main',
+            'all-watch-continuous=scripts.watch_continuous:main',
         ],
     },
     install_requires=[
