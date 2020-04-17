@@ -4,6 +4,15 @@ from .approximation import Approximation
 
 
 class FeatureNetwork(Approximation):
+    '''
+    A special type of Approximation that accumulates gradients before backpropagating them.
+    This is useful when features are shared between network heads.
+
+    The __call__ function caches the computation graph and detaches the output.
+    Then, various functions approximators may backpropagate to the output.
+    The reinforce() function will then backpropagate the accumulated gradients on the output
+    through the original computation graph.
+    '''
     def __init__(self, model, optimizer=None, name='feature', **kwargs):
         model = FeatureModule(model)
         super().__init__(model, optimizer, name=name, **kwargs)
@@ -11,6 +20,15 @@ class FeatureNetwork(Approximation):
         self._out = []
 
     def __call__(self, states):
+        '''
+        Run a forward pass of the model and return the detached output.
+
+        Args:
+            state (all.environment.State): An environment State
+
+        Returns:
+            all.environment.State: An enviornment State with the computed features
+        '''
         features = self.model(states)
         graphs = features.raw
         # pylint: disable=protected-access
@@ -20,6 +38,9 @@ class FeatureNetwork(Approximation):
         return features
 
     def reinforce(self):
+        '''
+        Backward pass of the model.
+        '''
         graphs, grads = self._dequeue()
         graphs.backward(grads)
         self.step()

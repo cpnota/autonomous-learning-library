@@ -111,6 +111,18 @@ class Approximation():
         return self._target(*inputs)
 
     def reinforce(self, loss):
+        '''
+        Backpropagate the loss through the model and make an update step.
+        Internally, this will perform most of the activities associated with a control loop
+        in standard machine learning environments, depending on the configuration of the object:
+        Gradient clipping, learning rate schedules, logging, checkpointing, etc.
+
+        Args:
+            loss (torch.Tensor): The loss computed for a batch of inputs.
+
+        Returns:
+            self: The current Approximation object
+        '''
         loss = self._loss_scaling * loss
         self._writer.add_loss(self._name, loss.detach())
         loss.backward()
@@ -118,7 +130,15 @@ class Approximation():
         return self
 
     def step(self):
-        '''Given that a backward pass has been made, run an optimization step.'''
+        '''
+        Given that a backward pass has been made, run an optimization step
+        Internally, this will perform most of the activities associated with a control loop
+        in standard machine learning environments, depending on the configuration of the object:
+        Gradient clipping, learning rate schedules, logging, checkpointing, etc.
+
+        Returns:
+            self: The current Approximation object
+        '''
         if self._clip_grad != 0:
             utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
         self._optimizer.step()
@@ -131,5 +151,11 @@ class Approximation():
         return self
 
     def zero_grad(self):
+        '''
+        Clears the gradients of all optimized tensors
+
+        Returns:
+            self: The current Approximation object
+        '''
         self._optimizer.zero_grad()
         return self
