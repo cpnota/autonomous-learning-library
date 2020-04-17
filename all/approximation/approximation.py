@@ -18,31 +18,31 @@ class Approximation():
     increased code reusability and simpler Agent implementations.
 
     Args:
-            model (:torch.nn.Module:): A Pytorch module representing the model
+            model (torch.nn.Module): A Pytorch module representing the model
                 used to approximate the function. This could be a convolution
                 network, a fully connected network, or any other Pytorch-compatible
                 model.
-            optimizer (:torch.optim.Optimizer:): A optimizer initialized with the
+            optimizer (torch.optim.Optimizer): A optimizer initialized with the
                 model parameters, e.g. SGD, Adam, RMSprop, etc.
-            checkpointer: (:all.approximation.checkpointer.Checkpointer): A Checkpointer object
+            checkpointer (all.approximation.checkpointer.Checkpointer): A Checkpointer object
                 that periodically saves the model and its parameters to the disk. Default:
                 A PeriodicCheckpointer that saves the model once every 200 updates.
-            clip_grad: (float, optional): If non-zero, clips the norm of the
+            clip_grad (float, optional): If non-zero, clips the norm of the
                 gradient to this value in order prevent large updates and
                 improve stability.
                 See torch.nn.utils.clip_grad.
-            loss_scaling: (float, optional): Multiplies the loss by this value before
+            loss_scaling (float, optional): Multiplies the loss by this value before
                 performing a backwards pass. Useful when used with multi-headed networks
                 with shared feature layers.
-            name: (str, optional): The name of the function approximator used for logging.
-            scheduler: (:torch.optim.lr_scheduler._LRScheduler:, optional): A learning
+            name (str, optional): The name of the function approximator used for logging.
+            scheduler (:torch.optim.lr_scheduler._LRScheduler:, optional): A learning
                 rate scheduler initialized with the given optimizer. step() will be called
                 after every update.
-            target: (:all.approximation.target.TargetNetwork, optional): A target network object
+            target (all.approximation.target.TargetNetwork, optional): A target network object
                 to be used during optimization. A target network updates more slowly than
                 the base model that is being optimizing, allowing for a more stable
                 optimization target.
-            writer: (:all.logging.Writer:, optional): A Writer object used for logging.
+            writer (all.logging.Writer:, optional): A Writer object used for logging.
                 The standard object logs to tensorboard, however, other types of Writer objects
                 may be implemented by the user.
     '''
@@ -111,6 +111,18 @@ class Approximation():
         return self._target(*inputs)
 
     def reinforce(self, loss):
+        '''
+        Backpropagate the loss through the model and make an update step.
+        Internally, this will perform most of the activities associated with a control loop
+        in standard machine learning environments, depending on the configuration of the object:
+        Gradient clipping, learning rate schedules, logging, checkpointing, etc.
+
+        Args:
+            loss (torch.Tensor): The loss computed for a batch of inputs.
+
+        Returns:
+            self: The current Approximation object
+        '''
         loss = self._loss_scaling * loss
         self._writer.add_loss(self._name, loss.detach())
         loss.backward()
@@ -118,7 +130,15 @@ class Approximation():
         return self
 
     def step(self):
-        '''Given that a backward pass has been made, run an optimization step.'''
+        '''
+        Given that a backward pass has been made, run an optimization step
+        Internally, this will perform most of the activities associated with a control loop
+        in standard machine learning environments, depending on the configuration of the object:
+        Gradient clipping, learning rate schedules, logging, checkpointing, etc.
+
+        Returns:
+            self: The current Approximation object
+        '''
         if self._clip_grad != 0:
             utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
         self._optimizer.step()
@@ -131,5 +151,11 @@ class Approximation():
         return self
 
     def zero_grad(self):
+        '''
+        Clears the gradients of all optimized tensors
+
+        Returns:
+            self: The current Approximation object
+        '''
         self._optimizer.zero_grad()
         return self

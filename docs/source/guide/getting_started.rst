@@ -18,7 +18,7 @@ The ``autonomous-learning-library`` can be installed from PyPi using ``pip``:
 
     pip install autonomous-learning-library
 
-If you're lazy, you can install the prerequisites as well using:
+If you don't have PyTorch or Tensorboard previously installed, you can install them using:
 
 .. code-block:: bash
 
@@ -34,14 +34,14 @@ You can test your installation by running the tests::
 
     make test
 
-This should also tell you if CUDA (the GPU driver) is unavailable.
+This should also tell you if CUDA (the GPU driver) is available.
 
 Running a Preset Agent
 ----------------------
 
-The goal of the Autonomous Learning Library is to be a library for building new agents.
-However, the library includes a number of "preset" agent configurations for easy benchmarking and comparison.
-It also includes some useful scripts for running the presets.
+The goal of the Autonomous Learning Library is to provide components for building new agents.
+However, the library also includes a number of "preset" agent configurations for easy benchmarking and comparison,
+as well as some useful scripts.
 For example, an A2C agent can be run on Cart-Pole as follows::
 
     python scripts/classic.py CartPole-v0 ppo

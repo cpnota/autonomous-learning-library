@@ -43,7 +43,7 @@ our agents achieved very similar behavior to the agents tested by DeepMind.
 PyBullet Benchmark
 ------------------
 
-[PyBullet](https://pybullet.org/wordpress/) provides a free alternative to the popular MuJoCo robots environments.
+[PyBullet](https://pybullet.org/wordpress/) provides a free alternative to the popular MuJoCo robotics environments.
 While MuJoCo requires a license key and can be difficult for independent researchers to afford, PyBullet is free and open.
 Additionally, the PyBullet environments are widely considered more challenging, making them a more discriminant test bed.
 For these reasons, we chose to benchmark the ``all.presets.continuous`` presets using PyBullet.
