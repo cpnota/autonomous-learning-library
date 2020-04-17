@@ -8,6 +8,13 @@ setup(
     url="https://github.com/cpnota/autonomous-learning-library.git",
     author="Chris Nota",
     author_email="cnota@cs.umass.edu",
+    entry_points={
+        'console_scripts': [
+            'all-atari=scripts.atari:main',
+            'all-classic=scripts.classic:main',
+            'all-continuous=scripts.continuous:main',
+        ],
+    },
     install_requires=[
         "gym[atari,box2d]",     # common environments
         "numpy",                # math library

@@ -3,7 +3,7 @@ from all.environments import AtariEnvironment
 from all.experiments import run_experiment
 from all.presets import atari
 
-def run_atari():
+def main():
     parser = argparse.ArgumentParser(description="Run an Atari benchmark.")
     parser.add_argument("env", help="Name of the Atari game (e.g. Pong).")
     parser.add_argument(
@@ -30,4 +30,4 @@ def run_atari():
 
 
 if __name__ == "__main__":
-    run_atari()
+    main()
