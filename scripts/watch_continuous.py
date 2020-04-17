@@ -8,7 +8,7 @@ from all.experiments import GreedyAgent, watch
 from continuous import ENVS
 
 
-def watch_continuous():
+def main():
     parser = argparse.ArgumentParser(description="Watch a continuous agent.")
     parser.add_argument("env", help="ID of the Environment")
     parser.add_argument("dir", help="Directory where the agent's model was saved.")
@@ -34,4 +34,4 @@ def watch_continuous():
     watch(agent, env, fps=args.fps)
 
 if __name__ == "__main__":
-    watch_continuous()
+    main()

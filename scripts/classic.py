@@ -4,7 +4,7 @@ from all.experiments import run_experiment
 from all.presets import classic_control
 
 
-def run_classic():
+def main():
     parser = argparse.ArgumentParser(description="Run a classic control benchmark.")
     parser.add_argument("env", help="Name of the env (e.g. CartPole-v1).")
     parser.add_argument(
@@ -31,4 +31,4 @@ def run_classic():
 
 
 if __name__ == "__main__":
-    run_classic()
+    main()

@@ -21,7 +21,7 @@ ENVS = {
 }
 
 
-def run():
+def main():
     parser = argparse.ArgumentParser(description="Run a continuous actions benchmark.")
     parser.add_argument("env", help="Name of the env (see envs)")
     parser.add_argument(
@@ -53,4 +53,4 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    main()

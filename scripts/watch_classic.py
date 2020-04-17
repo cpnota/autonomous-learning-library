@@ -2,7 +2,7 @@ import argparse
 from all.environments import GymEnvironment
 from all.experiments import load_and_watch
 
-def watch():
+def main():
     parser = argparse.ArgumentParser(description="Run an Atari benchmark.")
     parser.add_argument("env", help="Name of the environment (e.g. RoboschoolHalfCheetah-v1")
     parser.add_argument("dir", help="Directory where the agent's model was saved.")
@@ -16,4 +16,4 @@ def watch():
     load_and_watch(args.dir, env)
 
 if __name__ == "__main__":
-    watch()
+    main()
