@@ -13,6 +13,7 @@ setup(
             'all-atari=scripts.atari:main',
             'all-classic=scripts.classic:main',
             'all-continuous=scripts.continuous:main',
+            'all-plot=scripts.plot:main',
         ],
     },
     install_requires=[
