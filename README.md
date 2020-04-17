@@ -99,3 +99,18 @@ See the [docs](https://autonomous-learning-library.readthedocs.io) for informati
 This library was built in the [Autonomous Learning Laboratory](http://all.cs.umass.edu) (ALL) at the [University of Massachusetts, Amherst](https://www.umass.edu).
 It was written and is currently maintained by Chris Nota (@cpnota).
 The views expressed or implied in this repository do not necessarily reflect the views of the ALL.
+
+## Citing the Autonomous Learning Library
+
+We recommend the following citation:
+
+```
+@misc{nota2020autonomous,
+  author = {Nota, Chris},
+  title = {The Autonomous Learning Library},
+  year = {2020},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/cpnota/autonomous-learning-library}},
+}
+```
