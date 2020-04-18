@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="autonomous-learning-library",
-    version="0.4.0",
+    version="0.5.0",
     description=("A library for building reinforcement learning agents in Pytorch"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",
@@ -17,6 +17,8 @@ setup(
             'all-watch-atari=scripts.watch_atari:main',
             'all-watch-classic=scripts.watch_classic:main',
             'all-watch-continuous=scripts.watch_continuous:main',
+            'all-benchmark-atari=benchmarks.atari40:main',
+            'all-benchmark-pybullet=benchmarks.pybullet:main',
         ],
     },
     install_requires=[
