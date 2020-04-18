@@ -68,10 +68,10 @@ pip install autonomous-learning-library[pytorch]
 
 ## Running the Presets
 
-If you just want to test out some cool agents, the `scripts` directory contains the basic code for doing so.
+If you just want to test out some cool agents, the library includes several scripts for doing so:
 
 ```
-python scripts/atari.py Breakout a2c
+all-atari Breakout a2c
 ```
 
 You can watch the training progress using:
@@ -84,11 +84,15 @@ and opening your browser to http://localhost:6006.
 Once the model is trained to your satisfaction, you can watch the trained model play using:
 
 ```
-python scripts/watch_atari.py Breakout "runs/_a2c [id]"
+all-watch-atari Breakout "runs/_a2c [id]"
 ```
 
 where `id` is the ID of your particular run. You should should be able to find it using tab completion or by looking in the `runs` directory.
 The `autonomous-learning-library` also contains presets and scripts for classic control and PyBullet environments.
+
+If you want to test out your own agents, you will need to define your own scripts.
+Some examples can be found in the `examples` folder).
+See the [docs](https://autonomous-learning-library.readthedocs.io) for information on building your own agents!
 
 ## Note
 

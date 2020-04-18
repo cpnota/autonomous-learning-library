@@ -52,6 +52,9 @@ class GreedyAgent(Agent):
                 return self.choose_continuous(state)
             raise TypeError('Unknown action space')
 
+    def eval(self, state, reward):
+        return self.act(state, reward)
+
     def choose_discrete(self, state):
         ret = self.policy(state)
         if isinstance(ret, torch.Tensor):

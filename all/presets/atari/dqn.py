@@ -5,9 +5,9 @@ from all.approximation import QNetwork, FixedTarget
 from all.agents import DQN
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
-from all.policies import GreedyPolicy
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
+from all.policies import GreedyPolicy
 from .models import nature_dqn
 
 
@@ -91,13 +91,16 @@ def dqn(
         )
 
         return DeepmindAtariBody(
-            DQN(q, policy, replay_buffer,
-                loss=smooth_l1_loss,
+            DQN(
+                q,
+                policy,
+                replay_buffer,
                 discount_factor=discount_factor,
+                loss=smooth_l1_loss,
                 minibatch_size=minibatch_size,
                 replay_start_size=replay_start_size,
                 update_frequency=update_frequency,
-                ),
+            ),
             lazy_frames=True
         )
     return _dqn

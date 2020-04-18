@@ -1,5 +1,4 @@
 from torch.optim import Adam
-from torch.nn.functional import mse_loss
 from all.agents import DDQN
 from all.approximation import QNetwork, FixedTarget
 from all.logging import DummyWriter
@@ -14,17 +13,17 @@ def ddqn(
         device="cpu",
         discount_factor=0.99,
         # Adam optimizer settings
-        lr=1e-4,
+        lr=1e-3,
         # Training settings
-        minibatch_size=32,
+        minibatch_size=64,
         update_frequency=1,
-        target_update_frequency=1000,
+        target_update_frequency=100,
         # Replay buffer settings
         replay_start_size=1000,
-        replay_buffer_size=20000,
+        replay_buffer_size=10000,
         # Exploration settings
-        initial_exploration=1.00,
-        final_exploration=0.02,
+        initial_exploration=1.,
+        final_exploration=0.,
         final_exploration_frame=10000,
         # Prioritized replay settings
         alpha=0.2,
@@ -80,7 +79,6 @@ def ddqn(
             device=device
         )
         return DDQN(q, policy, replay_buffer,
-                    loss=mse_loss,
                     discount_factor=discount_factor,
                     replay_start_size=replay_start_size,
                     update_frequency=update_frequency,

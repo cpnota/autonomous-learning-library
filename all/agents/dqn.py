@@ -18,8 +18,10 @@ class DQN(Agent):
         policy (GreedyPolicy): A policy derived from the Q-function.
         replay_buffer (ReplayBuffer): The experience replay buffer.
         discount_factor (float): Discount factor for future rewards.
+        exploration (float): The probability of choosing a random action.
         loss (function): The weighted loss function to use.
         minibatch_size (int): The number of experiences to sample in each training update.
+        n_actions (int): The number of available actions.
         replay_start_size (int): Number of experiences in replay buffer when training begins.
         update_frequency (int): Number of timesteps per training update.
     '''
@@ -31,7 +33,7 @@ class DQN(Agent):
                  loss=mse_loss,
                  minibatch_size=32,
                  replay_start_size=5000,
-                 update_frequency=1
+                 update_frequency=1,
                  ):
         # objects
         self.q = q
@@ -39,10 +41,10 @@ class DQN(Agent):
         self.replay_buffer = replay_buffer
         self.loss = staticmethod(loss)
         # hyperparameters
+        self.discount_factor = discount_factor
+        self.minibatch_size = minibatch_size
         self.replay_start_size = replay_start_size
         self.update_frequency = update_frequency
-        self.minibatch_size = minibatch_size
-        self.discount_factor = discount_factor
         # private
         self._state = None
         self._action = None
@@ -52,8 +54,11 @@ class DQN(Agent):
         self.replay_buffer.store(self._state, self._action, reward, state)
         self._train()
         self._state = state
-        self._action = self.policy(state)
+        self._action = self.policy.no_grad(state)
         return self._action
+
+    def eval(self, state, _):
+        return self.policy.eval(state)
 
     def _train(self):
         if self._should_train():

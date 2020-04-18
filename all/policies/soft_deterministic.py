@@ -12,6 +12,7 @@ class SoftDeterministicPolicy(Approximation):
             **kwargs
     ):
         model = SoftDeterministicPolicyNetwork(model, space)
+        self._inner_model = model
         super().__init__(model, optimizer, name=name, **kwargs)
 
 
@@ -25,8 +26,10 @@ class SoftDeterministicPolicyNetwork(RLNetwork):
     def forward(self, state):
         outputs = super().forward(state)
         normal = self._normal(outputs)
-        action, log_prob = self._sample(normal)
-        return action, log_prob
+        if self.training:
+            action, log_prob = self._sample(normal)
+            return action, log_prob
+        return self._squash(normal.loc)
 
     def _normal(self, outputs):
         means = outputs[:, 0 : self._action_dim]

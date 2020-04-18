@@ -57,8 +57,11 @@ class A2C(Agent):
         self._buffer.store(self._states, self._actions, rewards)
         self._train(states)
         self._states = states
-        self._actions = self.policy.eval(self.features.eval(states)).sample()
+        self._actions = self.policy.no_grad(self.features.no_grad(states)).sample()
         return self._actions
+
+    def eval(self, states, _):
+        return self.policy.eval(self.features.eval(states))
 
     def _train(self, next_states):
         if len(self._buffer) >= self._batch_size:

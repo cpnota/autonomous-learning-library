@@ -60,12 +60,15 @@ class C51(Agent):
         self._action = self._choose_action(state)
         return self._action
 
+    def eval(self, state, _):
+        return self._best_actions(self.q_dist.eval(state))
+
     def _choose_action(self, state):
         if self._should_explore():
             return torch.randint(
                 self.q_dist.n_actions, (len(state),), device=self.q_dist.device
             )
-        return self._best_actions(state)
+        return self._best_actions(self.q_dist.no_grad(state))
 
     def _should_explore(self):
         return (
@@ -73,8 +76,7 @@ class C51(Agent):
             or np.random.rand() < self.exploration
         )
 
-    def _best_actions(self, states):
-        probs = self.q_dist.eval(states)
+    def _best_actions(self, probs):
         q_values = (probs * self.q_dist.atoms).sum(dim=2)
         return torch.argmax(q_values, dim=1)
 
@@ -103,7 +105,7 @@ class C51(Agent):
         return self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0
 
     def _compute_target_dist(self, states, rewards):
-        actions = self._best_actions(states)
+        actions = self._best_actions(self.q_dist.no_grad(states))
         dist = self.q_dist.target(states, actions)
         shifted_atoms = (
             rewards.view((-1, 1)) + self.discount_factor * self.q_dist.atoms

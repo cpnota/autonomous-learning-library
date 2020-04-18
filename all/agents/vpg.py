@@ -50,6 +50,9 @@ class VPG(Agent):
             return self._act(state, reward)
         return self._terminal(state, reward)
 
+    def eval(self, state, _):
+        return self.policy.eval(self.features.eval(state))
+
     def _initial(self, state):
         features = self.features(state)
         distribution = self.policy(features)
@@ -82,7 +85,7 @@ class VPG(Agent):
             self._train()
 
         # have to return something
-        return self.policy.eval(self.features.eval(state)).sample()
+        return self.policy.no_grad(self.features.no_grad(state)).sample()
 
     def _train(self):
         # forward pass

@@ -67,8 +67,11 @@ class SAC(Agent):
         self.replay_buffer.store(self._state, self._action, reward, state)
         self._train()
         self._state = state
-        self._action = self.policy.eval(state)[0]
+        self._action = self.policy.no_grad(state)[0]
         return self._action
+
+    def eval(self, state, _):
+        return self.policy.eval(state)[0]
 
     def _train(self):
         if self._should_train():
@@ -76,7 +79,7 @@ class SAC(Agent):
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
 
             # compute targets for Q and V
-            _actions, _log_probs = self.policy.eval(states)
+            _actions, _log_probs = self.policy.no_grad(states)
             q_targets = rewards + self.discount_factor * self.v.target(next_states)
             v_targets = torch.min(
                 self.q_1.target(states, _actions),
