@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="autonomous-learning-library",
-    version="0.5.0",
+    version="0.5.1",
     description=("A library for building reinforcement learning agents in Pytorch"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",

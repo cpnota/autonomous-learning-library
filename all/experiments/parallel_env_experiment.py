@@ -1,4 +1,5 @@
 
+from timeit import default_timer as timer
 import torch
 import numpy as np
 from all.environments import State
@@ -26,6 +27,8 @@ class ParallelEnvExperiment(Experiment):
         self._returns = []
         self._frame = 1
         self._episode = 1
+        self._episode_start_times = [] * self._n_envs
+        self._episode_start_frames = [] * self._n_envs
 
         # test state
         self._test_episodes = 100
@@ -66,6 +69,8 @@ class ParallelEnvExperiment(Experiment):
             device=self._envs[0].device
         )
         self._returns = rewards
+        self._episode_start_times = [timer()] * self._n_envs
+        self._episode_start_frames = [self._frame] * self._n_envs
 
     def _step(self):
         states = self._aggregate_states()
@@ -80,10 +85,12 @@ class ParallelEnvExperiment(Experiment):
 
             if env.done:
                 self._returns[i] += env.reward
-                self._log_training_episode(self._returns[i].item(), 0)
+                self._log_training_episode(self._returns[i].item(), self._fps(i))
                 env.reset()
                 self._returns[i] = 0
                 self._episode += 1
+                self._episode_start_times[i] = timer()
+                self._episode_start_frames[i] = self._frame
             else:
                 action = actions[i]
                 if action is not None:
@@ -133,6 +140,10 @@ class ParallelEnvExperiment(Experiment):
             dtype=torch.float,
             device=self._envs[0].device
         )
+
+    def _fps(self, i):
+        end_time = timer()
+        return (self._frame - self._episode_start_frames[i]) / (end_time - self._episode_start_times[i])
 
     def _make_writer(self, agent_name, env_name, write_loss):
         return ExperimentWriter(self, agent_name, env_name, loss=write_loss)
