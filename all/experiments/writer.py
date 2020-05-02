@@ -14,8 +14,6 @@ class ExperimentWriter(SummaryWriter, Writer):
     tagging the run with a combination of the agent name, the commit hash of the
     current git repo of the working directory (if any), and the current time.
     Also writes summary statistics into CSV files.
-
-
     Args:
         experiment (all.experiments.Experiment): The Experiment associated with the Writer object.
         agent_name (str): The name of the Agent the Experiment is being performed on
@@ -51,7 +49,6 @@ class ExperimentWriter(SummaryWriter, Writer):
     def add_scalar(self, name, value, step="frame"):
         '''
         Log an arbitrary scalar.
-
         Args:
             name (str): The tag to associate with the scalar
             value (number): The value of the scalar at the current step
@@ -84,8 +81,6 @@ def get_commit_hash():
 
 
 COMMIT_HASH = get_commit_hash()
-
-
 
 try:
     os.mkdir("runs")
