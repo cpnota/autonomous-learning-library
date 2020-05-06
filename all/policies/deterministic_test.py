@@ -57,28 +57,24 @@ class TestDeterministic(unittest.TestCase):
             self.space,
             target=FixedTarget(3)
         )
-
-        # choose initial action
         state = State(torch.ones(1, STATE_DIM))
-        action = self.policy(state)
-        tt.assert_equal(action, torch.zeros(1, ACTION_DIM))
 
         # run update step, make sure target network doesn't change
-        action.sum().backward(retain_graph=True)
+        self.policy(state).sum().backward()
         self.policy.step()
         tt.assert_equal(self.policy.target(state), torch.zeros(1, ACTION_DIM))
 
         # again...
-        action.sum().backward(retain_graph=True)
+        self.policy(state).sum().backward()
         self.policy.step()
         tt.assert_equal(self.policy.target(state), torch.zeros(1, ACTION_DIM))
 
         # third time, target should be updated
-        action.sum().backward(retain_graph=True)
+        self.policy(state).sum().backward()
         self.policy.step()
         tt.assert_allclose(
-            self.policy.eval(state),
-            torch.tensor([[-0.595883, -0.595883, -0.595883]]),
+            self.policy.target(state),
+            torch.tensor([[-0.574482, -0.574482, -0.574482]]),
             atol=1e-4,
         )
 
