@@ -39,11 +39,28 @@ class SoftDeterministicPolicyNetwork(RLNetwork):
 
     def _sample(self, normal):
         raw = normal.rsample()
-        action = self._squash(raw)
+        log_prob = self._log_prob(normal, raw)
+        return self._squash(raw), log_prob
+
+    def _log_prob(self, normal, raw):
+        '''
+        Compute the log probability of a raw action after the action is squashed.
+        Both inputs act on the raw underlying distribution.
+        Because tanh_mean does not affect the density, we can ignore it.
+        However, tanh_scale will affect the relative contribution of each component.'
+        See Appendix C in the Soft Actor-Critic paper
+
+        Args:
+            normal (torch.distributions.normal.Normal): The "raw" normal distribution.
+            raw (torch.Tensor): The "raw" action.
+
+        Returns:
+            torch.Tensor: The probability of the raw action, accounting for the affects of tanh.
+        '''
         log_prob = normal.log_prob(raw)
-        log_prob -= torch.log(1 - action.pow(2) + 1e-6)
-        log_prob = log_prob.sum(1)
-        return action, log_prob
+        log_prob -= torch.log(1 - torch.tanh(raw).pow(2) + 1e-6)
+        log_prob /= self._tanh_scale
+        return log_prob.sum(1)
 
     def _squash(self, x):
         return torch.tanh(x) * self._tanh_scale + self._tanh_mean
