@@ -22,7 +22,7 @@ class ExperimentWriter(SummaryWriter, Writer):
     '''
     def __init__(self, experiment, agent_name, env_name, loss=True):
         self.env_name = env_name
-        current_time = datetime.now().strftime('%Y%m%d-%H%M%S')
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S %f')
         os.makedirs(
             os.path.join(
                 "runs", ("%s %s %s" % (agent_name, COMMIT_HASH, current_time)), env_name
