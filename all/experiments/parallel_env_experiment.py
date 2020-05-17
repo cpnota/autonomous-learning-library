@@ -32,7 +32,7 @@ class ParallelEnvExperiment(Experiment):
 
         # test state
         self._test_episodes = 100
-        self._test_episodes_started = 0
+        self._test_episodes_started = self._n_envs
         self._test_returns = []
         self._should_save_returns = [True] * self._n_envs
 
