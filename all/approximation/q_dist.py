@@ -14,7 +14,7 @@ class QDist(Approximation):
             v_min,
             v_max,
             name="q_dist",
-            **kwargs,
+            **kwargs
     ):
         device = next(model.parameters()).device
         self.n_actions = n_actions
