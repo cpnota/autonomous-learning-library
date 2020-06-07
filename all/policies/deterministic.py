@@ -8,10 +8,9 @@ class DeterministicPolicy(Approximation):
     A DDPG-style deterministic policy.
 
     Args:
-        model (torch.nn.Module): A Pytorch module representing the model
-            used to represent the policy. The input shape should be the same
-            as the shape of the state space, and the output shape should be
-            the same as the shape of the action space.
+        model (torch.nn.Module): A Pytorch module representing the policy network.
+            The input shape should be the same as the shape of the state space,
+            and the output shape should be the same as the shape of the action space.
         optimizer (torch.optim.Optimizer): A optimizer initialized with the
             model parameters, e.g. SGD, Adam, RMSprop, etc.
         action_space (gym.spaces.Box): The Box representing the action space.
