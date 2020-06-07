@@ -76,7 +76,7 @@ class SingleEnvExperiment(Experiment):
     def _run_test_episode(self):
         # initialize the episode
         self._env.reset()
-        action = self._agent.act(self._env.state, self._env.reward)
+        action = self._agent.eval(self._env.state, self._env.reward)
         returns = 0
 
         # loop until the episode is finished
