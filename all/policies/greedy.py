@@ -3,6 +3,19 @@ import torch
 from all.optim import Schedulable
 
 class GreedyPolicy(Schedulable):
+    '''
+    An  "epsilon-greedy" action selection policy for discrete action spaces.
+
+    This policy will usually choose the optimal action according to an approximation
+    of the action value function (the "q-function"), but with probabilty epsilon will
+    choose a random action instead. GreedyPolicy is a Schedulable, meaning that
+    epsilon can be varied over time by passing a Scheduler object.
+
+    Args:
+        q (all.approximation.QNetwork): The action-value or "q-function"
+        num_actions (int): The number of available actions.
+        epsilon (float, optional): The probability of selecting a random action.
+    '''
     def __init__(
             self,
             q,
