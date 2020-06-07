@@ -40,8 +40,13 @@ extensions = [
 ]
 
 # Autosummary settings
-autodoc_default_flags = ['members']
+autodoc_default_options = {
+    'members': True,
+    'undoc-members': True,
+    'show-inheritance': True
+}
 autosummary_generate = True
+autodoc_inherit_docstrings = True
 
 # Mock requirements to save resources during doc build machine setup
 autodoc_mock_imports = [
