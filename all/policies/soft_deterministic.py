@@ -7,7 +7,7 @@ class SoftDeterministicPolicy(Approximation):
     A "soft" deterministic policy compatible with soft actor-critic (SAC).
 
     Args:
-        model (torch.nn.Module): A Pytorch module representing the policy network
+        model (torch.nn.Module): A Pytorch module representing the policy network.
             The input shape should be the same as the shape of the state (or feature) space,
             and the output shape should be double the size of the the action space
             The first n outputs will be the unscaled mean of the action for each dimension,

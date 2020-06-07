@@ -5,6 +5,17 @@ from all.approximation import Approximation
 
 
 class SoftmaxPolicy(Approximation):
+    '''
+    A softmax (or Boltzmann) stochastic policy for discrete actions.
+
+    Args:
+        model (torch.nn.Module): A Pytorch module representing the policy network.
+            The input shape should be the same as the shape of the state (or feature) space,
+            and the output should be a vector the size of the action set.
+        optimizer (torch.optim.Optimizer): A optimizer initialized with the
+            model parameters, e.g. SGD, Adam, RMSprop, etc.
+        kwargs (optional): Any other arguments accepted by all.approximation.Approximation
+    '''
     def __init__(
             self,
             model,
