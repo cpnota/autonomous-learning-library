@@ -6,6 +6,25 @@ from all.nn import RLNetwork
 
 
 class GaussianPolicy(Approximation):
+    '''
+    A Gaussian stochastic policy.
+
+    This policy will choose actions from a distribution represented by a spherical Gaussian.
+    The first n outputs the model will be squashed to [-1, 1] through a tanh function, and then
+    scaled to the given action_space, and the remaining n outputs will define the amount of noise added.
+
+    Args:
+        model (torch.nn.Module): A Pytorch module representing the model
+            used to represent the policy. The input shape should be the same
+            as the shape of the state (or feature) space, and the output shape
+            should be double the size of the the action space.The first n
+            outputs will be the unscaled mean of the action for each dimension,
+            and the second n outputs will be the logarithm of the variance.
+        optimizer (torch.optim.Optimizer): A optimizer initialized with the
+            model parameters, e.g. SGD, Adam, RMSprop, etc.
+        action_space (gym.spaces.Box): The Box representing the action space.
+        kwargs (optional): Any other arguments accepted by all.approximation.Approximation
+    '''
     def __init__(
             self,
             model,
