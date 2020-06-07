@@ -1,25 +1,24 @@
 import unittest
 import torch
-import torch_testing as tt
 import numpy as np
+import torch_testing as tt
 from gym.spaces import Box
 from all import nn
-from all.approximation import FixedTarget
 from all.environments import State
-from all.policies import DeterministicPolicy
+from all.policies import SoftDeterministicPolicy
 
 STATE_DIM = 2
 ACTION_DIM = 3
 
-class TestDeterministic(unittest.TestCase):
+class TestSoftDeterministic(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(2)
         self.model = nn.Sequential(
-            nn.Linear0(STATE_DIM, ACTION_DIM)
+            nn.Linear0(STATE_DIM, ACTION_DIM * 2)
         )
         self.optimizer = torch.optim.RMSprop(self.model.parameters(), lr=0.01)
         self.space = Box(np.array([-1, -1, -1]), np.array([1, 1, 1]))
-        self.policy = DeterministicPolicy(
+        self.policy = SoftDeterministicPolicy(
             self.model,
             self.optimizer,
             self.space
@@ -27,11 +26,14 @@ class TestDeterministic(unittest.TestCase):
 
     def test_output_shape(self):
         state = State(torch.randn(1, STATE_DIM))
-        action = self.policy(state)
+        action, log_prob = self.policy(state)
         self.assertEqual(action.shape, (1, ACTION_DIM))
+        self.assertEqual(log_prob.shape, torch.Size([1]))
+
         state = State(torch.randn(5, STATE_DIM))
-        action = self.policy(state)
+        action, log_prob = self.policy(state)
         self.assertEqual(action.shape, (5, ACTION_DIM))
+        self.assertEqual(log_prob.shape, torch.Size([5]))
 
     def test_step_one(self):
         state = State(torch.randn(1, STATE_DIM))
@@ -43,40 +45,24 @@ class TestDeterministic(unittest.TestCase):
         target = torch.tensor([0.25, 0.5, -0.5])
 
         for _ in range(0, 200):
-            action = self.policy(state)
+            action, _ = self.policy(state)
             loss = ((target - action) ** 2).mean()
             loss.backward()
             self.policy.step()
 
-        self.assertLess(loss, 0.001)
+        self.assertLess(loss, 0.2)
 
-    def test_target(self):
-        self.policy = DeterministicPolicy(
+    def test_scaling(self):
+        self.space = Box(np.array([-10, -5, 100]), np.array([10, -2, 200]))
+        self.policy = SoftDeterministicPolicy(
             self.model,
             self.optimizer,
-            self.space,
-            target=FixedTarget(3)
+            self.space
         )
-        state = State(torch.ones(1, STATE_DIM))
-
-        # run update step, make sure target network doesn't change
-        self.policy(state).sum().backward()
-        self.policy.step()
-        tt.assert_equal(self.policy.target(state), torch.zeros(1, ACTION_DIM))
-
-        # again...
-        self.policy(state).sum().backward()
-        self.policy.step()
-        tt.assert_equal(self.policy.target(state), torch.zeros(1, ACTION_DIM))
-
-        # third time, target should be updated
-        self.policy(state).sum().backward()
-        self.policy.step()
-        tt.assert_allclose(
-            self.policy.target(state),
-            torch.tensor([[-0.574482, -0.574482, -0.574482]]),
-            atol=1e-4,
-        )
+        state = State(torch.randn(1, STATE_DIM))
+        action, log_prob = self.policy(state)
+        tt.assert_allclose(action, torch.tensor([[-3.09055, -4.752777, 188.98222]]))
+        tt.assert_allclose(log_prob, torch.tensor([-0.397002]), rtol=1e-4)
 
 if __name__ == '__main__':
     unittest.main()

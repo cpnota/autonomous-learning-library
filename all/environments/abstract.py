@@ -41,14 +41,11 @@ class Environment(ABC):
 
         Returns
         -------
-        State
-            The state of the environment after the action is applied
+        all.environments.State
+            The State of the environment after the action is applied.
+            This State object includes both the done flag and any additional "info"
         float
             The reward achieved by the previous action
-        done
-            True if the environment has entered a terminal state and should be reset
-        info
-            Diagnostic information useful for debugging
         """
 
     @abstractmethod

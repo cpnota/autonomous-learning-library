@@ -39,10 +39,10 @@ class TestVNetwork(unittest.TestCase):
             mask=torch.tensor([1, 1, 0, 1, 0, 0])
         )
         result1 = self.v(states[0:2])
-        result2 = self.v(states[2:4])
-        result3 = self.v(states[4:6])
         self.v.reinforce(loss(result1, torch.tensor([1, 2])).float())
+        result2 = self.v(states[2:4])
         self.v.reinforce(loss(result2, torch.tensor([1, 1])).float())
+        result3 = self.v(states[4:6])
         self.v.reinforce(loss(result3, torch.tensor([1, 2])).float())
         with self.assertRaises(Exception):
             self.v.reinforce(loss(result3, torch.tensor([1, 2])).float())

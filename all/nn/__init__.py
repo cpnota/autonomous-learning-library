@@ -10,7 +10,6 @@ class RLNetwork(nn.Module):
     """
     Wraps a network such that States can be given as input.
     """
-
     def __init__(self, model, _=None):
         super().__init__()
         self.model = model
@@ -20,7 +19,7 @@ class RLNetwork(nn.Module):
         return self.model(state.features.float()) * state.mask.float().unsqueeze(-1)
 
 class Aggregation(nn.Module):
-    """len()
+    """
     Aggregation layer for the Dueling architecture.
 
     https://arxiv.org/abs/1511.06581
