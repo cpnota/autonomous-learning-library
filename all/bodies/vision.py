@@ -20,7 +20,7 @@ class FrameStack(Body):
 
 class LazyState(State):
     def __init__(self, state, frames):
-        super().__init__(state)
+        super().__init__(state, device=state.device)
         self['observation'] = frames
 
     def __getitem__(self, key):

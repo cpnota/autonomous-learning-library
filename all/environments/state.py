@@ -44,7 +44,7 @@ class State(dict):
             if not k == key:
                 x[k] = super().__getitem__(k)
         x[key] = value
-        return State(x)
+        return self.__class__(x, device=self.device)
 
     @classmethod
     def from_gym(cls, state, device='cpu', dtype=np.float32):
@@ -54,16 +54,16 @@ class State(dict):
                     np.array(
                         state,
                         dtype=dtype
-                    )
+                    ),
                 ).unsqueeze(0).to(device)
-            })
+            }, device=device)
 
         observation, reward, done, info = state
         observation = torch.from_numpy(
             np.array(
                 observation,
                 dtype=dtype
-            )
+            ),
         ).unsqueeze(0).to(device)
         # mask = DONE.to(device) if done else NOT_DONE.to(device)
         x = {
@@ -74,7 +74,7 @@ class State(dict):
         info = info if info else {}
         for key in info:
             x[key] = info[key]
-        return State(x)
+        return State(x, device=device)
 
     @property
     def observation(self):
