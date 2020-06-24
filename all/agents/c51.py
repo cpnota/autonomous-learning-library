@@ -53,14 +53,14 @@ class C51(Agent):
         self._action = None
         self._frames_seen = 0
 
-    def act(self, state, reward):
-        self.replay_buffer.store(self._state, self._action, reward, state)
+    def act(self, state):
+        self.replay_buffer.store(self._state, self._action, state.reward, state)
         self._train()
         self._state = state
         self._action = self._choose_action(state)
         return self._action
 
-    def eval(self, state, _):
+    def eval(self, state):
         return self._best_actions(self.q_dist.eval(state))
 
     def _choose_action(self, state):
