@@ -34,6 +34,14 @@ class State(dict):
                 return torch.tensor(value, device=self.device)
         return value
 
+    def update(self, key, value):
+        x = {}
+        for k in self.keys():
+            if not k == key:
+                x[k] = super().__getitem__(k)
+        x[key] = value
+        return State(x)
+
     @classmethod
     def from_gym(cls, state, device='cpu', dtype=np.float32):
         if not isinstance(state, tuple):
@@ -100,7 +108,7 @@ class State(dict):
         )
 
     def __len__(self):
-        return len(self._raw)
+        return len(self.observation)
 
 DONE = torch.tensor(
     [0],
