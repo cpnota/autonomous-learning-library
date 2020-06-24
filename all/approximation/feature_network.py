@@ -30,11 +30,12 @@ class FeatureNetwork(Approximation):
             all.environment.State: An enviornment State with the computed features
         '''
         features = self.model(states)
-        graphs = features.raw
+        graphs = features.observation
         # pylint: disable=protected-access
-        features._raw = graphs.detach()
-        features._raw.requires_grad = True
-        self._enqueue(graphs, features._raw)
+        observation = graphs.detach()
+        observation.requires_grad = True
+        features['observation'] = observation
+        self._enqueue(graphs, observation)
         return features
 
     def reinforce(self):
@@ -66,9 +67,5 @@ class FeatureModule(torch.nn.Module):
         self.model = model
 
     def forward(self, states):
-        features = self.model(states.features.float())
-        return State(
-            features,
-            mask=states.mask,
-            info=states.info
-        )
+        features = self.model(states.observation.float())
+        return states.update('observation', features)

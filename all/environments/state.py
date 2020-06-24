@@ -23,8 +23,10 @@ class State(dict):
         return State(d, device=states[0].device)
 
     def __getitem__(self, key):
+        if isinstance(key, slice):
+            return self.__class__({k:v[key] for (k, v) in self.items()}, device=self.device)
         if isinstance(key, int):
-            return # TODO
+            return self.__class__({k:v[key:key+1] for (k, v) in self.items()}, device=self.device)
         try:
             value = super().__getitem__(key)
             if torch.is_tensor(value):
