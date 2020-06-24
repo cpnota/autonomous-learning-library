@@ -54,13 +54,15 @@ class State(dict):
             )
         ).unsqueeze(0).to(device)
         # mask = DONE.to(device) if done else NOT_DONE.to(device)
-        print(info)
-        return State({
+        x = {
             'observation': observation,
             'reward': reward,
             'done': done,
-            'info': info
-        })
+        }
+        info = info if info else {}
+        for key in info:
+            x[key] = info[key]
+        return State(x)
 
     @property
     def observation(self):
@@ -71,16 +73,12 @@ class State(dict):
         return self['reward']
 
     @property
-    def mask(self):
-        return self['mask']
-
-    @property
-    def info(self):
-        return self['info']
-
-    @property
     def done(self):
         return self['done']
+
+    @property
+    def mask(self):
+        return self['mask']
 
     def __get__(self, idx):
         if isinstance(idx, slice):
