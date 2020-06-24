@@ -15,24 +15,28 @@ class State(dict):
         super().__init__(x)
         self.device = device
 
-    def from_list(self, states):
+    @classmethod
+    def from_list(cls, states):
         d = {}
-        for key in self.keys():
+        for key in states[0].keys():
             d[key] = [state[key] for state in states]
-        return State(d)
+        return State(d, device=states[0].device)
 
     def __getitem__(self, key):
         if isinstance(key, int):
             return # TODO
-        value = super().__getitem__(key)
-        if torch.is_tensor(value):
+        try:
+            value = super().__getitem__(key)
+            if torch.is_tensor(value):
+                return value
+            if isinstance(value, list):
+                if torch.is_tensor(value[0]):
+                    return torch.cat(value)
+                if isinstance(value[0], numbers.Number):
+                    return torch.tensor(value, device=self.device)
             return value
-        if isinstance(value, list):
-            if torch.is_tensor(value[0]):
-                return torch.cat(value)
-            if isinstance(value[0], numbers.Number):
-                return torch.tensor(value, device=self.device)
-        return value
+        except:
+            return None
 
     def update(self, key, value):
         x = {}

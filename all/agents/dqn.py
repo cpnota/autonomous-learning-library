@@ -39,7 +39,7 @@ class DQN(Agent):
         self.q = q
         self.policy = policy
         self.replay_buffer = replay_buffer
-        self.loss = staticmethod(loss)
+        self.loss = loss
         # hyperparameters
         self.discount_factor = discount_factor
         self.minibatch_size = minibatch_size
@@ -69,7 +69,7 @@ class DQN(Agent):
             # compute targets
             targets = rewards + self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0]
             # compute loss
-            loss = self.loss(values, targets)
+            loss = self.loss.__call__(values, targets)
             # backward pass
             self.q.reinforce(loss)
 

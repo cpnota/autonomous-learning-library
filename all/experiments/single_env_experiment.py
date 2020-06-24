@@ -80,7 +80,7 @@ class SingleEnvExperiment(Experiment):
         returns = 0
 
         # loop until the episode is finished
-        while not self._env.done:
+        while not state.done:
             if self._render:
                 self._env.render()
             state = self._env.step(action)
