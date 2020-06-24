@@ -1,64 +1,88 @@
 import numpy as np
 import torch
+import numbers
 
-class State:
-    def __init__(self, raw, mask=None, info=None):
-        self._raw = raw
+class State(dict):
+    def __init__(self, x, device='cpu'):
+        if not 'observation' in x:
+            raise Exception('State must contain an observation')
+        if not 'reward' in x:
+            x['reward'] = 0
+        if not 'done' in x:
+            x['done'] = False
+        if not 'mask' in x:
+            x['mask'] = 1 - x['done']
+        super().__init__(x)
+        self.device = device
 
-        if mask is None:
-            self._mask = torch.ones(
-                len(raw),
-                dtype=torch.uint8,
-                device=raw.device
-            )
-        else:
-            self._mask = mask
+    def from_list(self, states):
+        d = {}
+        for key in self.keys():
+            d[key] = [state[key] for state in states]
+        return State(d)
 
-        self._info = info or [None] * len(raw)
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return # TODO
+        value = super().__getitem__(key)
+        if torch.is_tensor(value):
+            return value
+        if isinstance(value, list):
+            if torch.is_tensor(value[0]):
+                return torch.cat(value)
+            if isinstance(value[0], numbers.Number):
+                return torch.tensor(value, device=self.device)
+        return value
 
     @classmethod
-    def from_list(cls, states):
-        raw = torch.cat([state.features for state in states])
-        done = torch.cat([state.mask for state in states])
-        info = sum([state.info for state in states], [])
-        return cls(raw, done, info)
+    def from_gym(cls, state, device='cpu', dtype=np.float32):
+        if not isinstance(state, tuple):
+            return State({
+                'observation': torch.from_numpy(
+                    np.array(
+                        state,
+                        dtype=dtype
+                    )
+                ).unsqueeze(0).to(device)
+            })
 
-    @classmethod
-    def from_gym(cls, numpy_arr, done, info, device='cpu', dtype=np.float32):
-        raw = torch.from_numpy(
+        observation, reward, done, info = state
+        observation = torch.from_numpy(
             np.array(
-                numpy_arr,
+                observation,
                 dtype=dtype
             )
         ).unsqueeze(0).to(device)
-        mask = DONE.to(device) if done else NOT_DONE.to(device)
-        return cls(raw, mask=mask, info=[info])
+        # mask = DONE.to(device) if done else NOT_DONE.to(device)
+        print(info)
+        return State({
+            'observation': observation,
+            'reward': reward,
+            'done': done,
+            'info': info
+        })
 
     @property
-    def features(self):
-        '''
-        Default features are the raw state.
-        Override this method for other types of features.
-        '''
-        return self._raw
+    def observation(self):
+        return self['observation']
+
+    @property
+    def reward(self):
+        return self['reward']
 
     @property
     def mask(self):
-        return self._mask
+        return self['mask']
 
     @property
     def info(self):
-        return self._info
-
-    @property
-    def raw(self):
-        return self._raw
+        return self['info']
 
     @property
     def done(self):
-        return not self._mask
+        return self['done']
 
-    def __getitem__(self, idx):
+    def __get__(self, idx):
         if isinstance(idx, slice):
             return State(
                 self._raw[idx],

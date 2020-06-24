@@ -18,30 +18,17 @@ class GymEnvironment(Environment):
         self._info = None
         self._device = device
 
-        # lazy init for slurm
-        self._init = False
-        self._done_mask = None
-        self._not_done_mask = None
-
     @property
     def name(self):
         return self._name
 
     def reset(self):
-        self._lazy_init()
-        state = self._env.reset()
-        self._state = self._make_state(state, 0)
-        self._reward = 0
-        self._done = False
+        self._state = State.from_gym(self._env.reset(), device=self._device)
         return self._state
 
     def step(self, action):
-        state, reward, done, info = self._env.step(self._convert(action))
-        self._state = self._make_state(state, done, info)
-        self._action = action
-        self._reward = reward
-        self._done = done
-        return self._state, self._reward
+        self._state = State.from_gym(self._env.step(self._convert(action)), device=self._device)
+        return self._state
 
     def render(self, **kwargs):
         return self._env.render(**kwargs)
@@ -68,22 +55,6 @@ class GymEnvironment(Environment):
         return self._state
 
     @property
-    def action(self):
-        return self._action
-
-    @property
-    def reward(self):
-        return self._reward
-
-    @property
-    def done(self):
-        return self._done
-
-    @property
-    def info(self):
-        return self._state.info
-
-    @property
     def env(self):
         return self._env
 
@@ -91,38 +62,11 @@ class GymEnvironment(Environment):
     def device(self):
         return self._device
 
-    def _lazy_init(self):
-        if not self._init:
-            # predefining these saves performance on tensor creation
-            # it actually makes a noticable difference :p
-            self._done_mask = torch.tensor(
-                [0],
-                dtype=torch.uint8,
-                device=self._device
-            )
-            self._not_done_mask = torch.tensor(
-                [1],
-                dtype=torch.uint8,
-                device=self._device
-            )
-            self._init = True
-
-    def _make_state(self, raw, done, info=None):
-        '''Convert numpy array into State'''
-        return State(
-            torch.from_numpy(
-                np.array(
-                    raw,
-                    dtype=self.state_space.dtype
-                )
-            ).unsqueeze(0).to(self._device),
-            self._done_mask if done else self._not_done_mask,
-            [info]
-        )
-
     def _convert(self, action):
-        if isinstance(self.action_space, gym.spaces.Discrete):
-            return action.item()
-        if isinstance(self.action_space, gym.spaces.Box):
-            return action.cpu().detach().numpy().reshape(-1)
-        raise TypeError("Unknown action space type")
+        if torch.is_tensor(action):
+            if isinstance(self.action_space, gym.spaces.Discrete):
+                return action.item()
+            if isinstance(self.action_space, gym.spaces.Box):
+                return action.cpu().detach().numpy().reshape(-1)
+            raise TypeError("Unknown action space type")
+        return action
