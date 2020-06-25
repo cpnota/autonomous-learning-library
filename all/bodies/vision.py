@@ -15,13 +15,15 @@ class FrameStack(Body):
         else:
             self._frames = self._frames[1:] + [state.observation]
         if self._lazy:
-            return LazyState(state, self._frames)
+            return LazyState.from_state(state, self._frames)
         return state.update('observation', torch.cat(self._frames, dim=1))
 
 class LazyState(State):
-    def __init__(self, state, frames):
-        super().__init__(state, device=state.device)
-        self['observation'] = frames
+    @classmethod
+    def from_state(cls, state, frames):
+        state = LazyState(state, device=state.device)
+        state['observation'] = frames
+        return state
 
     def __getitem__(self, key):
         if key == 'observation':
