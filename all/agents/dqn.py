@@ -69,7 +69,7 @@ class DQN(Agent):
             # compute targets
             targets = rewards + self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0]
             # compute loss
-            loss = self.loss.__call__(values, targets)
+            loss = self.loss(values, targets)
             # backward pass
             self.q.reinforce(loss)
 

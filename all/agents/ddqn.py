@@ -38,7 +38,7 @@ class DDQN(Agent):
         self.q = q
         self.policy = policy
         self.replay_buffer = replay_buffer
-        self.loss = staticmethod(loss)
+        self.loss = loss
         # hyperparameters
         self.replay_start_size = replay_start_size
         self.update_frequency = update_frequency

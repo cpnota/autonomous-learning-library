@@ -52,7 +52,7 @@ class ExperienceReplayBuffer(ReplayBuffer):
         states = State.from_list([sample[0] for sample in minibatch])
         actions = torch.cat([sample[1] for sample in minibatch])
         next_states = State.from_list([sample[2] for sample in minibatch])
-        return (states, actions, next_states, weights)
+        return (states, actions, next_states.reward, next_states, weights)
 
     def __len__(self):
         return len(self.buffer)
@@ -174,7 +174,7 @@ class NStepReplayBuffer(ReplayBuffer):
             self._reward = 0.
 
     def _store_next(self, next_state):
-        self.buffer.store(self._states[0].update('reward', self._reward), self._actions[0], next_state)
+        self.buffer.store(self._states[0], self._actions[0], next_state.update('reward', self._reward))
         self._reward = self._reward -  self._rewards[0]
         self._reward *= self.discount_factor ** -1
         del self._states[0]
