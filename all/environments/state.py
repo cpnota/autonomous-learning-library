@@ -7,11 +7,11 @@ class State(dict):
         if not 'observation' in x:
             raise Exception('State must contain an observation')
         if not 'reward' in x:
-            x['reward'] = 0
+            x['reward'] = 0.
         if not 'done' in x:
             x['done'] = False
         if not 'mask' in x:
-            x['mask'] = 1 - x['done']
+            x['mask'] = 1. - x['done']
         super().__init__(x)
         self.device = device
 
@@ -27,18 +27,35 @@ class State(dict):
             return self.__class__({k:v[key] for (k, v) in self.items()}, device=self.device)
         if isinstance(key, int):
             return self.__class__({k:v[key:key+1] for (k, v) in self.items()}, device=self.device)
+        if torch.is_tensor(key):
+            # some things may get los
+            d = {}
+            for (k, v) in self.items():
+                try:
+                    d[k] = v[key]
+                except:
+                    pass
+            return self.__class__(d, device=self.device)
         try:
             value = super().__getitem__(key)
-            if torch.is_tensor(value):
-                return value
-            if isinstance(value, list):
+        except KeyError:
+            return None
+        if torch.is_tensor(value):
+            return value
+        if isinstance(value, list):
+            try:
                 if torch.is_tensor(value[0]):
                     return torch.cat(value)
                 if isinstance(value[0], numbers.Number):
                     return torch.tensor(value, device=self.device)
-            return value
-        except:
-            return None
+            except:
+                return value
+        return value
+
+    def flatten(self):
+        for k in self.keys():
+            self[k] = self[k]
+        return self
 
     def update(self, key, value):
         x = {}
@@ -70,7 +87,7 @@ class State(dict):
         # mask = DONE.to(device) if done else NOT_DONE.to(device)
         x = {
             'observation': observation,
-            'reward': reward,
+            'reward': float(reward),
             'done': done,
         }
         info = info if info else {}
@@ -93,25 +110,6 @@ class State(dict):
     @property
     def mask(self):
         return self['mask']
-
-    def __get__(self, idx):
-        if isinstance(idx, slice):
-            return State(
-                self._raw[idx],
-                self._mask[idx],
-                self._info[idx]
-            )
-        if isinstance(idx, torch.Tensor):
-            return State(
-                self._raw[idx],
-                self._mask[idx],
-                # can't copy info
-            )
-        return State(
-            self._raw[idx].unsqueeze(0),
-            self._mask[idx].unsqueeze(0),
-            [self._info[idx]]
-        )
 
     def __len__(self):
         return len(self.observation)

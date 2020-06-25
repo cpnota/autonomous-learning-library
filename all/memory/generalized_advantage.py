@@ -53,9 +53,8 @@ class GeneralizedAdvantageBuffer:
         td_errors = rewards + self.gamma * next_values - values
         advantages = self._compute_advantages(td_errors)
         self._clear_buffers()
-
         return (
-            states[0:self._batch_size],
+            states[0:self.n_steps].flatten(),
             actions,
             advantages
         )
