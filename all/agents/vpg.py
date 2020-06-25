@@ -43,21 +43,21 @@ class VPG(Agent):
         self._log_pis = []
         self._rewards = []
 
-    def act(self, state, reward):
+    def act(self, state):
         if not self._features:
             return self._initial(state)
         if not state.done:
-            return self._act(state, reward)
-        return self._terminal(state, reward)
+            return self._act(state, state.reward)
+        return self._terminal(state, state.reward)
 
-    def eval(self, state, _):
+    def eval(self, state):
         return self.policy.eval(self.features.eval(state))
 
     def _initial(self, state):
         features = self.features(state)
         distribution = self.policy(features)
         action = distribution.sample()
-        self._features = [features.features]
+        self._features = [features.observation]
         self._log_pis.append(distribution.log_prob(action))
         return action
 
@@ -65,7 +65,7 @@ class VPG(Agent):
         features = self.features(state)
         distribution = self.policy(features)
         action = distribution.sample()
-        self._features.append(features.features)
+        self._features.append(features.observation)
         self._rewards.append(reward)
         self._log_pis.append(distribution.log_prob(action))
         return action
