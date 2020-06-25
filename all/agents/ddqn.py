@@ -49,14 +49,14 @@ class DDQN(Agent):
         self._action = None
         self._frames_seen = 0
 
-    def act(self, state, reward):
-        self.replay_buffer.store(self._state, self._action, reward, state)
+    def act(self, state):
+        self.replay_buffer.store(self._state, self._action, state)
         self._train()
         self._state = state
         self._action = self.policy.no_grad(state)
         return self._action
 
-    def eval(self, state, _):
+    def eval(self, state):
         return self.policy.eval(state)
 
     def _train(self):

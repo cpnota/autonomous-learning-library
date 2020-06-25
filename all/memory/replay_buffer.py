@@ -28,9 +28,9 @@ class ExperienceReplayBuffer(ReplayBuffer):
         self.pos = 0
         self.device = device
 
-    def store(self, state, action, reward, next_state):
+    def store(self, state, action, next_state):
         if state is not None and not state.done:
-            self._add((state, action, reward, next_state))
+            self._add((state, action, next_state))
 
     def sample(self, batch_size):
         keys = np.random.choice(len(self.buffer), batch_size, replace=True)
@@ -51,9 +51,8 @@ class ExperienceReplayBuffer(ReplayBuffer):
         State = minibatch[0][0].__class__
         states = State.from_list([sample[0] for sample in minibatch])
         actions = torch.cat([sample[1] for sample in minibatch])
-        rewards = torch.tensor([sample[2] for sample in minibatch], device=self.device).float()
-        next_states = State.from_list([sample[3] for sample in minibatch])
-        return (states, actions, rewards, next_states, weights)
+        next_states = State.from_list([sample[2] for sample in minibatch])
+        return (states, actions, next_states, weights)
 
     def __len__(self):
         return len(self.buffer)
@@ -86,11 +85,11 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
         self._epsilon = epsilon
         self._cache = None
 
-    def store(self, state, action, reward, next_state):
+    def store(self, state, action, next_state):
         if state is None or state.done:
             return
         idx = self.pos
-        super()._add((state, action, reward, next_state))
+        super()._add((state, action, next_state))
         self._it_sum[idx] = self._max_priority ** self._alpha
         self._it_min[idx] = self._max_priority ** self._alpha
 
@@ -157,25 +156,25 @@ class NStepReplayBuffer(ReplayBuffer):
         self._rewards = []
         self._reward = 0.
 
-    def store(self, state, action, reward, next_state):
+    def store(self, state, action, next_state):
         if state is None or state.done:
             return
 
         self._states.append(state)
         self._actions.append(action)
-        self._rewards.append(reward)
-        self._reward += (self.discount_factor ** (len(self._states) - 1)) * reward
+        self._rewards.append(next_state.reward)
+        self._reward += (self.discount_factor ** (len(self._states) - 1)) * next_state.reward
 
         if len(self._states) == self.steps:
             self._store_next(next_state)
 
-        if not next_state.mask[0]:
+        if next_state.done:
             while self._states:
                 self._store_next(next_state)
             self._reward = 0.
 
     def _store_next(self, next_state):
-        self.buffer.store(self._states[0], self._actions[0], self._reward, next_state)
+        self.buffer.store(self._states[0].update('reward', self._reward), self._actions[0], next_state)
         self._reward = self._reward -  self._rewards[0]
         self._reward *= self.discount_factor ** -1
         del self._states[0]
