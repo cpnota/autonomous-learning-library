@@ -86,10 +86,14 @@ class State(dict):
     def mask(self):
         return self['mask']
 
+    def __len__(self):
+        return 1
+
 class StateList(State):
     def __init__(self, list_of_states, device=None):
         device = device if device else list_of_states[0].device
         x = {}
+        self._len = len(list_of_states)
         for key in list_of_states[0].keys():
             v = list_of_states[0][key]
             try:
@@ -135,10 +139,10 @@ class StateList(State):
         return self['mask']
 
     def __getitem__(self, key):
-        if isinstance(key, slice):
-            return self.__class__({k:v[key] for (k, v) in self.items()}, device=self.device)
-        if isinstance(key, int):
-            return self.__class__({k:v[key] for (k, v) in self.items()}, device=self.device)
+        # if isinstance(key, slice):
+        #     return self.__class__({k:v[key] for (k, v) in self.items()}, device=self.device)
+        # if isinstance(key, int):
+        #     return self.__class__({k:v[key] for (k, v) in self.items()}, device=self.device)
         if torch.is_tensor(key):
             # some things may get los
             d = {}
@@ -153,3 +157,6 @@ class StateList(State):
         except KeyError:
             return None
         return value
+
+    def __len__(self):
+        return self._len

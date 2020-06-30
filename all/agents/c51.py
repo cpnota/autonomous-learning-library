@@ -61,14 +61,12 @@ class C51(Agent):
         return self._action
 
     def eval(self, state):
-        return self._best_actions(self.q_dist.eval(state))
+        return self._best_actions(self.q_dist.eval(state)).item()
 
     def _choose_action(self, state):
         if self._should_explore():
-            return torch.randint(
-                self.q_dist.n_actions, (len(state),), device=self.q_dist.device
-            )
-        return self._best_actions(self.q_dist.no_grad(state))
+            return np.random.randint(0, self.q_dist.n_actions)
+        return self._best_actions(self.q_dist.no_grad(state)).item()
 
     def _should_explore(self):
         return (
@@ -77,8 +75,8 @@ class C51(Agent):
         )
 
     def _best_actions(self, probs):
-        q_values = (probs * self.q_dist.atoms).sum(dim=2)
-        return torch.argmax(q_values, dim=1)
+        q_values = (probs * self.q_dist.atoms).sum(dim=-1)
+        return torch.argmax(q_values, dim=-1)
 
     def _train(self):
         if self._should_train():
