@@ -19,6 +19,12 @@ class State(dict):
     def from_list(cls, states):
         return StateList(states)
 
+    def apply(self, model, *keys):
+        return self.apply_mask(model(*[self.as_input(key) for key in keys])).squeeze(0)
+
+    def as_input(self, key):
+        return self[key].unsqueeze(0)
+
     def apply_mask(self, tensor):
         return tensor * self.mask
 
@@ -102,6 +108,12 @@ class StateList(State):
                 x[k] = super().__getitem__(k)
         x[key] = value
         return self.__class__(x, device=self.device)
+
+    def apply(self, model, *keys):
+        return self.apply_mask(model(*[self.as_input(key) for key in keys])).squeeze(0)
+
+    def as_input(self, key):
+        return self[key]
 
     def apply_mask(self, tensor):
         return tensor * self['mask'].unsqueeze(-1)

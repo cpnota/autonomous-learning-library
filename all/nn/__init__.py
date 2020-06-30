@@ -16,10 +16,7 @@ class RLNetwork(nn.Module):
         self.device = next(model.parameters()).device
 
     def forward(self, state):
-        mask = state.mask
-        if torch.is_tensor(mask):
-            return self.model(state.observation.float()) * mask.float().unsqueeze(-1)
-        return self.model(state.observation.float()) * mask
+        return state.apply(self.model, 'observation')
 
 class Aggregation(nn.Module):
     """
