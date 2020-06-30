@@ -17,40 +17,10 @@ class State(dict):
 
     @classmethod
     def from_list(cls, states):
-        d = {}
-        for key in states[0].keys():
-            d[key] = [state[key] for state in states]
-        return State(d, device=states[0].device)
+        return StateList(states)
 
-    def __getitem__(self, key):
-        if isinstance(key, slice):
-            return self.__class__({k:v[key] for (k, v) in self.items()}, device=self.device)
-        if isinstance(key, int):
-            return self.__class__({k:v[key:key+1] for (k, v) in self.items()}, device=self.device)
-        if torch.is_tensor(key):
-            # some things may get los
-            d = {}
-            for (k, v) in self.items():
-                try:
-                    d[k] = v[key]
-                except:
-                    pass
-            return self.__class__(d, device=self.device)
-        try:
-            value = super().__getitem__(key)
-        except KeyError:
-            return None
-        if torch.is_tensor(value):
-            return value
-        if isinstance(value, list):
-            try:
-                if torch.is_tensor(value[0]):
-                    return torch.cat(value)
-                if isinstance(value[0], numbers.Number):
-                    return torch.tensor(value, device=self.device)
-            except:
-                return value
-        return value
+    def apply_mask(self, tensor):
+        return tensor * self.mask
 
     def flatten(self):
         for k in self.keys():
@@ -74,7 +44,7 @@ class State(dict):
                         state,
                         dtype=dtype
                     ),
-                ).unsqueeze(0).to(device)
+                ).to(device)
             }, device=device)
 
         observation, reward, done, info = state
@@ -83,8 +53,7 @@ class State(dict):
                 observation,
                 dtype=dtype
             ),
-        ).unsqueeze(0).to(device)
-        # mask = DONE.to(device) if done else NOT_DONE.to(device)
+        ).to(device)
         x = {
             'observation': observation,
             'reward': float(reward),
@@ -111,15 +80,64 @@ class State(dict):
     def mask(self):
         return self['mask']
 
-    def __len__(self):
-        return len(self.observation)
+class StateList(State):
+    def __init__(self, list_of_states, device=None):
+        device = device if device else list_of_states[0].device
+        x = {}
+        for key in list_of_states[0].keys():
+            v = list_of_states[0][key]
+            try:
+                if torch.is_tensor(v):
+                    x[key] = torch.stack([state[key] for state in list_of_states])
+                else:
+                    x[key] = torch.tensor([state[key] for state in list_of_states], device=device)
+            except:
+                pass
+        super().__init__(x, device=device)
 
-DONE = torch.tensor(
-    [0],
-    dtype=torch.uint8,
-)
+    def update(self, key, value):
+        x = {}
+        for k in self.keys():
+            if not k == key:
+                x[k] = super().__getitem__(k)
+        x[key] = value
+        return self.__class__(x, device=self.device)
 
-NOT_DONE = torch.tensor(
-    [1],
-    dtype=torch.uint8,
-)
+    def apply_mask(self, tensor):
+        return tensor * self['mask'].unsqueeze(-1)
+
+    @property
+    def observation(self):
+        return self['observation']
+
+    @property
+    def reward(self):
+        return self['reward']
+
+    @property
+    def done(self):
+        return self['done']
+
+    @property
+    def mask(self):
+        return self['mask']
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return self.__class__({k:v[key] for (k, v) in self.items()}, device=self.device)
+        if isinstance(key, int):
+            return self.__class__({k:v[key] for (k, v) in self.items()}, device=self.device)
+        if torch.is_tensor(key):
+            # some things may get los
+            d = {}
+            for (k, v) in self.items():
+                try:
+                    d[k] = v[key]
+                except:
+                    pass
+            return self.__class__(d, device=self.device)
+        try:
+            value = super().__getitem__(key)
+        except KeyError:
+            return None
+        return value
