@@ -57,7 +57,7 @@ class VPG(Agent):
         features = self.features(state)
         distribution = self.policy(features)
         action = distribution.sample()
-        self._features = [features.observation]
+        self._features = [features]
         self._log_pis.append(distribution.log_prob(action))
         return action
 
@@ -65,16 +65,16 @@ class VPG(Agent):
         features = self.features(state)
         distribution = self.policy(features)
         action = distribution.sample()
-        self._features.append(features.observation)
+        self._features.append(features)
         self._rewards.append(reward)
         self._log_pis.append(distribution.log_prob(action))
         return action
 
     def _terminal(self, state, reward):
         self._rewards.append(reward)
-        features = torch.cat(self._features)
+        features = State.from_list(self._features)
         rewards = torch.tensor(self._rewards, device=features.device)
-        log_pis = torch.cat(self._log_pis)
+        log_pis = torch.stack(self._log_pis)
         self._trajectories.append((features, rewards, log_pis))
         self._current_batch_size += len(features)
         self._features = []
@@ -90,7 +90,7 @@ class VPG(Agent):
     def _train(self):
         # forward pass
         values = torch.cat([
-            self.v(State(features))
+            self.v(features)
             for (features, _, _)
             in self._trajectories
         ])

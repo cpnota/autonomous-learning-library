@@ -67,5 +67,5 @@ class FeatureModule(torch.nn.Module):
         self.model = model
 
     def forward(self, states):
-        features = states.apply(self.model, 'observation')
+        features = states.as_output(self.model(states.as_input('observation')))
         return states.update('observation', features)
