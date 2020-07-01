@@ -46,17 +46,22 @@ class GeneralizedAdvantageBuffer:
         self._states.append(states)
         states = State.from_list(self._states[0:self.n_steps + 1])
         actions = torch.cat(self._actions[:self.n_steps], dim=0)
-        rewards = torch.stack(self._rewards[:self.n_steps]).view(self.n_steps, -1)
-        _values = self.v.target(self.features.target(states)).view((self.n_steps + 1, -1))
+        rewards = torch.stack(self._rewards[:self.n_steps])
+        _values = self.v.target(self.features.target(states))
         values = _values[0:self.n_steps]
-        next_values = _values[1:self.n_steps + 1]
+        next_values = _values[1:]
+        # print('_values', _values.shape)
+        # print('values', values.shape)
+        # print('next_values', next_values.shape)
+        # print('rewards', rewards.shape)
         td_errors = rewards + self.gamma * next_values - values
         advantages = self._compute_advantages(td_errors)
+        # print('advantages', advantages.shape)
         self._clear_buffers()
         return (
-            states[0:self.n_steps].flatten(),
+            states[0:-1].flatten(),
             actions,
-            advantages
+            advantages.view(-1)
         )
 
     def _compute_advantages(self, td_errors):
@@ -71,7 +76,7 @@ class GeneralizedAdvantageBuffer:
             current_advantages = td_errors[t] + self.gamma * self.lam * current_advantages * mask
             advantages[t] = current_advantages
 
-        return advantages.view(-1)
+        return advantages
 
     def _clear_buffers(self):
         self._states = []

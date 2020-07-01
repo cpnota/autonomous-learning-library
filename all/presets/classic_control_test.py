@@ -16,7 +16,7 @@ from all.presets.classic_control import (
 
 
 class TestClassicControlPresets(unittest.TestCase):
-    def test_a2c_(self):
+    def test_a2c(self):
         self.validate(a2c())
 
     def test_c51(self):
