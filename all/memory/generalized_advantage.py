@@ -1,5 +1,5 @@
 import torch
-from all.environments import State
+from all.core import State
 
 class GeneralizedAdvantageBuffer:
     def __init__(

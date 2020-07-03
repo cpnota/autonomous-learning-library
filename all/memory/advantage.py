@@ -1,5 +1,5 @@
 import torch
-from all.environments import State
+from all.core import State
 
 class NStepAdvantageBuffer:
     def __init__(self, v, features, n_steps, n_envs, discount_factor=1):

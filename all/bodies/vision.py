@@ -1,5 +1,5 @@
 import torch
-from all.environments import State
+from all.core import State
 from ._body import Body
 
 class FrameStack(Body):

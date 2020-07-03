@@ -3,7 +3,7 @@ import torch
 from torch import nn
 import torch_testing as tt
 from all.approximation.v_network import VNetwork
-from all.environments import State
+from all.core import State
 
 STATE_DIM = 2
 

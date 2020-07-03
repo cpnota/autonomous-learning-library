@@ -2,7 +2,7 @@
 from timeit import default_timer as timer
 import torch
 import numpy as np
-from all.environments import State
+from all.core import State
 from .writer import ExperimentWriter
 from .experiment import Experiment
 

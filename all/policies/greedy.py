@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from all.optim import Schedulable
-from all.environments.state import StateList
+from all.core import StateList
 
 class GreedyPolicy(Schedulable):
     '''

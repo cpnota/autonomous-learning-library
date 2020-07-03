@@ -3,7 +3,7 @@ import random
 import torch
 import numpy as np
 import torch_testing as tt
-from all.environments import State
+from all.core import State
 from all.memory import (
     ExperienceReplayBuffer,
     PrioritizedReplayBuffer,

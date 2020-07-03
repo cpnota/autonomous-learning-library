@@ -1,6 +1,6 @@
 import torch
 from torch.nn.functional import mse_loss
-from all.environments import State
+from all.core import State
 from ._agent import Agent
 
 class VPG(Agent):

@@ -4,7 +4,7 @@ from torch import nn
 from torch.nn.functional import smooth_l1_loss
 import torch_testing as tt
 import numpy as np
-from all.environments import State
+from all.core import State
 from all.approximation import QNetwork, FixedTarget
 
 STATE_DIM = 2

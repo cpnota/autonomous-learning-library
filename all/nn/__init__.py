@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import *  # export everthing
 from torch.nn import functional as F
 import numpy as np
-from all.environments import State
+from all.core import State
 
 
 class RLNetwork(nn.Module):

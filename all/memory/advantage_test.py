@@ -2,7 +2,7 @@ import unittest
 import torch
 import torch_testing as tt
 from all import nn
-from all.environments import State
+from all.core import State
 from all.approximation import VNetwork, FeatureNetwork
 from all.memory import NStepAdvantageBuffer
 

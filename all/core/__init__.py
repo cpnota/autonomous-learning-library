@@ -2,6 +2,8 @@ import numpy as np
 import torch
 import numbers
 
+__all__ = ['State', 'StateList']
+
 class State(dict):
     def __init__(self, x, device='cpu'):
         if not 'observation' in x:

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import torch
-from all.environments import State
+from all.core import State
 from all.optim import Schedulable
 from .segment_tree import SumSegmentTree, MinSegmentTree
 

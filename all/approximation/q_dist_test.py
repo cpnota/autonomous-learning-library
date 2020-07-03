@@ -2,7 +2,7 @@ import unittest
 import torch
 from torch import nn
 import torch_testing as tt
-from all.environments import State
+from all.core import State
 from all.approximation import QDist
 
 STATE_DIM = 1
