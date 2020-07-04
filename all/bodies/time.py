@@ -13,7 +13,7 @@ class TimeFeature(Body):
             if self.timestep is None:
                 self.timestep = torch.zeros(state.shape, device=state.device)
             observation = torch.cat((state.observation, self.scale * self.timestep.view(-1, 1)), dim=1)
-            state = state.update('timestep', self.timestep * self.scale)
+            state = state.update('observation', observation)
             self.timestep = state.mask.float() * (self.timestep + 1)
             return state
 

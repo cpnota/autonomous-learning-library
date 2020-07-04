@@ -48,7 +48,7 @@ class GaussianPolicyNetwork(RLNetwork):
     def forward(self, state):
         outputs = super().forward(state)
         action_dim = outputs.shape[1] // 2
-        means = self._squash(torch.tanh(outputs[:, 0:action_dim]))
+        means = self._squash(outputs[:, 0:action_dim])
 
         if not self.training:
             return means
