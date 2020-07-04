@@ -6,7 +6,7 @@ class AtariEnvironmentTest(unittest.TestCase):
     def test_reset(self):
         env = AtariEnvironment('Breakout')
         state = env.reset()
-        self.assertEqual(state.observation.shape, (1, 1, 84, 84))
+        self.assertEqual(state.observation.shape, (1, 84, 84))
         self.assertEqual(state.reward, 0)
         self.assertFalse(state.done)
         self.assertEqual(state.mask, 1)
@@ -15,7 +15,7 @@ class AtariEnvironmentTest(unittest.TestCase):
         env = AtariEnvironment('Breakout')
         env.reset()
         state = env.step(1)
-        self.assertEqual(state.observation.shape, (1, 1, 84, 84))
+        self.assertEqual(state.observation.shape, (1, 84, 84))
         self.assertEqual(state.reward, 0)
         self.assertFalse(state.done)
         self.assertEqual(state.mask, 1)
@@ -29,7 +29,7 @@ class AtariEnvironmentTest(unittest.TestCase):
             state = env.step(1)
             if state['life_lost']:
                 break
-        self.assertEqual(state.observation.shape, (1, 1, 84, 84))
+        self.assertEqual(state.observation.shape, (1, 84, 84))
         self.assertEqual(state.reward, 0)
         self.assertFalse(state.done)
         self.assertEqual(state.mask, 1)
@@ -43,7 +43,7 @@ class AtariEnvironmentTest(unittest.TestCase):
             state = env.step(1)
             if state.done:
                 break
-        self.assertEqual(state.observation.shape, (1, 1, 84, 84))
+        self.assertEqual(state.observation.shape, (1, 84, 84))
         self.assertEqual(state.reward, 0)
         self.assertTrue(state.done)
         self.assertEqual(state.mask, 0)
