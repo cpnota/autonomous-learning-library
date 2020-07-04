@@ -1,4 +1,5 @@
 import torch
+from all.core import StateList
 from ._body import Body
 
 class TimeFeature(Body):
@@ -8,12 +9,17 @@ class TimeFeature(Body):
         super().__init__(agent)
 
     def process_state(self, state):
-        if self.timestep is None:
-            self.timestep = torch.zeros(len(state), device=state.device)
-        features = torch.cat((state.observation, self.scale * self.timestep.view((-1, 1))), dim=1)
-        state = state.update('observation', features)
-        if torch.is_tensor(state.mask):
+        if isinstance(state, StateList):
+            if self.timestep is None:
+                self.timestep = torch.zeros(state.shape, device=state.device)
+            observation = torch.cat((state.observation, self.scale * self.timestep.view(-1, 1)), dim=1)
+            state = state.update('timestep', self.timestep * self.scale)
             self.timestep = state.mask.float() * (self.timestep + 1)
-        else:
-            self.timestep = state.mask * (self.timestep + 1)
+            return state
+
+        if self.timestep is None:
+            self.timestep = 0
+        state.update('timestep', self.timestep)
+        observation = torch.cat((state.observation, torch.tensor(self.scale * self.timestep, device=state.device)), dim=0)
+        self.timestep = state.mask * (self.timestep + 1)
         return state

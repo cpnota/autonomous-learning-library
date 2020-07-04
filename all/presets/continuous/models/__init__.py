@@ -28,6 +28,7 @@ def fc_v(env, hidden1=400, hidden2=300):
 
 def fc_deterministic_policy(env, hidden1=400, hidden2=300):
     return nn.Sequential(
+        CatTime(),
         nn.Linear(env.state_space.shape[0] + 1, hidden1),
         nn.ReLU(),
         nn.Linear(hidden1, hidden2),
