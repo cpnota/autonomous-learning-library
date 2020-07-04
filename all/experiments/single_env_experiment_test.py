@@ -65,7 +65,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         experiment.train(episodes=3)
         np.testing.assert_equal(
             experiment._writer.data["evaluation/returns/episode"]["values"],
-            np.array([14.0, 19.0, 26.0]),
+            np.array([22.0, 20.0, 24.0]),
         )
         np.testing.assert_equal(
             experiment._writer.data["evaluation/returns/episode"]["steps"],
@@ -89,7 +89,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         )
         np.testing.assert_equal(
             experiment._writer.data["evaluation/returns-test/mean"]["steps"],
-            np.array([97.]),
+            np.array([95.]),
         )
 
     def test_writes_loss(self):
