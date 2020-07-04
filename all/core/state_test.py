@@ -17,7 +17,7 @@ class StateTest(unittest.TestCase):
     def test_from_dict(self):
         observation = torch.randn(3, 4)
         state = State({
-            'observation': observation, 
+            'observation': observation,
             'done': True,
             'mask': 1,
             'reward': 5.
@@ -106,58 +106,50 @@ class StateListTest(unittest.TestCase):
         self.assertEqual(state.done, False)
         self.assertEqual(state.reward, 0.)
 
-    def test_constructor_defaults(self):
-        raw = torch.randn(3, 4)
-        state = State(raw)
-        tt.assert_equal(state.observation, raw)
-        self.assertEqual(state.mask, 1.)
-        self.assertEqual(state.done, False)
-        self.assertEqual(state.reward, 0.)
+    def test_apply(self):
+        observation = torch.randn(3, 4)
+        state = StateList(observation, (3,))
+        model = torch.nn.Linear(4, 2)
+        output = state.apply(model, 'observation')
+        self.assertEqual(output.shape, (3, 2))
+        self.assertNotEqual(output.sum().item(), 0)
 
-    def test_custom_constructor_args(self):
-        raw = torch.randn(3, 4)
-        mask = torch.zeros(3)
-        info = ['a', 'b', 'c']
-        state = State(raw, mask=mask, info=info)
-        tt.assert_equal(state.features, raw)
-        tt.assert_equal(state.mask, torch.zeros(3))
-        self.assertEqual(state.info, info)
+    def test_apply_done(self):
+        observation = torch.randn(3, 4)
+        state = StateList(observation, (3,), mask=torch.tensor([0., 0., 0.]))
+        model = torch.nn.Linear(4, 2)
+        output = state.apply(model, 'observation')
+        self.assertEqual(output.shape, (3, 2))
+        self.assertEqual(output.sum().item(), 0)
 
-    def test_not_done(self):
-        state = State(torch.randn(1, 4))
-        self.assertFalse(state.done)
 
-    def test_done(self):
-        raw = torch.randn(1, 4)
-        state = State(raw, mask=DONE)
-        self.assertTrue(state.done)
+    def test_as_output(self):
+        observation = torch.randn(3, 4)
+        state = StateList(observation, (3,))
+        tensor = torch.randn(3, 5)
+        self.assertEqual(state.as_output(tensor).shape, (3, 5))
 
-    def test_from_list(self):
-        state1 = State(torch.randn(1, 4), mask=DONE, info=['a'])
-        state2 = State(torch.randn(1, 4), mask=NOT_DONE, info=['b'])
-        state3 = State(torch.randn(1, 4))
-        state = State.from_list([state1, state2, state3])
-        tt.assert_equal(state.raw, torch.cat((state1.raw, state2.raw, state3.raw)))
-        tt.assert_equal(state.mask, torch.tensor([0, 1, 1]))
-        self.assertEqual(state.info, ['a', 'b', None])
+    def test_auto_mask(self):
+        observation = torch.randn(3, 4)
+        state = StateList({
+            'observation': observation,
+            'done': torch.tensor([True, False, True]),
+        }, (3,))
+        tt.assert_equal(state.mask, torch.tensor([0., 1., 0.]))
 
-    def test_from_gym(self):
-        gym_obs = np.array([1, 2, 3])
-        done = True
-        info = 'a'
-        state = State.from_gym(gym_obs, done, info)
-        tt.assert_equal(state.raw, torch.tensor([[1, 2, 3]]))
-        tt.assert_equal(state.mask, DONE)
-        self.assertEqual(state.info, ['a'])
+    def test_multi_dim(self):
+        state = StateList.from_list([
+            State(torch.randn((3, 4))),
+            State(torch.randn((3, 4)))
+        ])
+        self.assertEqual(state.shape, (2,))
+        state = StateList.from_list([state] * 3)
+        self.assertEqual(state.shape, (3, 2))
+        state = StateList.from_list([state] * 5)
+        self.assertEqual(state.shape, (5, 3, 2))
+        tt.assert_equal(state.mask, torch.ones((5, 3, 2)))
+        tt.assert_equal(state.done, torch.zeros((5, 3, 2)).bool())
+        tt.assert_equal(state.reward, torch.zeros((5, 3, 2)))
 
-    def test_get_item(self):
-        raw = torch.randn(3, 4)
-        states = State(raw)
-        state = states[2]
-        tt.assert_equal(state.raw, raw[2].unsqueeze(0))
-        tt.assert_equal(state.mask, NOT_DONE)
-        self.assertEqual(state.info, [None])
-
-    def test_len(self):
-        state = State(torch.randn(3, 4))
-        self.assertEqual(len(state), 3)
+if __name__ == "__main__":
+    unittest.main()

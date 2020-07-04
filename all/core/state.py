@@ -5,9 +5,11 @@ import numbers
 __all__ = ['State', 'StateList']
 
 class State(dict):
-    def __init__(self, x, device='cpu'):
+    def __init__(self, x, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
+        for k, v in kwargs.items():
+            x[k] = v
         if 'observation' not in x:
             raise Exception('State must contain an observation')
         if 'reward' not in x:
@@ -105,9 +107,11 @@ class State(dict):
         return 1
 
 class StateList(State):
-    def __init__(self, x, shape, device='cpu'):
+    def __init__(self, x, shape, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
+        for k, v in kwargs.items():
+            x[k] = v
         if 'observation' not in x:
             raise Exception('StateList must contain an observation')
         if 'reward' not in x:
@@ -115,7 +119,7 @@ class StateList(State):
         if 'done' not in x:
             x['done'] = torch.tensor([False] * np.prod(shape), device=device).view(shape)
         if 'mask' not in x:
-            x['mask'] = 1. - x['done']
+            x['mask'] = 1. - x['done'].float()
         super().__init__(x, device=device)
         self.shape = shape
 
