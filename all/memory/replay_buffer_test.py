@@ -60,9 +60,8 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         self.replay_buffer = PrioritizedReplayBuffer(5, 0.6)
 
     def test_run(self):
-        states = State(torch.arange(0, 20))
+        states = StateList(torch.arange(0, 20), (20,), reward=torch.arange(-1, 19).float())
         actions = torch.arange(0, 20).view((-1, 1))
-        rewards = torch.arange(0, 20)
         expected_samples = State(
             torch.tensor(
                 [
@@ -88,10 +87,10 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         actual_samples = []
         actual_weights = []
         for i in range(10):
-            self.replay_buffer.store(states[i], actions[i], rewards[i], states[i + 1])
+            self.replay_buffer.store(states[i], actions[i], states[i + 1])
             if i > 2:
                 sample = self.replay_buffer.sample(3)
-                sample_states = sample[0].features
+                sample_states = sample[0].observation
                 self.replay_buffer.update_priorities(torch.randn(3))
                 actual_samples.append(sample_states)
                 actual_weights.append(sample[-1])
@@ -103,8 +102,8 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         )
 
     def assert_states_equal(self, actual, expected):
-        tt.assert_almost_equal(actual.raw, expected.raw)
-        tt.assert_equal(actual.mask, expected.mask)
+        tt.assert_almost_equal(actual.observation, expected.observation)
+        self.assertEqual(actual.mask, expected.mask)
 
 
 class TestNStepReplayBuffer(unittest.TestCase):
@@ -129,7 +128,6 @@ class TestNStepReplayBuffer(unittest.TestCase):
         sample = self.replay_buffer.buffer.buffer[0]
         self.assert_states_equal(sample[0], states[0])
         tt.assert_equal(sample[1], actions[0])
-        print(sample)
         tt.assert_equal(sample[2].reward, torch.tensor(0 + 1 * 0.5 + 2 * 0.25 + 3 * 0.125))
         tt.assert_equal(
             self.replay_buffer.buffer.buffer[1][2].reward,
