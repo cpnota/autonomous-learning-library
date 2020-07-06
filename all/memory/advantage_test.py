@@ -49,27 +49,27 @@ class NStepAdvantageBufferTest(unittest.TestCase):
 
     def test_rollout_with_dones(self):
         buffer = NStepAdvantageBuffer(self.v, self.features, 3, 3, discount_factor=0.5)
-        done = torch.ones(12)
-        done[5] = 0
-        done[7] = 0
-        done[9] = 0
-        states = State(torch.arange(0, 12).unsqueeze(1), done)
+        done = torch.tensor([False] * 12)
+        done[5] = True
+        done[7] = True
+        done[9] = True
+        states = StateList(torch.arange(0, 12).unsqueeze(1).float(), (12,), done=done)
         actions = torch.ones((3))
         buffer.store(states[0:3], actions, torch.zeros(3))
         buffer.store(states[3:6], actions, torch.ones(3))
         buffer.store(states[6:9], actions, 2 * torch.ones(3))
         states, actions, advantages = buffer.advantages(states[9:12])
 
-        expected_states = State(torch.arange(0, 9).unsqueeze(1), done[0:9])
-        expected_next_done = torch.zeros(9)
-        expected_next_done[5] = 1
-        expected_next_done[7] = 1
-        expected_next_done[8] = 1
-        expected_next_states = State(torch.tensor([
+        expected_states = StateList(torch.arange(0, 9).unsqueeze(1).float(), (9,), done=done[0:9])
+        expected_next_done = torch.tensor([True] * 9)
+        expected_next_done[5] = False
+        expected_next_done[7] = False
+        expected_next_done[8] = False
+        expected_next_states = StateList(torch.tensor([
             9, 7, 5,
             9, 7, 11,
             9, 10, 11
-        ]).unsqueeze(1), expected_next_done)
+        ]).unsqueeze(1).float(), (9,), done=expected_next_done)
         expected_returns = torch.tensor([
             1, 0.5, 0,
             2, 1, 2,

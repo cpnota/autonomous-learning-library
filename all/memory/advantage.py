@@ -68,6 +68,8 @@ class NStepAdvantageBuffer:
             sample_returns[t] = current_returns
             sample_lengths[t] = current_lengths
 
+        print('returns', sample_returns)
+        print('sample_lengths', sample_lengths)
         return sample_returns, sample_lengths
 
     def _summarize_transitions(self):
@@ -101,8 +103,8 @@ class NStepAdvantageBuffer:
         return (
             rewards.view(-1)
             + (self.gamma ** lengths.view(-1))
-            * self.v.target(self.features.target(next_states))
-            - self.v.eval(self.features.eval(states))
+            * self.v.target(self.features.target(next_states)).view(-1)
+            - self.v.eval(self.features.eval(states)).view(-1)
         )
 
     def _clear_buffers(self):
