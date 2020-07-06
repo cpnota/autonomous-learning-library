@@ -20,6 +20,7 @@ class TimeFeature(Body):
         if self.timestep is None:
             self.timestep = 0
         state.update('timestep', self.timestep)
-        observation = torch.cat((state.observation, torch.tensor(self.scale * self.timestep, device=state.device)), dim=0)
+        observation = torch.cat((state.observation, torch.tensor(self.scale * self.timestep, device=state.device).view(-1)), dim=0)
+        state = state.update('observation', observation)
         self.timestep = state.mask * (self.timestep + 1)
         return state

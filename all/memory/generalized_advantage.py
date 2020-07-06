@@ -50,13 +50,8 @@ class GeneralizedAdvantageBuffer:
         _values = self.v.target(self.features.target(states))
         values = _values[0:self.n_steps]
         next_values = _values[1:]
-        # print('_values', _values.shape)
-        # print('values', values.shape)
-        # print('next_values', next_values.shape)
-        # print('rewards', rewards.shape)
         td_errors = rewards + self.gamma * next_values - values
         advantages = self._compute_advantages(td_errors)
-        # print('advantages', advantages.shape)
         self._clear_buffers()
         return (
             states[0:-1].flatten(),

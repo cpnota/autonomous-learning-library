@@ -44,7 +44,6 @@ class TestVNetwork(unittest.TestCase):
         self.v.reinforce(loss(result1, torch.tensor([1, 2])).float())
         result2 = self.v(states[2:4])
         self.v.reinforce(loss(result2, torch.tensor([1, 1])).float())
-        print(states[4:6])
         result3 = self.v(states[4:6])
         self.v.reinforce(loss(result3, torch.tensor([1, 2])).float())
         with self.assertRaises(Exception):
