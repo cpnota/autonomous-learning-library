@@ -1,4 +1,4 @@
 import all.nn
-from all.core import State, StateList
+from all.core import State, StateTensor
 
-__all__ = ['nn', 'State', 'StateList']
+__all__ = ['nn', 'State', 'StateTensor']

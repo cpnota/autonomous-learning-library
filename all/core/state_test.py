@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import torch
 import torch_testing as tt
-from all.core import State, StateList
+from all.core import State, StateTensor
 
 class StateTest(unittest.TestCase):
     def test_constructor_defaults(self):
@@ -97,7 +97,7 @@ class StateTest(unittest.TestCase):
         self.assertEqual(output.shape, (5, 3))
         self.assertEqual(output.sum().item(), 0)
 
-class StateListTest(unittest.TestCase):
+class StateTensorTest(unittest.TestCase):
     def test_constructor_defaults(self):
         raw = torch.randn(3, 4)
         state = State(raw, (3,))
@@ -108,7 +108,7 @@ class StateListTest(unittest.TestCase):
 
     def test_apply(self):
         observation = torch.randn(3, 4)
-        state = StateList(observation, (3,))
+        state = StateTensor(observation, (3,))
         model = torch.nn.Linear(4, 2)
         output = state.apply(model, 'observation')
         self.assertEqual(output.shape, (3, 2))
@@ -116,7 +116,7 @@ class StateListTest(unittest.TestCase):
 
     def test_apply_done(self):
         observation = torch.randn(3, 4)
-        state = StateList(observation, (3,), mask=torch.tensor([0., 0., 0.]))
+        state = StateTensor(observation, (3,), mask=torch.tensor([0., 0., 0.]))
         model = torch.nn.Linear(4, 2)
         output = state.apply(model, 'observation')
         self.assertEqual(output.shape, (3, 2))
@@ -125,27 +125,27 @@ class StateListTest(unittest.TestCase):
 
     def test_as_output(self):
         observation = torch.randn(3, 4)
-        state = StateList(observation, (3,))
+        state = StateTensor(observation, (3,))
         tensor = torch.randn(3, 5)
         self.assertEqual(state.as_output(tensor).shape, (3, 5))
 
     def test_auto_mask(self):
         observation = torch.randn(3, 4)
-        state = StateList({
+        state = StateTensor({
             'observation': observation,
             'done': torch.tensor([True, False, True]),
         }, (3,))
         tt.assert_equal(state.mask, torch.tensor([0., 1., 0.]))
 
     def test_multi_dim(self):
-        state = StateList.from_list([
+        state = StateTensor.from_list([
             State(torch.randn((3, 4))),
             State(torch.randn((3, 4)))
         ])
         self.assertEqual(state.shape, (2,))
-        state = StateList.from_list([state] * 3)
+        state = StateTensor.from_list([state] * 3)
         self.assertEqual(state.shape, (3, 2))
-        state = StateList.from_list([state] * 5)
+        state = StateTensor.from_list([state] * 5)
         self.assertEqual(state.shape, (5, 3, 2))
         tt.assert_equal(state.mask, torch.ones((5, 3, 2)))
         tt.assert_equal(state.done, torch.zeros((5, 3, 2)).bool())

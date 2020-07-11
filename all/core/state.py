@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import numbers
 
-__all__ = ['State', 'StateList']
+__all__ = ['State', 'StateTensor']
 
 class State(dict):
     def __init__(self, x, device='cpu', **kwargs):
@@ -36,7 +36,7 @@ class State(dict):
                     x[key] = torch.tensor([state[key] for state in list_of_states], device=device)
             except:
                 pass
-        return StateList(x, shape, device=device)
+        return StateTensor(x, shape, device=device)
 
     def apply(self, model, *keys):
         return self.apply_mask(self.as_output(model(*[self.as_input(key) for key in keys])))
@@ -106,14 +106,14 @@ class State(dict):
     def __len__(self):
         return 1
 
-class StateList(State):
+class StateTensor(State):
     def __init__(self, x, shape, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
         for k, v in kwargs.items():
             x[k] = v
         if 'observation' not in x:
-            raise Exception('StateList must contain an observation')
+            raise Exception('StateTensor must contain an observation')
         if 'reward' not in x:
             x['reward'] = torch.zeros(shape, device=device)
         if 'done' not in x:
@@ -133,12 +133,6 @@ class StateList(State):
 
     def as_input(self, key):
         value = self[key]
-        # print('BEGIN STUFF')
-        # print(self.shape)
-        # print(np.prod(self.shape))
-        # print(len(self.shape))
-        # print(value.shape)
-        # print(value.shape[len(self.shape):])
         return value.view((np.prod(self.shape), *value.shape[len(self.shape):]))
 
     def as_output(self, tensor):
@@ -153,7 +147,7 @@ class StateList(State):
         x = {}
         for k, v in self.items():
             x[k] = v.view((n, *v.shape[dims:]))
-        return StateList(x, (n,), device=self.device)
+        return StateTensor(x, (n,), device=self.device)
 
     @property
     def observation(self):
@@ -174,9 +168,9 @@ class StateList(State):
     def __getitem__(self, key):
         if isinstance(key, slice):
             shape = self['mask'][key].shape # TODO this is a hack
-            return StateList({k:v[key] for (k, v) in self.items()}, shape, device=self.device)
+            return StateTensor({k:v[key] for (k, v) in self.items()}, shape, device=self.device)
         if isinstance(key, int):
-            # TODO if more shape, return StateList
+            # TODO if more shape, return StateTensor
             return State({k:v[key] for (k, v) in self.items()}, device=self.device)
         if torch.is_tensor(key):
             # some things may get los

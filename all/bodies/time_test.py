@@ -1,7 +1,7 @@
 import unittest
 import torch
 import torch_testing as tt
-from all.core import State, StateList
+from all.core import State, StateTensor
 from all.bodies import TimeFeature
 
 
@@ -57,14 +57,14 @@ class TimeFeatureTest(unittest.TestCase):
             [0.3923, -0.2236, -0.3195, -1.2050, 1e-3]), atol=1e-04)
 
     def test_multi_env(self):
-        state = StateList(torch.randn(2, 2), (2,))
+        state = StateTensor(torch.randn(2, 2), (2,))
         self.agent.act(state)
         tt.assert_allclose(self.test_agent.last_state.observation, torch.tensor(
             [[0.3923, -0.2236, 0.], [-0.3195, -1.2050, 0.]]), atol=1e-04)
         self.agent.act(state)
         tt.assert_allclose(self.test_agent.last_state.observation, torch.tensor(
             [[0.3923, -0.2236, 1e-3], [-0.3195, -1.2050, 1e-3]]), atol=1e-04)
-        self.agent.act(StateList(state.observation, (2,), done=torch.tensor([False, True])))
+        self.agent.act(StateTensor(state.observation, (2,), done=torch.tensor([False, True])))
         tt.assert_allclose(self.test_agent.last_state.observation, torch.tensor(
             [[0.3923, -0.2236, 2e-3], [-0.3195, -1.2050, 2e-3]]), atol=1e-04)
         self.agent.act(state)

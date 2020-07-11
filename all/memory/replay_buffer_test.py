@@ -3,7 +3,7 @@ import random
 import torch
 import numpy as np
 import torch_testing as tt
-from all.core import State, StateList
+from all.core import State, StateTensor
 from all.memory import (
     ExperienceReplayBuffer,
     PrioritizedReplayBuffer,
@@ -60,7 +60,7 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         self.replay_buffer = PrioritizedReplayBuffer(5, 0.6)
 
     def test_run(self):
-        states = StateList(torch.arange(0, 20), (20,), reward=torch.arange(-1, 19).float())
+        states = StateTensor(torch.arange(0, 20), (20,), reward=torch.arange(-1, 19).float())
         actions = torch.arange(0, 20).view((-1, 1))
         expected_samples = State(
             torch.tensor(
@@ -114,7 +114,7 @@ class TestNStepReplayBuffer(unittest.TestCase):
         self.replay_buffer = NStepReplayBuffer(4, 0.5, ExperienceReplayBuffer(100))
 
     def test_run(self):
-        states = StateList(torch.arange(0, 20), (20,), reward=torch.arange(-1, 19).float())
+        states = StateTensor(torch.arange(0, 20), (20,), reward=torch.arange(-1, 19).float())
         actions = torch.arange(0, 20)
 
         for i in range(3):

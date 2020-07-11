@@ -1,3 +1,3 @@
-from .state import State, StateList
+from .state import State, StateTensor
 
-__all__ = ['State', 'StateList']
+__all__ = ['State', 'StateTensor']
