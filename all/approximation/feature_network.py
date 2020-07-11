@@ -1,5 +1,4 @@
 import torch
-from all.core import State
 from .approximation import Approximation
 
 

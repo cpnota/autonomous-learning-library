@@ -4,7 +4,7 @@ import torch
 import torch_testing as tt
 import gym
 from all import nn
-from all.core import State, StateTensor
+from all.core import StateTensor
 
 
 class TestNN(unittest.TestCase):

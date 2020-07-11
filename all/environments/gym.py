@@ -1,8 +1,7 @@
 import gym
-import numpy as np
 import torch
-from .abstract import Environment
 from all.core import State
+from .abstract import Environment
 gym.logger.set_level(40)
 
 class GymEnvironment(Environment):

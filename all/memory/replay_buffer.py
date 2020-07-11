@@ -48,7 +48,6 @@ class ExperienceReplayBuffer(ReplayBuffer):
         self.pos = (self.pos + 1) % self.capacity
 
     def _reshape(self, minibatch, weights):
-        State = minibatch[0][0].__class__
         states = State.from_list([sample[0] for sample in minibatch])
         if torch.is_tensor(minibatch[0][1]):
             actions = torch.stack([sample[1] for sample in minibatch])
