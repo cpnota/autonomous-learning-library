@@ -132,7 +132,7 @@ class StateTensor(State):
 
     def as_input(self, key):
         value = self[key]
-        return value.view((np.prod(self.shape), *value.shape[len(self.shape):]))
+        return value.view((np.prod(self.shape), *value.shape[len(self.shape):])).float()
 
     def as_output(self, tensor):
         return tensor.view((*self.shape, *tensor.shape[1:]))
