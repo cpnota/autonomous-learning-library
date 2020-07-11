@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-import numbers
 
 __all__ = ['State', 'StateTensor']
 
@@ -34,7 +33,7 @@ class State(dict):
                     x[key] = torch.stack([state[key] for state in list_of_states])
                 else:
                     x[key] = torch.tensor([state[key] for state in list_of_states], device=device)
-            except:
+            except: # # pylint: disable=bare-except
                 pass
         return StateTensor(x, shape, device=device)
 
@@ -139,7 +138,7 @@ class StateTensor(State):
         return tensor.view((*self.shape, *tensor.shape[1:]))
 
     def apply_mask(self, tensor):
-        return tensor * self['mask'].unsqueeze(-1)
+        return tensor * self.mask.unsqueeze(-1) # pylint: disable=no-member
 
     def flatten(self):
         n = np.prod(self.shape)
@@ -148,6 +147,13 @@ class StateTensor(State):
         for k, v in self.items():
             x[k] = v.view((n, *v.shape[dims:]))
         return StateTensor(x, (n,), device=self.device)
+
+    def view(self, shape):
+        dims = len(self.shape)
+        x = {}
+        for k, v in self.items():
+            x[k] = v.view((*shape, *v.shape[dims:]))
+        return StateTensor(x, shape, device=self.device)
 
     @property
     def observation(self):
@@ -167,21 +173,20 @@ class StateTensor(State):
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            shape = self['mask'][key].shape # TODO this is a hack
+            shape = self['mask'][key].shape
             return StateTensor({k:v[key] for (k, v) in self.items()}, shape, device=self.device)
         if isinstance(key, int):
-            # TODO if more shape, return StateTensor
             return State({k:v[key] for (k, v) in self.items()}, device=self.device)
         if torch.is_tensor(key):
             # some things may get los
             d = {}
-            shape = self['mask'][key].shape # TODO this is a hack
+            shape = self['mask'][key].shape
             for (k, v) in self.items():
                 try:
                     d[k] = v[key]
-                except:
+                except: # pylint: disable=bare-except
                     pass
-            return self.__class__(d, shape,device=self.device)
+            return self.__class__(d, shape, device=self.device)
         try:
             value = super().__getitem__(key)
         except KeyError:

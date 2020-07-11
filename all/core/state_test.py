@@ -30,7 +30,7 @@ class StateTest(unittest.TestCase):
     def test_auto_mask_true(self):
         observation = torch.randn(3, 4)
         state = State({
-            'observation': observation, 
+            'observation': observation,
             'done': True,
             'reward': 5.
         })
@@ -39,7 +39,7 @@ class StateTest(unittest.TestCase):
     def test_auto_mask_false(self):
         observation = torch.randn(3, 4)
         state = State({
-            'observation': observation, 
+            'observation': observation,
             'done': False,
             'reward': 5.
         })
@@ -150,6 +150,19 @@ class StateTensorTest(unittest.TestCase):
         tt.assert_equal(state.mask, torch.ones((5, 3, 2)))
         tt.assert_equal(state.done, torch.zeros((5, 3, 2)).bool())
         tt.assert_equal(state.reward, torch.zeros((5, 3, 2)))
+
+    def test_view(self):
+        state = StateTensor.from_list([
+            State(torch.randn((3, 4))),
+            State(torch.randn((3, 4)))
+        ])
+        self.assertEqual(state.shape, (2,))
+        state = StateTensor.from_list([state] * 3)
+        self.assertEqual(state.shape, (3, 2))
+        state = state.view((2, 3))
+        self.assertEqual(state.shape, (2, 3))
+        self.assertEqual(state.observation.shape, (2, 3, 3, 4))
+
 
 if __name__ == "__main__":
     unittest.main()
