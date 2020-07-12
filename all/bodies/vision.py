@@ -29,5 +29,8 @@ class LazyState(State):
 
     def __getitem__(self, key):
         if key == 'observation':
+            v = dict.__getitem__(self, key)
+            if torch.is_tensor(v):
+                return v
             return torch.cat(dict.__getitem__(self, key), dim=0)
         return super().__getitem__(key)
