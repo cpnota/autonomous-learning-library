@@ -2,7 +2,7 @@ import unittest
 import torch
 import torch_testing as tt
 from all import nn
-from all.environments import State
+from all.core import State
 from all.approximation import VNetwork, FeatureNetwork
 from all.memory import GeneralizedAdvantageBuffer
 
@@ -30,7 +30,7 @@ class GeneralizedAdvantageBufferTest(unittest.TestCase):
             lam=0.5
         )
         actions = torch.ones((1))
-        states = State(torch.arange(0, 3).unsqueeze(1))
+        states = State.from_list([State({'observation': torch.tensor([float(x)])}) for x in range(3)])
         rewards = torch.tensor([1., 2, 4])
         buffer.store(states[0], actions, rewards[0])
         buffer.store(states[1], actions, rewards[1])
@@ -62,16 +62,24 @@ class GeneralizedAdvantageBufferTest(unittest.TestCase):
             lam=0.5
         )
         actions = torch.ones((2))
-        states = [
-            State(torch.tensor([[0], [3]])),
-            State(torch.tensor([[1], [4]])),
-            State(torch.tensor([[2], [5]])),
-        ]
+
+        def make_states(x, y):
+            return State.from_list([
+                State({'observation': torch.tensor([float(x)])}),
+                State({'observation': torch.tensor([float(y)])})
+            ])
+
+        states = State.from_list([
+            make_states(0, 3),
+            make_states(1, 4),
+            make_states(2, 5),
+        ])
+        self.assertEqual(states.shape, (3, 2))
         rewards = torch.tensor([[1., 1], [2, 1], [4, 1]])
         buffer.store(states[0], actions, rewards[0])
         buffer.store(states[1], actions, rewards[1])
 
-        values = self.v.eval(self.features.eval(State.from_list(states))).view(3, -1)
+        values = self.v.eval(self.features.eval(states)).view(3, -1)
         tt.assert_almost_equal(values, torch.tensor([
             [0.183, -1.408],
             [-0.348, -1.938],

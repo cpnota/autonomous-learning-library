@@ -5,7 +5,7 @@ import numpy as np
 from gym.spaces import Box
 from all import nn
 from all.approximation import FixedTarget
-from all.environments import State
+from all.core import State
 from all.policies import DeterministicPolicy
 
 STATE_DIM = 2

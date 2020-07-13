@@ -19,8 +19,14 @@ class Body(Agent):
     def agent(self, agent):
         self._agent = agent
 
-    def act(self, state, reward):
-        return self.agent.act(state, reward)
+    def act(self, state):
+        return self.process_action(self.agent.act(self.process_state(state)))
 
-    def eval(self, state, reward):
-        return self.agent.eval(state, reward)
+    def eval(self, state):
+        return self.process_action(self.agent.eval(self.process_state(state)))
+
+    def process_state(self, state):
+        return state
+
+    def process_action(self, action):
+        return action

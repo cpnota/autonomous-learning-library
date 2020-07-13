@@ -39,7 +39,7 @@ class DQN(Agent):
         self.q = q
         self.policy = policy
         self.replay_buffer = replay_buffer
-        self.loss = staticmethod(loss)
+        self.loss = loss
         # hyperparameters
         self.discount_factor = discount_factor
         self.minibatch_size = minibatch_size
@@ -50,14 +50,14 @@ class DQN(Agent):
         self._action = None
         self._frames_seen = 0
 
-    def act(self, state, reward):
-        self.replay_buffer.store(self._state, self._action, reward, state)
+    def act(self, state):
+        self.replay_buffer.store(self._state, self._action, state)
         self._train()
         self._state = state
         self._action = self.policy.no_grad(state)
         return self._action
 
-    def eval(self, state, _):
+    def eval(self, state):
         return self.policy.eval(state)
 
     def _train(self):

@@ -22,14 +22,14 @@ class VSarsa(Agent):
         self._state = None
         self._action = None
 
-    def act(self, state, reward):
+    def act(self, state):
         action = self.policy.no_grad(state)
-        self._train(reward, state, action)
+        self._train(state.reward, state, action)
         self._state = state
         self._action = action
         return action
 
-    def eval(self, state, _):
+    def eval(self, state):
         return self.policy.eval(state)
 
     def _train(self, reward, next_state, next_action):

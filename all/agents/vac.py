@@ -28,14 +28,14 @@ class VAC(Agent):
         self._distribution = None
         self._action = None
 
-    def act(self, state, reward):
-        self._train(state, reward)
+    def act(self, state):
+        self._train(state, state.reward)
         self._features = self.features(state)
         self._distribution = self.policy(self._features)
         self._action = self._distribution.sample()
         return self._action
 
-    def eval(self, state, _):
+    def eval(self, state):
         return self.policy.eval(self.features.eval(state))
 
     def _train(self, state, reward):

@@ -50,17 +50,17 @@ class SingleEnvExperiment(Experiment):
         start_frame = self._frame
 
         # initialize the episode
-        self._env.reset()
-        action = self._agent.act(self._env.state, self._env.reward)
+        state = self._env.reset()
+        action = self._agent.act(state)
         returns = 0
 
         # loop until the episode is finished
-        while not self._env.done:
+        while not state.done:
             if self._render:
                 self._env.render()
-            self._env.step(action)
-            action = self._agent.act(self._env.state, self._env.reward)
-            returns += self._env.reward
+            state = self._env.step(action)
+            action = self._agent.act(state)
+            returns += state.reward
             self._frame += 1
 
         # stop the timer
@@ -75,17 +75,17 @@ class SingleEnvExperiment(Experiment):
 
     def _run_test_episode(self):
         # initialize the episode
-        self._env.reset()
-        action = self._agent.eval(self._env.state, self._env.reward)
+        state = self._env.reset()
+        action = self._agent.eval(state)
         returns = 0
 
         # loop until the episode is finished
-        while not self._env.done:
+        while not state.done:
             if self._render:
                 self._env.render()
-            self._env.step(action)
-            action = self._agent.eval(self._env.state, self._env.reward)
-            returns += self._env.reward
+            state = self._env.step(action)
+            action = self._agent.eval(state)
+            returns += state.reward
 
         return returns
 

@@ -4,12 +4,14 @@ class Schedulable:
     '''Allow "instance" descriptors to implement parameter scheduling.'''
     def __getattribute__(self, name):
         value = object.__getattribute__(self, name)
-        if hasattr(value, '__get__'):
+        if isinstance(value, Scheduler):
             value = value.__get__(self, self.__class__)
         return value
 
+class Scheduler:
+    pass
 
-class LinearScheduler:
+class LinearScheduler(Scheduler):
     def __init__(
             self,
             initial_value,

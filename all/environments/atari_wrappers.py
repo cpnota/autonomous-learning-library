@@ -163,7 +163,7 @@ class WarpFrame(gym.ObservationWrapper):
         else:
             obs = obs.copy()
             obs[self._key] = frame
-        return obs
+        return np.moveaxis(obs, -1, 0)
 
 class LifeLostEnv(gym.Wrapper):
     def __init__(self, env):

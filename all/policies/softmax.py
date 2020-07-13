@@ -36,4 +36,4 @@ class SoftmaxPolicyNetwork(RLNetwork):
         probs = functional.softmax(outputs, dim=-1)
         if self.training:
             return torch.distributions.Categorical(probs)
-        return torch.argmax(probs, dim=1)
+        return torch.argmax(probs, dim=-1)

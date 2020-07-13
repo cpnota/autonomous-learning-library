@@ -1,5 +1,5 @@
 import torch
-from all.environments import State
+from all.core import State, StateTensor
 from ._body import Body
 
 class FrameStack(Body):
@@ -9,27 +9,28 @@ class FrameStack(Body):
         self._size = size
         self._lazy = lazy
 
-    def act(self, state, reward):
-        return self.agent.act(self._stack(state), reward)
-
-    def eval(self, state, reward):
-        return self.agent.eval(self._stack(state), reward)
-
-    def _stack(self, state):
+    def process_state(self, state):
         if not self._frames:
-            self._frames = [state.raw] * self._size
+            self._frames = [state.observation] * self._size
         else:
-            self._frames = self._frames[1:] + [state.raw]
-
+            self._frames = self._frames[1:] + [state.observation]
         if self._lazy:
-            return LazyState(self._frames, state.mask, state.info)
-
-        return State(torch.cat(self._frames, dim=1), state.mask, state.info)
+            return LazyState.from_state(state, self._frames)
+        if isinstance(state, StateTensor):
+            return state.update('observation', torch.cat(self._frames, dim=1))
+        return state.update('observation', torch.cat(self._frames, dim=0))
 
 class LazyState(State):
-    @property
-    def features(self):
-        return torch.cat(self._raw, dim=1)
+    @classmethod
+    def from_state(cls, state, frames):
+        state = LazyState(state, device=state.device)
+        state['observation'] = frames
+        return state
 
-    def __len__(self):
-        return len(self._raw[0])
+    def __getitem__(self, key):
+        if key == 'observation':
+            v = dict.__getitem__(self, key)
+            if torch.is_tensor(v):
+                return v
+            return torch.cat(dict.__getitem__(self, key), dim=0)
+        return super().__getitem__(key)
