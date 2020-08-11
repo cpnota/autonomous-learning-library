@@ -2,7 +2,7 @@
 from timeit import default_timer as timer
 import torch
 import numpy as np
-from all.environments import State
+from all.core import State
 from .writer import ExperimentWriter
 from .experiment import Experiment
 
@@ -74,17 +74,17 @@ class ParallelEnvExperiment(Experiment):
 
     def _step(self):
         states = self._aggregate_states()
-        rewards = self._aggregate_rewards()
-        actions = self._agent.act(states, rewards)
+        actions = self._agent.act(states)
         self._step_envs(actions)
 
     def _step_envs(self, actions):
         for i, env in enumerate(self._envs):
+            state = env.state
             if self._render:
                 env.render()
 
-            if env.done:
-                self._returns[i] += env.reward
+            if state.done:
+                self._returns[i] += state.reward
                 self._log_training_episode(self._returns[i].item(), self._fps(i))
                 env.reset()
                 self._returns[i] = 0
@@ -94,7 +94,7 @@ class ParallelEnvExperiment(Experiment):
             else:
                 action = actions[i]
                 if action is not None:
-                    self._returns[i] += env.reward
+                    self._returns[i] += state.reward
                     env.step(action)
                     self._frame += 1
 
@@ -107,16 +107,16 @@ class ParallelEnvExperiment(Experiment):
 
     def _test_step(self):
         states = self._aggregate_states()
-        rewards = self._aggregate_rewards()
-        actions = self._agent.eval(states, rewards)
+        actions = self._agent.eval(states)
         self._test_step_envs(actions)
 
     def _test_step_envs(self, actions):
         for i, env in enumerate(self._envs):
+            state = env.state
             if self._render:
                 env.render()
-            if env.done:
-                self._returns[i] += env.reward
+            if state.done:
+                self._returns[i] += state.reward
                 if self._should_save_returns[i]:
                     self._test_returns.append(self._returns[i].item())
                     self._log_test_episode(len(self._test_returns), self._returns[i].item())
@@ -128,7 +128,7 @@ class ParallelEnvExperiment(Experiment):
             else:
                 action = actions[i]
                 if action is not None:
-                    self._returns[i] += env.reward
+                    self._returns[i] += state.reward
                     env.step(action)
 
     def _aggregate_states(self):
@@ -136,7 +136,7 @@ class ParallelEnvExperiment(Experiment):
 
     def _aggregate_rewards(self):
         return torch.tensor(
-            [env.reward for env in self._envs],
+            [env.state.reward for env in self._envs],
             dtype=torch.float,
             device=self._envs[0].device
         )

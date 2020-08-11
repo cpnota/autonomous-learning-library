@@ -3,11 +3,8 @@ import numpy as np
 from ._body import Body
 
 class ClipRewards(Body):
-    def act(self, state, reward):
-        return self.agent.act(state, self._clip(reward))
-
-    def eval(self, state, reward):
-        return self.agent.eval(state, self._clip(reward))
+    def process_state(self, state):
+        return state.update('reward', self._clip(state.reward))
 
     def _clip(self, reward):
         if torch.is_tensor(reward):

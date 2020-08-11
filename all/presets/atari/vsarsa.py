@@ -4,7 +4,7 @@ from all.agents import VSarsa
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
-from all.policies import GreedyPolicy
+from all.policies import ParallelGreedyPolicy
 from .models import nature_ddqn
 
 def vsarsa(
@@ -50,7 +50,7 @@ def vsarsa(
             optimizer,
             writer=writer
         )
-        policy = GreedyPolicy(
+        policy = ParallelGreedyPolicy(
             q,
             env.action_space.n,
             epsilon=LinearScheduler(

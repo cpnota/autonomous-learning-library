@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import *  # export everthing
 from torch.nn import functional as F
 import numpy as np
-from all.environments import State
+from all.core import State
 
 
 class RLNetwork(nn.Module):
@@ -16,7 +16,7 @@ class RLNetwork(nn.Module):
         self.device = next(model.parameters()).device
 
     def forward(self, state):
-        return self.model(state.features.float()) * state.mask.float().unsqueeze(-1)
+        return state.apply(self.model, 'observation')
 
 class Aggregation(nn.Module):
     """

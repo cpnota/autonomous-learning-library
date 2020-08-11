@@ -3,7 +3,7 @@ import random
 import torch
 import numpy as np
 import torch_testing as tt
-from all.environments import State
+from all.core import State, StateTensor
 from all.memory import (
     ExperienceReplayBuffer,
     PrioritizedReplayBuffer,
@@ -40,11 +40,11 @@ class TestExperienceReplayBuffer(unittest.TestCase):
         actual_samples = []
         actual_weights = []
         for i in range(10):
-            state = State(states[i].unsqueeze(0), torch.tensor([1]))
-            next_state = State(states[i + 1].unsqueeze(0), torch.tensor([1]))
-            self.replay_buffer.store(state, actions[i], rewards[i], next_state)
+            state = State(states[i])
+            next_state = State(states[i + 1], reward=rewards[i])
+            self.replay_buffer.store(state, actions[i], next_state)
             sample = self.replay_buffer.sample(3)
-            actual_samples.append(sample[0].features)
+            actual_samples.append(sample[0].observation)
             actual_weights.append(sample[-1])
         tt.assert_equal(
             torch.cat(actual_samples).view(expected_samples.shape), expected_samples
@@ -60,9 +60,8 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         self.replay_buffer = PrioritizedReplayBuffer(5, 0.6)
 
     def test_run(self):
-        states = State(torch.arange(0, 20))
+        states = StateTensor(torch.arange(0, 20), (20,), reward=torch.arange(-1, 19).float())
         actions = torch.arange(0, 20).view((-1, 1))
-        rewards = torch.arange(0, 20)
         expected_samples = State(
             torch.tensor(
                 [
@@ -88,10 +87,10 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         actual_samples = []
         actual_weights = []
         for i in range(10):
-            self.replay_buffer.store(states[i], actions[i], rewards[i], states[i + 1])
+            self.replay_buffer.store(states[i], actions[i], states[i + 1])
             if i > 2:
                 sample = self.replay_buffer.sample(3)
-                sample_states = sample[0].features
+                sample_states = sample[0].observation
                 self.replay_buffer.update_priorities(torch.randn(3))
                 actual_samples.append(sample_states)
                 actual_weights.append(sample[-1])
@@ -103,8 +102,8 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         )
 
     def assert_states_equal(self, actual, expected):
-        tt.assert_almost_equal(actual.raw, expected.raw)
-        tt.assert_equal(actual.mask, expected.mask)
+        tt.assert_almost_equal(actual.observation, expected.observation)
+        self.assertEqual(actual.mask, expected.mask)
 
 
 class TestNStepReplayBuffer(unittest.TestCase):
@@ -115,58 +114,57 @@ class TestNStepReplayBuffer(unittest.TestCase):
         self.replay_buffer = NStepReplayBuffer(4, 0.5, ExperienceReplayBuffer(100))
 
     def test_run(self):
-        states = State(torch.arange(0, 20))
+        states = StateTensor(torch.arange(0, 20), (20,), reward=torch.arange(-1, 19).float())
         actions = torch.arange(0, 20)
-        rewards = torch.arange(0, 20).float()
 
         for i in range(3):
-            self.replay_buffer.store(states[i], actions[i], rewards[i], states[i + 1])
+            self.replay_buffer.store(states[i], actions[i], states[i + 1])
             self.assertEqual(len(self.replay_buffer), 0)
 
         for i in range(3, 6):
-            self.replay_buffer.store(states[i], actions[i], rewards[i], states[i + 1])
+            self.replay_buffer.store(states[i], actions[i], states[i + 1])
             self.assertEqual(len(self.replay_buffer), i - 2)
 
         sample = self.replay_buffer.buffer.buffer[0]
         self.assert_states_equal(sample[0], states[0])
         tt.assert_equal(sample[1], actions[0])
-        tt.assert_equal(sample[2], torch.tensor(0 + 1 * 0.5 + 2 * 0.25 + 3 * 0.125))
+        tt.assert_equal(sample[2].reward, torch.tensor(0 + 1 * 0.5 + 2 * 0.25 + 3 * 0.125))
         tt.assert_equal(
-            self.replay_buffer.buffer.buffer[1][2],
+            self.replay_buffer.buffer.buffer[1][2].reward,
             torch.tensor(1 + 2 * 0.5 + 3 * 0.25 + 4 * 0.125),
         )
 
     def test_done(self):
-        state = State(torch.tensor([1]))
+        state = State(torch.tensor(1), reward=1.)
         action = torch.tensor(0)
-        done_state = State(torch.tensor([1]), mask=torch.tensor([0]))
+        done_state = State(torch.tensor(1), reward=1., done=True)
 
-        self.replay_buffer.store(state, action, 1, done_state)
+        self.replay_buffer.store(state, action, done_state)
         self.assertEqual(len(self.replay_buffer), 1)
         sample = self.replay_buffer.buffer.buffer[0]
         self.assert_states_equal(state, sample[0])
-        self.assertEqual(sample[2], 1)
+        self.assertEqual(sample[2].reward, 1.)
 
-        self.replay_buffer.store(state, action, 1, state)
-        self.replay_buffer.store(state, action, 1, state)
+        self.replay_buffer.store(state, action, state)
+        self.replay_buffer.store(state, action, state)
         self.assertEqual(len(self.replay_buffer), 1)
 
-        self.replay_buffer.store(state, action, 1, done_state)
+        self.replay_buffer.store(state, action, done_state)
         self.assertEqual(len(self.replay_buffer), 4)
         sample = self.replay_buffer.buffer.buffer[1]
         self.assert_states_equal(sample[0], state)
-        self.assertEqual(sample[2], 1.75)
-        self.assert_states_equal(sample[3], done_state)
+        self.assertEqual(sample[2].reward, 1.75)
+        self.assert_states_equal(sample[2], done_state)
 
-        self.replay_buffer.store(state, action, 1, done_state)
+        self.replay_buffer.store(state, action, done_state)
         self.assertEqual(len(self.replay_buffer), 5)
         sample = self.replay_buffer.buffer.buffer[0]
         self.assert_states_equal(state, sample[0])
-        self.assertEqual(sample[2], 1)
+        self.assertEqual(sample[2].reward, 1)
 
     def assert_states_equal(self, actual, expected):
-        tt.assert_almost_equal(actual.raw, expected.raw)
-        tt.assert_equal(actual.mask, expected.mask)
+        tt.assert_almost_equal(actual.observation, expected.observation)
+        self.assertEqual(actual.mask, expected.mask)
 
 
 if __name__ == "__main__":

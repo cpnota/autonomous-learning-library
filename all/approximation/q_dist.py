@@ -71,10 +71,16 @@ class QDistModule(torch.nn.Module):
     def forward(self, states, actions=None):
         values = self.model(states).view((len(states), self.n_actions, self.n_atoms))
         values = F.softmax(values, dim=2)
+        mask = states.mask
+
         # trick to convert to terminal without manually looping
-        values = (values - self.terminal) * states.mask.view(
-            (-1, 1, 1)
-        ).float() + self.terminal
+        if torch.is_tensor(mask):
+            values = (values - self.terminal) * states.mask.view(
+                (-1, 1, 1)
+            ).float() + self.terminal
+        else:
+            values = (values - self.terminal) * mask + self.terminal
+
         if actions is None:
             return values
         if isinstance(actions, list):

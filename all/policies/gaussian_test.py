@@ -4,7 +4,7 @@ import torch
 from torch import nn
 import torch_testing as tt
 from gym.spaces import Box
-from all.environments import State
+from all.core import State
 from all.policies import GaussianPolicy
 
 STATE_DIM = 2

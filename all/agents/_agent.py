@@ -13,7 +13,7 @@ class Agent(ABC, Schedulable):
     """
 
     @abstractmethod
-    def act(self, state, reward):
+    def act(self, state):
         """
         Select an action for the current timestep and update internal parameters.
 
@@ -27,14 +27,13 @@ class Agent(ABC, Schedulable):
 
         Args:
             state (all.environment.State): The environment state at the current timestep.
-            reward (torch.Tensor): The reward from the previous timestep.
 
         Returns:
             torch.Tensor: The action to take at the current timestep.
         """
 
     @abstractmethod
-    def eval(self, state, reward):
+    def eval(self, state):
         """
         Select an action for the current timestep in evaluation mode.
 
@@ -45,7 +44,6 @@ class Agent(ABC, Schedulable):
 
         Args:
             state (all.environment.State): The environment state at the current timestep.
-            reward (torch.Tensor): The reward from the previous timestep.
 
         Returns:
             torch.Tensor: The action to take at the current timestep.
