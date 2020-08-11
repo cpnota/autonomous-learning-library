@@ -30,6 +30,10 @@ def ppo(
         n_steps=128,
         # GAE settings
         lam=0.95,
+        # Model construction
+        feature_model_constructor=nature_features,
+        value_model_constructor=nature_value_head,
+        policy_model_constructor=nature_policy_head
 ):
     """
     PPO Atari preset.
@@ -51,6 +55,9 @@ def ppo(
         n_envs (int): Number of parallel actors.
         n_steps (int): Length of each rollout.
         lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
+        feature_model_constructor (function): The function used to construct the neural feature model.
+        value_model_constructor (function): The function used to construct the neural value model.
+        policy_model_constructor (function): The function used to construct the neural policy model.
     """
     def _ppo(envs, writer=DummyWriter()):
         env = envs[0]
@@ -60,9 +67,9 @@ def ppo(
         # with n_envs and 4 frames per step
         final_anneal_step = last_frame * epochs * minibatches / (n_steps * n_envs * 4)
 
-        value_model = nature_value_head().to(device)
-        policy_model = nature_policy_head(env).to(device)
-        feature_model = nature_features().to(device)
+        value_model = value_model_constructor().to(device)
+        policy_model = policy_model_constructor(env).to(device)
+        feature_model = feature_model_constructor().to(device)
 
         feature_optimizer = Adam(
             feature_model.parameters(), lr=lr, eps=eps

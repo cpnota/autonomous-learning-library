@@ -23,6 +23,10 @@ def a2c(
         # Batch settings
         n_envs=16,
         n_steps=5,
+        # Model construction
+        feature_model_constructor=nature_features,
+        value_model_constructor=nature_value_head,
+        policy_model_constructor=nature_policy_head
 ):
     """
     A2C Atari preset.
@@ -39,14 +43,17 @@ def a2c(
         value_loss_scaling (float): Coefficient for the value function loss.
         n_envs (int): Number of parallel environments.
         n_steps (int): Length of each rollout.
+        feature_model_constructor (function): The function used to construct the neural feature model.
+        value_model_constructor (function): The function used to construct the neural value model.
+        policy_model_constructor (function): The function used to construct the neural policy model.
     """
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
         final_anneal_step = last_frame / (n_steps * n_envs * 4)
 
-        value_model = nature_value_head().to(device)
-        policy_model = nature_policy_head(env).to(device)
-        feature_model = nature_features().to(device)
+        value_model = value_model_constructor().to(device)
+        policy_model = policy_model_constructor(env).to(device)
+        feature_model = feature_model_constructor().to(device)
 
         feature_optimizer = Adam(feature_model.parameters(), lr=lr, eps=eps)
         value_optimizer = Adam(value_model.parameters(), lr=lr, eps=eps)

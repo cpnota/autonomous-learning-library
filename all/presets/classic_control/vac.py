@@ -14,6 +14,10 @@ def vac(
         lr_v=5e-3,
         lr_pi=1e-3,
         eps=1e-5,
+        # Model construction
+        feature_model_constructor=fc_relu_features,
+        value_model_constructor=fc_value_head,
+        policy_model_constructor=fc_policy_head
 ):
     """
     Vanilla Actor-Critic classic control preset.
@@ -24,11 +28,14 @@ def vac(
         lr_v (float): Learning rate for value network.
         lr_pi (float): Learning rate for policy network and feature network.
         eps (float): Stability parameters for the Adam optimizer.
+        feature_model_constructor (function): The function used to construct the neural feature model.
+        value_model_constructor (function): The function used to construct the neural value model.
+        policy_model_constructor (function): The function used to construct the neural policy model.
     """
     def _vac(env, writer=DummyWriter()):
-        value_model = fc_value_head().to(device)
-        policy_model = fc_policy_head(env).to(device)
-        feature_model = fc_relu_features(env).to(device)
+        value_model = value_model_constructor().to(device)
+        policy_model = policy_model_constructor(env).to(device)
+        feature_model = feature_model_constructor(env).to(device)
 
         value_optimizer = Adam(value_model.parameters(), lr=lr_v, eps=eps)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi, eps=eps)

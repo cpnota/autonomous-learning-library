@@ -29,6 +29,11 @@ def sac(
         temperature_initial=0.1,
         lr_temperature=1e-5,
         entropy_target_scaling=1.,
+        # Model construction
+        q1_model_constructor=fc_q,
+        q2_model_constructor=fc_q,
+        v_model_constructor=fc_v,
+        policy_model_constructor=fc_soft_policy
 ):
     """
     SAC continuous control preset.
@@ -48,11 +53,15 @@ def sac(
         temperature_initial (float): Initial value of the temperature parameter.
         lr_temperature (float): Learning rate for the temperature. Should be low compared to other learning rates.
         entropy_target_scaling (float): The target entropy will be -(entropy_target_scaling * env.action_space.shape[0])
+        q1_model_constructor(function): The function used to construct the neural q1 model.
+        q2_model_constructor(function): The function used to construct the neural q2 model.
+        v_model_constructor(function): The function used to construct the neural v model.
+        policy_model_constructor(function): The function used to construct the neural policy model.
     """
     def _sac(env, writer=DummyWriter()):
         final_anneal_step = (last_frame - replay_start_size) // update_frequency
 
-        q_1_model = fc_q(env).to(device)
+        q_1_model = q1_model_constructor(env).to(device)
         q_1_optimizer = Adam(q_1_model.parameters(), lr=lr_q)
         q_1 = QContinuous(
             q_1_model,
@@ -65,7 +74,7 @@ def sac(
             name='q_1'
         )
 
-        q_2_model = fc_q(env).to(device)
+        q_2_model = q2_model_constructor(env).to(device)
         q_2_optimizer = Adam(q_2_model.parameters(), lr=lr_q)
         q_2 = QContinuous(
             q_2_model,
@@ -78,7 +87,7 @@ def sac(
             name='q_2'
         )
 
-        v_model = fc_v(env).to(device)
+        v_model = v_model_constructor(env).to(device)
         v_optimizer = Adam(v_model.parameters(), lr=lr_v)
         v = VNetwork(
             v_model,
@@ -92,7 +101,7 @@ def sac(
             name='v',
         )
 
-        policy_model = fc_soft_policy(env).to(device)
+        policy_model = policy_model_constructor(env).to(device)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
         policy = SoftDeterministicPolicy(
             policy_model,

@@ -14,6 +14,10 @@ def vpg(
         lr=5e-3,
         # Batch settings
         min_batch_size=500,
+        # Model construction
+        feature_model_constructor=fc_relu_features,
+        value_model_constructor=fc_value_head,
+        policy_model_constructor=fc_policy_head
 ):
     """
     Vanilla Policy Gradient classic control preset.
@@ -25,11 +29,14 @@ def vpg(
         lr (float): Learning rate for the Adam optimizer.
         min_batch_size (int): Continue running complete episodes until at least this many
             states have been seen since the last update.
+        feature_model_constructor (function): The function used to construct the neural feature model.
+        value_model_constructor (function): The function used to construct the neural value model.
+        policy_model_constructor (function): The function used to construct the neural policy model.
     """
     def _vpg(env, writer=DummyWriter()):
-        feature_model = fc_relu_features(env).to(device)
-        value_model = fc_value_head().to(device)
-        policy_model = fc_policy_head(env).to(device)
+        feature_model = feature_model_constructor(env).to(device)
+        value_model = value_model_constructor().to(device)
+        policy_model = policy_model_constructor(env).to(device)
 
         feature_optimizer = Adam(feature_model.parameters(), lr=lr)
         value_optimizer = Adam(value_model.parameters(), lr=lr)

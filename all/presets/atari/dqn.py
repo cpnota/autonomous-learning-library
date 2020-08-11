@@ -30,6 +30,8 @@ def dqn(
         initial_exploration=1.,
         final_exploration=0.01,
         final_exploration_frame=4000000,
+        # Model construction
+        model_constructor=nature_dqn
 ):
     """
     DQN Atari preset.
@@ -49,6 +51,7 @@ def dqn(
             decayed until final_exploration_frame.
         final_exploration (int): Final probability of choosing a random action.
         final_exploration_frame (int): The frame where the exploration decay stops.
+        model_constructor (function): The function used to construct the neural model.
     """
     def _dqn(env, writer=DummyWriter()):
         action_repeat = 4
@@ -56,7 +59,7 @@ def dqn(
         last_update = (last_timestep - replay_start_size) / update_frequency
         final_exploration_step = final_exploration_frame / action_repeat
 
-        model = nature_dqn(env).to(device)
+        model = model_constructor(env).to(device)
 
         optimizer = Adam(
             model.parameters(),
