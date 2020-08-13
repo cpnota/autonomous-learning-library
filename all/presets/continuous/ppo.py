@@ -31,6 +31,8 @@ def ppo(
         n_steps=128,
         # GAE settings
         lam=0.95,
+        # Model construction
+        ac_model_constructor=fc_actor_critic
 ):
     """
     PPO continuous control preset.
@@ -51,12 +53,13 @@ def ppo(
         n_envs (int): Number of parallel actors.
         n_steps (int): Length of each rollout.
         lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
+        ac_model_constructor (function): The function used to construct the neural feature, value and policy model.
     """
     def _ppo(envs, writer=DummyWriter()):
         final_anneal_step = last_frame * epochs * minibatches / (n_steps * n_envs)
         env = envs[0]
 
-        feature_model, value_model, policy_model = fc_actor_critic(env)
+        feature_model, value_model, policy_model = ac_model_constructor(env)
         feature_model.to(device)
         value_model.to(device)
         policy_model.to(device)

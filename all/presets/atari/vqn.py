@@ -20,6 +20,8 @@ def vqn(
         final_exploration_frame=1000000,
         # Parallel actors
         n_envs=64,
+        # Model construction
+        model_constructor=nature_ddqn
 ):
     """
     Vanilla Q-Network Atari preset.
@@ -34,13 +36,14 @@ def vqn(
         final_exploration (int): Final probability of choosing a random action.
         final_exploration_frame (int): The frame where the exploration decay stops.
         n_envs (int): Number of parallel environments.
+        model_constructor (function): The function used to construct the neural model.
     """
     def _vqn(envs, writer=DummyWriter()):
         action_repeat = 4
         final_exploration_timestep = final_exploration_frame / action_repeat
 
         env = envs[0]
-        model = nature_ddqn(env).to(device)
+        model = model_constructor(env).to(device)
         optimizer = Adam(model.parameters(), lr=lr, eps=eps)
         q = QNetwork(
             model,

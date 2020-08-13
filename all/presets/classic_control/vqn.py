@@ -16,6 +16,8 @@ def vqn(
         epsilon=0.1,
         # Parallel actors
         n_envs=8,
+        # Model construction
+        model_constructor=fc_relu_q
 ):
     """
     Vanilla Q-Network classic control preset.
@@ -27,10 +29,11 @@ def vqn(
         eps (float): Stability parameters for the Adam optimizer.
         epsilon (int): Probability of choosing a random action.
         n_envs (int): Number of parallel environments.
+        model_constructor (function): The function used to construct the neural model.
     """
     def _vqn(envs, writer=DummyWriter()):
         env = envs[0]
-        model = fc_relu_q(env).to(device)
+        model = model_constructor(env).to(device)
         optimizer = Adam(model.parameters(), lr=lr, eps=eps)
         q = QNetwork(model, optimizer, writer=writer)
         policy = ParallelGreedyPolicy(q, env.action_space.n, epsilon=epsilon)

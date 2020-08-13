@@ -20,6 +20,10 @@ def vac(
         value_loss_scaling=0.25,
         # Parallel actors
         n_envs=16,
+        # Model construction
+        feature_model_constructor=nature_features,
+        value_model_constructor=nature_value_head,
+        policy_model_constructor=nature_policy_head
 ):
     """
     Vanilla Actor-Critic Atari preset.
@@ -35,11 +39,14 @@ def vac(
             Set to 0 to disable.
         value_loss_scaling (float): Coefficient for the value function loss.
         n_envs (int): Number of parallel environments.
+        feature_model_constructor (function): The function used to construct the neural feature model.
+        value_model_constructor (function): The function used to construct the neural value model.
+        policy_model_constructor (function): The function used to construct the neural policy model.
     """
     def _vac(envs, writer=DummyWriter()):
-        value_model = nature_value_head().to(device)
-        policy_model = nature_policy_head(envs[0]).to(device)
-        feature_model = nature_features().to(device)
+        value_model = value_model_constructor().to(device)
+        policy_model = policy_model_constructor(envs[0]).to(device)
+        feature_model = feature_model_constructor().to(device)
 
         value_optimizer = Adam(value_model.parameters(), lr=lr_v, eps=eps)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi, eps=eps)
