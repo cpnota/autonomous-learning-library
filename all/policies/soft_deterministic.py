@@ -43,7 +43,7 @@ class SoftDeterministicPolicyNetwork(RLNetwork):
         if self.training:
             action, log_prob = self._sample(normal)
             return action, log_prob
-        return self._squash(normal.loc)
+        return self._squash(normal.loc), torch.as_tensor(0.0, device=self.device)
 
     def _normal(self, outputs):
         means = outputs[..., 0:self._action_dim]
