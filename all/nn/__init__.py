@@ -44,7 +44,7 @@ class Dueling(nn.Module):
     """
 
     def __init__(self, value_model, advantage_model):
-        super(Dueling, self).__init__()
+        super().__init__()
         self.value_model = value_model
         self.advantage_model = advantage_model
         self.aggregation = Aggregation()
@@ -59,7 +59,7 @@ class CategoricalDueling(nn.Module):
     """Dueling architecture for C51/Rainbow"""
 
     def __init__(self, value_model, advantage_model):
-        super(CategoricalDueling, self).__init__()
+        super().__init__()
         self.value_model = value_model
         self.advantage_model = advantage_model
 
@@ -98,7 +98,7 @@ class NoisyLinear(nn.Linear):
     """
 
     def __init__(self, in_features, out_features, sigma_init=0.017, bias=True):
-        super(NoisyLinear, self).__init__(in_features, out_features, bias=bias)
+        super().__init__(in_features, out_features, bias=bias)
         self.sigma_weight = nn.Parameter(
             torch.Tensor(out_features, in_features).fill_(sigma_init)
         )

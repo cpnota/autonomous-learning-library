@@ -131,7 +131,6 @@ class TestQDist(unittest.TestCase):
             torch.sign(new_probs - original_probs), torch.sign(target_dists - 0.5)
         )
 
-    # pylint: disable=bad-whitespace,bad-continuation
     def test_project_dist(self):
         # This gave problems in the past between different cuda version,
         # so a test was added.
