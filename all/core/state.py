@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-__all__ = ['State', 'StateTensor']
+__all__ = ['State', 'StateArray']
 
 class State(dict):
     def __init__(self, x, device='cpu', **kwargs):
@@ -35,7 +35,7 @@ class State(dict):
                     x[key] = torch.tensor([state[key] for state in list_of_states], device=device)
             except: # # pylint: disable=bare-except
                 pass
-        return StateTensor(x, shape, device=device)
+        return StateArray(x, shape, device=device)
 
     def apply(self, model, *keys):
         return self.apply_mask(self.as_output(model(*[self.as_input(key) for key in keys])))
@@ -105,14 +105,14 @@ class State(dict):
     def __len__(self):
         return 1
 
-class StateTensor(State):
+class StateArray(State):
     def __init__(self, x, shape, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
         for k, v in kwargs.items():
             x[k] = v
         if 'observation' not in x:
-            raise Exception('StateTensor must contain an observation')
+            raise Exception('StateArray must contain an observation')
         if 'reward' not in x:
             x['reward'] = torch.zeros(shape, device=device)
         if 'done' not in x:
@@ -146,14 +146,14 @@ class StateTensor(State):
         x = {}
         for k, v in self.items():
             x[k] = v.view((n, *v.shape[dims:]))
-        return StateTensor(x, (n,), device=self.device)
+        return StateArray(x, (n,), device=self.device)
 
     def view(self, shape):
         dims = len(self.shape)
         x = {}
         for k, v in self.items():
             x[k] = v.view((*shape, *v.shape[dims:]))
-        return StateTensor(x, shape, device=self.device)
+        return StateArray(x, shape, device=self.device)
 
     @property
     def observation(self):
@@ -174,7 +174,7 @@ class StateTensor(State):
     def __getitem__(self, key):
         if isinstance(key, slice):
             shape = self['mask'][key].shape
-            return StateTensor({k:v[key] for (k, v) in self.items()}, shape, device=self.device)
+            return StateArray({k:v[key] for (k, v) in self.items()}, shape, device=self.device)
         if isinstance(key, int):
             return State({k:v[key] for (k, v) in self.items()}, device=self.device)
         if torch.is_tensor(key):
