@@ -22,7 +22,7 @@ class State(dict):
         self.device = device
 
     @classmethod
-    def from_list(cls, list_of_states):
+    def array(cls, list_of_states):
         device = list_of_states[0].device
         shape = (len(list_of_states), *list_of_states[0].shape)
         x = {}

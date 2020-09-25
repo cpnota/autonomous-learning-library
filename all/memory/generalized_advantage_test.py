@@ -30,7 +30,7 @@ class GeneralizedAdvantageBufferTest(unittest.TestCase):
             lam=0.5
         )
         actions = torch.ones((1))
-        states = State.from_list([State({'observation': torch.tensor([float(x)])}) for x in range(3)])
+        states = State.array([State({'observation': torch.tensor([float(x)])}) for x in range(3)])
         rewards = torch.tensor([1., 2, 4])
         buffer.store(states[0], actions, rewards[0])
         buffer.store(states[1], actions, rewards[1])
@@ -64,12 +64,12 @@ class GeneralizedAdvantageBufferTest(unittest.TestCase):
         actions = torch.ones((2))
 
         def make_states(x, y):
-            return State.from_list([
+            return State.array([
                 State({'observation': torch.tensor([float(x)])}),
                 State({'observation': torch.tensor([float(y)])})
             ])
 
-        states = State.from_list([
+        states = State.array([
             make_states(0, 3),
             make_states(1, 4),
             make_states(2, 5),

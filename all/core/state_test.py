@@ -138,26 +138,26 @@ class StateArrayTest(unittest.TestCase):
         tt.assert_equal(state.mask, torch.tensor([0., 1., 0.]))
 
     def test_multi_dim(self):
-        state = StateArray.from_list([
+        state = StateArray.array([
             State(torch.randn((3, 4))),
             State(torch.randn((3, 4)))
         ])
         self.assertEqual(state.shape, (2,))
-        state = StateArray.from_list([state] * 3)
+        state = StateArray.array([state] * 3)
         self.assertEqual(state.shape, (3, 2))
-        state = StateArray.from_list([state] * 5)
+        state = StateArray.array([state] * 5)
         self.assertEqual(state.shape, (5, 3, 2))
         tt.assert_equal(state.mask, torch.ones((5, 3, 2)))
         tt.assert_equal(state.done, torch.zeros((5, 3, 2)).bool())
         tt.assert_equal(state.reward, torch.zeros((5, 3, 2)))
 
     def test_view(self):
-        state = StateArray.from_list([
+        state = StateArray.array([
             State(torch.randn((3, 4))),
             State(torch.randn((3, 4)))
         ])
         self.assertEqual(state.shape, (2,))
-        state = StateArray.from_list([state] * 3)
+        state = StateArray.array([state] * 3)
         self.assertEqual(state.shape, (3, 2))
         state = state.view((2, 3))
         self.assertEqual(state.shape, (2, 3))

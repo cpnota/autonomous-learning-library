@@ -44,7 +44,7 @@ class GeneralizedAdvantageBuffer:
             raise Exception("Not enough states received!")
 
         self._states.append(states)
-        states = State.from_list(self._states[0:self.n_steps + 1])
+        states = State.array(self._states[0:self.n_steps + 1])
         actions = torch.cat(self._actions[:self.n_steps], dim=0)
         rewards = torch.stack(self._rewards[:self.n_steps])
         _values = self.v.target(self.features.target(states))

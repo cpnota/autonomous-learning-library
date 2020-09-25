@@ -92,9 +92,9 @@ class NStepAdvantageBuffer:
                     next_state = state
 
         return (
-            State.from_list(sample_states),
+            State.array(sample_states),
             torch.stack(sample_actions),
-            State.from_list(sample_next_states)
+            State.array(sample_next_states)
         )
 
     def _compute_advantages(self, states, rewards, next_states, lengths):

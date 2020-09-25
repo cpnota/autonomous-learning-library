@@ -132,7 +132,7 @@ class ParallelEnvExperiment(Experiment):
                     env.step(action)
 
     def _aggregate_states(self):
-        return State.from_list([env.state for env in self._envs])
+        return State.array([env.state for env in self._envs])
 
     def _aggregate_rewards(self):
         return torch.tensor(

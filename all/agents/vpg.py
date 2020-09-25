@@ -72,7 +72,7 @@ class VPG(Agent):
 
     def _terminal(self, state, reward):
         self._rewards.append(reward)
-        features = State.from_list(self._features)
+        features = State.array(self._features)
         rewards = torch.tensor(self._rewards, device=features.device)
         log_pis = torch.stack(self._log_pis)
         self._trajectories.append((features, rewards, log_pis))
