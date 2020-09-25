@@ -9,4 +9,4 @@ class ClipRewards(Body):
     def _clip(self, reward):
         if torch.is_tensor(reward):
             return torch.sign(reward)
-        return np.sign(reward)
+        return float(np.sign(reward))
