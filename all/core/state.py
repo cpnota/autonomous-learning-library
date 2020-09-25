@@ -1,9 +1,24 @@
 import numpy as np
 import torch
 
-__all__ = ['State', 'StateArray']
 
 class State(dict):
+    """
+    An environment State.
+    An environment State represents all of the information available to an agent at a given timestep,
+    including the observation, reward, and the done flag.
+    The State object contains useful utilities for creating StateArray objects,
+    constructing State objects for OpenAI gym environments,
+    masking the output of networks based on the done flag, etc.
+
+    Args:
+        x (dict): A dictionary containing all state information. Any key/value can be included, but the following keys are standard:
+            observation (torch.tensor) (required): Rea torch.tensor representing the current state
+            reward (float) (optional): The reward for the previous state/action. Defaults to 0.
+            done (bool) (optional): Whether or not this is a terminal state. Defaults to False.
+            mask (float) (optional): The mask (0 or 1) for the current state. Defaults to 0 if terminal state, 1 otherwise.
+        device (string): The torch device on which component tensors are stored.
+    """
     def __init__(self, x, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
@@ -23,6 +38,17 @@ class State(dict):
 
     @classmethod
     def array(cls, list_of_states):
+        """
+        Construct a StateArray from a list of State or StateArray objects.
+        The shape of the resulting StateArray is (N, ...M), where N is the length of the input list
+        and M is the shape of the component State or StateArray objects.
+
+        Args:
+            list_of_states: A list of State or StateArray objects with a matching shape.
+
+        Returns:
+            A StateArray object.
+        """
         device = list_of_states[0].device
         shape = (len(list_of_states), *list_of_states[0].shape)
         x = {}
@@ -38,18 +64,68 @@ class State(dict):
         return StateArray(x, shape, device=device)
 
     def apply(self, model, *keys):
+        """
+        Apply a model to the state.
+        Automatically selects the correct keys, reshapes the input/output as necessary and applies the mask.
+
+        Args:
+            model (torch.nn.Module): A torch Module which accepts the components corresponding to the given keys as args.
+            keys (string): Strings corresponding to the desired components of the state.
+                E.g., apply(model, 'observation', 'reward') would pass the observation and reward as arguments to the model.
+
+        Returns:
+            The output of the model.
+        """
         return self.apply_mask(self.as_output(model(*[self.as_input(key) for key in keys])))
 
     def as_input(self, key):
+        """
+        Gets the value for a given key and reshapes it to a batch-style tensor suitable as input to a pytorch module.
+
+        Args:
+            key (string): The component of the state to select.
+
+        Returns:
+            A torch.tensor containing the value of the component with a batch dimension added.
+        """
         return self[key].unsqueeze(0)
 
     def as_output(self, tensor):
+        """
+        Reshapes the output of a batch-style pytorch module to match the original shape of the state.
+
+        Args:
+            tensor (torch.tensor): The output of a batch-style pytorch module.
+
+        Returns:
+            A torch.tensor containing the output in the appropriate shape.
+        """
         return tensor.squeeze(0)
 
     def apply_mask(self, tensor):
+        """
+        Applies the mask to the given tensor, generally to prevent backpropagation through terminal states.
+
+        Args:
+            tensor (torch.tensor): The tensor to apply the mask to.
+
+        Returns:
+            A torch.tensor with the mask applied.
+        """
         return tensor * self.mask
 
     def update(self, key, value):
+        """
+        Adds a key/value pair to the state, or updates an existing key/value pair.
+        Note that this is NOT an in-place operation, but returns a new State or StateArray.
+
+        Args:
+            key (string): The name of the state component to update.
+            value (any): The value of the new state component.
+
+        Returns:
+            A State or StateArray object with the given component added/updated.
+        """
         x = {}
         for k in self.keys():
             if not k == key:
@@ -59,6 +135,17 @@ class State(dict):
 
     @classmethod
     def from_gym(cls, state, device='cpu', dtype=np.float32):
+        """
+        Constructs a State object given the return value of an OpenAI gym reset()/step(action) call.
+
+        Args:
+            state (tuple): The return value of an OpenAI gym reset()/step(action) call
+            device (string): The device on which to store resulting tensors.
+            dtype: The type of the observation.
+
+        Returns:
+            A State object.
+        """
         if not isinstance(state, tuple):
             return State({
                 'observation': torch.from_numpy(
