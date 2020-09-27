@@ -19,7 +19,8 @@ class AtariEnvironment(GymEnvironment):
         # apply a subset of wrappers
         env = NoopResetEnv(env, noop_max=30)
         env = MaxAndSkipEnv(env)
-        env = FireResetEnv(env)
+        if "FIRE" in env.unwrapped.get_action_meanings():
+            env = FireResetEnv(env)
         env = WarpFrame(env)
         env = LifeLostEnv(env)
         # initialize
