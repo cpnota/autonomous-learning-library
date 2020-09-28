@@ -4,7 +4,7 @@ import torch
 import torch_testing as tt
 import gym
 from all import nn
-from all.core import StateTensor
+from all.core import StateArray
 
 
 class TestNN(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestNN(unittest.TestCase):
         net = nn.RLNetwork(model, (2,))
         features = torch.randn((4, 2))
         done = torch.tensor([False, False, True, False])
-        out = net(StateTensor(features, (4,), done=done))
+        out = net(StateArray(features, (4,), done=done))
         tt.assert_almost_equal(
             out,
             torch.tensor(
@@ -51,7 +51,7 @@ class TestNN(unittest.TestCase):
 
         features = torch.randn(3, 2)
         done = torch.tensor([False, False, False])
-        out = net(StateTensor(features, (3,), done=done))
+        out = net(StateArray(features, (3,), done=done))
         tt.assert_almost_equal(
             out,
             torch.tensor(

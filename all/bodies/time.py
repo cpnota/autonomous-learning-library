@@ -1,5 +1,5 @@
 import torch
-from all.core import StateTensor
+from all.core import StateArray
 from ._body import Body
 
 class TimeFeature(Body):
@@ -9,7 +9,7 @@ class TimeFeature(Body):
         super().__init__(agent)
 
     def process_state(self, state):
-        if isinstance(state, StateTensor):
+        if isinstance(state, StateArray):
             if self.timestep is None:
                 self.timestep = torch.zeros(state.shape, device=state.device)
             observation = torch.cat((state.observation, self.scale * self.timestep.view(-1, 1)), dim=1)

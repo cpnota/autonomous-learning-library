@@ -17,7 +17,7 @@ What should the proper abstraction for agent be, then? We have to look no furthe
 .. image:: ./rl.jpg
 
 The definition of an ``Agent`` is simple.
-It accepts a state and a reward and returns an action.
+It accepts a state and returns an action.
 That's it.
 Everything else is an implementation detail.
 Here's the ``Agent`` interface in the autonomous-learning-library:
@@ -26,11 +26,11 @@ Here's the ``Agent`` interface in the autonomous-learning-library:
 
     class Agent(ABC):
         @abstractmethod
-        def act(self, state, reward):
+        def act(self, state):
             pass
 
         @abstractmethod
-        def eval(self, state, reward):
+        def eval(self, state):
             pass
 
 The ``act`` function is called when training the agent.
@@ -41,14 +41,14 @@ What might an implementation of ``act`` look like? Here's the act function from 
 
 .. code-block:: python
 
-    def act(self, state, reward):
-        self._store_transition(self._state, self._action, reward, state)
+    def act(self, state):
+        self.replay_buffer.store(self._state, self._action, state)
         self._train()
         self._state = state
         self._action = self.policy(state)
         return self.action
 
-That's it. ``_store_transition()`` and ``_train()`` are private helper methods.
+That's it. ``_train()`` is a private helper methods.
 There is no reason for the control loop to know anything about these details.
 There is no tight coupling between the ``Agent`` and the control loop.
 This approach simplifies both our ``Agent`` implementation and the control loop itself.
@@ -56,7 +56,14 @@ This approach simplifies both our ``Agent`` implementation and the control loop 
 Separating the control loop logic from the ``Agent`` logic allows greater flexibility in the way agents are used.
 In fact, ``Agent`` is entirely decoupled from the ``Environment`` interface.
 This means that our agents can be used outside of standard research environments, such as part of a REST api, a multi-agent system, etc.
-Any code that passes a ``State`` and a scalar reward is compatible with our agents.
+Any code that passes a ``State`` is compatible with our agents.
+
+What is a ``State``?
+The ``State`` abstraction is part of ``all.core`` and it represents all of the information available to the agent at a given timestep.
+It contains some default entries, including ``state['observation']``, ``state['reward']``, and ``state['done']``, and ``state['mask']``.
+A ``StateArray`` object can be constucted by calling ``State.array(list_of_states)``, and provides an abstraction for batch processing of states.
+Arbitrary entries can be added to a ``State``, and use of the ``StateArray`` abstraction ensures that these entries are combined and sliced properly.
+The code does not need to be tightly coupled to the shape of the data, but rather can act on the abstraction. 
 
 Function Approximation
 ----------------------
@@ -109,14 +116,17 @@ Easy! Now let's look at the _train() function for our DQN agent:
 
     def _train(self):
         if self._should_train():
+            # sample transitions from buffer
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
 
             # forward pass
             values = self.q(states, actions)
+
+            # compute targets
             targets = rewards + self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0]
 
             # compute loss
-            loss = mse_loss(values, targets)
+            loss = self.loss(values, targets)
 
             # backward pass
             self.q.reinforce(loss)
@@ -175,12 +185,12 @@ Now we can write our first control loop:
     # Loop for some arbitrary number of timesteps.
     for timesteps in range(1000000):
         env.render()
-        action = agent.act(env.state, env.reward)
+        action = agent.act(env.state)
         env.step(action)
 
         if env.done:
             # terminal update
-            agent.act(env.state, env.reward)
+            agent.act(env.state)
 
             # reset the environment
             env.reset()
@@ -239,7 +249,7 @@ In order to actually apply this agent to a problem, for example, a classic contr
         return _vqn
 
 Notice how there is an "outer function" and an "inner" function.
-This approach allows the separation of configuration and instansiation.
+This approach allows the separation of configuration and instantiation.
 While this may seem redundant, it can sometimes be useful.
 For example, suppose we want to run the same agent on multiple environments.
 This can be done as follows:
@@ -247,12 +257,11 @@ This can be done as follows:
 .. code-block:: python
 
     agent = vqn()
-    envs = [, GymEnvironment('MountainCar-v0')]
     some_custom_runner(agent(), GymEnvironment('CartPole-v0'))
     some_custom_runner(agent(), GymEnvironment('MountainCar-v0'))
 
 Now, each call to ``some_custom_runner`` receives a unique instance of the agent.
-This is sometimes achieved in other libraries by providing a "reset" function.
+This is sometimes achieved in other libraries by providing a "reset" function on the agent.
 We find our approach allows us to keep the ``Agent`` interface clean,
 and is overall more elegant and less error prone.
 
