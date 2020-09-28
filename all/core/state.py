@@ -12,12 +12,23 @@ class State(dict):
     masking the output of networks based on the done flag, etc.
 
     Args:
-        x (dict): A dictionary containing all state information. Any key/value can be included, but the following keys are standard:
-            observation (torch.tensor) (required): Rea torch.tensor representing the current state
-            reward (float) (optional): The reward for the previous state/action. Defaults to 0.
-            done (bool) (optional): Whether or not this is a terminal state. Defaults to False.
-            mask (float) (optional): The mask (0 or 1) for the current state. Defaults to 0 if terminal state, 1 otherwise.
-        device (string): The torch device on which component tensors are stored.
+        x (dict):
+            A dictionary containing all state information.
+            Any key/value can be included, but the following keys are standard:
+
+            observation (torch.tensor) (required):
+                A tensor representing the current state
+
+            reward (float) (optional):
+                The reward for the previous state/action. Defaults to 0.
+
+            done (bool) (optional):
+                Whether or not this is a terminal state. Defaults to False.
+
+            mask (float) (optional):
+                The mask (0 or 1) for the current state.
+        device (string):
+            The torch device on which component tensors are stored.
     """
     def __init__(self, x, device='cpu', **kwargs):
         if not isinstance(x, dict):
@@ -69,9 +80,11 @@ class State(dict):
         Automatically selects the correct keys, reshapes the input/output as necessary and applies the mask.
 
         Args:
-            model (torch.nn.Module): A torch Module which accepts the components corresponding to the given keys as args.
+            model (torch.nn.Module): A torch Module which accepts the components corresponding
+                                     to the given keys as args.
             keys (string): Strings corresponding to the desired components of the state.
-                E.g., apply(model, 'observation', 'reward') would pass the observation and reward as arguments to the model.
+                           E.g., apply(model, 'observation', 'reward') would pass the observation
+                           and reward as arguments to the model.
 
         Returns:
             The output of the model.
@@ -175,18 +188,22 @@ class State(dict):
 
     @property
     def observation(self):
+        """A tensor containing the current observation."""
         return self['observation']
 
     @property
     def reward(self):
+        """A float representing the reward for the previous state/action pair."""
         return self['reward']
 
     @property
     def done(self):
+        """A boolean that is true if the state is a terminal state, and false otherwise."""
         return self['done']
 
     @property
     def mask(self):
+        """A float that is 1. if the state is non-terminal, or 0. otherwise."""
         return self['mask']
 
     def __len__(self):
