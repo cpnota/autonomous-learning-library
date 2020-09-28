@@ -71,7 +71,7 @@ class SAC(Agent):
         return self._action
 
     def eval(self, state):
-        return self.policy.eval(state)[0]
+        return self.policy.eval(state)
 
     def _train(self):
         if self._should_train():
