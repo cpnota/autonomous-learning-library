@@ -5,6 +5,7 @@ import torch
 class State(dict):
     """
     An environment State.
+
     An environment State represents all of the information available to an agent at a given timestep,
     including the observation, reward, and the done flag.
     The State object contains useful utilities for creating StateArray objects,
@@ -17,7 +18,7 @@ class State(dict):
             Any key/value can be included, but the following keys are standard:
 
             observation (torch.tensor) (required):
-                A tensor representing the current state
+                A tensor representing the current observation available to the agent
 
             reward (float) (optional):
                 The reward for the previous state/action. Defaults to 0.
@@ -210,6 +211,34 @@ class State(dict):
         return 1
 
 class StateArray(State):
+    """
+        An n-dimensional array of environment State objects.
+
+        Internally, all components of the states are represented as n-dimensional tensors.
+        This allows for batch-style processing and easy manipulation of states.
+        Usually, a StateArray should be constructed using the State.array() function.
+
+        Args:
+            x (dict):
+                A dictionary containing all state information.
+                Each value should be a tensor in which the first n-dimensions
+                match the shape of the StateArray.
+                The following keys are standard:
+
+                observation (torch.tensor) (required):
+                    A tensor representing the observations for each state
+
+                reward (torch.FloatTensor) (optional):
+                    A tensor representing rewards for the previous state/action pairs
+
+                done (torch.BoolTensors) (optional):
+                    A tensor representing whether each state is terminal
+
+                mask (torch.FloatTensor) (optional):
+                    A tensor representing the mask for each state.
+            device (string):
+                The torch device on which component tensors are stored.
+    """
     def __init__(self, x, shape, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
@@ -224,9 +253,21 @@ class StateArray(State):
         if 'mask' not in x:
             x['mask'] = 1. - x['done'].float()
         super().__init__(x, device=device)
-        self.shape = shape
+        self._shape = shape
 
     def update(self, key, value):
+        """
+        Adds a key/value pair to the StateArray, or updates an existing key/value pair.
+        The value should be a tensor whose first n-dimensions match the shape of the StateArray
+        Note that this is NOT an in-place operation, but returns a StateArray.
+
+        Args:
+            key (string): The name of the state component to update.
+            value (any): The value of the new state component.
+
+        Returns:
+            A StateArray object with the given component added/updated.
+        """
         x = {}
         for k in self.keys():
             if not k == key:
@@ -245,6 +286,12 @@ class StateArray(State):
         return tensor * self.mask.unsqueeze(-1) # pylint: disable=no-member
 
     def flatten(self):
+        """
+        Converts an n-dimensional StateArray to a 1-dimensional StateArray
+
+        Returns:
+            A 1-dimensional StateArray
+        """
         n = np.prod(self.shape)
         dims = len(self.shape)
         x = {}
@@ -253,6 +300,13 @@ class StateArray(State):
         return StateArray(x, (n,), device=self.device)
 
     def view(self, shape):
+        """
+        Analogous to torch.tensor.view(), returns a new StateArray object
+        containing the same data but with a different shape.
+
+        Returns:
+            A StateArray with the given shape
+        """
         dims = len(self.shape)
         x = {}
         for k, v in self.items():
@@ -296,6 +350,11 @@ class StateArray(State):
         except KeyError:
             return None
         return value
+
+    @property
+    def shape(self):
+        """The shape of the StateArray"""
+        return self._shape
 
     def __len__(self):
         return self.shape[0]
