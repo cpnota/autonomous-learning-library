@@ -45,7 +45,7 @@ class State(dict):
         if 'mask' not in x:
             x['mask'] = 1. - x['done']
         super().__init__(x)
-        self.shape = ()
+        self._shape = ()
         self.device = device
 
     @classmethod
@@ -206,6 +206,11 @@ class State(dict):
     def mask(self):
         """A float that is 1. if the state is non-terminal, or 0. otherwise."""
         return self['mask']
+
+    @property
+    def shape(self):
+        """The shape of the State or StateArray. A State always has shape ()."""
+        return self._shape
 
     def __len__(self):
         return 1
