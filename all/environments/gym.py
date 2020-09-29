@@ -5,6 +5,20 @@ from .abstract import Environment
 gym.logger.set_level(40)
 
 class GymEnvironment(Environment):
+    '''
+    A wrapper for OpenAI Gym environments (see: https://gym.openai.com).
+
+    This wrapper converts the output of the gym environment to PyTorch tensors,
+    and wraps them in a State object that can be passed to an Agent.
+    This constructor supports either a string, which will be passed to the
+    gym.make(name) function, or a preconstructed gym environment. Note that
+    in the latter case, the name property is set to be the whatever the name
+    of the outermost wrapper on the environment is.
+    
+    Args:
+        env: Either a string or an OpenAI gym environment
+        device (optional): the device on which tensors will be stored
+    '''
     def __init__(self, env, device=torch.device('cpu')):
         if isinstance(env, str):
             self._name = env
