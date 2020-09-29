@@ -6,9 +6,12 @@ gym.logger.set_level(40)
 
 class GymEnvironment(Environment):
     def __init__(self, env, device=torch.device('cpu')):
-        self._name = env
         if isinstance(env, str):
+            self._name = env
             env = gym.make(env)
+        else:
+            self._name = env.__class__.__name__
+
         self._env = env
         self._state = None
         self._action = None
