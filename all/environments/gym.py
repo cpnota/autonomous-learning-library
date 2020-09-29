@@ -14,7 +14,7 @@ class GymEnvironment(Environment):
     gym.make(name) function, or a preconstructed gym environment. Note that
     in the latter case, the name property is set to be the whatever the name
     of the outermost wrapper on the environment is.
-    
+
     Args:
         env: Either a string or an OpenAI gym environment
         device (optional): the device on which tensors will be stored
