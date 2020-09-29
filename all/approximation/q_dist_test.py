@@ -2,7 +2,7 @@ import unittest
 import torch
 from torch import nn
 import torch_testing as tt
-from all.environments import State
+from all.core import StateArray
 from all.approximation import QDist
 
 STATE_DIM = 1
@@ -23,7 +23,7 @@ class TestQDist(unittest.TestCase):
         tt.assert_almost_equal(self.q.atoms, torch.tensor([-2, -1, 0, 1, 2]))
 
     def test_q_values(self):
-        states = State(torch.randn((3, STATE_DIM)))
+        states = StateArray(torch.randn((3, STATE_DIM)), (3,))
         probs = self.q(states)
         self.assertEqual(probs.shape, (3, ACTIONS, ATOMS))
         tt.assert_almost_equal(
@@ -53,7 +53,7 @@ class TestQDist(unittest.TestCase):
         )
 
     def test_single_q_values(self):
-        states = State(torch.randn((3, STATE_DIM)))
+        states = StateArray(torch.randn((3, STATE_DIM)), (3,))
         actions = torch.tensor([0, 1, 0])
         probs = self.q(states, actions)
         self.assertEqual(probs.shape, (3, ATOMS))
@@ -73,7 +73,7 @@ class TestQDist(unittest.TestCase):
         )
 
     def test_done(self):
-        states = State(torch.randn((3, STATE_DIM)), mask=torch.tensor([1, 0, 1]))
+        states = StateArray(torch.randn((3, STATE_DIM)), (3,), mask=torch.tensor([1, 0, 1]))
         probs = self.q(states)
         self.assertEqual(probs.shape, (3, ACTIONS, ATOMS))
         tt.assert_almost_equal(
@@ -100,7 +100,7 @@ class TestQDist(unittest.TestCase):
         )
 
     def test_reinforce(self):
-        states = State(torch.randn((3, STATE_DIM)))
+        states = StateArray(torch.randn((3, STATE_DIM)), (3,))
         actions = torch.tensor([0, 1, 0])
         original_probs = self.q(states, actions)
         tt.assert_almost_equal(
@@ -131,7 +131,6 @@ class TestQDist(unittest.TestCase):
             torch.sign(new_probs - original_probs), torch.sign(target_dists - 0.5)
         )
 
-    # pylint: disable=bad-whitespace,bad-continuation
     def test_project_dist(self):
         # This gave problems in the past between different cuda version,
         # so a test was added.

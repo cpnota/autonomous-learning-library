@@ -32,6 +32,8 @@ def ddqn(
         # Prioritized replay settings
         alpha=0.5,
         beta=0.5,
+        # Model construction
+        model_constructor=nature_ddqn
 ):
     """
     Dueling Double DQN with Prioritized Experience Replay (PER).
@@ -55,6 +57,7 @@ def ddqn(
             (0 = no prioritization, 1 = full prioritization)
         beta (float): The strength of the importance sampling correction for prioritized experience replay.
             (0 = no correction, 1 = full correction)
+        model_constructor (function): The function used to construct the neural model.
     """
     def _ddqn(env, writer=DummyWriter()):
         action_repeat = 4
@@ -62,7 +65,7 @@ def ddqn(
         last_update = (last_timestep - replay_start_size) / update_frequency
         final_exploration_step = final_exploration_frame / action_repeat
 
-        model = nature_ddqn(env).to(device)
+        model = model_constructor(env).to(device)
         optimizer = Adam(
             model.parameters(),
             lr=lr,

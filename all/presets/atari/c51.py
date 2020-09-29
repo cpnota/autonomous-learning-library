@@ -31,6 +31,8 @@ def c51(
         atoms=51,
         v_min=-10,
         v_max=10,
+        # Model construction
+        model_constructor=nature_c51
 ):
     """
     C51 Atari preset.
@@ -53,13 +55,14 @@ def c51(
             the distributional value function.
         v_min (int): The expected return corresponding to the smallest atom.
         v_max (int): The expected return correspodning to the larget atom.
+        model_constructor (function): The function used to construct the neural model.
     """
     def _c51(env, writer=DummyWriter()):
         action_repeat = 4
         last_timestep = last_frame / action_repeat
         last_update = (last_timestep - replay_start_size) / update_frequency
 
-        model = nature_c51(env, atoms=atoms).to(device)
+        model = model_constructor(env, atoms=atoms).to(device)
         optimizer = Adam(
             model.parameters(),
             lr=lr,

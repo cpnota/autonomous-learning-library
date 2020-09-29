@@ -62,6 +62,13 @@ class Environment(ABC):
 
     @property
     @abstractmethod
+    def state(self):
+        """
+        The State of the Environment at the current timestep.
+        """
+
+    @property
+    @abstractmethod
     def state_space(self):
         """
         The Space representing the range of observable states.
@@ -95,53 +102,6 @@ class Environment(ABC):
         Space
             An object of type Space that represents possible actions the agent may take
         """
-
-    @property
-    @abstractmethod
-    def state(self):
-        """
-        The State of the Environment at the current timestep.
-        """
-
-    @property
-    @abstractmethod
-    def action(self):
-        """
-        The most recent Action taken
-        """
-
-    @property
-    @abstractmethod
-    def reward(self):
-        """
-        The reward for the previous action taken
-        """
-
-    @property
-    @abstractmethod
-    def done(self):
-        """
-        Whether or not the environment has terminated and should be reset.
-        """
-
-    @property
-    def info(self):
-        """
-        Debugging info for the current time step.
-        """
-        return None
-
-    @property
-    def should_reset(self):
-        """
-        Special property to determine whether the runner should call reset.
-        Related to done, except in some environments, it helps to distinguish
-        between what the algorithm considers an episode, and what the runner
-        considers an episode. For example, in Pong, it is easier if the agent
-        treats a single volley as an episode. However, we would still like to
-        evaluate the agent relative to the entire match.
-        """
-        return self.done
 
     @abstractmethod
     def duplicate(self, n):

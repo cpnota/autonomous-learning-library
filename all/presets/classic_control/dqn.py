@@ -25,6 +25,8 @@ def dqn(
         initial_exploration=1.,
         final_exploration=0.,
         final_exploration_frame=10000,
+        # Model construction
+        model_constructor=fc_relu_q
 ):
     """
     DQN classic control preset.
@@ -42,9 +44,10 @@ def dqn(
             decayed until final_exploration_frame.
         final_exploration (int): Final probability of choosing a random action.
         final_exploration_frame (int): The frame where the exploration decay stops.
+        model_constructor (function): The function used to construct the neural model.
     """
     def _dqn(env, writer=DummyWriter()):
-        model = fc_relu_q(env).to(device)
+        model = model_constructor(env).to(device)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(
             model,

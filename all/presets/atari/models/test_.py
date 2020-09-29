@@ -4,7 +4,7 @@ import torch_testing as tt
 from all.environments import AtariEnvironment
 from all.presets.atari.models import nature_rainbow
 
-# pylint: disable=bad-whitespace,bad-continuation
+
 class TestAtariModels(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(0)

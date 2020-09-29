@@ -18,6 +18,10 @@ def a2c(
         # Batch settings
         n_envs=4,
         n_steps=32,
+        # Model construction
+        feature_model_constructor=fc_relu_features,
+        value_model_constructor=fc_value_head,
+        policy_model_constructor=fc_policy_head
 ):
     """
     A2C classic control preset.
@@ -30,12 +34,15 @@ def a2c(
         entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
         n_envs (int): Number of parallel environments.
         n_steps (int): Length of each rollout.
+        feature_model_constructor (function): The function used to construct the neural feature model.
+        value_model_constructor (function): The function used to construct the neural value model.
+        policy_model_constructor (function): The function used to construct the neural policy model.
     """
     def _a2c(envs, writer=DummyWriter()):
         env = envs[0]
-        feature_model = fc_relu_features(env).to(device)
-        value_model = fc_value_head().to(device)
-        policy_model = fc_policy_head(env).to(device)
+        feature_model = feature_model_constructor(env).to(device)
+        value_model = value_model_constructor().to(device)
+        policy_model = policy_model_constructor(env).to(device)
 
         feature_optimizer = Adam(feature_model.parameters(), lr=lr)
         value_optimizer = Adam(value_model.parameters(), lr=lr)

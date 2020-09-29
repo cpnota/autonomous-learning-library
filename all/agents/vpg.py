@@ -1,6 +1,6 @@
 import torch
 from torch.nn.functional import mse_loss
-from all.environments import State
+from all.core import State
 from ._agent import Agent
 
 class VPG(Agent):
@@ -43,21 +43,21 @@ class VPG(Agent):
         self._log_pis = []
         self._rewards = []
 
-    def act(self, state, reward):
+    def act(self, state):
         if not self._features:
             return self._initial(state)
         if not state.done:
-            return self._act(state, reward)
-        return self._terminal(state, reward)
+            return self._act(state, state.reward)
+        return self._terminal(state, state.reward)
 
-    def eval(self, state, _):
+    def eval(self, state):
         return self.policy.eval(self.features.eval(state))
 
     def _initial(self, state):
         features = self.features(state)
         distribution = self.policy(features)
         action = distribution.sample()
-        self._features = [features.features]
+        self._features = [features]
         self._log_pis.append(distribution.log_prob(action))
         return action
 
@@ -65,16 +65,16 @@ class VPG(Agent):
         features = self.features(state)
         distribution = self.policy(features)
         action = distribution.sample()
-        self._features.append(features.features)
+        self._features.append(features)
         self._rewards.append(reward)
         self._log_pis.append(distribution.log_prob(action))
         return action
 
     def _terminal(self, state, reward):
         self._rewards.append(reward)
-        features = torch.cat(self._features)
+        features = State.array(self._features)
         rewards = torch.tensor(self._rewards, device=features.device)
-        log_pis = torch.cat(self._log_pis)
+        log_pis = torch.stack(self._log_pis)
         self._trajectories.append((features, rewards, log_pis))
         self._current_batch_size += len(features)
         self._features = []
@@ -90,7 +90,7 @@ class VPG(Agent):
     def _train(self):
         # forward pass
         values = torch.cat([
-            self.v(State(features))
+            self.v(features)
             for (features, _, _)
             in self._trajectories
         ])

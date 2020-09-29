@@ -22,6 +22,10 @@ def ppo(
         n_steps=8,
         # GAE settings
         lam=0.95,
+        # Model construction
+        feature_model_constructor=fc_relu_features,
+        value_model_constructor=fc_value_head,
+        policy_model_constructor=fc_policy_head
 ):
     """
     PPO classic control preset.
@@ -39,12 +43,15 @@ def ppo(
         n_envs (int): Number of parallel actors.
         n_steps (int): Length of each rollout.
         lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
+        feature_model_constructor (function): The function used to construct the neural feature model.
+        value_model_constructor (function): The function used to construct the neural value model.
+        policy_model_constructor (function): The function used to construct the neural policy model.
     """
     def _ppo(envs, writer=DummyWriter()):
         env = envs[0]
-        feature_model = fc_relu_features(env).to(device)
-        value_model = fc_value_head().to(device)
-        policy_model = fc_policy_head(env).to(device)
+        feature_model = feature_model_constructor(env).to(device)
+        value_model = value_model_constructor().to(device)
+        policy_model = policy_model_constructor(env).to(device)
 
         feature_optimizer = Adam(feature_model.parameters(), lr=lr)
         value_optimizer = Adam(value_model.parameters(), lr=lr)

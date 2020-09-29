@@ -26,7 +26,9 @@ def c51(
         # Distributional RL
         atoms=101,
         v_min=-100,
-        v_max=100
+        v_max=100,
+        # Model construction
+        model_constructor=fc_relu_dist_q
 ):
     """
     C51 classic control preset.
@@ -47,9 +49,10 @@ def c51(
             the distributional value function.
         v_min (int): The expected return corresponding to the smallest atom.
         v_max (int): The expected return correspodning to the larget atom.
+        model_constructor (function): The function used to construct the neural model.
     """
     def _c51(env, writer=DummyWriter()):
-        model = fc_relu_dist_q(env, atoms=atoms).to(device)
+        model = model_constructor(env, atoms=atoms).to(device)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QDist(
             model,

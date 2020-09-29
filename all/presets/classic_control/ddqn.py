@@ -28,6 +28,8 @@ def ddqn(
         # Prioritized replay settings
         alpha=0.2,
         beta=0.6,
+        # Model construction
+        model_constructor=dueling_fc_relu_q
 ):
     """
     Dueling Double DQN with Prioritized Experience Replay (PER).
@@ -50,9 +52,10 @@ def ddqn(
             (0 = no prioritization, 1 = full prioritization)
         beta (float): The strength of the importance sampling correction for prioritized experience replay.
             (0 = no correction, 1 = full correction)
+        model_constructor (function): The function used to construct the neural model.
     """
     def _ddqn(env, writer=DummyWriter()):
-        model = dueling_fc_relu_q(env).to(device)
+        model = model_constructor(env).to(device)
         optimizer = Adam(model.parameters(), lr=lr)
         q = QNetwork(
             model,

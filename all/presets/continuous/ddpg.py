@@ -26,6 +26,9 @@ def ddpg(
         replay_buffer_size=1e6,
         # Exploration settings
         noise=0.1,
+        # Model construction
+        q_model_constructor=fc_q,
+        policy_model_constructor=fc_deterministic_policy
 ):
     """
     DDPG continuous control preset.
@@ -42,11 +45,13 @@ def ddpg(
         replay_start_size (int): Number of experiences in replay buffer when training begins.
         replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
         noise (float): The amount of exploration noise to add.
+        q_model_constructor (function): The function used to construct the neural q model.
+        policy_model_constructor (function): The function used to construct the neural policy model.
     """
     def _ddpg(env, writer=DummyWriter()):
         final_anneal_step = (last_frame - replay_start_size) // update_frequency
 
-        q_model = fc_q(env).to(device)
+        q_model = q_model_constructor(env).to(device)
         q_optimizer = Adam(q_model.parameters(), lr=lr_q)
         q = QContinuous(
             q_model,
@@ -59,7 +64,7 @@ def ddpg(
             writer=writer
         )
 
-        policy_model = fc_deterministic_policy(env).to(device)
+        policy_model = policy_model_constructor(env).to(device)
         policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
         policy = DeterministicPolicy(
             policy_model,

@@ -3,7 +3,7 @@ import torch
 from torch import nn
 import torch_testing as tt
 from all.approximation.v_network import VNetwork
-from all.environments import State
+from all.core import StateArray
 
 STATE_DIM = 2
 
@@ -22,8 +22,9 @@ class TestVNetwork(unittest.TestCase):
         self.v = VNetwork(self.model, optimizer)
 
     def test_reinforce_list(self):
-        states = State(
+        states = StateArray(
             torch.randn(5, STATE_DIM),
+            (5,),
             mask=torch.tensor([1, 1, 0, 1, 0])
         )
         result = self.v(states)
@@ -34,9 +35,10 @@ class TestVNetwork(unittest.TestCase):
         tt.assert_almost_equal(result, torch.tensor([0.9732854, 0.5453826, 0., 0.4344811, 0.]))
 
     def test_multi_reinforce(self):
-        states = State(
-            torch.randn(5, STATE_DIM),
-            mask=torch.tensor([1, 1, 0, 1, 0, 0])
+        states = StateArray(
+            torch.randn(6, STATE_DIM),
+            (6,),
+            mask=torch.tensor([1, 1, 0, 1, 0, 0, 0])
         )
         result1 = self.v(states[0:2])
         self.v.reinforce(loss(result1, torch.tensor([1, 2])).float())

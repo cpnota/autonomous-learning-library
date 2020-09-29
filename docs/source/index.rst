@@ -32,6 +32,7 @@ Enjoy!
     modules/agents
     modules/approximation
     modules/bodies
+    modules/core
     modules/environments
     modules/experiments
     modules/logging

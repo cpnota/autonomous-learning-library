@@ -4,7 +4,7 @@ from torch import nn
 from torch.nn.functional import smooth_l1_loss
 import torch_testing as tt
 import numpy as np
-from all.environments import State
+from all.core import State, StateArray
 from all.approximation import QNetwork, FixedTarget
 
 STATE_DIM = 2
@@ -21,8 +21,9 @@ class TestQNetwork(unittest.TestCase):
         self.q = QNetwork(self.model, optimizer)
 
     def test_eval_list(self):
-        states = State(
+        states = StateArray(
             torch.randn(5, STATE_DIM),
+            (5,),
             mask=torch.tensor([1, 1, 0, 1, 0])
         )
         result = self.q.eval(states)
@@ -39,7 +40,7 @@ class TestQNetwork(unittest.TestCase):
         )
 
     def test_eval_actions(self):
-        states = State(torch.randn(3, STATE_DIM))
+        states = StateArray(torch.randn(3, STATE_DIM), (3,))
         actions = [1, 2, 0]
         result = self.q.eval(states, actions)
         self.assertEqual(result.shape, torch.Size([3]))

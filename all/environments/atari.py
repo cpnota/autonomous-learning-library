@@ -1,7 +1,4 @@
-import torch
-import numpy as np
 import gym
-from .state import State
 from .gym import GymEnvironment
 from .atari_wrappers import (
     NoopResetEnv,
@@ -22,7 +19,8 @@ class AtariEnvironment(GymEnvironment):
         # apply a subset of wrappers
         env = NoopResetEnv(env, noop_max=30)
         env = MaxAndSkipEnv(env)
-        env = FireResetEnv(env)
+        if "FIRE" in env.unwrapped.get_action_meanings():
+            env = FireResetEnv(env)
         env = WarpFrame(env)
         env = LifeLostEnv(env)
         # initialize
@@ -37,16 +35,3 @@ class AtariEnvironment(GymEnvironment):
         return [
             AtariEnvironment(self._name, *self._args, **self._kwargs) for _ in range(n)
         ]
-
-    def _make_state(self, raw, done, info=None):
-        if info is None:
-            info = {"life_lost": False}
-        return State(
-            torch.from_numpy(
-                np.moveaxis(np.array(raw, dtype=self.state_space.dtype), -1, 0)
-            )
-            .unsqueeze(0)
-            .to(self._device),
-            self._done_mask if done else self._not_done_mask,
-            [info],
-        )
