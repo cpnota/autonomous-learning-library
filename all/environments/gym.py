@@ -39,11 +39,15 @@ class GymEnvironment(Environment):
         return self._name
 
     def reset(self):
-        self._state = State.from_gym(self._env.reset(), device=self._device)
+        self._state = State.from_gym(self._env.reset(), dtype=self._env.observation_space.dtype, device=self._device)
         return self._state
 
     def step(self, action):
-        self._state = State.from_gym(self._env.step(self._convert(action)), device=self._device)
+        self._state = State.from_gym(
+            self._env.step(self._convert(action)),
+            dtype=self._env.observation_space.dtype,
+            device=self._device
+        )
         return self._state
 
     def render(self, **kwargs):
