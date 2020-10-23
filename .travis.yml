@@ -15,10 +15,3 @@ install:
 script:
   - make lint
   - make test
-
-
-
-      before_install:
-        - export AUDIODEV=null
-        - cd ${TRAVIS_BUILD_DIR}
-        - sudo apt-get install swig
