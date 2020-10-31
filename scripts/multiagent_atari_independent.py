@@ -1,7 +1,8 @@
 import argparse
 from all.environments import MultiAgentAtariEnv
 from all.experiments.multiagent_env_experiment import MultiagentEnvExperiment
-from all.presets import multiagent_atari
+from all.presets import atari
+from all.presets.multiagent_atari import independent
 
 def main():
     parser = argparse.ArgumentParser(description="Run an multiagent Atari benchmark.")
@@ -24,8 +25,8 @@ def main():
 
     env = MultiAgentAtariEnv(args.env, device=args.device)
     agent_name = args.agent
-    agent = getattr(multiagent_atari, agent_name)
-    experiment = MultiagentEnvExperiment(agent(device=args.device), env, write_loss=False)
+    agent = getattr(atari, agent_name)
+    experiment = MultiagentEnvExperiment(independent(agent(device=args.device, replay_buffer_size=500000)), env, write_loss=False)
     experiment.train()
 
 if __name__ == "__main__":

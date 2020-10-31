@@ -1,3 +1,4 @@
+from all.agents.multi import *
 import all.agents.multi as multi
 from ._agent import Agent
 from .a2c import A2C

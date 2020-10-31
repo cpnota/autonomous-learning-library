@@ -13,8 +13,9 @@ class MultiagentEnvExperiment():
             quiet=False,
             write_loss=True
     ):
+        self._writer = ExperimentWriter(self, multiagent.__name__, env.name, loss=write_loss)
         self._writers = {
-            agent : ExperimentWriter(self, "{}_{}".format(multiagent.__name__, agent), env.name, loss=False)
+            agent : ExperimentWriter(self, "{}_{}".format(multiagent.__name__, agent), env.name, loss=write_loss)
             for agent in env.agents
         }
         self._agent = multiagent(env, self._writers)
@@ -76,6 +77,8 @@ class MultiagentEnvExperiment():
     def _log_training_episode(self, returns, fps):
         print('returns: {}'.format(returns))
         print('fps: {}'.format(fps))
+        for agent in self._env.agents:
+            self._writers[agent].add_evaluation('returns/frame', returns[agent], step="frame")
 
     def _run_test_episode(self):
         # initialize the episode
