@@ -1,3 +1,4 @@
+import all.agents.multi as multi
 from ._agent import Agent
 from .a2c import A2C
 from .c51 import C51
@@ -11,6 +12,7 @@ from .vac import VAC
 from .vpg import VPG
 from .vqn import VQN
 from .vsarsa import VSarsa
+
 
 __all__ = [
     "Agent",
@@ -26,4 +28,5 @@ __all__ = [
     "VPG",
     "VQN",
     "VSarsa",
+    *multi.__all__
 ]

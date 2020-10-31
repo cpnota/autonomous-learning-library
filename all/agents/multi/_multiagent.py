@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from all.optim import Schedulable
 
-class MultiAgent(ABC, Schedulable):
+class Multiagent(ABC, Schedulable):
     """
     A reinforcement learning agent.
 

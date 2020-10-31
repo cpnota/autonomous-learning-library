@@ -1,6 +1,6 @@
-from ._multiagent import MultiAgent
+from ._multiagent import Multiagent
 
-class IndependentMultiAgent(MultiAgent):
+class IndependentMultiagent(Multiagent):
     def __init__(self, agents):
         self.agents = agents
 
