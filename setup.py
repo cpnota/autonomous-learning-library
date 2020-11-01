@@ -1,5 +1,23 @@
 from setuptools import setup, find_packages
 
+extras = {
+    "docs": [
+        "sphinx>=3.2.1",
+        "sphinx-autobuild>=2020.9.1",
+        "sphinx-rtd-theme>=0.5.0",
+        "sphinx-automodapi>=0.13"
+    ],
+    "dev": [
+        "pylint>=2.6.0",             # code quality tool
+        "torch-testing?=0.0.2",      # pytorch assertion library
+        "gym[atari,box2d>=0.17.2]",  # common environments
+        "pybullet>=3.0.6"            # continuous environments
+    ]
+    }
+
+extras["all"] = list(set().union(extras["docs"], extras["dev"]))
+
+
 setup(
     name="autonomous-learning-library",
     version="0.6.1",
@@ -22,28 +40,12 @@ setup(
         ],
     },
     install_requires=[
-        "gym[atari,box2d]",     # common environments
-        "numpy",                # math library
-        "matplotlib",           # plotting library
-        "opencv-python",        # used by atari wrappers
-        "pybullet",             # continuous environments
-        "tensorboardX",         # tensorboard compatibility
+        "gym>=0.17.2",             # common environments
+        "numpy>=1.18.0",           # math library
+        "matplotlib>=3.3.0",       # plotting library
+        "opencv-python>4.4.0.42",  # used by atari wrappers
+        "torch==1.5.1",            # deep learning
+        "torchvision==0.6.1"       # additional utilities
     ],
-    extras_require={
-        "pytorch": [
-            "torch",            # deep learning
-            "torchvision",      # additional utilities
-            "tensorboard"       # visualizations
-        ],
-        "docs": [
-            "sphinx",
-            "sphinx-autobuild",
-            "sphinx-rtd-theme",
-            "sphinx-automodapi"
-        ],
-        "dev": [
-            "pylint",           # code quality tool
-            "torch-testing"     # pytorch assertion library
-        ]
-    },
+    extras_require=extras,
 )
