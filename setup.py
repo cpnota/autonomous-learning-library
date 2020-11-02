@@ -9,14 +9,13 @@ extras = {
     ],
     "dev": [
         "pylint>=2.6.0",             # code quality tool
-        "torch-testing?=0.0.2",      # pytorch assertion library
-        "gym[atari,box2d>=0.17.2]",  # common environments
+        "torch-testing>=0.0.2",      # pytorch assertion library
+        "gym[atari,box2d]>=0.17.2",  # common environments
         "pybullet>=3.0.6"            # continuous environments
     ]
     }
 
 extras["all"] = list(set().union(extras["docs"], extras["dev"]))
-
 
 setup(
     name="autonomous-learning-library",
