@@ -43,8 +43,8 @@ setup(
         "numpy>=1.18.0",           # math library
         "matplotlib>=3.3.0",       # plotting library
         "opencv-python>4.4.0.42",  # used by atari wrappers
-        "torch==1.5.1",            # deep learning
-        "torchvision==0.6.1"       # additional utilities
+        "torch>=1.5.1",            # deep learning
+        "torchvision>=0.6.1"       # additional utilities
     ],
     extras_require=extras,
 )
