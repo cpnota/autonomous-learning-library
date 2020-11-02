@@ -25,7 +25,7 @@ setup(
         "gym[atari,box2d]",     # common environments
         "numpy",                # math library
         "matplotlib",           # plotting library
-        "opencv-python",        # used by atari wrappers
+        "opencv-python>=3.,<4.",# used by atari wrappers
         "pybullet",             # continuous environments
         "tensorboardX",         # tensorboard compatibility
     ],
