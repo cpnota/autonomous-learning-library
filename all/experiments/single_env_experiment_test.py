@@ -16,7 +16,7 @@ class MockWriter(Writer):
         self.experiment = experiment
 
     def add_scalar(self, key, value, step="frame"):
-        if self.data not in key:
+        if key not in self.data:
             self.data[key] = {"values": [], "steps": []}
         self.data[key]["values"].append(value)
         self.data[key]["steps"].append(self._get_step(step))
