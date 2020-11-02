@@ -6,10 +6,11 @@ def run_experiment(
         agents,
         envs,
         frames,
-        test_episodes=100,
-        render=False,
+        logdir='runs',
         quiet=False,
-        write_loss=True,
+        render=False,
+        test_episodes=100,
+        write_loss=True
 ):
     if not isinstance(agents, list):
         agents = [agents]
@@ -23,8 +24,9 @@ def run_experiment(
             experiment = make_experiment(
                 agent,
                 env,
-                render=render,
+                logdir=logdir,
                 quiet=quiet,
+                render=render,
                 write_loss=write_loss
             )
             experiment.train(frames=frames)
