@@ -21,13 +21,16 @@ def main():
     parser.add_argument(
         "--render", type=bool, default=False, help="Render the environment."
     )
+    parser.add_argument(
+        "--logdir", default='runs', help="The base logging directory."
+    )
     args = parser.parse_args()
 
     env = GymEnvironment(args.env, device=args.device)
     agent_name = args.agent
     agent = getattr(classic_control, agent_name)
 
-    run_experiment(agent(device=args.device), env, args.frames, render=args.render)
+    run_experiment(agent(device=args.device), env, args.frames, render=args.render, logdir=args.logdir)
 
 
 if __name__ == "__main__":

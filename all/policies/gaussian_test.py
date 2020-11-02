@@ -4,6 +4,7 @@ import torch
 from torch import nn
 import torch_testing as tt
 from gym.spaces import Box
+from all.approximation import DummyCheckpointer
 from all.core import State
 from all.policies import GaussianPolicy
 
@@ -12,14 +13,13 @@ ACTION_DIM = 3
 
 class TestGaussian(unittest.TestCase):
     def setUp(self):
-
         torch.manual_seed(2)
         self.space = Box(np.array([-1, -1, -1]), np.array([1, 1, 1]))
         self.model = nn.Sequential(
             nn.Linear(STATE_DIM, ACTION_DIM * 2)
         )
         optimizer = torch.optim.RMSprop(self.model.parameters(), lr=0.01)
-        self.policy = GaussianPolicy(self.model, optimizer, self.space)
+        self.policy = GaussianPolicy(self.model, optimizer, self.space, checkpointer=DummyCheckpointer())
 
     def test_output_shape(self):
         state = State(torch.randn(1, STATE_DIM))
