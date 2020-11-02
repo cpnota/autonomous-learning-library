@@ -45,6 +45,7 @@ setup(
         "opencv-python>4.4.0.42",  # used by atari wrappers
         "torch>=1.5.1",            # deep learning
         "torchvision>=0.6.1"       # additional utilities
+        "tensorboardX>=2.3.0",     # tensorboard compatibility
     ],
     extras_require=extras,
 )
