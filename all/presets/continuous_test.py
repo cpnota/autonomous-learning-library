@@ -3,6 +3,7 @@ from all.environments import GymEnvironment
 from all.presets.validate_agent import validate_agent
 from all.presets.continuous import ddpg, ppo, sac
 
+
 class TestContinuousPresets(unittest.TestCase):
     def test_ddpg(self):
         self.validate(ddpg(replay_start_size=50, device='cpu'))
@@ -15,6 +16,7 @@ class TestContinuousPresets(unittest.TestCase):
 
     def validate(self, make_agent):
         validate_agent(make_agent, GymEnvironment('LunarLanderContinuous-v2'))
+
 
 if __name__ == '__main__':
     unittest.main()

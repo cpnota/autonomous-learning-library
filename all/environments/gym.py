@@ -4,6 +4,7 @@ from all.core import State
 from .abstract import Environment
 gym.logger.set_level(40)
 
+
 class GymEnvironment(Environment):
     '''
     A wrapper for OpenAI Gym environments (see: https://gym.openai.com).

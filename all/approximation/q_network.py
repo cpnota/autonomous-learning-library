@@ -2,6 +2,7 @@ import torch
 from all.nn import RLNetwork
 from .approximation import Approximation
 
+
 class QNetwork(Approximation):
     def __init__(
             self,
@@ -17,6 +18,7 @@ class QNetwork(Approximation):
             name=name,
             **kwargs
         )
+
 
 class QModule(RLNetwork):
     def forward(self, states, actions=None):

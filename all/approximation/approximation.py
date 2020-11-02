@@ -7,6 +7,7 @@ from .checkpointer import PeriodicCheckpointer
 
 DEFAULT_CHECKPOINT_FREQUENCY = 200
 
+
 class Approximation():
     '''
     Base function approximation object.

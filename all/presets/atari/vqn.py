@@ -7,6 +7,7 @@ from all.optim import LinearScheduler
 from all.policies import ParallelGreedyPolicy
 from .models import nature_ddqn
 
+
 def vqn(
         # Common settings
         device="cuda",

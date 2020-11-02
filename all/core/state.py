@@ -71,7 +71,7 @@ class State(dict):
                     x[key] = torch.stack([state[key] for state in list_of_states])
                 else:
                     x[key] = torch.tensor([state[key] for state in list_of_states], device=device)
-            except: # # pylint: disable=bare-except
+            except:  # # pylint: disable=bare-except
                 pass
         return StateArray(x, shape, device=device)
 
@@ -215,6 +215,7 @@ class State(dict):
     def __len__(self):
         return 1
 
+
 class StateArray(State):
     """
         An n-dimensional array of environment State objects.
@@ -288,7 +289,7 @@ class StateArray(State):
         return tensor.view((*self.shape, *tensor.shape[1:]))
 
     def apply_mask(self, tensor):
-        return tensor * self.mask.unsqueeze(-1) # pylint: disable=no-member
+        return tensor * self.mask.unsqueeze(-1)  # pylint: disable=no-member
 
     def flatten(self):
         """
@@ -337,9 +338,9 @@ class StateArray(State):
     def __getitem__(self, key):
         if isinstance(key, slice):
             shape = self['mask'][key].shape
-            return StateArray({k:v[key] for (k, v) in self.items()}, shape, device=self.device)
+            return StateArray({k: v[key] for (k, v) in self.items()}, shape, device=self.device)
         if isinstance(key, int):
-            return State({k:v[key] for (k, v) in self.items()}, device=self.device)
+            return State({k: v[key] for (k, v) in self.items()}, device=self.device)
         if torch.is_tensor(key):
             # some things may get los
             d = {}
@@ -347,7 +348,7 @@ class StateArray(State):
             for (k, v) in self.items():
                 try:
                     d[k] = v[key]
-                except: # pylint: disable=bare-except
+                except:  # pylint: disable=bare-except
                     pass
             return self.__class__(d, shape, device=self.device)
         try:

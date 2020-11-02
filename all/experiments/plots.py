@@ -20,7 +20,7 @@ def load_returns_100_data(runs_dir):
     data = {}
 
     def add_data(agent, env, file):
-        if not env in data:
+        if data not in env:
             data[env] = {}
         data[env][agent] = np.genfromtxt(file, delimiter=",").reshape((-1, 3))
 

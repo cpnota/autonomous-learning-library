@@ -75,5 +75,4 @@ class DQN(Agent):
 
     def _should_train(self):
         self._frames_seen += 1
-        return (self._frames_seen > self.replay_start_size and
-                self._frames_seen % self.update_frequency == 0)
+        return (self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0)

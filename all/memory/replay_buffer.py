@@ -5,6 +5,7 @@ from all.core import State
 from all.optim import Schedulable
 from .segment_tree import SumSegmentTree, MinSegmentTree
 
+
 class ReplayBuffer(ABC):
     @abstractmethod
     def store(self, state, action, reward, next_state):
@@ -61,6 +62,7 @@ class ExperienceReplayBuffer(ReplayBuffer):
 
     def __iter__(self):
         return iter(self.buffer)
+
 
 class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
     def __init__(
@@ -140,6 +142,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
             res.append(idx)
         return res
 
+
 class NStepReplayBuffer(ReplayBuffer):
     '''Converts any ReplayBuffer into an NStepReplayBuffer'''
     def __init__(
@@ -177,7 +180,7 @@ class NStepReplayBuffer(ReplayBuffer):
 
     def _store_next(self, next_state):
         self.buffer.store(self._states[0], self._actions[0], next_state.update('reward', self._reward))
-        self._reward = self._reward -  self._rewards[0]
+        self._reward = self._reward - self._rewards[0]
         self._reward *= self.discount_factor ** -1
         del self._states[0]
         del self._actions[0]

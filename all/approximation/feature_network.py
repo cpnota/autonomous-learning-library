@@ -60,6 +60,7 @@ class FeatureNetwork(Approximation):
         self._out = []
         return torch.cat(graphs), torch.cat(grads)
 
+
 class FeatureModule(torch.nn.Module):
     def __init__(self, model):
         super().__init__()

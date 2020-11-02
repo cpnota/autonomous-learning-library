@@ -3,6 +3,7 @@ from torch.nn.functional import mse_loss
 from all.core import State
 from ._agent import Agent
 
+
 class VPG(Agent):
     '''
     Vanilla Policy Gradient (VPG/REINFORCE).

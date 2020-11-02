@@ -3,6 +3,7 @@ from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from ._agent import Agent
 
+
 class SAC(Agent):
     """
     Soft Actor-Critic (SAC).

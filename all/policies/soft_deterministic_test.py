@@ -10,6 +10,7 @@ from all.policies import SoftDeterministicPolicy
 STATE_DIM = 2
 ACTION_DIM = 3
 
+
 class TestSoftDeterministic(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(2)
@@ -63,6 +64,7 @@ class TestSoftDeterministic(unittest.TestCase):
         action, log_prob = self.policy(state)
         tt.assert_allclose(action, torch.tensor([[-3.09055, -4.752777, 188.98222]]))
         tt.assert_allclose(log_prob, torch.tensor([-0.397002]), rtol=1e-4)
+
 
 if __name__ == '__main__':
     unittest.main()

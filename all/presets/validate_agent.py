@@ -1,13 +1,16 @@
 from all.logging import DummyWriter
 from all.experiments import SingleEnvExperiment, ParallelEnvExperiment
 
+
 class TestSingleEnvExperiment(SingleEnvExperiment):
     def _make_writer(self, agent_name, env_name, write_loss):
         return DummyWriter()
 
+
 class TestParallelEnvExperiment(ParallelEnvExperiment):
     def _make_writer(self, agent_name, env_name, write_loss):
         return DummyWriter()
+
 
 def validate_agent(agent, env):
     if isinstance(agent, tuple):

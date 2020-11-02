@@ -2,6 +2,7 @@ import torch
 from all.approximation import Approximation
 from all.nn import RLNetwork
 
+
 class SoftDeterministicPolicy(Approximation):
     '''
     A "soft" deterministic policy compatible with soft actor-critic (SAC).

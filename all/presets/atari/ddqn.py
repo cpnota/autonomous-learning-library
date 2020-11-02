@@ -10,6 +10,7 @@ from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
 from .models import nature_ddqn
 
+
 def ddqn(
         # Common settings
         device="cuda",

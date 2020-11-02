@@ -3,6 +3,7 @@ from all.environments import AtariEnvironment, GymEnvironment
 from all.experiments import SlurmExperiment
 from all.presets import atari, classic_control, continuous
 
+
 def main():
     # run on gpu
     device = 'cuda'
@@ -37,6 +38,7 @@ def main():
             'partition': '1080ti-short'
         }
     )
+
 
 if __name__ == "__main__":
     main()

@@ -23,5 +23,6 @@ def main():
     agent = DeepmindAtariBody(GreedyAgent.load(args.dir, env))
     watch(agent, env, fps=args.fps)
 
+
 if __name__ == "__main__":
     main()

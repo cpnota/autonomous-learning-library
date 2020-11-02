@@ -39,6 +39,7 @@ class GaussianPolicy(Approximation):
             **kwargs
         )
 
+
 class GaussianPolicyNetwork(RLNetwork):
     def __init__(self, model, space):
         super().__init__(model)

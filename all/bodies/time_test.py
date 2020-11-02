@@ -74,5 +74,6 @@ class TimeFeatureTest(unittest.TestCase):
         tt.assert_allclose(self.test_agent.last_state.observation, torch.tensor(
             [[0.3923, -0.2236, 4e-3], [-0.3195, -1.2050, 1e-3]]), atol=1e-04)
 
+
 if __name__ == '__main__':
     unittest.main()

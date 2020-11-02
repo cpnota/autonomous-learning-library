@@ -5,6 +5,7 @@ from all.policies import ParallelGreedyPolicy
 from all.logging import DummyWriter
 from .models import fc_relu_q
 
+
 def vqn(
         # Common settings
         device="cpu",

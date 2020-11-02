@@ -99,4 +99,3 @@ class A2C(Agent):
             self.n_envs,
             discount_factor=self.discount_factor
         )
- 

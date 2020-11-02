@@ -37,7 +37,6 @@ class GymEnvironmentTest(unittest.TestCase):
         self.assertFalse(state.done)
         self.assertEqual(state.mask, 1)
 
-
     def test_step_until_done(self):
         env = GymEnvironment('CartPole-v0')
         env.reset()

@@ -16,7 +16,7 @@ class MockWriter(Writer):
         self.experiment = experiment
 
     def add_scalar(self, key, value, step="frame"):
-        if not key in self.data:
+        if self.data not in key:
             self.data[key] = {"values": [], "steps": []}
         self.data[key]["values"].append(value)
         self.data[key]["steps"].append(self._get_step(step))
@@ -44,7 +44,7 @@ class MockWriter(Writer):
 
 class MockExperiment(SingleEnvExperiment):
     def _make_writer(self, agent_name, env_name, write_loss):
-        self._writer = MockWriter(self, agent_name + '_' +  env_name, write_loss)
+        self._writer = MockWriter(self, agent_name + '_' + env_name, write_loss)
         return self._writer
 
 
@@ -97,6 +97,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         self.assertTrue(experiment._writer.write_loss)
         experiment = MockExperiment(dqn(), self.env, quiet=True, write_loss=False)
         self.assertFalse(experiment._writer.write_loss)
+
 
 if __name__ == "__main__":
     unittest.main()

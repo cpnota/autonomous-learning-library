@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch.nn import *  # export everthing
+from torch.nn import *  # export everything
 from torch.nn import functional as F
 import numpy as np
 from all.core import State
@@ -17,6 +17,7 @@ class RLNetwork(nn.Module):
 
     def forward(self, state):
         return state.apply(self.model, 'observation')
+
 
 class Aggregation(nn.Module):
     """
@@ -125,6 +126,7 @@ class NoisyLinear(nn.Linear):
             bias = bias + self.sigma_bias * self.epsilon_bias
         return F.linear(x, self.weight + self.sigma_weight * self.epsilon_weight, bias)
 
+
 class NoisyFactorizedLinear(nn.Linear):
     """
     NoisyNet layer with factorized gaussian noise
@@ -168,6 +170,7 @@ class NoisyFactorizedLinear(nn.Linear):
         noise_v = torch.mul(eps_in, eps_out)
         return F.linear(input, self.weight + self.sigma_weight * noise_v, bias)
 
+
 class Linear0(nn.Linear):
     def reset_parameters(self):
         nn.init.constant_(self.weight, 0.0)
@@ -197,15 +200,18 @@ class TanhActionBound(nn.Module):
     def forward(self, x):
         return torch.tanh(x) * self.weight + self.bias
 
+
 def td_loss(loss):
     def _loss(estimates, errors):
         return loss(estimates, errors + estimates.detach())
 
     return _loss
 
+
 def weighted_mse_loss(input, target, weight, reduction='mean'):
     loss = (weight * ((target - input) ** 2))
     return torch.mean(loss) if reduction == 'mean' else torch.sum(loss)
+
 
 def weighted_smooth_l1_loss(input, target, weight, reduction='mean'):
     t = torch.abs(input - target)

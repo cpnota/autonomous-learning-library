@@ -70,6 +70,7 @@ class ExperimentWriter(SummaryWriter, Writer):
             return self._experiment.episode
         return _type
 
+
 def get_commit_hash():
     result = subprocess.run(
         ["git", "rev-parse", "--short", "HEAD"],

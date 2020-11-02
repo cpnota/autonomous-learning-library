@@ -10,12 +10,14 @@ from all.approximation import QNetwork, FixedTarget
 STATE_DIM = 2
 ACTIONS = 3
 
+
 class TestQNetwork(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(2)
         self.model = nn.Sequential(
             nn.Linear(STATE_DIM, ACTIONS)
         )
+
         def optimizer(params):
             return torch.optim.SGD(params, lr=0.1)
         self.q = QNetwork(self.model, optimizer)
@@ -45,7 +47,6 @@ class TestQNetwork(unittest.TestCase):
         result = self.q.eval(states, actions)
         self.assertEqual(result.shape, torch.Size([3]))
         tt.assert_almost_equal(result, torch.tensor([-0.7262873, 0.3484948, -0.0296164]))
-
 
     def test_target_net(self):
         torch.manual_seed(2)
@@ -92,6 +93,7 @@ class TestQNetwork(unittest.TestCase):
         target_value = q.target(inputs).item()
         np.testing.assert_equal(policy_value.item(), -0.8085841536521912)
         np.testing.assert_equal(target_value, -0.6085841655731201)
+
 
 if __name__ == '__main__':
     unittest.main()

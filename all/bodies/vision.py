@@ -2,6 +2,7 @@ import torch
 from all.core import State, StateArray
 from ._body import Body
 
+
 class FrameStack(Body):
     def __init__(self, agent, size=4, lazy=False):
         super().__init__(agent)
@@ -19,6 +20,7 @@ class FrameStack(Body):
         if isinstance(state, StateArray):
             return state.update('observation', torch.cat(self._frames, dim=1))
         return state.update('observation', torch.cat(self._frames, dim=0))
+
 
 class LazyState(State):
     @classmethod
