@@ -41,7 +41,7 @@ setup(
         ],
     },
     install_requires=[
-        "gym>=0.17.2",             # common environments
+        "gym>=0.17.2",             # common environment interface
         "numpy>=1.18.0",           # math library
         "matplotlib>=3.3.0",       # plotting library
         "opencv-python>=3.,<4.",   # used by atari wrappers
