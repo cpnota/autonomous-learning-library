@@ -6,12 +6,14 @@ def union(*deps):
 
 extras = {
     "envs": [
-        "gym[atari,box2d]>=0.17.2",  # common environments
-        "pybullet>=3.0.6",           # continuous environments
+        "atari_py~=0.2.0",            # atari environments
+        "box2d-py~=2.3.5",            # box2d environments
+        "pybullet>=3.0.6",            # continuous environments
+        "Pillow",                     # rendering library
     ],
     "test": [
-        "pylint>=2.6.0",             # code quality tool
-        "torch-testing>=0.0.2",      # pytorch assertion library
+        "pylint>=2.6.0",              # code quality tool
+        "torch-testing>=0.0.2",       # pytorch assertion library
     ],
     "docs": [
         "sphinx>=3.2.1",              # documentation library
@@ -50,7 +52,7 @@ setup(
         "numpy>=1.18.0",           # math library
         "matplotlib>=3.3.0",       # plotting library
         "opencv-python>=3.,<4.",   # used by atari wrappers
-        "torch>=1.5.1,<1.7",       # core deep learning library
+        "torch>=1.5.1,<1.6",       # core deep learning library
         "tensorboard>=2.3.0",      # logging and visualization
         "tensorboardX>=2.1.0",     # tensorboard/pytorch compatibility
     ],
