@@ -17,7 +17,7 @@ extras = {
     ]
 }
 
-extras["all"] = list(set().union(extras["docs"], extras["dev"]))
+extras["all"] = list(set().union(*extras.values()))
 
 setup(
     name="autonomous-learning-library",
