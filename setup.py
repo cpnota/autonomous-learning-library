@@ -50,7 +50,7 @@ setup(
         "numpy>=1.18.0",           # math library
         "matplotlib>=3.3.0",       # plotting library
         "opencv-python>=3.,<4.",   # used by atari wrappers
-        "torch>=1.5.1",            # core deep learning library
+        "torch>=1.5.1,<1.7",       # core deep learning library
         "tensorboard>=2.3.0",      # logging and visualization
         "tensorboardX>=2.1.0",     # tensorboard/pytorch compatibility
     ],
