@@ -21,7 +21,7 @@ extras["all"] = list(set().union(extras["docs"], extras["dev"]))
 
 setup(
     name="autonomous-learning-library",
-    version="0.6.1",
+    version="0.6.2",
     description=("A library for building reinforcement learning agents in Pytorch"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",
@@ -44,10 +44,10 @@ setup(
         "gym>=0.17.2",             # common environments
         "numpy>=1.18.0",           # math library
         "matplotlib>=3.3.0",       # plotting library
-        "opencv-python>4.4.0.42",  # used by atari wrappers
+        "opencv-python>=3.,<4.",   # used by atari wrappers
         "torch>=1.5.1",            # deep learning
         "torchvision>=0.6.1"       # additional utilities
-        "tensorboardX>=2.3.0",     # tensorboard compatibility
+        "tensorboardX>=2.3.0",     # tensorboard/pytorch compatibility
     ],
     extras_require=extras,
 )

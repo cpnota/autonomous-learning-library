@@ -38,6 +38,9 @@ def main():
     parser.add_argument(
         "--render", type=bool, default=False, help="Render the environment."
     )
+    parser.add_argument(
+        "--logdir", default='runs', help="The base logging directory."
+    )
     args = parser.parse_args()
 
     if args.env in ENVS:
@@ -49,7 +52,7 @@ def main():
     agent_name = args.agent
     agent = getattr(continuous, agent_name)
 
-    run_experiment(agent(device=args.device), env, frames=args.frames, render=args.render)
+    run_experiment(agent(device=args.device), env, frames=args.frames, render=args.render, logdir=args.logdir)
 
 
 if __name__ == "__main__":

@@ -12,11 +12,12 @@ class ParallelEnvExperiment(Experiment):
             self,
             agent,
             env,
-            render=False,
+            logdir='runs',
             quiet=False,
+            render=False,
             write_loss=True
     ):
-        super().__init__(self._make_writer(agent[0].__name__, env.name, write_loss), quiet)
+        super().__init__(self._make_writer(logdir, agent[0].__name__, env.name, write_loss), quiet)
         make_agent, n_envs = agent
         self._envs = env.duplicate(n_envs)
         self._agent = make_agent(self._envs, self._writer)
@@ -145,5 +146,5 @@ class ParallelEnvExperiment(Experiment):
         end_time = timer()
         return (self._frame - self._episode_start_frames[i]) / (end_time - self._episode_start_times[i])
 
-    def _make_writer(self, agent_name, env_name, write_loss):
-        return ExperimentWriter(self, agent_name, env_name, loss=write_loss)
+    def _make_writer(self, logdir, agent_name, env_name, write_loss):
+        return ExperimentWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
