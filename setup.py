@@ -46,7 +46,8 @@ setup(
         "matplotlib>=3.3.0",       # plotting library
         "opencv-python>=3.,<4.",   # used by atari wrappers
         "torch>=1.5.1",            # deep learning
-        "torchvision>=0.6.1"       # additional utilities
+        "torchvision>=0.6.1",      # additional utilities
+        "tensorboard>=2.3.0",      # logging and visualization
         "tensorboardX>=2.3.0",     # tensorboard/pytorch compatibility
     ],
     extras_require=extras,
