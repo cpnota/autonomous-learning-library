@@ -1,9 +1,6 @@
 from setuptools import setup, find_packages
 
 
-def union(*deps):
-    return list(set().union(*[extras[dep] for dep in deps]))
-
 extras = {
     "envs": [
         "atari_py~=0.2.0",            # atari environments
@@ -23,7 +20,7 @@ extras = {
     ]
 }
 
-extras["dev"] = union("envs", "test", "docs")
+extras["dev"] = extras["envs"] + extras["test"] + extras["docs"]
 
 
 setup(
