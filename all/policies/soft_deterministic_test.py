@@ -4,6 +4,7 @@ import numpy as np
 import torch_testing as tt
 from gym.spaces import Box
 from all import nn
+from all.approximation import DummyCheckpointer
 from all.core import State
 from all.policies import SoftDeterministicPolicy
 
@@ -22,7 +23,8 @@ class TestSoftDeterministic(unittest.TestCase):
         self.policy = SoftDeterministicPolicy(
             self.model,
             self.optimizer,
-            self.space
+            self.space,
+            checkpointer=DummyCheckpointer()
         )
 
     def test_output_shape(self):

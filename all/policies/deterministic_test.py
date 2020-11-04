@@ -4,7 +4,7 @@ import torch_testing as tt
 import numpy as np
 from gym.spaces import Box
 from all import nn
-from all.approximation import FixedTarget
+from all.approximation import FixedTarget, DummyCheckpointer
 from all.core import State
 from all.policies import DeterministicPolicy
 
@@ -23,7 +23,8 @@ class TestDeterministic(unittest.TestCase):
         self.policy = DeterministicPolicy(
             self.model,
             self.optimizer,
-            self.space
+            self.space,
+            checkpointer=DummyCheckpointer()
         )
 
     def test_output_shape(self):

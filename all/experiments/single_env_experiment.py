@@ -10,11 +10,12 @@ class SingleEnvExperiment(Experiment):
             self,
             agent,
             env,
-            render=False,
+            logdir='runs',
             quiet=False,
+            render=False,
             write_loss=True
     ):
-        super().__init__(self._make_writer(agent.__name__, env.name, write_loss), quiet)
+        super().__init__(self._make_writer(logdir, agent.__name__, env.name, write_loss), quiet)
         self._agent = agent(env, self._writer)
         self._env = env
         self._render = render
@@ -93,5 +94,5 @@ class SingleEnvExperiment(Experiment):
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes
 
-    def _make_writer(self, agent_name, env_name, write_loss):
-        return ExperimentWriter(self, agent_name, env_name, loss=write_loss)
+    def _make_writer(self, logdir, agent_name, env_name, write_loss):
+        return ExperimentWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)

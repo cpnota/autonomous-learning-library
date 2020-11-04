@@ -10,7 +10,7 @@ from all.logging import Writer
 class ExperimentWriter(SummaryWriter, Writer):
     '''
     The Writer object used by all.experiments.Experiment.
-    Writes logs using tensorboard into the current `runs` directory,
+    Writes logs using tensorboard into the current logdir directory ('runs' by default),
     tagging the run with a combination of the agent name, the commit hash of the
     current git repo of the working directory (if any), and the current time.
     Also writes summary statistics into CSV files.
@@ -20,16 +20,16 @@ class ExperimentWriter(SummaryWriter, Writer):
         env_name (str): The name of the environment the Experiment is being performed in
         loss (bool, optional): Whether or not to log loss/scheduling metrics, or only evaluation and summary metrics.
     '''
-    def __init__(self, experiment, agent_name, env_name, loss=True):
+    def __init__(self, experiment, agent_name, env_name, loss=True, logdir='runs'):
         self.env_name = env_name
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S %f')
         os.makedirs(
             os.path.join(
-                "runs", ("%s %s %s" % (agent_name, COMMIT_HASH, current_time)), env_name
+                logdir, ("%s %s %s" % (agent_name, COMMIT_HASH, current_time)), env_name
             )
         )
         self.log_dir = os.path.join(
-            "runs", ("%s %s %s" % (agent_name, COMMIT_HASH, current_time))
+            logdir, ("%s %s %s" % (agent_name, COMMIT_HASH, current_time))
         )
         self._experiment = experiment
         self._loss = loss
@@ -82,8 +82,3 @@ def get_commit_hash():
 
 
 COMMIT_HASH = get_commit_hash()
-
-try:
-    os.mkdir("runs")
-except FileExistsError:
-    pass
