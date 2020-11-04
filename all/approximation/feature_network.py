@@ -12,6 +12,7 @@ class FeatureNetwork(Approximation):
     The reinforce() function will then backpropagate the accumulated gradients on the output
     through the original computation graph.
     '''
+
     def __init__(self, model, optimizer=None, name='feature', **kwargs):
         model = FeatureModule(model)
         super().__init__(model, optimizer, name=name, **kwargs)

@@ -15,6 +15,7 @@ class VSarsa(Agent):
         policy (GreedyPolicy): A policy derived from the Q-function.
         discount_factor (float): Discount factor for future rewards.
     '''
+
     def __init__(self, q, policy, discount_factor=0.99):
         self.q = q
         self.policy = policy

@@ -19,6 +19,7 @@ class VAC(Agent):
         n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
         writer (Writer): Used for logging.
     '''
+
     def __init__(self, features, v, policy, discount_factor=1):
         self.features = features
         self.v = v

@@ -3,6 +3,7 @@ from all.logging import DummyWriter
 
 class Schedulable:
     '''Allow "instance" descriptors to implement parameter scheduling.'''
+
     def __getattribute__(self, name):
         value = object.__getattribute__(self, name)
         if isinstance(value, Scheduler):

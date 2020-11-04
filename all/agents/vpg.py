@@ -25,6 +25,7 @@ class VPG(Agent):
             this many state-action pairs are seen. Set this to a large value in order
             to train on multiple episodes at once.
     '''
+
     def __init__(
             self,
             features,

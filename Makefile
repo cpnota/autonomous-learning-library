@@ -7,6 +7,9 @@ lint:
 test:
 	python -m unittest discover -s all -p "*test.py"
 
+format:
+	autopep8 --in-place --aggressive --aggressive --ignore "E501,E731,E74,E402,F401,W503,E128" -r all
+
 tensorboard:
 	tensorboard --logdir runs
 

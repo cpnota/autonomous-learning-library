@@ -29,6 +29,7 @@ class SAC(Agent):
         temperature_initial (float): The initial temperature used in the maximum entropy objective.
         update_frequency (int): Number of timesteps per training update.
     """
+
     def __init__(self,
                  policy,
                  q_1,

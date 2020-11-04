@@ -104,7 +104,7 @@ def ddqn(
                  minibatch_size=minibatch_size,
                  replay_start_size=replay_start_size,
                  update_frequency=update_frequency,
-                ),
+                 ),
             lazy_frames=True
         )
     return _ddqn

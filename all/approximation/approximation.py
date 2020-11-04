@@ -47,6 +47,7 @@ class Approximation():
                 The standard object logs to tensorboard, however, other types of Writer objects
                 may be implemented by the user.
     '''
+
     def __init__(
             self,
             model,

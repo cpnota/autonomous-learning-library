@@ -17,6 +17,7 @@ class GreedyPolicy(Schedulable):
         num_actions (int): The number of available actions.
         epsilon (float, optional): The probability of selecting a random action.
     '''
+
     def __init__(
             self,
             q,
@@ -55,6 +56,7 @@ class ParallelGreedyPolicy(Schedulable):
         num_actions (int): The number of available actions.
         epsilon (float, optional): The probability of selecting a random action.
     '''
+
     def __init__(
             self,
             q,

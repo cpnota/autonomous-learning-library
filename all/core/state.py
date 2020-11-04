@@ -31,6 +31,7 @@ class State(dict):
         device (string):
             The torch device on which component tensors are stored.
     """
+
     def __init__(self, x, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
@@ -71,7 +72,7 @@ class State(dict):
                     x[key] = torch.stack([state[key] for state in list_of_states])
                 else:
                     x[key] = torch.tensor([state[key] for state in list_of_states], device=device)
-            except:  # # pylint: disable=bare-except
+            except BaseException:  # # pylint: disable=bare-except
                 pass
         return StateArray(x, shape, device=device)
 
@@ -245,6 +246,7 @@ class StateArray(State):
             device (string):
                 The torch device on which component tensors are stored.
     """
+
     def __init__(self, x, shape, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
@@ -348,7 +350,7 @@ class StateArray(State):
             for (k, v) in self.items():
                 try:
                     d[k] = v[key]
-                except:  # pylint: disable=bare-except
+                except BaseException:  # pylint: disable=bare-except
                     pass
             return self.__class__(d, shape, device=self.device)
         try:

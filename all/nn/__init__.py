@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch.nn import *  # export everything
+from torch.nn import *  # noqa
 from torch.nn import functional as F
 import numpy as np
 from all.core import State
@@ -10,6 +10,7 @@ class RLNetwork(nn.Module):
     """
     Wraps a network such that States can be given as input.
     """
+
     def __init__(self, model, _=None):
         super().__init__()
         self.model = model

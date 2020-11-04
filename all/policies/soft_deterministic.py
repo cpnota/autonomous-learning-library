@@ -18,6 +18,7 @@ class SoftDeterministicPolicy(Approximation):
         action_space (gym.spaces.Box): The Box representing the action space.
         kwargs (optional): Any other arguments accepted by all.approximation.Approximation
     '''
+
     def __init__(
             self,
             model,

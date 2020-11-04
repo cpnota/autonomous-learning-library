@@ -27,6 +27,7 @@ class DDPG(Agent):
         replay_start_size (int): Number of experiences in replay buffer when training begins.
         update_frequency (int): Number of timesteps per training update.
     """
+
     def __init__(self,
                  q,
                  policy,

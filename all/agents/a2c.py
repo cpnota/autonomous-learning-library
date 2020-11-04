@@ -24,6 +24,7 @@ class A2C(Agent):
         n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
         writer (Writer): Used for logging.
     """
+
     def __init__(
             self,
             features,

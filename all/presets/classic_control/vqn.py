@@ -40,4 +40,3 @@ def vqn(
         policy = ParallelGreedyPolicy(q, env.action_space.n, epsilon=epsilon)
         return VQN(q, policy, discount_factor=discount_factor)
     return _vqn, n_envs
- 

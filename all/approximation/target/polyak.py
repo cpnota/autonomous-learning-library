@@ -5,6 +5,7 @@ from .abstract import TargetNetwork
 
 class PolyakTarget(TargetNetwork):
     '''TargetNetwork that updates using polyak averaging'''
+
     def __init__(self, rate):
         self._source = None
         self._target = None

@@ -20,6 +20,7 @@ class ExperimentWriter(SummaryWriter, Writer):
         env_name (str): The name of the environment the Experiment is being performed in
         loss (bool, optional): Whether or not to log loss/scheduling metrics, or only evaluation and summary metrics.
     '''
+
     def __init__(self, experiment, agent_name, env_name, loss=True, logdir='runs'):
         self.env_name = env_name
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S %f')
