@@ -1,6 +1,6 @@
 # pylint: skip-file
 '''
-A subset of Atari wraooers modified from:
+A subset of Atari wrappers modified from:
 https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
 Other behaviors were implemented as Bodies.
 '''
@@ -65,8 +65,7 @@ class FireResetEnv(gym.Wrapper):
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
-        lives = self.env.unwrapped.ale.lives()
-        if lives < self.lives and lives > 0:
+        if self.lost_life():
             obs, done = self.fire()
         self.lives = self.env.unwrapped.ale.lives()
         return obs, reward, done, info
@@ -74,14 +73,15 @@ class FireResetEnv(gym.Wrapper):
     def fire(self):
         obs, _, done, _ = self.env.step(1)
         if done:
-            self.env.reset(**kwargs)
+            self.env.reset()
         obs, _, done, _ = self.env.step(2)
         if done:
-            obs = self.env.reset(**kwargs)
+            obs = self.env.reset()
             done = False
         return obs, done
 
     def lost_life(self):
+        lives = self.env.unwrapped.ale.lives()
         return lives < self.lives and lives > 0
 
 
