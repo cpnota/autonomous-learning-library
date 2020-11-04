@@ -11,6 +11,7 @@ class Experiment(ABC):
             quiet (bool): If False, the Experiment will print information about
                 episode returns to standard out.
     '''
+
     def __init__(self, writer, quiet):
         self._writer = writer
         self._quiet = quiet

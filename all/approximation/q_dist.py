@@ -23,7 +23,6 @@ class QDist(Approximation):
         super().__init__(model, optimizer, name=name, **kwargs)
 
     def project(self, dist, support):
-        # pylint: disable=invalid-name
         target_dist = dist * 0
         atoms = self.atoms
         v_min = atoms[0]

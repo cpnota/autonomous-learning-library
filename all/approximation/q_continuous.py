@@ -2,6 +2,7 @@ import torch
 from all.nn import RLNetwork
 from .approximation import Approximation
 
+
 class QContinuous(Approximation):
     def __init__(
             self,
@@ -17,6 +18,7 @@ class QContinuous(Approximation):
             name=name,
             **kwargs
         )
+
 
 class QContinuousModule(RLNetwork):
     def forward(self, states, actions):

@@ -8,6 +8,7 @@ from all.policies import SoftmaxPolicy
 STATE_DIM = 2
 ACTIONS = 3
 
+
 class TestSoftmax(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(2)

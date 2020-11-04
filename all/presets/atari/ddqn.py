@@ -10,6 +10,7 @@ from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
 from .models import nature_ddqn
 
+
 def ddqn(
         # Common settings
         device="cuda",
@@ -103,7 +104,7 @@ def ddqn(
                  minibatch_size=minibatch_size,
                  replay_start_size=replay_start_size,
                  update_frequency=update_frequency,
-                ),
+                 ),
             lazy_frames=True
         )
     return _ddqn

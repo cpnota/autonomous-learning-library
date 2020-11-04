@@ -7,6 +7,7 @@ from .checkpointer import PeriodicCheckpointer
 
 DEFAULT_CHECKPOINT_FREQUENCY = 200
 
+
 class Approximation():
     '''
     Base function approximation object.
@@ -46,6 +47,7 @@ class Approximation():
                 The standard object logs to tensorboard, however, other types of Writer objects
                 may be implemented by the user.
     '''
+
     def __init__(
             self,
             model,

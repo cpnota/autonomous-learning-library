@@ -26,6 +26,7 @@ class PPO(Agent):
         n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
         writer (Writer): Used for logging.
     """
+
     def __init__(
             self,
             features,
@@ -138,4 +139,3 @@ class PPO(Agent):
             discount_factor=self.discount_factor,
             lam=self.lam
         )
- 

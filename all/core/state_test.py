@@ -4,6 +4,7 @@ import torch
 import torch_testing as tt
 from all.core import State, StateArray
 
+
 class StateTest(unittest.TestCase):
     def test_constructor_defaults(self):
         observation = torch.randn(3, 4)
@@ -88,7 +89,6 @@ class StateTest(unittest.TestCase):
         self.assertEqual(output.shape, (5, 3))
         self.assertNotEqual(output.sum().item(), 0)
 
-
     def test_apply_done(self):
         observation = torch.randn(3, 4)
         state = State.from_gym((observation, 0., True, {}))
@@ -96,6 +96,7 @@ class StateTest(unittest.TestCase):
         output = state.apply(model, 'observation')
         self.assertEqual(output.shape, (5, 3))
         self.assertEqual(output.sum().item(), 0)
+
 
 class StateArrayTest(unittest.TestCase):
     def test_constructor_defaults(self):
@@ -121,7 +122,6 @@ class StateArrayTest(unittest.TestCase):
         output = state.apply(model, 'observation')
         self.assertEqual(output.shape, (3, 2))
         self.assertEqual(output.sum().item(), 0)
-
 
     def test_as_output(self):
         observation = torch.randn(3, 4)

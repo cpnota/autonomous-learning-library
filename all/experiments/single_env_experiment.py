@@ -3,8 +3,10 @@ import numpy as np
 from .writer import ExperimentWriter
 from .experiment import Experiment
 
+
 class SingleEnvExperiment(Experiment):
     '''An Experiment object for training and testing agents that interact with one environment at a time.'''
+
     def __init__(
             self,
             agent,

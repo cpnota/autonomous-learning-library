@@ -1,7 +1,7 @@
-# pylint: skip-file
 # This entire module was stolen from:
 # https://github.com/Shmuma/ptan/blob/master/ptan/common/utils.py
 import operator
+
 
 class SegmentTree(object):
     def __init__(self, capacity, operation, neutral_element):
@@ -85,8 +85,9 @@ class SegmentTree(object):
         assert 0 <= idx < self._capacity
         return self._value[self._capacity + idx]
 
-# stolen from https://github.com/Shmuma/ptan/blob/master/ptan/common/utils.py
+
 class SumSegmentTree(SegmentTree):
+    # stolen from https://github.com/Shmuma/ptan/blob/master/ptan/common/utils.py
     def __init__(self, capacity):
         super(SumSegmentTree, self).__init__(
             capacity=capacity,
@@ -123,8 +124,9 @@ class SumSegmentTree(SegmentTree):
                 idx = 2 * idx + 1
         return idx - self._capacity
 
-# stolen from https://github.com/Shmuma/ptan/blob/master/ptan/common/utils.py
+
 class MinSegmentTree(SegmentTree):
+    # stolen from https://github.com/Shmuma/ptan/blob/master/ptan/common/utils.py
     def __init__(self, capacity):
         super(MinSegmentTree, self).__init__(
             capacity=capacity,

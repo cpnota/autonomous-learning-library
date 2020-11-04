@@ -1,11 +1,14 @@
 install:
 	pip install -e .[dev]
 
-lint:
-	pylint all --rcfile=.pylintrc
-
 test:
 	python -m unittest discover -s all -p "*test.py"
+
+lint:
+	flake8 --ignore "E501,E731,E74,E402,F401,W503,E128" all
+
+format:
+	autopep8 --in-place --aggressive --aggressive --ignore "E501,E731,E74,E402,F401,W503,E128" -r all
 
 tensorboard:
 	tensorboard --logdir runs

@@ -2,6 +2,7 @@ import torch
 from all.approximation import Approximation
 from all.nn import RLNetwork
 
+
 class SoftDeterministicPolicy(Approximation):
     '''
     A "soft" deterministic policy compatible with soft actor-critic (SAC).
@@ -17,6 +18,7 @@ class SoftDeterministicPolicy(Approximation):
         action_space (gym.spaces.Box): The Box representing the action space.
         kwargs (optional): Any other arguments accepted by all.approximation.Approximation
     '''
+
     def __init__(
             self,
             model,

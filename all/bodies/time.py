@@ -2,6 +2,7 @@ import torch
 from all.core import StateArray
 from ._body import Body
 
+
 class TimeFeature(Body):
     def __init__(self, agent, scale=0.001):
         self.timestep = None

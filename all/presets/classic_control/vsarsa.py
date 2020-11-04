@@ -5,6 +5,7 @@ from all.policies import ParallelGreedyPolicy
 from all.logging import DummyWriter
 from .models import fc_relu_q
 
+
 def vsarsa(
         # Common settings
         device="cpu",
@@ -39,4 +40,3 @@ def vsarsa(
         policy = ParallelGreedyPolicy(q, env.action_space.n, epsilon=epsilon)
         return VSarsa(q, policy, discount_factor=discount_factor)
     return _vsarsa, n_envs
- 

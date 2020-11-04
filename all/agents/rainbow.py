@@ -1,5 +1,6 @@
 from .c51 import C51
 
+
 class Rainbow(C51):
     """
     Rainbow: Combining Improvements in Deep Reinforcement Learning.

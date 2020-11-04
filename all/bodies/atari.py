@@ -3,6 +3,7 @@ from ._body import Body
 from .rewards import ClipRewards
 from .vision import FrameStack
 
+
 class DeepmindAtariBody(Body):
     def __init__(self, agent, lazy_frames=False, episodic_lives=True, frame_stack=4):
         agent = FrameStack(agent, lazy=lazy_frames, size=frame_stack)
@@ -11,9 +12,10 @@ class DeepmindAtariBody(Body):
             agent = EpisodicLives(agent)
         super().__init__(agent)
 
+
 class EpisodicLives(Body):
     def process_state(self, state):
-        if not 'life_lost' in state:
+        if 'life_lost' not in state:
             return state
 
         if len(state) == 1:

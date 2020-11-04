@@ -2,6 +2,7 @@ import argparse
 from all.environments import GymEnvironment
 from all.experiments import load_and_watch
 
+
 def main():
     parser = argparse.ArgumentParser(description="Run an Atari benchmark.")
     parser.add_argument("env", help="Name of the environment (e.g. RoboschoolHalfCheetah-v1")
@@ -14,6 +15,7 @@ def main():
     args = parser.parse_args()
     env = GymEnvironment(args.env, device=args.device)
     load_and_watch(args.dir, env)
+
 
 if __name__ == "__main__":
     main()

@@ -5,6 +5,7 @@ from all.policies import ParallelGreedyPolicy
 from all.logging import DummyWriter
 from .models import fc_relu_q
 
+
 def vqn(
         # Common settings
         device="cpu",
@@ -39,4 +40,3 @@ def vqn(
         policy = ParallelGreedyPolicy(q, env.action_space.n, epsilon=epsilon)
         return VQN(q, policy, discount_factor=discount_factor)
     return _vqn, n_envs
- 

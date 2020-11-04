@@ -16,6 +16,7 @@ class SoftmaxPolicy(Approximation):
             model parameters, e.g. SGD, Adam, RMSprop, etc.
         kwargs (optional): Any other arguments accepted by all.approximation.Approximation
     '''
+
     def __init__(
             self,
             model,

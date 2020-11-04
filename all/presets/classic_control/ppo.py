@@ -5,6 +5,7 @@ from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import fc_relu_features, fc_policy_head, fc_value_head
 
+
 def ppo(
         # Common settings
         device="cpu",
@@ -86,5 +87,6 @@ def ppo(
             writer=writer
         )
     return _ppo, n_envs
+
 
 __all__ = ["ppo"]

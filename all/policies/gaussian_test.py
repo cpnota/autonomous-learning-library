@@ -11,6 +11,7 @@ from all.policies import GaussianPolicy
 STATE_DIM = 2
 ACTION_DIM = 3
 
+
 class TestGaussian(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(2)

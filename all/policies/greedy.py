@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from all.optim import Schedulable
 
+
 class GreedyPolicy(Schedulable):
     '''
     An  "epsilon-greedy" action selection policy for discrete action spaces.
@@ -16,6 +17,7 @@ class GreedyPolicy(Schedulable):
         num_actions (int): The number of available actions.
         epsilon (float, optional): The probability of selecting a random action.
     '''
+
     def __init__(
             self,
             q,
@@ -39,6 +41,7 @@ class GreedyPolicy(Schedulable):
     def eval(self, state):
         return torch.argmax(self.q.eval(state)).item()
 
+
 class ParallelGreedyPolicy(Schedulable):
     '''
     A parallel version of the "epsilon-greedy" action selection policy for discrete action spaces.
@@ -53,6 +56,7 @@ class ParallelGreedyPolicy(Schedulable):
         num_actions (int): The number of available actions.
         epsilon (float, optional): The probability of selecting a random action.
     '''
+
     def __init__(
             self,
             q,

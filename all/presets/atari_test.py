@@ -106,7 +106,6 @@ class TestAtariPresets(unittest.TestCase):
             vsarsa(device=CUDA, n_envs=4), AtariEnvironment("Breakout", device=CUDA)
         )
 
-
     def test_vqn(self):
         validate_agent(vqn(device=CPU, n_envs=4), AtariEnvironment("Breakout", device=CPU))
 

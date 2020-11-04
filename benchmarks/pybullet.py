@@ -4,6 +4,7 @@ from all.experiments import SlurmExperiment
 from all.presets.continuous import ddpg, ppo, sac
 from all.environments import GymEnvironment
 
+
 def main():
     device = 'cuda'
 
@@ -26,6 +27,7 @@ def main():
     SlurmExperiment(agents, envs, frames, sbatch_args={
         'partition': '1080ti-long'
     })
+
 
 if __name__ == "__main__":
     main()
