@@ -13,7 +13,8 @@ extras = {
         "pybullet>=3.0.6",            # open-source robotics environments
     ],
     "test": [
-        "pylint>=2.6.0",              # code quality tool
+        "flake8>=3.8",                # linter for pep8 compliance
+        "autopep8>=1.5",              # automatically fixes some pep8 errors
         "torch-testing>=0.0.2",       # pytorch assertion library
     ],
     "docs": [
