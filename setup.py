@@ -2,11 +2,15 @@ from setuptools import setup, find_packages
 
 
 extras = {
-    "envs": [
+    "atari": [
         "atari_py~=0.2.0",            # atari environments
-        "box2d-py~=2.3.5",            # box2d environments
-        "pybullet>=3.0.6",            # continuous environments
         "Pillow",                     # rendering library
+    ],
+    "box2d": [
+        "box2d-py~=2.3.5",
+    ],
+    "pybullet": [
+        "pybullet>=3.0.6",            # continuous environments
     ],
     "test": [
         "pylint>=2.6.0",              # code quality tool
@@ -20,8 +24,8 @@ extras = {
     ]
 }
 
-extras["dev"] = extras["envs"] + extras["test"] + extras["docs"]
-
+extras["all"] = extras["atari"]  + extras["box2d"] + extras["pybullet"]
+extras["dev"] = extras["all"] + extras["test"] + extras["docs"]
 
 setup(
     name="autonomous-learning-library",
@@ -49,7 +53,7 @@ setup(
         "numpy>=1.18.0",           # math library
         "matplotlib>=3.3.0",       # plotting library
         "opencv-python>=3.,<4.",   # used by atari wrappers
-        "torch>=1.5.1,<1.6",       # core deep learning library
+        "torch>=1.5.1",       # core deep learning library
         "tensorboard>=2.3.0",      # logging and visualization
         "tensorboardX>=2.1.0",     # tensorboard/pytorch compatibility
     ],
