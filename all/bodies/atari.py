@@ -15,7 +15,7 @@ class DeepmindAtariBody(Body):
 
 class EpisodicLives(Body):
     def process_state(self, state):
-        if state not in 'life_lost':
+        if 'life_lost' not in state:
             return state
 
         if len(state) == 1:
