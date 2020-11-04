@@ -1,4 +1,3 @@
-# pylint: skip-file
 '''
 A subset of Atari wrappers modified from:
 https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py

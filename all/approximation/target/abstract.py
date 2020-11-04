@@ -1,4 +1,3 @@
-# pylint: disable=arguments-diffe
 from abc import abstractmethod, ABC
 
 

@@ -31,7 +31,6 @@ class FeatureNetwork(Approximation):
         '''
         features = self.model(states)
         graphs = features.observation
-        # pylint: disable=protected-access
         observation = graphs.detach()
         observation.requires_grad = True
         features['observation'] = observation

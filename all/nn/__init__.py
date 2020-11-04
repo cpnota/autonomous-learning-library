@@ -76,7 +76,7 @@ class CategoricalDueling(nn.Module):
         ).view((batch_size, -1))
 
 
-class Flatten(nn.Module):  # pylint: disable=function-redefined
+class Flatten(nn.Module):
     """
     Flatten a tensor, e.g., between conv2d and linear layers.
 

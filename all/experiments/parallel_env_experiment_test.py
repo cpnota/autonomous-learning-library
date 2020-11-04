@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 import unittest
 import numpy as np
 import torch

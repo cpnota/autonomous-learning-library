@@ -1,4 +1,3 @@
-# pylint: skip-file
 # This entire module was stolen from:
 # https://github.com/Shmuma/ptan/blob/master/ptan/common/utils.py
 import operator

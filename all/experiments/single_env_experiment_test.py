@@ -7,7 +7,6 @@ from all.experiments import SingleEnvExperiment
 from all.logging import Writer
 
 
-# pylint: disable=protected-access
 class MockWriter(Writer):
     def __init__(self, experiment, label, write_loss):
         self.data = {}

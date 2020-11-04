@@ -72,7 +72,7 @@ class State(dict):
                     x[key] = torch.stack([state[key] for state in list_of_states])
                 else:
                     x[key] = torch.tensor([state[key] for state in list_of_states], device=device)
-            except BaseException:  # # pylint: disable=bare-except
+            except BaseException:
                 pass
         return StateArray(x, shape, device=device)
 
@@ -291,7 +291,7 @@ class StateArray(State):
         return tensor.view((*self.shape, *tensor.shape[1:]))
 
     def apply_mask(self, tensor):
-        return tensor * self.mask.unsqueeze(-1)  # pylint: disable=no-member
+        return tensor * self.mask.unsqueeze(-1)
 
     def flatten(self):
         """
@@ -350,7 +350,7 @@ class StateArray(State):
             for (k, v) in self.items():
                 try:
                     d[k] = v[key]
-                except BaseException:  # pylint: disable=bare-except
+                except BaseException:
                     pass
             return self.__class__(d, shape, device=self.device)
         try:
