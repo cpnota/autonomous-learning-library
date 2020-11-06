@@ -1,7 +1,6 @@
 import unittest
 import torch
 from all.environments import AtariEnvironment
-from all.presets.validate_agent import validate_agent
 from all.presets.atari import (
     a2c,
     c51,
@@ -14,6 +13,8 @@ from all.presets.atari import (
     vsarsa,
     vqn
 )
+from validate_agent import validate_agent
+
 
 CPU = torch.device("cpu")
 if torch.cuda.is_available():

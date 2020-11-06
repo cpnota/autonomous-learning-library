@@ -1,8 +1,13 @@
 install:
 	pip install -e .[dev]
 
-test:
+test: unit-test integration-test
+
+unit-test:
 	python -m unittest discover -s all -p "*test.py"
+
+integration-test:
+	python -m unittest discover -s integration -p "*test.py"
 
 lint:
 	flake8 --ignore "E501,E731,E74,E402,F401,W503,E128" all
