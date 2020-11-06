@@ -1,7 +1,7 @@
 import unittest
 from all.environments import GymEnvironment
-from all.presets.validate_agent import validate_agent
 from all.presets.continuous import ddpg, ppo, sac
+from validate_agent import validate_agent
 
 
 class TestContinuousPresets(unittest.TestCase):
