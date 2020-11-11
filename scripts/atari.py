@@ -29,9 +29,10 @@ def main():
     env = AtariEnvironment(args.env, device=args.device)
     agent_name = args.agent
     agent = getattr(atari, agent_name)
+    agent = agent().device(args.device)
 
     run_experiment(
-        agent(device=args.device, last_frame=args.frames),
+        agent,
         env,
         args.frames,
         render=args.render,

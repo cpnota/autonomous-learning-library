@@ -29,7 +29,7 @@ class dqn(PresetBuilder):
         "target_update_frequency": 1000,
         # Replay buffer settings
         "replay_start_size": 80000,
-        "replay_buffer_size": 1000000,
+        "replay_buffer_size": 500000,
         # Explicit exploration
         "initial_exploration": 1.,
         "final_exploration": 0.01,

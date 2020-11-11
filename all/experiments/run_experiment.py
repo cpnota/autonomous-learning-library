@@ -20,7 +20,8 @@ def run_experiment(
 
     for env in envs:
         for agent in agents:
-            make_experiment = get_experiment_type(agent)
+            make_experiment = SingleEnvExperiment
+            # make_experiment = get_experiment_type(agent)
             experiment = make_experiment(
                 agent,
                 env,
@@ -31,6 +32,7 @@ def run_experiment(
             )
             experiment.train(frames=frames)
             experiment.test(episodes=test_episodes)
+            experiment.save()
 
 
 def get_experiment_type(agent):
