@@ -3,7 +3,7 @@ from .a2c import A2C
 from .c51 import C51
 from .ddpg import DDPG
 from .ddqn import DDQN
-from .dqn import DQN
+from .dqn import DQN, DQNTestAgent
 from .ppo import PPO
 from .rainbow import Rainbow
 from .sac import SAC
@@ -19,6 +19,7 @@ __all__ = [
     "DDPG",
     "DDQN",
     "DQN",
+    "DQNTestAgent",
     "PPO",
     "Rainbow",
     "SAC",
