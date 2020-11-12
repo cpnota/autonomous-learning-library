@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="autonomous-learning-library",
-    version="0.6.1",
+    version="0.6.2",
     description=("A library for building reinforcement learning agents in Pytorch"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",
@@ -25,7 +25,7 @@ setup(
         "gym[atari,box2d]",     # common environments
         "numpy",                # math library
         "matplotlib",           # plotting library
-        "opencv-python",        # used by atari wrappers
+        "opencv-python>=3.,<4.",# used by atari wrappers
         "pybullet",             # continuous environments
         "tensorboardX",         # tensorboard compatibility
     ],
