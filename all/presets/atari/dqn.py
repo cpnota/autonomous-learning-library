@@ -13,40 +13,35 @@ from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
 from .models import nature_dqn
-from ..builder import PresetBuilder
+from ..builder import preset_builder
 from ..preset import Preset
 
-class dqn(PresetBuilder):
-    default_hyperparameters = {
-        # Common settings
-        "discount_factor": 0.99,
-        # Adam optimizer settings
-        "lr": 1e-4,
-        "eps": 1.5e-4,
-        # Training settings
-        "minibatch_size": 32,
-        "update_frequency": 4,
-        "target_update_frequency": 1000,
-        # Replay buffer settings
-        "replay_start_size": 80000,
-        "replay_buffer_size": 500000,
-        # Explicit exploration
-        "initial_exploration": 1.,
-        "final_exploration": 0.01,
-        "final_exploration_step": 250000,
-    }
 
-    def build(self):
-        model = nature_dqn(self._env).to(self._device)
-        return DqnPreset(model, self._hyperparameters, self._env.action_space.n, self._device)
-
+default_hyperparameters = {
+    # Common settings
+    "discount_factor": 0.99,
+    # Adam optimizer settings
+    "lr": 1e-4,
+    "eps": 1.5e-4,
+    # Training settings
+    "minibatch_size": 32,
+    "update_frequency": 4,
+    "target_update_frequency": 1000,
+    # Replay buffer settings
+    "replay_start_size": 80000,
+    "replay_buffer_size": 500000,
+    # Explicit exploration
+    "initial_exploration": 1.,
+    "final_exploration": 0.01,
+    "final_exploration_step": 250000,
+}
 
 class DqnPreset(Preset):
-    def __init__(self, model, hyperparameters, n_actions, device='cuda'):
+    def __init__(self, hyperparameters, env, device='cuda'):
         super().__init__()
-        self.model = model
+        self.model = nature_dqn(env)
         self.hyperparameters = hyperparameters
-        self.n_actions = n_actions
+        self.n_actions = env.action_space.n
         self.device = device
 
     def agent(self, writer=DummyWriter()):
@@ -104,3 +99,4 @@ class DqnPreset(Preset):
     def save(self, filename):
         return torch.save(self, filename)
 
+dqn = preset_builder('dqn', default_hyperparameters, DqnPreset)
