@@ -23,14 +23,17 @@ class ReplayBuffer(ABC):
 # Adapted from:
 # https://github.com/Shmuma/ptan/blob/master/ptan/experience.py
 class ExperienceReplayBuffer(ReplayBuffer):
-    def __init__(self, size, device=torch.device('cpu')):
+    def __init__(self, size, device='cpu', store_device='cpu'):
         self.buffer = []
         self.capacity = int(size)
         self.pos = 0
-        self.device = device
+        self.device = torch.device(device)
+        self.store_device = torch.device(store_device)
 
     def store(self, state, action, next_state):
         if state is not None and not state.done:
+            state = state.to(self.store_device)
+            next_state = next_state.to(self.store_device)
             self._add((state, action, next_state))
 
     def sample(self, batch_size):
@@ -49,12 +52,12 @@ class ExperienceReplayBuffer(ReplayBuffer):
         self.pos = (self.pos + 1) % self.capacity
 
     def _reshape(self, minibatch, weights):
-        states = State.array([sample[0] for sample in minibatch])
+        states = State.array([sample[0] for sample in minibatch]).to(self.device)
         if torch.is_tensor(minibatch[0][1]):
-            actions = torch.stack([sample[1] for sample in minibatch])
+            actions = torch.stack([sample[1] for sample in minibatch]).to(self.device)
         else:
             actions = torch.tensor([sample[1] for sample in minibatch], device=self.device)
-        next_states = State.array([sample[2] for sample in minibatch])
+        next_states = State.array([sample[2] for sample in minibatch]).to(self.device)
         return (states, actions, next_states.reward, next_states, weights)
 
     def __len__(self):
@@ -145,7 +148,6 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
 
 class NStepReplayBuffer(ReplayBuffer):
     '''Converts any ReplayBuffer into an NStepReplayBuffer'''
-
     def __init__(
             self,
             steps,
