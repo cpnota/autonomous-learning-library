@@ -28,7 +28,7 @@ default_hyperparameters = {
     "update_frequency": 4,
     "target_update_frequency": 1000,
     # Replay buffer settings
-    "replay_start_size": 10000,
+    "replay_start_size": 80000,
     "replay_buffer_size": 1000000,
     # Explicit exploration
     "initial_exploration": 1.,

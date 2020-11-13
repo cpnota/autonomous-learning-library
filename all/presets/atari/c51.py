@@ -65,12 +65,15 @@ class C51AtariPreset(Preset):
         self.n_actions = env.action_space.n
         self.device = device
 
-    def agent(self, writer=DummyWriter()):
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
+
         optimizer = Adam(
             self.model.parameters(),
             lr=self.hyperparameters['lr'],
             eps=self.hyperparameters['eps']
         )
+
         q = QDist(
             self.model,
             optimizer,
@@ -79,13 +82,15 @@ class C51AtariPreset(Preset):
             v_min=self.hyperparameters['v_min'],
             v_max=self.hyperparameters['v_max'],
             target=FixedTarget(self.hyperparameters['target_update_frequency']),
-            # scheduler=CosineAnnealingLR(optimizer, last_update),
+            scheduler=CosineAnnealingLR(optimizer, n_updates),
             writer=writer,
         )
+
         replay_buffer = ExperienceReplayBuffer(
             self.hyperparameters['replay_buffer_size'],
             device=self.device
         )
+
         return DeepmindAtariBody(
             C51(
                 q,
