@@ -37,7 +37,7 @@ default_hyperparameters = {
     "test_exploration": 0.001,
 }
 
-class DQNPreset(Preset):
+class DQNAtariPreset(Preset):
     def __init__(self, hyperparameters, env, device='cuda'):
         super().__init__()
         self.model = nature_dqn(env).to(device)
@@ -98,4 +98,4 @@ class DQNPreset(Preset):
             DQNTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
         )
 
-dqn = preset_builder('dqn', default_hyperparameters, DQNPreset)
+dqn = preset_builder('dqn', default_hyperparameters, DQNAtariPreset)

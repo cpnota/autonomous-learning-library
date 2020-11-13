@@ -1,39 +1,40 @@
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.approximation import QDist, FixedTarget
-from all.agents import C51
+from all.agents import C51, C51TestAgent
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from .models import nature_c51
+from ..builder import preset_builder
+from ..preset import Preset
 
 
-def c51(
-        # Common settings
-        device="cuda",
-        discount_factor=0.99,
-        last_frame=40e6,
-        # Adam optimizer settings
-        lr=1e-4,
-        eps=1.5e-4,
-        # Training settings
-        minibatch_size=32,
-        update_frequency=4,
-        target_update_frequency=1000,
-        # Replay buffer settings
-        replay_start_size=80000,
-        replay_buffer_size=1000000,
-        # Explicit exploration
-        initial_exploration=0.02,
-        final_exploration=0.,
-        # Distributional RL
-        atoms=51,
-        v_min=-10,
-        v_max=10,
-        # Model construction
-        model_constructor=nature_c51
-):
+default_hyperparameters = {
+    "discount_factor": 0.99,
+    # Adam optimizer settings
+    "lr": 1e-4,
+    "eps": 1.5e-4,
+    # Training settings
+    "minibatch_size": 32,
+    "update_frequency": 4,
+    "target_update_frequency": 1000,
+    # Replay buffer settings
+    "replay_start_size": 80000,
+    "replay_buffer_size": 1000000,
+    # Explicit exploration
+    "initial_exploration": 0.02,
+    "final_exploration": 0.,
+    "final_exploration_step": 250000,
+    "test_exploration": 0.001,
+    # Distributional RL
+    "atoms": 51,
+    "v_min": -10,
+    "v_max": 10,
+}
+
+class C51AtariPreset(Preset):
     """
     C51 Atari preset.
 
@@ -57,50 +58,64 @@ def c51(
         v_max (int): The expected return correspodning to the larget atom.
         model_constructor (function): The function used to construct the neural model.
     """
-    def _c51(env, writer=DummyWriter()):
-        action_repeat = 4
-        last_timestep = last_frame / action_repeat
-        last_update = (last_timestep - replay_start_size) / update_frequency
+    def __init__(self, hyperparameters, env, device='cuda'):
+        super().__init__()
+        self.model = nature_c51(env, atoms=hyperparameters['atoms']).to(device)
+        self.hyperparameters = hyperparameters
+        self.n_actions = env.action_space.n
+        self.device = device
 
-        model = model_constructor(env, atoms=atoms).to(device)
+    def agent(self, writer=DummyWriter()):
         optimizer = Adam(
-            model.parameters(),
-            lr=lr,
-            eps=eps
+            self.model.parameters(),
+            lr=self.hyperparameters['lr'],
+            eps=self.hyperparameters['eps']
         )
         q = QDist(
-            model,
+            self.model,
             optimizer,
-            env.action_space.n,
-            atoms,
-            v_min=v_min,
-            v_max=v_max,
-            target=FixedTarget(target_update_frequency),
-            scheduler=CosineAnnealingLR(optimizer, last_update),
+            self.n_actions,
+            self.hyperparameters['atoms'],
+            v_min=self.hyperparameters['v_min'],
+            v_max=self.hyperparameters['v_max'],
+            target=FixedTarget(self.hyperparameters['target_update_frequency']),
+            # scheduler=CosineAnnealingLR(optimizer, last_update),
             writer=writer,
         )
         replay_buffer = ExperienceReplayBuffer(
-            replay_buffer_size,
-            device=device
+            self.hyperparameters['replay_buffer_size'],
+            device=self.device
         )
         return DeepmindAtariBody(
             C51(
                 q,
                 replay_buffer,
                 exploration=LinearScheduler(
-                    initial_exploration,
-                    final_exploration,
+                    self.hyperparameters['initial_exploration'],
+                    self.hyperparameters['final_exploration'],
                     0,
-                    last_timestep,
+                    self.hyperparameters["final_exploration_step"] - self.hyperparameters["replay_start_size"],
                     name="epsilon",
                     writer=writer,
                 ),
-                discount_factor=discount_factor,
-                minibatch_size=minibatch_size,
-                replay_start_size=replay_start_size,
-                update_frequency=update_frequency,
+                discount_factor=self.hyperparameters["discount_factor"],
+                minibatch_size=self.hyperparameters["minibatch_size"],
+                replay_start_size=self.hyperparameters["replay_start_size"],
+                update_frequency=self.hyperparameters["update_frequency"],
                 writer=writer
             ),
             lazy_frames=True
         )
-    return _c51
+
+    def test_agent(self):
+        q_dist = QDist(
+            self.model,
+            None,
+            self.n_actions,
+            self.hyperparameters['atoms'],
+            v_min=self.hyperparameters['v_min'],
+            v_max=self.hyperparameters['v_max'],
+        )
+        return DeepmindAtariBody(C51TestAgent(q_dist, self.n_actions, self.hyperparameters["test_exploration"]))
+
+c51 = preset_builder('c51', default_hyperparameters, C51AtariPreset)

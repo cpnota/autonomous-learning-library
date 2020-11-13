@@ -27,7 +27,7 @@ default_hyperparameters = {
     "n_steps": 5,
 }
 
-class A2CPreset(Preset):
+class A2CAtariPreset(Preset):
     """
     A2C Atari preset.
 
@@ -110,4 +110,4 @@ class A2CPreset(Preset):
     def n_envs(self):
         return self.hyperparameters['n_envs']
 
-a2c = preset_builder('a2c', default_hyperparameters, A2CPreset)
+a2c = preset_builder('a2c', default_hyperparameters, A2CAtariPreset)
