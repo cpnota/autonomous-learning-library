@@ -28,8 +28,8 @@ default_hyperparameters = {
     "update_frequency": 4,
     "target_update_frequency": 1000,
     # Replay buffer settings
-    "replay_start_size": 80000,
-    "replay_buffer_size": 500000,
+    "replay_start_size": 10000,
+    "replay_buffer_size": 1000000,
     # Explicit exploration
     "initial_exploration": 1.,
     "final_exploration": 0.01,
@@ -45,7 +45,9 @@ class DQNAtariPreset(Preset):
         self.n_actions = env.action_space.n
         self.device = device
 
-    def agent(self, writer=DummyWriter()):
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
+
         optimizer = Adam(
             self.model.parameters(),
             lr=self.hyperparameters['lr'],
@@ -55,7 +57,7 @@ class DQNAtariPreset(Preset):
         q = QNetwork(
             self.model,
             optimizer,
-            # scheduler=CosineAnnealingLR(optimizer, last_update),
+            scheduler=CosineAnnealingLR(optimizer, n_updates),
             target=FixedTarget(self.hyperparameters['target_update_frequency']),
             writer=writer
         )

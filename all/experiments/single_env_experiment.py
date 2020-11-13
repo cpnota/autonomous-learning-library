@@ -11,6 +11,7 @@ class SingleEnvExperiment(Experiment):
             self,
             preset,
             env,
+            train_steps=float('inf'),
             logdir='runs',
             quiet=False,
             render=False,
@@ -20,7 +21,7 @@ class SingleEnvExperiment(Experiment):
         super().__init__(self._make_writer(logdir, self._name, env.name, write_loss), quiet)
         self._logdir = logdir
         self._preset = preset
-        self._agent = self._preset.agent()
+        self._agent = self._preset.agent(writer=self._writer, train_steps=train_steps)
         self._env = env
         self._render = render
         self._frame = 1

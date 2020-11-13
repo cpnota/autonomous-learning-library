@@ -14,6 +14,7 @@ class ParallelEnvExperiment(Experiment):
             self,
             preset,
             env,
+            train_steps=float('inf'),
             logdir='runs',
             quiet=False,
             render=False,
@@ -24,7 +25,7 @@ class ParallelEnvExperiment(Experiment):
         self._n_envs = preset.n_envs
         self._envs = env.duplicate(self._n_envs)
         self._preset = preset
-        self._agent = preset.agent(writer=self._writer)
+        self._agent = preset.agent(writer=self._writer, train_steps=train_steps)
         self._render = render
 
         # training state

@@ -25,6 +25,7 @@ def run_experiment(
             experiment = make_experiment(
                 preset,
                 env,
+                train_steps=frames,
                 logdir=logdir,
                 quiet=quiet,
                 render=render,
