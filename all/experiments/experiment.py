@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
+import torch
 
 
 class Experiment(ABC):
@@ -74,3 +75,6 @@ class Experiment(ABC):
 
     def _log_test(self, returns):
         self._writer.add_summary('returns-test', np.mean(returns), np.std(returns))
+
+    def save(self):
+        return self._preset.save('{}/preset.pt'.format(self._writer.log_dir))

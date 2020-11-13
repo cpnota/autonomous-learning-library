@@ -12,7 +12,6 @@ def watch(agent, env, fps=60):
     env.render(mode="human")
     env.reset()
 
-    print(env.state)
     while True:
         action = agent.act(env.state)
         returns += env.state.reward

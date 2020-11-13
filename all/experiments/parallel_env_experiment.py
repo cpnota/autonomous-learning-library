@@ -12,18 +12,19 @@ class ParallelEnvExperiment(Experiment):
 
     def __init__(
             self,
-            agent,
+            preset,
             env,
             logdir='runs',
             quiet=False,
             render=False,
             write_loss=True
     ):
-        super().__init__(self._make_writer(logdir, agent[0].__name__, env.name, write_loss), quiet)
-        make_agent, n_envs = agent
-        self._envs = env.duplicate(n_envs)
-        self._agent = make_agent(self._envs, self._writer)
-        self._n_envs = n_envs
+        self._name = preset.__class__.__name__
+        super().__init__(self._make_writer(logdir, self._name, env.name, write_loss), quiet)
+        self._n_envs = preset.n_envs
+        self._envs = env.duplicate(self._n_envs)
+        self._preset = preset
+        self._agent = preset.agent(writer=self._writer)
         self._render = render
 
         # training state
@@ -107,10 +108,11 @@ class ParallelEnvExperiment(Experiment):
         self._test_episodes_started = 0
         self._test_returns = []
         self._should_save_returns = [True] * self._n_envs
+        self._test_agent = self._preset.test_agent()
 
     def _test_step(self):
         states = self._aggregate_states()
-        actions = self._agent.eval(states)
+        actions = self._test_agent.act(states)
         self._test_step_envs(actions)
 
     def _test_step_envs(self, actions):

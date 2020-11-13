@@ -9,17 +9,17 @@ class SingleEnvExperiment(Experiment):
 
     def __init__(
             self,
-            agent,
+            preset,
             env,
             logdir='runs',
             quiet=False,
             render=False,
             write_loss=True
     ):
-        self._name = agent.__class__.__name__
+        self._name = preset.__class__.__name__
         super().__init__(self._make_writer(logdir, self._name, env.name, write_loss), quiet)
         self._logdir = logdir
-        self._preset = agent.env(env).build()
+        self._preset = preset
         self._agent = self._preset.agent()
         self._env = env
         self._render = render
@@ -50,9 +50,6 @@ class SingleEnvExperiment(Experiment):
             self._log_test_episode(episode, episode_return)
         self._log_test(returns)
         return returns
-
-    def save(self):
-        return self._preset.save('{}/preset.pt'.format(self._writer.log_dir))
 
     def _run_training_episode(self):
         # initialize timer

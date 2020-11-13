@@ -36,7 +36,7 @@ default_hyperparameters = {
     "final_exploration_step": 250000,
 }
 
-class DqnPreset(Preset):
+class DQNPreset(Preset):
     def __init__(self, hyperparameters, env, device='cuda'):
         super().__init__()
         self.model = nature_dqn(env)
@@ -99,4 +99,4 @@ class DqnPreset(Preset):
     def save(self, filename):
         return torch.save(self, filename)
 
-dqn = preset_builder('dqn', default_hyperparameters, DqnPreset)
+dqn = preset_builder('dqn', default_hyperparameters, DQNPreset)

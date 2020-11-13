@@ -1,5 +1,5 @@
 from ._agent import Agent
-from .a2c import A2C
+from .a2c import A2C, A2CTestAgent
 from .c51 import C51
 from .ddpg import DDPG
 from .ddqn import DDQN
@@ -15,6 +15,7 @@ from .vsarsa import VSarsa
 __all__ = [
     "Agent",
     "A2C",
+    "A2CTestAgent"
     "C51",
     "DDPG",
     "DDQN",
