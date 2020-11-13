@@ -19,7 +19,7 @@ def main():
         "--frames", type=int, default=40e6, help="The number of training frames."
     )
     parser.add_argument(
-        "--render", type=bool, default=False, help="Render the environment."
+        "--render", action="store_true", default=False, help="Render the environment."
     )
     parser.add_argument(
         "--logdir", default='runs', help="The base logging directory."
