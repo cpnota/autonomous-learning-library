@@ -50,7 +50,9 @@ class A2CAtariPreset(Preset):
         self.hyperparameters = hyperparameters
         self.device = device
 
-    def agent(self, writer=DummyWriter()):
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        n_updates = train_steps / (self.hyperparameters['n_steps'] * self.hyperparameters['n_envs'])
+
         feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
         value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
         policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
@@ -58,10 +60,7 @@ class A2CAtariPreset(Preset):
         features = FeatureNetwork(
             self.feature_model,
             feature_optimizer,
-            # scheduler=CosineAnnealingLR(
-            #     feature_optimizer,
-            #     final_anneal_step,
-            # ),
+            scheduler=CosineAnnealingLR(feature_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
@@ -69,10 +68,7 @@ class A2CAtariPreset(Preset):
         v = VNetwork(
             self.value_model,
             value_optimizer,
-            # scheduler=CosineAnnealingLR(
-            #     value_optimizer,
-            #     final_anneal_step,
-            # ),
+            scheduler=CosineAnnealingLR(value_optimizer, n_updates),
             loss_scaling=self.hyperparameters["value_loss_scaling"],
             clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
@@ -81,10 +77,7 @@ class A2CAtariPreset(Preset):
         policy = SoftmaxPolicy(
             self.policy_model,
             policy_optimizer,
-            # scheduler=CosineAnnealingLR(
-            #     policy_optimizer,
-            #     final_anneal_step,
-            # ),
+            scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )

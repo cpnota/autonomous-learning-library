@@ -2,6 +2,7 @@ import os
 import unittest
 import torch
 from all.environments import AtariEnvironment
+from all.logging import DummyWriter
 from all.presets.atari import (
     a2c,
     c51,
@@ -58,7 +59,7 @@ class TestAtariPresets(unittest.TestCase):
     def validate_preset(self, builder):
         preset = builder().device('cpu').env(self.env).build()
         # normal agent
-        agent = preset.agent()
+        agent = preset.agent(writer=DummyWriter(), train_steps=100000)
         agent.act(self.env.state)
         # test agent
         test_agent = preset.test_agent()
