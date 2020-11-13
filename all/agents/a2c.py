@@ -100,10 +100,9 @@ class A2C(Agent):
         )
 
 class A2CTestAgent(Agent):
-    def __init__(self, feature_model, policy_model):
-        self.feature_model = feature_model
-        self.policy_model = policy_model
+    def __init__(self, features, policy):
+        self.features = features
+        self.policy = policy
 
     def act(self, state):
-        probs = self.policy_model(self.feature_model(state.as_input('observation')))
-        return torch.argmax(probs, dim=-1)
+        return self.policy.eval(self.features.eval(state)).sample()

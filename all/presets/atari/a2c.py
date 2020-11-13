@@ -1,3 +1,4 @@
+import copy
 import math
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
@@ -102,7 +103,9 @@ class A2CPreset(Preset):
         )
 
     def test_agent(self):
-        return DeepmindAtariBody(A2CTestAgent(self.feature_model, self.policy_model))
+        features = FeatureNetwork(copy.deepcopy(self.feature_model))
+        policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
+        return DeepmindAtariBody(A2CTestAgent(features, policy))
 
     def n_envs(self):
         return self.hyperparameters['n_envs']
