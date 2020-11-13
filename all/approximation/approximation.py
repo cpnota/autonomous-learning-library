@@ -51,7 +51,7 @@ class Approximation():
     def __init__(
             self,
             model,
-            optimizer,
+            optimizer=None,
             checkpointer=None,
             clip_grad=0,
             loss_scaling=1,

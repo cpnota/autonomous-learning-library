@@ -34,12 +34,13 @@ default_hyperparameters = {
     "initial_exploration": 1.,
     "final_exploration": 0.01,
     "final_exploration_step": 250000,
+    "test_exploration": 0.001,
 }
 
 class DQNPreset(Preset):
     def __init__(self, hyperparameters, env, device='cuda'):
         super().__init__()
-        self.model = nature_dqn(env)
+        self.model = nature_dqn(env).to(device)
         self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
         self.device = device
@@ -92,11 +93,9 @@ class DQNPreset(Preset):
         )
 
     def test_agent(self):
+        q =  QNetwork(copy.deepcopy(self.model))
         return DeepmindAtariBody(
-            DQNTestAgent(copy.deepcopy(self.model), self.n_actions, exploration=0.001)
+            DQNTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
         )
-
-    def save(self, filename):
-        return torch.save(self, filename)
 
 dqn = preset_builder('dqn', default_hyperparameters, DQNPreset)

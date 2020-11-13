@@ -80,13 +80,12 @@ class DQN(Agent):
         return (self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0)
 
 class DQNTestAgent(Agent):
-    def __init__(self, model, n_actions, exploration=0.):
-        self.model = model
+    def __init__(self, q, n_actions, exploration=0.):
+        self.q = q
         self.n_actions = n_actions
         self.exploration = exploration
 
     def act(self, state):
         if np.random.rand() < self.exploration:
             return np.random.randint(0, self.n_actions)
-        with torch.no_grad:
-            return torch.argmax(state.apply(self.model, 'observation')).item()
+        return torch.argmax(self.q.eval(state)).item()
