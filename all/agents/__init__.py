@@ -2,7 +2,7 @@ from ._agent import Agent
 from .a2c import A2C, A2CTestAgent
 from .c51 import C51, C51TestAgent
 from .ddpg import DDPG
-from .ddqn import DDQN
+from .ddqn import DDQN, DDQNTestAgent
 from .dqn import DQN, DQNTestAgent
 from .ppo import PPO
 from .rainbow import Rainbow
@@ -20,6 +20,7 @@ __all__ = [
     "C51TestAgent",
     "DDPG",
     "DDQN",
+    "DDQNTestAgent",
     "DQN",
     "DQNTestAgent",
     "PPO",
