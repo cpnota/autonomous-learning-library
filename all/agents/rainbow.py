@@ -1,4 +1,4 @@
-from .c51 import C51
+from .c51 import C51, C51TestAgent
 
 
 class Rainbow(C51):
@@ -29,3 +29,5 @@ class Rainbow(C51):
             when training begins.
         update_frequency (int): Number of timesteps per training update.
     """
+
+RainbowTestAgent = C51TestAgent
