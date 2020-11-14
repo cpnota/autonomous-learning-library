@@ -70,7 +70,7 @@ class DQNAtariPreset(Preset):
                 self.hyperparameters['final_exploration'],
                 self.hyperparameters['replay_start_size'],
                 self.hyperparameters['final_exploration_step'] - self.hyperparameters['replay_start_size'],
-                name="epsilon",
+                name="exploration",
                 writer=writer
             )
         )

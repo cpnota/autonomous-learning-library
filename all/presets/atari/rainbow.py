@@ -89,7 +89,7 @@ class RainbowAtariPreset(Preset):
                     self.hyperparameters['final_exploration'],
                     0,
                     train_steps - self.hyperparameters['replay_start_size'],
-                    name="epsilon",
+                    name="exploration",
                     writer=writer
                 ),
                 discount_factor=self.hyperparameters['discount_factor'] ** self.hyperparameters["n_steps"],

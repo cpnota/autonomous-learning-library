@@ -1,29 +1,34 @@
+import copy
 from torch.optim import Adam
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.approximation import QNetwork
-from all.agents import VSarsa
+from all.agents import VSarsa, VSarsaTestAgent
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import ParallelGreedyPolicy
 from .models import nature_ddqn
+from ..builder import preset_builder
+from ..preset import Preset
 
 
-def vsarsa(
-        # Common settings
-        device="cuda",
-        discount_factor=0.99,
-        # Adam optimizer settings
-        lr=1e-3,
-        eps=1.5e-4,
-        # Exploration settings
-        final_exploration_frame=1000000,
-        final_exploration=0.02,
-        initial_exploration=1.,
-        # Parallel actors
-        n_envs=64,
-        # Model construction
-        model_constructor=nature_ddqn
-):
+default_hyperparameters = {
+    # Common settings
+    "discount_factor": 0.99,
+    # Adam optimizer settings
+    "lr": 1e-3,
+    "eps": 1.5e-4,
+    # Explicit exploration
+    "initial_exploration": 1.,
+    "final_exploration": 0.01,
+    "final_exploration_step": 250000,
+    "test_exploration": 0.001,
+    # Parallel actors
+    "n_envs": 64,
+}
+
+
+class VSarsaAtariPreset(Preset):
     """
     Vanilla SARSA Atari preset.
 
@@ -39,31 +44,50 @@ def vsarsa(
         n_envs (int): Number of parallel environments.
         model_constructor (function): The function used to construct the neural model.
     """
-    def _vsarsa(envs, writer=DummyWriter()):
-        action_repeat = 4
-        final_exploration_timestep = final_exploration_frame / action_repeat
+    def __init__(self, hyperparameters, env, device='cuda'):
+        super().__init__(n_envs=hyperparameters['n_envs'])
+        self.model = nature_ddqn(env).to(device)
+        self.hyperparameters = hyperparameters
+        self.n_actions = env.action_space.n
+        self.device = device
 
-        env = envs[0]
-        model = model_constructor(env).to(device)
-        optimizer = Adam(model.parameters(), lr=lr, eps=eps)
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        n_updates = train_steps / self.hyperparameters['n_envs']
+
+        optimizer = Adam(
+            self.model.parameters(),
+            lr=self.hyperparameters['lr'],
+            eps=self.hyperparameters['eps']
+        )
+
         q = QNetwork(
-            model,
+            self.model,
             optimizer,
+            scheduler=CosineAnnealingLR(optimizer, n_updates),
             writer=writer
         )
+
         policy = ParallelGreedyPolicy(
             q,
-            env.action_space.n,
+            self.n_actions,
             epsilon=LinearScheduler(
-                initial_exploration,
-                final_exploration,
+                self.hyperparameters['initial_exploration'],
+                self.hyperparameters['final_exploration'],
                 0,
-                final_exploration_timestep,
-                name="epsilon",
+                self.hyperparameters["final_exploration_step"] / self.hyperparameters["n_envs"],
+                name="exploration",
                 writer=writer
             )
         )
+
         return DeepmindAtariBody(
-            VSarsa(q, policy, discount_factor=discount_factor),
+            VSarsa(q, policy, discount_factor=self.hyperparameters['discount_factor']),
         )
-    return _vsarsa, n_envs
+
+    def test_agent(self):
+        q =  QNetwork(copy.deepcopy(self.model))
+        return DeepmindAtariBody(
+            VSarsaTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
+        )
+
+vsarsa = preset_builder('vsarsa', default_hyperparameters, VSarsaAtariPreset)
