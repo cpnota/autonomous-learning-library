@@ -4,7 +4,7 @@ from .c51 import C51, C51TestAgent
 from .ddpg import DDPG
 from .ddqn import DDQN, DDQNTestAgent
 from .dqn import DQN, DQNTestAgent
-from .ppo import PPO
+from .ppo import PPO, PPOTestAgent
 from .rainbow import Rainbow
 from .sac import SAC
 from .vac import VAC
@@ -24,6 +24,7 @@ __all__ = [
     "DQN",
     "DQNTestAgent",
     "PPO",
+    "PPOTestAgent",
     "Rainbow",
     "SAC",
     "VAC",

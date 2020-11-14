@@ -24,7 +24,7 @@ def main():
     parser.add_argument(
         "--logdir", default='runs', help="The base logging directory."
     )
-    parser.add_argument('--hyperparameters', nargs='*')
+    parser.add_argument('--hyperparameters', default=[], nargs='*')
     args = parser.parse_args()
 
     env = AtariEnvironment(args.env, device=args.device)
