@@ -1,30 +1,30 @@
+import copy
 from torch.optim import Adam
-from all.agents import VAC
+from torch.optim.lr_scheduler import CosineAnnealingLR
+from all.agents import VAC, VACTestAgent
 from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import nature_features, nature_value_head, nature_policy_head
+from ..builder import preset_builder
+from ..preset import Preset
 
+default_hyperparameters = {
+    # Common settings
+    "discount_factor": 0.99,
+    # Adam optimizer settings
+    "lr_v": 5e-4,
+    "lr_pi": 1e-4,
+    "eps": 1.5e-4,
+    # Other optimization settings
+    "clip_grad": 0.5,
+    "value_loss_scaling": 0.25,
+    # Parallel actors
+    "n_envs": 16,
+}
 
-def vac(
-        # Common settings
-        device="cuda",
-        discount_factor=0.99,
-        # Adam optimizer settings
-        lr_v=5e-4,
-        lr_pi=1e-4,
-        eps=1.5e-4,
-        # Other optimization settings
-        clip_grad=0.5,
-        value_loss_scaling=0.25,
-        # Parallel actors
-        n_envs=16,
-        # Model construction
-        feature_model_constructor=nature_features,
-        value_model_constructor=nature_value_head,
-        policy_model_constructor=nature_policy_head
-):
+class VACAtariPreset(Preset):
     """
     Vanilla Actor-Critic Atari preset.
 
@@ -43,36 +43,53 @@ def vac(
         value_model_constructor (function): The function used to construct the neural value model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
-    def _vac(envs, writer=DummyWriter()):
-        value_model = value_model_constructor().to(device)
-        policy_model = policy_model_constructor(envs[0]).to(device)
-        feature_model = feature_model_constructor().to(device)
+    def __init__(self, hyperparameters, env, device):
+        super().__init__(n_envs=hyperparameters['n_envs'])
+        self.value_model = nature_value_head().to(device)
+        self.policy_model = nature_policy_head(env).to(device)
+        self.feature_model = nature_features().to(device)
+        self.hyperparameters = hyperparameters
+        self.device = device
 
-        value_optimizer = Adam(value_model.parameters(), lr=lr_v, eps=eps)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi, eps=eps)
-        feature_optimizer = Adam(feature_model.parameters(), lr=lr_pi, eps=eps)
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        n_updates = train_steps / self.hyperparameters["n_envs"]
+
+        feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
+        value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr_v"], eps=self.hyperparameters["eps"])
+        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
+
+        features = FeatureNetwork(
+            self.feature_model,
+            feature_optimizer,
+            scheduler=CosineAnnealingLR(feature_optimizer, n_updates),
+            clip_grad=self.hyperparameters["clip_grad"],
+            writer=writer
+        )
 
         v = VNetwork(
-            value_model,
+            self.value_model,
             value_optimizer,
-            loss_scaling=value_loss_scaling,
-            clip_grad=clip_grad,
-            writer=writer,
+            scheduler=CosineAnnealingLR(value_optimizer, n_updates),
+            loss_scaling=self.hyperparameters["value_loss_scaling"],
+            clip_grad=self.hyperparameters["clip_grad"],
+            writer=writer
         )
+
         policy = SoftmaxPolicy(
-            policy_model,
+            self.policy_model,
             policy_optimizer,
-            clip_grad=clip_grad,
-            writer=writer,
-        )
-        features = FeatureNetwork(
-            feature_model,
-            feature_optimizer,
-            clip_grad=clip_grad,
+            scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
+            clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
 
         return DeepmindAtariBody(
-            VAC(features, v, policy, discount_factor=discount_factor),
+            VAC(features, v, policy, discount_factor=self.hyperparameters["discount_factor"]),
         )
-    return _vac, n_envs
+
+    def test_agent(self):
+        features = FeatureNetwork(copy.deepcopy(self.feature_model))
+        policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
+        return DeepmindAtariBody(VACTestAgent(features, policy))
+
+vac = preset_builder('vac', default_hyperparameters, VACAtariPreset)
