@@ -1,30 +1,30 @@
+import copy
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from all.agents import VPG
+from all.agents import VPG, VPGTestAgent
 from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import nature_features, nature_value_head, nature_policy_head
+from ..builder import preset_builder
+from ..preset import Preset
 
 
-def vpg(
-        # Common settings
-        device="cuda",
-        discount_factor=0.99,
-        last_frame=40e6,
-        # Adam optimizer settings
-        lr=7e-4,
-        eps=1.5e-4,
-        # Other optimization settings
-        clip_grad=0.5,
-        value_loss_scaling=0.25,
-        min_batch_size=1000,
-        # Model construction
-        feature_model_constructor=nature_features,
-        value_model_constructor=nature_value_head,
-        policy_model_constructor=nature_policy_head
-):
+default_hyperparameters = {
+    # Common settings
+    "discount_factor": 0.99,
+    # Adam optimizer settings
+    "lr_v": 5e-4,
+    "lr_pi": 1e-4,
+    "eps": 1.5e-4,
+    # Other optimization settings
+    "clip_grad": 0.5,
+    "value_loss_scaling": 0.25,
+    "min_batch_size": 1000,
+}
+
+class VPGAtariPreset(Preset):
     """
     Vanilla Policy Gradient Atari preset.
 
@@ -43,54 +43,53 @@ def vpg(
         value_model_constructor (function): The function used to construct the neural value model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
-    final_anneal_step = last_frame / (min_batch_size * 4)
+    def __init__(self, hyperparameters, env, device):
+        super().__init__()
+        self.value_model = nature_value_head().to(device)
+        self.policy_model = nature_policy_head(env).to(device)
+        self.feature_model = nature_features().to(device)
+        self.hyperparameters = hyperparameters
+        self.device = device
 
-    def _vpg_atari(env, writer=DummyWriter()):
-        value_model = value_model_constructor().to(device)
-        policy_model = policy_model_constructor(env).to(device)
-        feature_model = feature_model_constructor().to(device)
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        n_updates = train_steps / self.hyperparameters["min_batch_size"]
 
-        feature_optimizer = Adam(feature_model.parameters(), lr=lr, eps=eps)
-        value_optimizer = Adam(value_model.parameters(), lr=lr, eps=eps)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr, eps=eps)
+        feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
+        value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr_v"], eps=self.hyperparameters["eps"])
+        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
 
         features = FeatureNetwork(
-            feature_model,
+            self.feature_model,
             feature_optimizer,
-            scheduler=CosineAnnealingLR(
-                feature_optimizer,
-                final_anneal_step,
-            ),
-            clip_grad=clip_grad,
+            scheduler=CosineAnnealingLR(feature_optimizer, n_updates),
+            clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
+
         v = VNetwork(
-            value_model,
+            self.value_model,
             value_optimizer,
-            scheduler=CosineAnnealingLR(
-                value_optimizer,
-                final_anneal_step,
-            ),
-            loss_scaling=value_loss_scaling,
-            clip_grad=clip_grad,
+            scheduler=CosineAnnealingLR(value_optimizer, n_updates),
+            loss_scaling=self.hyperparameters["value_loss_scaling"],
+            clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
+
         policy = SoftmaxPolicy(
-            policy_model,
+            self.policy_model,
             policy_optimizer,
-            scheduler=CosineAnnealingLR(
-                policy_optimizer,
-                final_anneal_step,
-            ),
-            clip_grad=clip_grad,
+            scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
+            clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
 
         return DeepmindAtariBody(
-            VPG(features, v, policy, discount_factor=discount_factor, min_batch_size=min_batch_size),
-            episodic_lives=True
+            VPG(features, v, policy, discount_factor=self.hyperparameters["discount_factor"], min_batch_size=self.hyperparameters["min_batch_size"]),
         )
-    return _vpg_atari
 
+    def test_agent(self):
+        features = FeatureNetwork(copy.deepcopy(self.feature_model))
+        policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
+        return DeepmindAtariBody(VPGTestAgent(features, policy))
 
-__all__ = ["vpg"]
+vpg = preset_builder('vpg', default_hyperparameters, VPGAtariPreset)

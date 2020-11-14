@@ -8,7 +8,7 @@ from .ppo import PPO, PPOTestAgent
 from .rainbow import Rainbow, RainbowTestAgent
 from .sac import SAC
 from .vac import VAC, VACTestAgent
-from .vpg import VPG
+from .vpg import VPG, VPGTestAgent
 from .vqn import VQN
 from .vsarsa import VSarsa
 
@@ -31,6 +31,7 @@ __all__ = [
     "VAC",
     "VACTestAgent",
     "VPG",
+    "VPGTestAgent",
     "VQN",
     "VSarsa",
 ]

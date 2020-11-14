@@ -2,6 +2,7 @@ import torch
 from torch.nn.functional import mse_loss
 from all.core import State
 from ._agent import Agent
+from .a2c import A2CTestAgent
 
 
 class VPG(Agent):
@@ -130,3 +131,5 @@ class VPG(Agent):
             returns[t] = discounted_return
             t -= 1
         return returns
+
+VPGTestAgent = A2CTestAgent
