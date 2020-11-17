@@ -37,7 +37,9 @@ class A2CAtariPreset(Preset):
 
     Args:
         env (all.environments.AtariEnvironment): The device
-        device (torch.device): the device on which to load the agent
+        device (torch.device, optional): the device on which to load the agent
+    
+    Keyword Args:
         discount_factor (float): Discount factor for future rewards.
         lr (float): Learning rate for the Adam optimizer.
         eps (float): Stability parameters for the Adam optimizer.
@@ -52,6 +54,7 @@ class A2CAtariPreset(Preset):
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
     def __init__(self, env, device="cuda", **hyperparameters):
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__(n_envs=hyperparameters['n_envs'])
         self.value_model = hyperparameters['value_model_constructor']().to(device)
         self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
