@@ -8,7 +8,6 @@ from .vac import vac, VACAtariPreset
 from .vpg import vpg, VPGAtariPreset
 from .vqn import vqn, VQNAtariPreset
 from .vsarsa import vsarsa, VSarsaAtariPreset
-from .preset import Preset
 
 
 __all__ = [
@@ -32,5 +31,4 @@ __all__ = [
     "VQNAtariPreset",
     "vsarsa",
     "VSarsaAtariPreset",
-    "Preset"
 ]

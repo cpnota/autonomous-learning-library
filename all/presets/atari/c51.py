@@ -39,9 +39,9 @@ class C51AtariPreset(Preset):
     C51 Atari preset.
 
     Args:
-        device (str): The device to load parameters and buffers onto for this agent.
+        env (all.environments.AtariEnvironment): The device
+        device (torch.device): the device on which to load the agent
         discount_factor (float): Discount factor for future rewards.
-        last_frame (int): Number of frames to train.
         lr (float): Learning rate for the Adam optimizer.
         eps (float): Stability parameters for the Adam optimizer.
         minibatch_size (int): Number of experiences to sample in each training update.
@@ -49,14 +49,15 @@ class C51AtariPreset(Preset):
         target_update_frequency (int): Number of timesteps between updates the target network.
         replay_start_size (int): Number of experiences in replay buffer when training begins.
         replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
-        initial_exploration (int): Initial probability of choosing a random action,
+        initial_exploration (float): Initial probability of choosing a random action,
             decayed over course of training.
-        final_exploration (int): Final probability of choosing a random action.
+        final_exploration (float): Final probability of choosing a random action.
+        final_exploration_step (int): The step at which exploration decay is finished
+        test_exploration (float): The exploration rate of the test Agent
         atoms (int): The number of atoms in the categorical distribution used to represent
             the distributional value function.
         v_min (int): The expected return corresponding to the smallest atom.
         v_max (int): The expected return correspodning to the larget atom.
-        model_constructor (function): The function used to construct the neural model.
     """
     def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()

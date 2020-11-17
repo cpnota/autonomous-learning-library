@@ -25,6 +25,10 @@ default_hyperparameters = {
     # Batch settings
     "n_envs": 16,
     "n_steps": 5,
+    # Model construction
+    "feature_model_constructor": nature_features,
+    "value_model_constructor": nature_value_head,
+    "policy_model_constructor": nature_policy_head
 }
 
 class A2CAtariPreset(Preset):
@@ -32,23 +36,26 @@ class A2CAtariPreset(Preset):
     A2C Atari preset.
 
     Args:
-            env (all.environments.AtariEnvironment): The device
-            device (torch.device): the device on which to load the agent
-            discount_factor (float): Discount factor for future rewards.
-            lr (float): Learning rate for the Adam optimizer.
-            eps (float): Stability parameters for the Adam optimizer.
-            clip_grad (float): The maximum magnitude of the gradient for any given parameter.
-                Set to 0 to disable.
-            entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
-            value_loss_scaling (float): Coefficient for the value function loss.
-            n_envs (int): Number of parallel environments.
-            n_steps (int): Length of each rollout.
+        env (all.environments.AtariEnvironment): The device
+        device (torch.device): the device on which to load the agent
+        discount_factor (float): Discount factor for future rewards.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        clip_grad (float): The maximum magnitude of the gradient for any given parameter.
+            Set to 0 to disable.
+        entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
+        value_loss_scaling (float): Coefficient for the value function loss.
+        n_envs (int): Number of parallel environments.
+        n_steps (int): Length of each rollout.
+        feature_model_constructor (function): The function used to construct the neural feature model.
+        value_model_constructor (function): The function used to construct the neural value model.
+        policy_model_constructor (function): The function used to construct the neural policy model.
     """
     def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__(n_envs=hyperparameters['n_envs'])
-        self.value_model = nature_value_head().to(device)
-        self.policy_model = nature_policy_head(env).to(device)
-        self.feature_model = nature_features().to(device)
+        self.value_model = hyperparameters['value_model_constructor']().to(device)
+        self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
+        self.feature_model = hyperparameters['feature_model_constructor']().to(device)
         self.hyperparameters = hyperparameters
         self.device = device
 
