@@ -102,13 +102,4 @@ class A2CAtariPreset(Preset):
         policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
         return DeepmindAtariBody(A2CTestAgent(features, policy))
 
-    def n_envs(self):
-        return self.hyperparameters['n_envs']
-
-'''
-blah blah
-
-Args:
-    blah: blah
-'''
 a2c = preset_builder('a2c', default_hyperparameters, A2CAtariPreset)
