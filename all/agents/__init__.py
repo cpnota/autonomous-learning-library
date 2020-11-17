@@ -15,7 +15,7 @@ from .vsarsa import VSarsa, VSarsaTestAgent
 __all__ = [
     "Agent",
     "A2C",
-    "A2CTestAgent"
+    "A2CTestAgent",
     "C51",
     "C51TestAgent",
     "DDPG",
