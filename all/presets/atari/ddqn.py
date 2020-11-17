@@ -61,7 +61,7 @@ class DDQNAtariPreset(Preset):
             (0 = no correction, 1 = full correction)
         model_constructor (function): The function used to construct the neural model.
     """
-    def __init__(self, hyperparameters, env, device='cuda'):
+    def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
         self.model = nature_ddqn(env).to(device)
         self.hyperparameters = hyperparameters

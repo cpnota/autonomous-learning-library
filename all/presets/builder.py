@@ -44,6 +44,6 @@ def preset_builder(default_name, default_hyperparameters, constructor):
                     raise KeyError("Invalid hyperparameter: {}".format(key))
 
         def build(self):
-            return constructor(self._hyperparameters, self._env, self._device)
+            return constructor(self._env, device=self._device, **self._hyperparameters)
 
     return PresetBuilder

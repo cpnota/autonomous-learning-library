@@ -43,7 +43,7 @@ class VACAtariPreset(Preset):
         value_model_constructor (function): The function used to construct the neural value model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
-    def __init__(self, hyperparameters, env, device):
+    def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__(n_envs=hyperparameters['n_envs'])
         self.value_model = nature_value_head().to(device)
         self.policy_model = nature_policy_head(env).to(device)

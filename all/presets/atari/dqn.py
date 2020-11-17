@@ -38,7 +38,7 @@ default_hyperparameters = {
 }
 
 class DQNAtariPreset(Preset):
-    def __init__(self, hyperparameters, env, device='cuda'):
+    def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
         self.model = nature_dqn(env).to(device)
         self.hyperparameters = hyperparameters

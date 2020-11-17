@@ -41,7 +41,7 @@ default_hyperparameters = {
 }
 
 class RainbowAtariPreset(Preset):
-    def __init__(self, hyperparameters, env, device='cuda'):
+    def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
         self.model = nature_rainbow(env, atoms=hyperparameters["atoms"], sigma=hyperparameters["sigma"]).to(device)
         self.hyperparameters = hyperparameters

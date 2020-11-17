@@ -58,7 +58,7 @@ class C51AtariPreset(Preset):
         v_max (int): The expected return correspodning to the larget atom.
         model_constructor (function): The function used to construct the neural model.
     """
-    def __init__(self, hyperparameters, env, device='cuda'):
+    def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
         self.model = nature_c51(env, atoms=hyperparameters['atoms']).to(device)
         self.hyperparameters = hyperparameters

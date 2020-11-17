@@ -44,7 +44,7 @@ class VSarsaAtariPreset(Preset):
         n_envs (int): Number of parallel environments.
         model_constructor (function): The function used to construct the neural model.
     """
-    def __init__(self, hyperparameters, env, device='cuda'):
+    def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__(n_envs=hyperparameters['n_envs'])
         self.model = nature_ddqn(env).to(device)
         self.hyperparameters = hyperparameters

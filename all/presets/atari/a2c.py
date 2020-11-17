@@ -42,7 +42,7 @@ class A2CAtariPreset(Preset):
         n_envs (int): Number of parallel environments.
         n_steps (int): Length of each rollout.
     """
-    def __init__(self, hyperparameters, env, device):
+    def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__(n_envs=hyperparameters['n_envs'])
         self.value_model = nature_value_head().to(device)
         self.policy_model = nature_policy_head(env).to(device)
