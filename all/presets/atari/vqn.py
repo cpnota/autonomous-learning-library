@@ -25,28 +25,35 @@ default_hyperparameters = {
     "test_exploration": 0.001,
     # Parallel actors
     "n_envs": 64,
+    # Model construction
+    "model_constructor": nature_ddqn
 }
 
 
 class VQNAtariPreset(Preset):
     """
-    Vanilla Q-Network Atari preset.
+    Vanilla Q-Network (VQN) Atari preset.
 
     Args:
-        device (str): The device to load parameters and buffers onto for this agent.
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        device (torch.device, optional): The device on which to load the agent.
+
+    Keyword Args:
         discount_factor (float): Discount factor for future rewards.
         lr (float): Learning rate for the Adam optimizer.
         eps (float): Stability parameters for the Adam optimizer.
-        initial_exploration (int): Initial probability of choosing a random action,
-            decayed until final_exploration_frame.
-        final_exploration (int): Final probability of choosing a random action.
-        final_exploration_frame (int): The frame where the exploration decay stops.
+        initial_exploration (float): Initial probability of choosing a random action,
+            decayed over course of training.
+        final_exploration (float): Final probability of choosing a random action.
+        final_exploration_step (int): The step at which exploration decay is finished
+        test_exploration (float): The exploration rate of the test Agent
         n_envs (int): Number of parallel environments.
         model_constructor (function): The function used to construct the neural model.
     """
     def __init__(self, env, device="cuda", **hyperparameters):
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__(n_envs=hyperparameters['n_envs'])
-        self.model = nature_ddqn(env).to(device)
+        self.model = hyperparameters['model_constructor'](env).to(device)
         self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
         self.device = device

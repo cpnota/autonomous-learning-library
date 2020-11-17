@@ -32,15 +32,19 @@ default_hyperparameters = {
     "atoms": 51,
     "v_min": -10,
     "v_max": 10,
+    # Model construction
+    "model_constructor": nature_c51
 }
 
 class C51AtariPreset(Preset):
     """
-    C51 Atari preset.
+    Categorical DQN (C51) Atari preset.
 
     Args:
-        env (all.environments.AtariEnvironment): The device
-        device (torch.device): the device on which to load the agent
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        device (torch.device, optional): the device on which to load the agent
+
+    Keyword Args:
         discount_factor (float): Discount factor for future rewards.
         lr (float): Learning rate for the Adam optimizer.
         eps (float): Stability parameters for the Adam optimizer.
@@ -58,10 +62,12 @@ class C51AtariPreset(Preset):
             the distributional value function.
         v_min (int): The expected return corresponding to the smallest atom.
         v_max (int): The expected return correspodning to the larget atom.
+        model_constructor (function): The function used to construct the neural model.
     """
     def __init__(self, env, device="cuda", **hyperparameters):
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__()
-        self.model = nature_c51(env, atoms=hyperparameters['atoms']).to(device)
+        self.model = hyperparameters['model_constructor'](env, atoms=hyperparameters['atoms']).to(device)
         self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
         self.device = device

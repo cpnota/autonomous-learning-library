@@ -34,16 +34,20 @@ default_hyperparameters = {
     "final_exploration": 0.01,
     "final_exploration_step": 250000,
     "test_exploration": 0.001,
+    # Model construction
+    "model_constructor": nature_ddqn
 }
 
 class DDQNAtariPreset(Preset):
     """
-    Dueling Double DQN with Prioritized Experience Replay (PER).
+    Dueling Double DQN (DDQN) with Prioritized Experience Replay (PER) Atari Preset.
 
     Args:
-        device (str): The device to load parameters and buffers onto for this agent.
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        device (torch.device, optional): the device on which to load the agent
+
+    Keyword Args:
         discount_factor (float): Discount factor for future rewards.
-        last_frame (int): Number of frames to train.
         lr (float): Learning rate for the Adam optimizer.
         eps (float): Stability parameters for the Adam optimizer.
         minibatch_size (int): Number of experiences to sample in each training update.
@@ -51,10 +55,11 @@ class DDQNAtariPreset(Preset):
         target_update_frequency (int): Number of timesteps between updates the target network.
         replay_start_size (int): Number of experiences in replay buffer when training begins.
         replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
-        initial_exploration (int): Initial probability of choosing a random action,
-            decayed until final_exploration_frame.
-        final_exploration (int): Final probability of choosing a random action.
-        final_exploration_frame (int): The frame where the exploration decay stops.
+        initial_exploration (float): Initial probability of choosing a random action,
+            decayed over course of training.
+        final_exploration (float): Final probability of choosing a random action.
+        final_exploration_step (int): The step at which exploration decay is finished
+        test_exploration (float): The exploration rate of the test Agent
         alpha (float): Amount of prioritization in the prioritized experience replay buffer.
             (0 = no prioritization, 1 = full prioritization)
         beta (float): The strength of the importance sampling correction for prioritized experience replay.
@@ -63,7 +68,8 @@ class DDQNAtariPreset(Preset):
     """
     def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
-        self.model = nature_ddqn(env).to(device)
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
+        self.model = hyperparameters['model_constructor'](env).to(device)
         self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
         self.device = device

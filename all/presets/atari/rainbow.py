@@ -38,12 +38,46 @@ default_hyperparameters = {
     "v_max": 10,
     # Noisy Nets
     "sigma": 0.5,
+    # Model construction
+    "model_constructor": nature_rainbow
 }
 
 class RainbowAtariPreset(Preset):
+    """
+    Rainbow DQN Atari Preset.
+
+    Args:
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        device (torch.device, optional): The device on which to load the agent.
+
+    Keyword Args:
+        discount_factor (float): Discount factor for future rewards.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        target_update_frequency (int): Number of timesteps between updates the target network.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        initial_exploration (float): Initial probability of choosing a random action,
+            decayed over course of training.
+        final_exploration (float): Final probability of choosing a random action.
+        alpha (float): Amount of prioritization in the prioritized experience replay buffer.
+            (0 = no prioritization, 1 = full prioritization)
+        beta (float): The strength of the importance sampling correction for prioritized experience replay.
+            (0 = no correction, 1 = full correction)
+        n_steps (int): The number of steps for n-step Q-learning.
+        atoms (int): The number of atoms in the categorical distribution used to represent
+            the distributional value function.
+        v_min (int): The expected return corresponding to the smallest atom.
+        v_max (int): The expected return correspodning to the larget atom.
+        sigma (float): Initial noisy network noise.
+        model_constructor (function): The function used to construct the neural model.
+    """
     def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
-        self.model = nature_rainbow(env, atoms=hyperparameters["atoms"], sigma=hyperparameters["sigma"]).to(device)
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
+        self.model = hyperparameters['model_constructor'](env, atoms=hyperparameters["atoms"], sigma=hyperparameters["sigma"]).to(device)
         self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
         self.device = device

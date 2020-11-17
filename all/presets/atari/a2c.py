@@ -33,10 +33,10 @@ default_hyperparameters = {
 
 class A2CAtariPreset(Preset):
     """
-    A2C Atari preset.
+    Advantage Actor-Critic (A2C) Atari preset.
 
     Args:
-        env (all.environments.AtariEnvironment): The device
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
         device (torch.device, optional): the device on which to load the agent
     
     Keyword Args:

@@ -35,12 +35,38 @@ default_hyperparameters = {
     "final_exploration": 0.01,
     "final_exploration_step": 250000,
     "test_exploration": 0.001,
+    # Model construction
+    "model_constructor": nature_dqn
 }
 
 class DQNAtariPreset(Preset):
+    """
+    Deep Q-Network (DQN) Atari Preset.
+
+    Args:
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        device (torch.device, optional): The device on which to load the agent.
+
+    Keyword Args:
+        discount_factor (float, optional): Discount factor for future rewards.
+        lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        target_update_frequency (int): Number of timesteps between updates the target network.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        initial_exploration (float): Initial probability of choosing a random action,
+            decayed over course of training.
+        final_exploration (float): Final probability of choosing a random action.
+        final_exploration_step (int): The step at which exploration decay is finished
+        test_exploration (float): The exploration rate of the test Agent
+        model_constructor (function): The function used to construct the neural model.
+    """
     def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
-        self.model = nature_dqn(env).to(device)
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
+        self.model = hyperparameters['model_constructor'](env).to(device)
         self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
         self.device = device

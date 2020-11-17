@@ -22,16 +22,22 @@ default_hyperparameters = {
     "clip_grad": 0.5,
     "value_loss_scaling": 0.25,
     "min_batch_size": 1000,
+    # Model construction
+    "feature_model_constructor": nature_features,
+    "value_model_constructor": nature_value_head,
+    "policy_model_constructor": nature_policy_head
 }
 
 class VPGAtariPreset(Preset):
     """
-    Vanilla Policy Gradient Atari preset.
+    Vanilla Policy Gradient (VPG) Atari preset.
 
     Args:
-        device (str): The device to load parameters and buffers onto for this agent.
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        device (torch.device, optional): The device on which to load the agent.
+
+    Keyword Args:
         discount_factor (float): Discount factor for future rewards.
-        last_frame (int): Number of frames to train.
         lr (float): Learning rate for the Adam optimizer.
         eps (float): Stability parameters for the Adam optimizer.
         clip_grad (float): The maximum magnitude of the gradient for any given parameter.
@@ -44,10 +50,11 @@ class VPGAtariPreset(Preset):
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
     def __init__(self, env, device="cuda", **hyperparameters):
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__()
-        self.value_model = nature_value_head().to(device)
-        self.policy_model = nature_policy_head(env).to(device)
-        self.feature_model = nature_features().to(device)
+        self.value_model = hyperparameters['value_model_constructor']().to(device)
+        self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
+        self.feature_model = hyperparameters['feature_model_constructor']().to(device)
         self.hyperparameters = hyperparameters
         self.device = device
 
