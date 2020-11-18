@@ -1,78 +1,102 @@
 from torch.optim import Adam
-from all.agents import A2C
+from all.agents import A2C, A2CTestAgent
 from all.approximation import VNetwork, FeatureNetwork
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import fc_relu_features, fc_policy_head, fc_value_head
+from ..builder import preset_builder
+from ..preset import Preset
 
 
-def a2c(
-        # Common settings
-        device="cpu",
-        discount_factor=0.99,
-        # Adam optimizer settings
-        lr=3e-3,
-        # Other optimization settings
-        clip_grad=0.1,
-        entropy_loss_scaling=0.001,
-        # Batch settings
-        n_envs=4,
-        n_steps=32,
-        # Model construction
-        feature_model_constructor=fc_relu_features,
-        value_model_constructor=fc_value_head,
-        policy_model_constructor=fc_policy_head
-):
+default_hyperparameters = {
+    # Common settings
+    "discount_factor": 0.99,
+    # Adam optimizer settings
+    "lr": 3e-3,
+    # Other optimization settings
+    "clip_grad": 0.1,
+    "entropy_loss_scaling": 0.001,
+    "value_loss_scaling": 0.5,
+    # Batch settings
+    "n_envs": 4,
+    "n_steps": 32,
+    # Model construction
+    "feature_model_constructor": fc_relu_features,
+    "value_model_constructor": fc_value_head,
+    "policy_model_constructor": fc_policy_head
+}
+
+
+class A2CClassicControlPreset(Preset):
     """
-    A2C classic control preset.
+    Advantaged Actor-Critic (A2C) classic control preset.
 
     Args:
-        device (str): The device to load parameters and buffers onto for this agent.
+        env (all.environments.GymEnvironment): The classic control environment for which to construct the agent.
+        device (torch.device, optional): the device on which to load the agent
+    
+    Keyword Args:
         discount_factor (float): Discount factor for future rewards.
         lr (float): Learning rate for the Adam optimizer.
-        clip_grad (float): The maximum magnitude of the gradient for any given parameter. Set to 0 to disable.
+        eps (float): Stability parameters for the Adam optimizer.
+        clip_grad (float): The maximum magnitude of the gradient for any given parameter.
+            Set to 0 to disable.
         entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
+        value_loss_scaling (float): Coefficient for the value function loss.
         n_envs (int): Number of parallel environments.
         n_steps (int): Length of each rollout.
         feature_model_constructor (function): The function used to construct the neural feature model.
         value_model_constructor (function): The function used to construct the neural value model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
-    def _a2c(envs, writer=DummyWriter()):
-        env = envs[0]
-        feature_model = feature_model_constructor(env).to(device)
-        value_model = value_model_constructor().to(device)
-        policy_model = policy_model_constructor(env).to(device)
+    def __init__(self, env, device="cuda", **hyperparameters):
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
+        super().__init__(n_envs=hyperparameters['n_envs'])
+        self.value_model = hyperparameters['value_model_constructor']().to(device)
+        self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
+        self.feature_model = hyperparameters['feature_model_constructor'](env).to(device)
+        self.hyperparameters = hyperparameters
+        self.device = device
 
-        feature_optimizer = Adam(feature_model.parameters(), lr=lr)
-        value_optimizer = Adam(value_model.parameters(), lr=lr)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr)
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr"])
+        value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr"])
+        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr"])
 
         features = FeatureNetwork(
-            feature_model, feature_optimizer, clip_grad=clip_grad)
+            self.feature_model,
+            feature_optimizer,
+            clip_grad=self.hyperparameters["clip_grad"]
+        )
+
         v = VNetwork(
-            value_model,
+            self.value_model,
             value_optimizer,
-            clip_grad=clip_grad,
+            clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
+
         policy = SoftmaxPolicy(
-            policy_model,
+            self.policy_model,
             policy_optimizer,
-            clip_grad=clip_grad,
+            clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
+
         return A2C(
             features,
             v,
             policy,
-            n_envs=n_envs,
-            n_steps=n_steps,
-            discount_factor=discount_factor,
-            entropy_loss_scaling=entropy_loss_scaling,
+            n_envs=self.hyperparameters["n_envs"],
+            n_steps=self.hyperparameters["n_steps"],
+            discount_factor=self.hyperparameters["discount_factor"],
+            entropy_loss_scaling=self.hyperparameters["entropy_loss_scaling"],
             writer=writer
         )
-    return _a2c, n_envs
 
+    def test_agent(self):
+        features = FeatureNetwork(self.feature_model)
+        policy = SoftmaxPolicy(self.policy_model)
+        return A2CTestAgent(features, policy)
 
-__all__ = ["a2c"]
+a2c = preset_builder('a2c', default_hyperparameters, A2CClassicControlPreset)

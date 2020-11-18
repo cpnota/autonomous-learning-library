@@ -1,4 +1,4 @@
-from .a2c import a2c
+from .a2c import a2c, A2CClassicControlPreset
 from .c51 import c51
 from .ddqn import ddqn
 from .dqn import dqn
@@ -11,6 +11,7 @@ from .vsarsa import vsarsa
 
 __all__ = [
     "a2c",
+    "A2CClassicControlPreset",
     "c51",
     "ddqn",
     "dqn",
