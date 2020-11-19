@@ -1,24 +1,33 @@
 from .a2c import a2c, A2CClassicControlPreset
-from .c51 import c51
-from .ddqn import ddqn
-from .dqn import dqn
-from .ppo import ppo
-from .rainbow import rainbow
-from .vac import vac
-from .vpg import vpg
-from .vqn import vqn
-from .vsarsa import vsarsa
+from .c51 import c51, C51ClassicControlPreset
+from .ddqn import ddqn, DDQNClassicControlPreset
+from .dqn import dqn, DQNClassicControlPreset
+from .ppo import ppo, PPOClassicControlPreset
+from .rainbow import rainbow, RainbowClassicControlPreset
+from .vac import vac, VACClassicControlPreset
+from .vpg import vpg, VPGClassicControlPreset
+from .vqn import vqn, VQNClassicControlPreset
+from .vsarsa import vsarsa, VSarsaClassicControlPreset
 
 __all__ = [
     "a2c",
     "A2CClassicControlPreset",
     "c51",
+    "C51ClassicControlPreset",
     "ddqn",
+    "DDQNClassicControlPreset",
     "dqn",
+    "DQNClassicControlPreset",
     "ppo",
+    "PPOClassicControlPreset",
     "rainbow",
+    "RainbowClassicControlPreset",
     "vac",
+    "VACClassicControlPreset",
     "vpg",
+    "VPGClassicControlPreset",
     "vqn",
-    "vsarsa"
+    "VQNClassicControlPreset",
+    "vsarsa",
+    "VSarsaClassicControlPreset",
 ]
