@@ -1,3 +1,4 @@
+import copy
 from torch.optim import Adam
 from all.agents import C51, C51TestAgent
 from all.approximation import QDist, FixedTarget
@@ -107,7 +108,7 @@ class C51ClassicControlPreset(Preset):
 
     def test_agent(self):
         q_dist = QDist(
-            self.model,
+            copy.deepcopy(self.model),
             None,
             self.n_actions,
             self.hyperparameters['atoms'],

@@ -138,7 +138,7 @@ class RainbowAtariPreset(Preset):
 
     def test_agent(self):
         q_dist = QDist(
-            self.model,
+            copy.deepcopy(self.model),
             None,
             self.n_actions,
             self.hyperparameters['atoms'],
