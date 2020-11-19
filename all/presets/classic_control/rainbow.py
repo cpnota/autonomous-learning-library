@@ -47,7 +47,7 @@ class RainbowClassicControlPreset(Preset):
     Rainbow DQN Classic Control Preset.
 
     Args:
-        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        env (all.environments.GymEnvironment): The environment for which to construct the agent.
         device (torch.device, optional): The device on which to load the agent.
 
     Keyword Args:
