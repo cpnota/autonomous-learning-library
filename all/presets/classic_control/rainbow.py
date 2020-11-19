@@ -1,51 +1,67 @@
+import copy
 from torch.optim import Adam
-from all.agents import Rainbow
-from all.approximation import QDist
+from torch.optim.lr_scheduler import CosineAnnealingLR
+from all.approximation import QDist, FixedTarget
+from all.agents import Rainbow, RainbowTestAgent
+from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
-from all.memory import (
-    PrioritizedReplayBuffer,
-    NStepReplayBuffer,
-)
+from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer
+from all.optim import LinearScheduler
 from .models import fc_relu_rainbow
+from ..builder import preset_builder
+from ..preset import Preset
 
 
-def rainbow(
-        # Common settings
-        device="cpu",
-        discount_factor=0.99,
-        # Adam optimizer settings
-        lr=2e-4,
-        # Training settings
-        minibatch_size=64,
-        update_frequency=1,
-        # Replay buffer settings
-        replay_buffer_size=20000,
-        replay_start_size=1000,
-        # Prioritized replay settings
-        alpha=0.5,
-        beta=0.5,
-        # Multi-step learning
-        n_steps=5,
-        # Distributional RL
-        atoms=101,
-        v_min=-100,
-        v_max=100,
-        # Noisy Nets
-        sigma=0.5,
-        # Model construction
-        model_constructor=fc_relu_rainbow
-):
+default_hyperparameters = {
+    "discount_factor": 0.99,
+    "lr": 2e-4,
+    "eps": 1.5e-4,
+    # Training settings
+    "minibatch_size": 64,
+    "update_frequency": 1,
+    "target_update_frequency": 100,
+    # Replay buffer settings
+    "replay_start_size": 1000,
+    "replay_buffer_size": 20000,
+    # Explicit exploration
+    "initial_exploration": 0.02,
+    "final_exploration": 0.,
+    "test_exploration": 0.001,
+    # Prioritized replay settings
+    "alpha": 0.5,
+    "beta": 0.5,
+    # Multi-step learning
+    "n_steps": 5,
+    # Distributional RL
+    "atoms": 101,
+    "v_min": -101,
+    "v_max": 101,
+    # Noisy Nets
+    "sigma": 0.5,
+    # Model construction
+    "model_constructor": fc_relu_rainbow
+}
+
+class RainbowClassicControlPreset(Preset):
     """
-    Rainbow classic control preset.
+    Rainbow DQN Classic Control Preset.
 
     Args:
-        device (str): The device to load parameters and buffers onto for this agent.
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        device (torch.device, optional): The device on which to load the agent.
+
+    Keyword Args:
         discount_factor (float): Discount factor for future rewards.
         lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
         minibatch_size (int): Number of experiences to sample in each training update.
         update_frequency (int): Number of timesteps per training update.
+        target_update_frequency (int): Number of timesteps between updates the target network.
         replay_start_size (int): Number of experiences in replay buffer when training begins.
         replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        initial_exploration (float): Initial probability of choosing a random action,
+            decayed over course of training.
+        final_exploration (float): Final probability of choosing a random action.
         alpha (float): Amount of prioritization in the prioritized experience replay buffer.
             (0 = no prioritization, 1 = full prioritization)
         beta (float): The strength of the importance sampling correction for prioritized experience replay.
@@ -58,38 +74,70 @@ def rainbow(
         sigma (float): Initial noisy network noise.
         model_constructor (function): The function used to construct the neural model.
     """
-    def _rainbow(env, writer=DummyWriter()):
-        model = model_constructor(env, atoms=atoms, sigma=sigma).to(device)
-        optimizer = Adam(model.parameters(), lr=lr)
-        q = QDist(
-            model,
+    def __init__(self, env, device="cuda", **hyperparameters):
+        super().__init__()
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
+        self.model = hyperparameters['model_constructor'](env, atoms=hyperparameters["atoms"], sigma=hyperparameters["sigma"]).to(device)
+        self.hyperparameters = hyperparameters
+        self.n_actions = env.action_space.n
+        self.device = device
+
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        optimizer = Adam(
+            self.model.parameters(),
+            lr=self.hyperparameters['lr'],
+            eps=self.hyperparameters['eps']
+        )
+
+        q_dist = QDist(
+            self.model,
             optimizer,
-            env.action_space.n,
-            atoms,
-            v_min=v_min,
-            v_max=v_max,
+            self.n_actions,
+            self.hyperparameters['atoms'],
+            v_min=self.hyperparameters['v_min'],
+            v_max=self.hyperparameters['v_max'],
+            target=FixedTarget(self.hyperparameters['target_update_frequency']),
             writer=writer,
         )
-        # replay_buffer = ExperienceReplayBuffer(replay_buffer_size, device=device)
-        replay_buffer = PrioritizedReplayBuffer(
-            replay_buffer_size,
-            alpha=alpha,
-            beta=beta,
-            device=device
+
+        replay_buffer = NStepReplayBuffer(
+            self.hyperparameters['n_steps'],
+            self.hyperparameters['discount_factor'],
+            PrioritizedReplayBuffer(
+                self.hyperparameters['replay_buffer_size'],
+                alpha=self.hyperparameters['alpha'],
+                beta=self.hyperparameters['beta'],
+                device=self.device
+            )
         )
-        replay_buffer = NStepReplayBuffer(n_steps, discount_factor, replay_buffer)
+
         return Rainbow(
-            q,
-            replay_buffer,
-            exploration=0.,
-            discount_factor=discount_factor ** n_steps,
-            minibatch_size=minibatch_size,
-            replay_start_size=replay_start_size,
-            update_frequency=update_frequency,
-            writer=writer,
+                q_dist,
+                replay_buffer,
+                exploration=LinearScheduler(
+                    self.hyperparameters['initial_exploration'],
+                    self.hyperparameters['final_exploration'],
+                    0,
+                    train_steps - self.hyperparameters['replay_start_size'],
+                    name="exploration",
+                    writer=writer
+                ),
+                discount_factor=self.hyperparameters['discount_factor'] ** self.hyperparameters["n_steps"],
+                minibatch_size=self.hyperparameters['minibatch_size'],
+                replay_start_size=self.hyperparameters['replay_start_size'],
+                update_frequency=self.hyperparameters['update_frequency'],
+                writer=writer,
+            )
+
+    def test_agent(self):
+        q_dist = QDist(
+            copy.deepcopy(self.model),
+            None,
+            self.n_actions,
+            self.hyperparameters['atoms'],
+            v_min=self.hyperparameters['v_min'],
+            v_max=self.hyperparameters['v_max'],
         )
+        return RainbowTestAgent(q_dist, self.n_actions, self.hyperparameters["test_exploration"])
 
-    return _rainbow
-
-
-__all__ = ["rainbow"]
+rainbow = preset_builder('rainbow', default_hyperparameters, RainbowClassicControlPreset)
