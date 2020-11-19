@@ -1,7 +1,7 @@
 from ._agent import Agent
 from .a2c import A2C, A2CTestAgent
 from .c51 import C51, C51TestAgent
-from .ddpg import DDPG
+from .ddpg import DDPG, DDPGTestAgent
 from .ddqn import DDQN, DDQNTestAgent
 from .dqn import DQN, DQNTestAgent
 from .ppo import PPO, PPOTestAgent
@@ -19,6 +19,7 @@ __all__ = [
     "C51",
     "C51TestAgent",
     "DDPG",
+    "DDPGTestAgent",
     "DDQN",
     "DDQNTestAgent",
     "DQN",

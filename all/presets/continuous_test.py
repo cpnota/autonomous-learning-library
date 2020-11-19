@@ -3,58 +3,30 @@ import unittest
 import torch
 from all.environments import GymEnvironment
 from all.logging import DummyWriter
-from all.presets.classic_control import (
-    a2c,
-    c51,
-    ddqn,
-    dqn,
+from all.presets.continuous import (
+    ddpg,
     ppo,
-    rainbow,
-    vac,
-    vpg,
-    vqn,
-    vsarsa,
+    sac,
 )
 
 
-class TestClassicControlPresets(unittest.TestCase):
+class TestContinuousPresets(unittest.TestCase):
     def setUp(self):
-        self.env = GymEnvironment('CartPole-v0')
+        self.env = GymEnvironment('LunarLanderContinuous-v2')
         self.env.reset()
 
     def tearDown(self):
         if os.path.exists('test_preset.pt'):
             os.remove('test_preset.pt')
 
-    def test_a2c(self):
-        self.validate(a2c)
-
-    def test_c51(self):
-        self.validate(c51)
-
-    def test_ddqn(self):
-        self.validate(ddqn)
-
-    def test_dqn(self):
-        self.validate(dqn)
+    def test_ddpg(self):
+        self.validate(ddpg)
 
     def test_ppo(self):
         self.validate(ppo)
 
-    def test_rainbow(self):
-        self.validate(rainbow)
-
-    def test_vac(self):
-        self.validate(vac)
-
-    def test_vpg(self):
-        self.validate(vpg)
-
-    def test_vsarsa(self):
-        self.validate(vsarsa)
-
-    def test_vqn(self):
-        self.validate(vqn)
+    def test_sac(self):
+        self.validate(sac)
 
     def validate(self, builder):
         preset = builder().device('cpu').env(self.env).build()
