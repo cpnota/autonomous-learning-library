@@ -39,7 +39,7 @@ class C51ClassicControlPreset(Preset):
     Categorical DQN (C51) Atari preset.
 
     Args:
-        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        env (all.environments.GymEnvironment): The environment for which to construct the agent.
         device (torch.device, optional): the device on which to load the agent
 
     Keyword Args:

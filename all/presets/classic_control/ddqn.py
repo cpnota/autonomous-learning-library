@@ -35,6 +35,32 @@ default_hyperparameters = {
 }
 
 class DDQNClassicControlPreset(Preset):
+    """
+    Dueling Double DQN (DDQN) with Prioritized Experience Replay (PER) Classic Control Preset.
+
+    Args:
+        env (all.environments.GymEnvironment): The environment for which to construct the agent.
+        device (torch.device, optional): the device on which to load the agent
+
+    Keyword Args:
+        discount_factor (float): Discount factor for future rewards.
+        lr (float): Learning rate for the Adam optimizer.
+        minibatch_size (int): Number of experiences to sample in each training update.
+        update_frequency (int): Number of timesteps per training update.
+        target_update_frequency (int): Number of timesteps between updates the target network.
+        replay_start_size (int): Number of experiences in replay buffer when training begins.
+        replay_buffer_size (int): Maximum number of experiences to store in the replay buffer.
+        initial_exploration (float): Initial probability of choosing a random action,
+            decayed over course of training.
+        final_exploration (float): Final probability of choosing a random action.
+        final_exploration_step (int): The step at which exploration decay is finished
+        test_exploration (float): The exploration rate of the test Agent
+        alpha (float): Amount of prioritization in the prioritized experience replay buffer.
+            (0 = no prioritization, 1 = full prioritization)
+        beta (float): The strength of the importance sampling correction for prioritized experience replay.
+            (0 = no correction, 1 = full correction)
+        model_constructor (function): The function used to construct the neural model.
+    """
     def __init__(self, env, device="cuda", **hyperparameters):
         hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__()
