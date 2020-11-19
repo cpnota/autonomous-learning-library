@@ -1,6 +1,7 @@
 import os
 import unittest
 import torch
+from all.core import State
 from all.environments import GymEnvironment
 from all.logging import DummyWriter
 from all.presets.continuous import (

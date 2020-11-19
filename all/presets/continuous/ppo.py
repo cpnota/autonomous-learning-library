@@ -1,46 +1,51 @@
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from all.agents import PPO
+from all.agents import PPO, PPOTestAgent
 from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import TimeFeature
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import GaussianPolicy
 from .models import fc_actor_critic
+from ..builder import preset_builder
+from ..preset import Preset
 
 
-def ppo(
-        # Common settings
-        device="cuda",
-        discount_factor=0.98,
-        last_frame=2e6,
-        # Adam optimizer settings
-        lr=3e-4,  # Adam learning rate
-        eps=1e-5,  # Adam stability
-        # Loss scaling
-        entropy_loss_scaling=0.01,
-        value_loss_scaling=0.5,
-        # Training settings
-        clip_grad=0.5,
-        clip_initial=0.2,
-        clip_final=0.01,
-        epochs=20,
-        minibatches=4,
-        # Batch settings
-        n_envs=32,
-        n_steps=128,
-        # GAE settings
-        lam=0.95,
-        # Model construction
-        ac_model_constructor=fc_actor_critic
-):
+default_hyperparameters = {
+    # Common settings
+    "discount_factor": 0.98,
+    # Adam optimizer settings
+    "lr": 3e-4,  # Adam learning rate
+    "eps": 1e-5,  # Adam stability
+    # Loss scaling
+    "entropy_loss_scaling": 0.01,
+    "value_loss_scaling": 0.5,
+    # Training settings
+    "clip_grad": 0.5,
+    "clip_initial": 0.2,
+    "clip_final": 0.01,
+    "epochs": 20,
+    "minibatches": 4,
+    # Batch settings
+    "n_envs": 32,
+    "n_steps": 128,
+    # GAE settings
+    "lam": 0.95,
+    # Model construction
+    "ac_model_constructor": fc_actor_critic
+}
+
+
+class PPOContinuousPreset(Preset):
     """
-    PPO continuous control preset.
+    Proximal Policy Optimization (PPO) Continuous Control Preset.
 
     Args:
-        device (str): The device to load parameters and buffers onto for this agent.
+        env (all.environments.GymEnvironment): The classic control environment for which to construct the agent.
+        device (torch.device, optional): the device on which to load the agent
+
+    Keyword Args:
         discount_factor (float): Discount factor for future rewards.
-        last_frame (int): Number of frames to train.
         lr (float): Learning rate for the Adam optimizer.
         eps (float): Stability parameters for the Adam optimizer.
         entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
@@ -55,51 +60,56 @@ def ppo(
         lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
         ac_model_constructor (function): The function used to construct the neural feature, value and policy model.
     """
-    def _ppo(envs, writer=DummyWriter()):
-        final_anneal_step = last_frame * epochs * minibatches / (n_steps * n_envs)
-        env = envs[0]
+    def __init__(self, env, device="cuda", **hyperparameters):
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
+        super().__init__(hyperparameters["n_envs"])
+        feature_model, value_model, policy_model = hyperparameters["ac_model_constructor"](env)
+        self.feature_model = feature_model.to(device)
+        self.value_model = value_model.to(device)
+        self.policy_model = policy_model.to(device)
+        self.device = device
+        self.action_space = env.action_space
+        self.hyperparameters = hyperparameters
 
-        feature_model, value_model, policy_model = ac_model_constructor(env)
-        feature_model.to(device)
-        value_model.to(device)
-        policy_model.to(device)
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        n_updates = train_steps * self.hyperparameters['epochs'] * self.hyperparameters['minibatches'] / (self.hyperparameters['n_steps'] * self.hyperparameters['n_envs'])
 
-        feature_optimizer = Adam(
-            feature_model.parameters(), lr=lr, eps=eps
-        )
-        value_optimizer = Adam(value_model.parameters(), lr=lr, eps=eps)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr, eps=eps)
+        feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters['lr'], eps=self.hyperparameters['eps'])
+        value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters['lr'], eps=self.hyperparameters['eps'])
+        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters['lr'], eps=self.hyperparameters['eps'])
 
         features = FeatureNetwork(
-            feature_model,
+            self.feature_model,
             feature_optimizer,
-            clip_grad=clip_grad,
+            clip_grad=self.hyperparameters['clip_grad'],
             scheduler=CosineAnnealingLR(
                 feature_optimizer,
-                final_anneal_step
+                n_updates
             ),
             writer=writer
         )
+
         v = VNetwork(
-            value_model,
+            self.value_model,
             value_optimizer,
-            loss_scaling=value_loss_scaling,
-            clip_grad=clip_grad,
+            loss_scaling=self.hyperparameters['value_loss_scaling'],
+            clip_grad=self.hyperparameters['clip_grad'],
             writer=writer,
             scheduler=CosineAnnealingLR(
                 value_optimizer,
-                final_anneal_step
+                n_updates
             ),
         )
+
         policy = GaussianPolicy(
-            policy_model,
+            self.policy_model,
             policy_optimizer,
-            env.action_space,
-            clip_grad=clip_grad,
+            self.action_space,
+            clip_grad=self.hyperparameters['clip_grad'],
             writer=writer,
             scheduler=CosineAnnealingLR(
                 policy_optimizer,
-                final_anneal_step
+                n_updates
             ),
         )
 
@@ -108,24 +118,27 @@ def ppo(
             v,
             policy,
             epsilon=LinearScheduler(
-                clip_initial,
-                clip_final,
+                self.hyperparameters['clip_initial'],
+                self.hyperparameters['clip_final'],
                 0,
-                final_anneal_step,
+                n_updates,
                 name='clip',
                 writer=writer
             ),
-            epochs=epochs,
-            minibatches=minibatches,
-            n_envs=n_envs,
-            n_steps=n_steps,
-            discount_factor=discount_factor,
-            lam=lam,
-            entropy_loss_scaling=entropy_loss_scaling,
+            epochs=self.hyperparameters['epochs'],
+            minibatches=self.hyperparameters['minibatches'],
+            n_envs=self.hyperparameters['n_envs'],
+            n_steps=self.hyperparameters['n_steps'],
+            discount_factor=self.hyperparameters['discount_factor'],
+            lam=self.hyperparameters['lam'],
+            entropy_loss_scaling=self.hyperparameters['entropy_loss_scaling'],
             writer=writer,
         ))
 
-    return _ppo, n_envs
+    def test_agent(self):
+        feature = FeatureNetwork(self.feature_model)
+        policy = GaussianPolicy(self.policy_model, space=self.action_space)
+        return TimeFeature(PPOTestAgent(feature, policy))
 
 
-__all__ = ["ppo"]
+ppo = preset_builder('ppo', default_hyperparameters, PPOContinuousPreset)
