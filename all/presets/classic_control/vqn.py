@@ -32,7 +32,7 @@ default_hyperparameters = {
 
 class VQNClassicControlPreset(Preset):
     """
-    Vanilla Q-Network (VQN) Classic Control preset.
+    Vanilla Q-Network (VQN) Classic Control Preset.
 
     Args:
         env (all.environments.AtariEnvironment): The environment for which to construct the agent.
