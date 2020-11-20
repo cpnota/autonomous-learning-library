@@ -14,13 +14,14 @@ class ParallelEnvExperiment(Experiment):
             self,
             preset,
             env,
+            name=None,
             train_steps=float('inf'),
             logdir='runs',
             quiet=False,
             render=False,
             write_loss=True
     ):
-        self._name = preset.__class__.__name__
+        self._name = name if name is not None else preset.__class__.__name__
         super().__init__(self._make_writer(logdir, self._name, env.name, write_loss), quiet)
         self._n_envs = preset.n_envs
         self._envs = env.duplicate(self._n_envs)
