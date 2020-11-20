@@ -1,47 +1,52 @@
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from all.agents import SAC
+from all.agents import SAC, SACTestAgent
 from all.approximation import QContinuous, PolyakTarget, VNetwork
 from all.bodies import TimeFeature
 from all.logging import DummyWriter
 from all.policies.soft_deterministic import SoftDeterministicPolicy
 from all.memory import ExperienceReplayBuffer
 from .models import fc_q, fc_v, fc_soft_policy
+from ..builder import preset_builder
+from ..preset import Preset
 
 
-def sac(
-        # Common settings
-        device="cuda",
-        discount_factor=0.98,
-        last_frame=2e6,
-        # Adam optimizer settings
-        lr_q=1e-3,
-        lr_v=1e-3,
-        lr_pi=1e-4,
-        # Training settings
-        minibatch_size=100,
-        update_frequency=2,
-        polyak_rate=0.005,
-        # Replay Buffer settings
-        replay_start_size=5000,
-        replay_buffer_size=1e6,
-        # Exploration settings
-        temperature_initial=0.1,
-        lr_temperature=1e-5,
-        entropy_target_scaling=1.,
-        # Model construction
-        q1_model_constructor=fc_q,
-        q2_model_constructor=fc_q,
-        v_model_constructor=fc_v,
-        policy_model_constructor=fc_soft_policy
-):
+default_hyperparameters = {
+    # Common settings
+    "discount_factor": 0.98,
+    # Adam optimizer settings
+    "lr_q": 1e-3,
+    "lr_v": 1e-3,
+    "lr_pi": 1e-4,
+    # Training settings
+    "minibatch_size": 100,
+    "update_frequency": 2,
+    "polyak_rate": 0.005,
+    # Replay Buffer settings
+    "replay_start_size": 5000,
+    "replay_buffer_size": 1e6,
+    # Exploration settings
+    "temperature_initial": 0.1,
+    "lr_temperature": 1e-5,
+    "entropy_target_scaling": 1.,
+    # Model construction
+    "q1_model_constructor": fc_q,
+    "q2_model_constructor": fc_q,
+    "v_model_constructor": fc_v,
+    "policy_model_constructor": fc_soft_policy
+}
+
+
+
+class SACContinuousPreset(Preset):
     """
-    SAC continuous control preset.
+    Soft Actor-Critic (SAC) continuous control preset.
 
     Args:
-        device (str): The device to load parameters and buffers onto for this agent..
+        env (all.environments.GymEnvironment): The classic control environment for which to construct the agent.
         discount_factor (float): Discount factor for future rewards.
-        last_frame (int): Number of frames to train.
+
+    Keyword Args:
         lr_q (float): Learning rate for the Q networks.
         lr_v (float): Learning rate for the state-value networks.
         lr_pi (float): Learning rate for the policy network.
@@ -53,70 +58,76 @@ def sac(
         temperature_initial (float): Initial value of the temperature parameter.
         lr_temperature (float): Learning rate for the temperature. Should be low compared to other learning rates.
         entropy_target_scaling (float): The target entropy will be -(entropy_target_scaling * env.action_space.shape[0])
-        q1_model_constructor(function): The function used to construct the neural q1 model.
-        q2_model_constructor(function): The function used to construct the neural q2 model.
-        v_model_constructor(function): The function used to construct the neural v model.
-        policy_model_constructor(function): The function used to construct the neural policy model.
+        q1_model_constructor (function): The function used to construct the neural q1 model.
+        q2_model_constructor (function): The function used to construct the neural q2 model.
+        v_model_constructor (function): The function used to construct the neural v model.
+        policy_model_constructor (function): The function used to construct the neural policy model.
     """
-    def _sac(env, writer=DummyWriter()):
-        final_anneal_step = (last_frame - replay_start_size) // update_frequency
+    def __init__(self, env, device="cuda", **hyperparameters):
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
+        self.q_1_model = hyperparameters["q1_model_constructor"](env).to(device)
+        self.q_2_model = hyperparameters["q2_model_constructor"](env).to(device)
+        self.v_model = hyperparameters["v_model_constructor"](env).to(device)
+        self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
+        self.device = device
+        self.hyperparameters = hyperparameters
+        self.action_space = env.action_space
 
-        q_1_model = q1_model_constructor(env).to(device)
-        q_1_optimizer = Adam(q_1_model.parameters(), lr=lr_q)
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        n_updates = (train_steps - self.hyperparameters["replay_start_size"]) // self.hyperparameters["update_frequency"]
+
+        q_1_optimizer = Adam(self.q_1_model.parameters(), lr=self.hyperparameters["lr_q"])
         q_1 = QContinuous(
-            q_1_model,
+            self.q_1_model,
             q_1_optimizer,
             scheduler=CosineAnnealingLR(
                 q_1_optimizer,
-                final_anneal_step
+                n_updates
             ),
             writer=writer,
             name='q_1'
         )
 
-        q_2_model = q2_model_constructor(env).to(device)
-        q_2_optimizer = Adam(q_2_model.parameters(), lr=lr_q)
+        q_2_optimizer = Adam(self.q_2_model.parameters(), lr=self.hyperparameters["lr_q"])
         q_2 = QContinuous(
-            q_2_model,
+            self.q_2_model,
             q_2_optimizer,
             scheduler=CosineAnnealingLR(
                 q_2_optimizer,
-                final_anneal_step
+                n_updates
             ),
             writer=writer,
             name='q_2'
         )
 
-        v_model = v_model_constructor(env).to(device)
-        v_optimizer = Adam(v_model.parameters(), lr=lr_v)
+        v_optimizer = Adam(self.v_model.parameters(), lr=self.hyperparameters["lr_v"])
         v = VNetwork(
-            v_model,
+            self.v_model,
             v_optimizer,
             scheduler=CosineAnnealingLR(
                 v_optimizer,
-                final_anneal_step
+                n_updates
             ),
-            target=PolyakTarget(polyak_rate),
+            target=PolyakTarget(self.hyperparameters["polyak_rate"]),
             writer=writer,
             name='v',
         )
 
-        policy_model = policy_model_constructor(env).to(device)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr_pi)
+        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr_pi"])
         policy = SoftDeterministicPolicy(
-            policy_model,
+            self.policy_model,
             policy_optimizer,
-            env.action_space,
+            self.action_space,
             scheduler=CosineAnnealingLR(
                 policy_optimizer,
-                final_anneal_step
+                n_updates
             ),
             writer=writer
         )
 
         replay_buffer = ExperienceReplayBuffer(
-            replay_buffer_size,
-            device=device
+            self.hyperparameters["replay_buffer_size"],
+            device=self.device
         )
 
         return TimeFeature(SAC(
@@ -125,13 +136,18 @@ def sac(
             q_2,
             v,
             replay_buffer,
-            temperature_initial=temperature_initial,
-            entropy_target=(-env.action_space.shape[0] * entropy_target_scaling),
-            lr_temperature=lr_temperature,
-            replay_start_size=replay_start_size,
-            discount_factor=discount_factor,
-            update_frequency=update_frequency,
-            minibatch_size=minibatch_size,
+            temperature_initial=self.hyperparameters["temperature_initial"],
+            entropy_target=(-self.action_space.shape[0] * self.hyperparameters["entropy_target_scaling"]),
+            lr_temperature=self.hyperparameters["lr_temperature"],
+            replay_start_size=self.hyperparameters["replay_start_size"],
+            discount_factor=self.hyperparameters["discount_factor"],
+            update_frequency=self.hyperparameters["update_frequency"],
+            minibatch_size=self.hyperparameters["minibatch_size"],
             writer=writer
         ))
-    return _sac
+
+    def test_agent(self):
+        policy = SoftDeterministicPolicy(self.policy_model, space=self.action_space)
+        return TimeFeature(SACTestAgent(policy))
+
+sac = preset_builder('sac', default_hyperparameters, SACContinuousPreset)

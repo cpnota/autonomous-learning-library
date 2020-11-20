@@ -14,7 +14,6 @@ class Preset(ABC):
         n_envs: If the Preset is for a ParallelAgent, the number of parallel environments.
     """
     def __init__(self, n_envs=None):
-        super().__init__()
         self.n_envs = n_envs
 
 

@@ -6,7 +6,7 @@ from .ddqn import DDQN, DDQNTestAgent
 from .dqn import DQN, DQNTestAgent
 from .ppo import PPO, PPOTestAgent
 from .rainbow import Rainbow, RainbowTestAgent
-from .sac import SAC
+from .sac import SAC, SACTestAgent
 from .vac import VAC, VACTestAgent
 from .vpg import VPG, VPGTestAgent
 from .vqn import VQN, VQNTestAgent
@@ -29,6 +29,7 @@ __all__ = [
     "Rainbow",
     "RainbowTestAgent",
     "SAC",
+    "SACTestAgent",
     "VAC",
     "VACTestAgent",
     "VPG",

@@ -72,9 +72,6 @@ class SAC(Agent):
         self._action = self.policy.no_grad(state)[0]
         return self._action
 
-    def eval(self, state):
-        return self.policy.eval(state)
-
     def _train(self):
         if self._should_train():
             # sample from replay buffer
@@ -113,3 +110,10 @@ class SAC(Agent):
     def _should_train(self):
         self._frames_seen += 1
         return self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0
+
+class SACTestAgent(Agent):
+    def __init__(self, policy):
+        self.policy = policy
+
+    def act(self, state):
+        return self.policy.eval(state)

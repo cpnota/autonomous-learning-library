@@ -12,7 +12,10 @@ class TestContinuousPresets(unittest.TestCase):
         self.validate(ppo(n_envs=4, n_steps=4, epochs=4, minibatches=4, device='cpu'))
 
     def test_sac(self):
-        self.validate(sac(replay_start_size=50, device='cpu'))
+        validate_agent(
+            sac().device('cpu').hyperparameters(replay_start_size=50),
+            GymEnvironment('LunarLanderContinuous-v2')
+        )
 
     def validate(self, make_agent):
         validate_agent(make_agent, GymEnvironment('LunarLanderContinuous-v2'))
