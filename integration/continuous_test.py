@@ -23,5 +23,6 @@ class TestContinuousPresets(unittest.TestCase):
             GymEnvironment('LunarLanderContinuous-v2')
         )
 
+
 if __name__ == '__main__':
     unittest.main()
