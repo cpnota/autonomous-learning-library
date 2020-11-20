@@ -1,3 +1,4 @@
+import copy
 from torch.optim import Adam
 from all.agents import A2C, A2CTestAgent
 from all.approximation import VNetwork, FeatureNetwork
@@ -96,8 +97,8 @@ class A2CClassicControlPreset(Preset):
         )
 
     def test_agent(self):
-        features = FeatureNetwork(self.feature_model)
-        policy = SoftmaxPolicy(self.policy_model)
+        features = FeatureNetwork(copy.deepcopy(self.feature_model))
+        policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
         return A2CTestAgent(features, policy)
 
 

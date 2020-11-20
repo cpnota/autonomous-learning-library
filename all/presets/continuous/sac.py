@@ -148,7 +148,7 @@ class SACContinuousPreset(Preset):
         ))
 
     def test_agent(self):
-        policy = SoftDeterministicPolicy(self.policy_model, space=self.action_space)
+        policy = SoftDeterministicPolicy(copy.deepcopy(self.policy_model), space=self.action_space)
         return TimeFeature(SACTestAgent(policy))
 
 

@@ -1,3 +1,4 @@
+import copy
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import DDPG, DDPGTestAgent
@@ -111,7 +112,7 @@ class DDPGContinuousPreset(Preset):
 
     def test_agent(self):
         policy = DeterministicPolicy(
-            self.policy_model,
+            copy.deepcopy(self.policy_model),
             None,
             self.action_space,
         )
