@@ -28,6 +28,7 @@ default_hyperparameters = {
     "policy_model_constructor": fc_policy_head
 }
 
+
 class VACClassicControlPreset(Preset):
     """
     Vanilla Actor-Critic (VAC) Classic Control preset.
@@ -49,6 +50,7 @@ class VACClassicControlPreset(Preset):
         value_model_constructor (function): The function used to construct the neural value model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__(n_envs=hyperparameters['n_envs'])
@@ -93,5 +95,6 @@ class VACClassicControlPreset(Preset):
         features = FeatureNetwork(copy.deepcopy(self.feature_model))
         policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
         return VACTestAgent(features, policy)
+
 
 vac = preset_builder('vac', default_hyperparameters, VACClassicControlPreset)

@@ -99,6 +99,7 @@ class A2C(Agent):
             discount_factor=self.discount_factor
         )
 
+
 class A2CTestAgent(Agent):
     def __init__(self, features, policy):
         self.features = features

@@ -111,6 +111,7 @@ class SAC(Agent):
         self._frames_seen += 1
         return self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0
 
+
 class SACTestAgent(Agent):
     def __init__(self, policy):
         self.policy = policy

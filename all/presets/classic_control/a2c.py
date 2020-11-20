@@ -34,7 +34,7 @@ class A2CClassicControlPreset(Preset):
     Args:
         env (all.environments.GymEnvironment): The classic control environment for which to construct the agent.
         device (torch.device, optional): the device on which to load the agent
-    
+
     Keyword Args:
         discount_factor (float): Discount factor for future rewards.
         lr (float): Learning rate for the Adam optimizer.
@@ -49,6 +49,7 @@ class A2CClassicControlPreset(Preset):
         value_model_constructor (function): The function used to construct the neural value model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__(n_envs=hyperparameters['n_envs'])
@@ -98,5 +99,6 @@ class A2CClassicControlPreset(Preset):
         features = FeatureNetwork(self.feature_model)
         policy = SoftmaxPolicy(self.policy_model)
         return A2CTestAgent(features, policy)
+
 
 a2c = preset_builder('a2c', default_hyperparameters, A2CClassicControlPreset)

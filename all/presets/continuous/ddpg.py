@@ -39,7 +39,7 @@ class DDPGContinuousPreset(Preset):
     Args:
         env (all.environments.GymEnvironment): The classic control environment for which to construct the agent.
         device (torch.device, optional): the device on which to load the agent
-    
+
     Keyword Args:
         discount_factor (float): Discount factor for future rewards.
         lr_q (float): Learning rate for the Q network.
@@ -53,6 +53,7 @@ class DDPGContinuousPreset(Preset):
         q_model_constructor (function): The function used to construct the neural q model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
         hyperparameters = {**default_hyperparameters, **hyperparameters}
@@ -115,5 +116,6 @@ class DDPGContinuousPreset(Preset):
             self.action_space,
         )
         return TimeFeature(DDPGTestAgent(policy))
+
 
 ddpg = preset_builder('ddpg', default_hyperparameters, DDPGContinuousPreset)

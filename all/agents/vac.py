@@ -58,4 +58,5 @@ class VAC(Agent):
             self.policy.reinforce(policy_loss)
             self.features.reinforce()
 
+
 VACTestAgent = A2CTestAgent

@@ -28,6 +28,7 @@ default_hyperparameters = {
     "policy_model_constructor": fc_policy_head
 }
 
+
 class VPGClassicControlPreset(Preset):
     """
     Vanilla Policy Gradient (VPG) Classic Control preset.
@@ -49,6 +50,7 @@ class VPGClassicControlPreset(Preset):
         value_model_constructor (function): The function used to construct the neural value model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__()
@@ -93,5 +95,6 @@ class VPGClassicControlPreset(Preset):
         features = FeatureNetwork(copy.deepcopy(self.feature_model))
         policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
         return VPGTestAgent(features, policy)
+
 
 vpg = preset_builder('vpg', default_hyperparameters, VPGClassicControlPreset)

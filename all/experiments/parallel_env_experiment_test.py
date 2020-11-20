@@ -64,5 +64,6 @@ class TestParallelEnvExperiment(unittest.TestCase):
     def make_agent(self):
         return a2c().device('cpu').env(self.env).build()
 
+
 if __name__ == "__main__":
     unittest.main()

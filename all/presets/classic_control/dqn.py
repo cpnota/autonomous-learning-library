@@ -32,6 +32,7 @@ default_hyperparameters = {
     "model_constructor": fc_relu_q
 }
 
+
 class DQNClassicControlPreset(Preset):
     """
     Deep Q-Network (DQN) Classic Control Preset.
@@ -55,6 +56,7 @@ class DQNClassicControlPreset(Preset):
         test_exploration (float): The exploration rate of the test Agent
         model_constructor (function): The function used to construct the neural model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
         hyperparameters = {**default_hyperparameters, **hyperparameters}
@@ -104,7 +106,8 @@ class DQNClassicControlPreset(Preset):
         )
 
     def test_agent(self):
-        q =  QNetwork(copy.deepcopy(self.model))
+        q = QNetwork(copy.deepcopy(self.model))
         return DQNTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
+
 
 dqn = preset_builder('dqn', default_hyperparameters, DQNClassicControlPreset)

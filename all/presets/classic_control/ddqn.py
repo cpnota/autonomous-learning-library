@@ -34,6 +34,7 @@ default_hyperparameters = {
     "model_constructor": dueling_fc_relu_q
 }
 
+
 class DDQNClassicControlPreset(Preset):
     """
     Dueling Double DQN (DDQN) with Prioritized Experience Replay (PER) Classic Control Preset.
@@ -61,6 +62,7 @@ class DDQNClassicControlPreset(Preset):
             (0 = no correction, 1 = full correction)
         model_constructor (function): The function used to construct the neural model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__()
@@ -70,49 +72,50 @@ class DDQNClassicControlPreset(Preset):
         self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
-            n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
+        n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
 
-            optimizer = Adam(self.model.parameters(), lr=self.hyperparameters['lr'])
+        optimizer = Adam(self.model.parameters(), lr=self.hyperparameters['lr'])
 
-            q = QNetwork(
-                self.model,
-                optimizer,
-                target=FixedTarget(self.hyperparameters['target_update_frequency']),
+        q = QNetwork(
+            self.model,
+            optimizer,
+            target=FixedTarget(self.hyperparameters['target_update_frequency']),
+            writer=writer
+        )
+
+        policy = GreedyPolicy(
+            q,
+            self.n_actions,
+            epsilon=LinearScheduler(
+                self.hyperparameters['initial_exploration'],
+                self.hyperparameters['final_exploration'],
+                self.hyperparameters['replay_start_size'],
+                self.hyperparameters['final_exploration_step'] - self.hyperparameters['replay_start_size'],
+                name="exploration",
                 writer=writer
             )
+        )
 
-            policy = GreedyPolicy(
-                q,
-                self.n_actions,
-                epsilon=LinearScheduler(
-                    self.hyperparameters['initial_exploration'],
-                    self.hyperparameters['final_exploration'],
-                    self.hyperparameters['replay_start_size'],
-                    self.hyperparameters['final_exploration_step'] - self.hyperparameters['replay_start_size'],
-                    name="exploration",
-                    writer=writer
-                )
-            )
+        replay_buffer = PrioritizedReplayBuffer(
+            self.hyperparameters['replay_buffer_size'],
+            alpha=self.hyperparameters['alpha'],
+            beta=self.hyperparameters['beta'],
+            device=self.device
+        )
 
-            replay_buffer = PrioritizedReplayBuffer(
-                self.hyperparameters['replay_buffer_size'],
-                alpha=self.hyperparameters['alpha'],
-                beta=self.hyperparameters['beta'],
-                device=self.device
-            )
-
-            return DDQN(
-                q,
-                policy,
-                replay_buffer,
-                discount_factor=self.hyperparameters["discount_factor"],
-                minibatch_size=self.hyperparameters["minibatch_size"],
-                replay_start_size=self.hyperparameters["replay_start_size"],
-                update_frequency=self.hyperparameters["update_frequency"],
-            )
+        return DDQN(
+            q,
+            policy,
+            replay_buffer,
+            discount_factor=self.hyperparameters["discount_factor"],
+            minibatch_size=self.hyperparameters["minibatch_size"],
+            replay_start_size=self.hyperparameters["replay_start_size"],
+            update_frequency=self.hyperparameters["update_frequency"],
+        )
 
     def test_agent(self):
-        q =  QNetwork(copy.deepcopy(self.model))
+        q = QNetwork(copy.deepcopy(self.model))
         return DDQNTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
+
 
 ddqn = preset_builder('ddqn', default_hyperparameters, DDQNClassicControlPreset)

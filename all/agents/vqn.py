@@ -48,4 +48,5 @@ class VQN(Agent):
             # backward pass
             self.q.reinforce(loss)
 
+
 VQNTestAgent = DQNTestAgent

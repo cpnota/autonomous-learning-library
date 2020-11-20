@@ -34,6 +34,7 @@ default_hyperparameters = {
     "model_constructor": fc_relu_dist_q
 }
 
+
 class C51ClassicControlPreset(Preset):
     """
     Categorical DQN (C51) Atari preset.
@@ -61,6 +62,7 @@ class C51ClassicControlPreset(Preset):
         v_max (int): The expected return correspodning to the larget atom.
         model_constructor (function): The function used to construct the neural model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__()
@@ -116,5 +118,6 @@ class C51ClassicControlPreset(Preset):
             v_max=self.hyperparameters['v_max'],
         )
         return C51TestAgent(q_dist, self.n_actions, self.hyperparameters["test_exploration"])
+
 
 c51 = preset_builder('c51', default_hyperparameters, C51ClassicControlPreset)

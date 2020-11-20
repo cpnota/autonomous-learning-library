@@ -115,6 +115,7 @@ class C51(Agent):
         log_target_dist = torch.log(torch.clamp(target_dist, min=self.eps))
         return (target_dist * (log_target_dist - log_dist)).sum(dim=-1)
 
+
 class C51TestAgent(Agent):
     def __init__(self, q_dist, n_actions, exploration=0.):
         self.q_dist = q_dist

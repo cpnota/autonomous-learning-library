@@ -42,6 +42,7 @@ default_hyperparameters = {
     "model_constructor": fc_relu_rainbow
 }
 
+
 class RainbowClassicControlPreset(Preset):
     """
     Rainbow DQN Classic Control Preset.
@@ -74,6 +75,7 @@ class RainbowClassicControlPreset(Preset):
         sigma (float): Initial noisy network noise.
         model_constructor (function): The function used to construct the neural model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
         hyperparameters = {**default_hyperparameters, **hyperparameters}
@@ -112,22 +114,22 @@ class RainbowClassicControlPreset(Preset):
         )
 
         return Rainbow(
-                q_dist,
-                replay_buffer,
-                exploration=LinearScheduler(
-                    self.hyperparameters['initial_exploration'],
-                    self.hyperparameters['final_exploration'],
-                    0,
-                    train_steps - self.hyperparameters['replay_start_size'],
-                    name="exploration",
-                    writer=writer
-                ),
-                discount_factor=self.hyperparameters['discount_factor'] ** self.hyperparameters["n_steps"],
-                minibatch_size=self.hyperparameters['minibatch_size'],
-                replay_start_size=self.hyperparameters['replay_start_size'],
-                update_frequency=self.hyperparameters['update_frequency'],
-                writer=writer,
-            )
+            q_dist,
+            replay_buffer,
+            exploration=LinearScheduler(
+                self.hyperparameters['initial_exploration'],
+                self.hyperparameters['final_exploration'],
+                0,
+                train_steps - self.hyperparameters['replay_start_size'],
+                name="exploration",
+                writer=writer
+            ),
+            discount_factor=self.hyperparameters['discount_factor'] ** self.hyperparameters["n_steps"],
+            minibatch_size=self.hyperparameters['minibatch_size'],
+            replay_start_size=self.hyperparameters['replay_start_size'],
+            update_frequency=self.hyperparameters['update_frequency'],
+            writer=writer,
+        )
 
     def test_agent(self):
         q_dist = QDist(
@@ -139,5 +141,6 @@ class RainbowClassicControlPreset(Preset):
             v_max=self.hyperparameters['v_max'],
         )
         return RainbowTestAgent(q_dist, self.n_actions, self.hyperparameters["test_exploration"])
+
 
 rainbow = preset_builder('rainbow', default_hyperparameters, RainbowClassicControlPreset)

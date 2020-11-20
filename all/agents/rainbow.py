@@ -30,4 +30,5 @@ class Rainbow(C51):
         update_frequency (int): Number of timesteps per training update.
     """
 
+
 RainbowTestAgent = C51TestAgent

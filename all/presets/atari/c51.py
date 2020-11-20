@@ -37,6 +37,7 @@ default_hyperparameters = {
     "model_constructor": nature_c51
 }
 
+
 class C51AtariPreset(Preset):
     """
     Categorical DQN (C51) Atari preset.
@@ -65,6 +66,7 @@ class C51AtariPreset(Preset):
         v_max (int): The expected return correspodning to the larget atom.
         model_constructor (function): The function used to construct the neural model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__()
@@ -130,5 +132,6 @@ class C51AtariPreset(Preset):
             v_max=self.hyperparameters['v_max'],
         )
         return DeepmindAtariBody(C51TestAgent(q_dist, self.n_actions, self.hyperparameters["test_exploration"]))
+
 
 c51 = preset_builder('c51', default_hyperparameters, C51AtariPreset)

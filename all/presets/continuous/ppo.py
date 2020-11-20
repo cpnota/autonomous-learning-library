@@ -60,6 +60,7 @@ class PPOContinuousPreset(Preset):
         lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
         ac_model_constructor (function): The function used to construct the neural feature, value and policy model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__(hyperparameters["n_envs"])

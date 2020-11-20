@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 def preset_builder(default_name, default_hyperparameters, constructor):
     class PresetBuilder():
         def __init__(self, name=default_name, hyperparameters=default_hyperparameters, env=None, device='cuda'):

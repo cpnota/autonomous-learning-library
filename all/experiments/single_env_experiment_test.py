@@ -104,5 +104,6 @@ class TestSingleEnvExperiment(unittest.TestCase):
     def make_preset(self):
         return dqn().device('cpu').env(self.env).build()
 
+
 if __name__ == "__main__":
     unittest.main()

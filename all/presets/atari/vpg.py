@@ -28,6 +28,7 @@ default_hyperparameters = {
     "policy_model_constructor": nature_policy_head
 }
 
+
 class VPGAtariPreset(Preset):
     """
     Vanilla Policy Gradient (VPG) Atari preset.
@@ -49,6 +50,7 @@ class VPGAtariPreset(Preset):
         value_model_constructor (function): The function used to construct the neural value model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__()
@@ -98,5 +100,6 @@ class VPGAtariPreset(Preset):
         features = FeatureNetwork(copy.deepcopy(self.feature_model))
         policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
         return DeepmindAtariBody(VPGTestAgent(features, policy))
+
 
 vpg = preset_builder('vpg', default_hyperparameters, VPGAtariPreset)

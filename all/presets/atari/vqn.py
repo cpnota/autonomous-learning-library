@@ -50,6 +50,7 @@ class VQNAtariPreset(Preset):
         n_envs (int): Number of parallel environments.
         model_constructor (function): The function used to construct the neural model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__(n_envs=hyperparameters['n_envs'])
@@ -92,9 +93,10 @@ class VQNAtariPreset(Preset):
         )
 
     def test_agent(self):
-        q =  QNetwork(copy.deepcopy(self.model))
+        q = QNetwork(copy.deepcopy(self.model))
         return DeepmindAtariBody(
             VQNTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
         )
+
 
 vqn = preset_builder('vqn', default_hyperparameters, VQNAtariPreset)

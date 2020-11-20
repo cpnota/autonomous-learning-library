@@ -45,4 +45,5 @@ class VSarsa(Agent):
             # backward pass
             self.q.reinforce(loss)
 
+
 VSarsaTestAgent = DQNTestAgent

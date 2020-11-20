@@ -132,4 +132,5 @@ class VPG(Agent):
             t -= 1
         return returns
 
+
 VPGTestAgent = A2CTestAgent

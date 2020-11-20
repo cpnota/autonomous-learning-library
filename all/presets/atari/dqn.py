@@ -39,6 +39,7 @@ default_hyperparameters = {
     "model_constructor": nature_dqn
 }
 
+
 class DQNAtariPreset(Preset):
     """
     Deep Q-Network (DQN) Atari Preset.
@@ -63,6 +64,7 @@ class DQNAtariPreset(Preset):
         test_exploration (float): The exploration rate of the test Agent
         model_constructor (function): The function used to construct the neural model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
         hyperparameters = {**default_hyperparameters, **hyperparameters}
@@ -121,9 +123,10 @@ class DQNAtariPreset(Preset):
         )
 
     def test_agent(self):
-        q =  QNetwork(copy.deepcopy(self.model))
+        q = QNetwork(copy.deepcopy(self.model))
         return DeepmindAtariBody(
             DQNTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
         )
+
 
 dqn = preset_builder('dqn', default_hyperparameters, DQNAtariPreset)

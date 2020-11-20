@@ -13,9 +13,9 @@ class Preset(ABC):
     Attributes:
         n_envs: If the Preset is for a ParallelAgent, the number of parallel environments.
     """
+
     def __init__(self, n_envs=None):
         self.n_envs = n_envs
-
 
     @abstractmethod
     def agent(self, writer=None, train_steps=float('inf')):
@@ -41,19 +41,17 @@ class Preset(ABC):
         """
         pass
 
-
     def save(self, filename):
         """
         Save the preset and the contained model to disk.
 
         The preset can later be loaded using torch.load(filename), allowing
         a test mode agent to be instansiated for evaluation or other purposes.
-        
+
         Args:
             filename (str): The path where the preset should be saved.
         """
         return torch.save(self, filename)
-
 
     def is_parallel(self):
         """

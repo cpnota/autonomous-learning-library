@@ -38,6 +38,7 @@ default_hyperparameters = {
     "model_constructor": nature_ddqn
 }
 
+
 class DDQNAtariPreset(Preset):
     """
     Dueling Double DQN (DDQN) with Prioritized Experience Replay (PER) Atari Preset.
@@ -66,6 +67,7 @@ class DDQNAtariPreset(Preset):
             (0 = no correction, 1 = full correction)
         model_constructor (function): The function used to construct the neural model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
         hyperparameters = {**default_hyperparameters, **hyperparameters}
@@ -123,9 +125,10 @@ class DDQNAtariPreset(Preset):
         )
 
     def test_agent(self):
-        q =  QNetwork(copy.deepcopy(self.model))
+        q = QNetwork(copy.deepcopy(self.model))
         return DeepmindAtariBody(
             DDQNTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
         )
+
 
 ddqn = preset_builder('ddqn', default_hyperparameters, DDQNAtariPreset)

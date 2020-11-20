@@ -42,6 +42,7 @@ default_hyperparameters = {
     "model_constructor": nature_rainbow
 }
 
+
 class RainbowAtariPreset(Preset):
     """
     Rainbow DQN Atari Preset.
@@ -74,6 +75,7 @@ class RainbowAtariPreset(Preset):
         sigma (float): Initial noisy network noise.
         model_constructor (function): The function used to construct the neural model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
         hyperparameters = {**default_hyperparameters, **hyperparameters}
@@ -146,5 +148,6 @@ class RainbowAtariPreset(Preset):
             v_max=self.hyperparameters['v_max'],
         )
         return DeepmindAtariBody(RainbowTestAgent(q_dist, self.n_actions, self.hyperparameters["test_exploration"]))
+
 
 rainbow = preset_builder('rainbow', default_hyperparameters, RainbowAtariPreset)

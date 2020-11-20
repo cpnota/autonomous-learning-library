@@ -31,6 +31,7 @@ default_hyperparameters = {
     "policy_model_constructor": nature_policy_head
 }
 
+
 class A2CAtariPreset(Preset):
     """
     Advantage Actor-Critic (A2C) Atari preset.
@@ -38,7 +39,7 @@ class A2CAtariPreset(Preset):
     Args:
         env (all.environments.AtariEnvironment): The environment for which to construct the agent.
         device (torch.device, optional): the device on which to load the agent
-    
+
     Keyword Args:
         discount_factor (float): Discount factor for future rewards.
         lr (float): Learning rate for the Adam optimizer.
@@ -53,6 +54,7 @@ class A2CAtariPreset(Preset):
         value_model_constructor (function): The function used to construct the neural value model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__(n_envs=hyperparameters['n_envs'])
@@ -111,5 +113,6 @@ class A2CAtariPreset(Preset):
         features = FeatureNetwork(copy.deepcopy(self.feature_model))
         policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
         return DeepmindAtariBody(A2CTestAgent(features, policy))
+
 
 a2c = preset_builder('a2c', default_hyperparameters, A2CAtariPreset)

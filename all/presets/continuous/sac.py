@@ -37,7 +37,6 @@ default_hyperparameters = {
 }
 
 
-
 class SACContinuousPreset(Preset):
     """
     Soft Actor-Critic (SAC) continuous control preset.
@@ -63,6 +62,7 @@ class SACContinuousPreset(Preset):
         v_model_constructor (function): The function used to construct the neural v model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
+
     def __init__(self, env, device="cuda", **hyperparameters):
         super().__init__()
         hyperparameters = {**default_hyperparameters, **hyperparameters}
@@ -150,5 +150,6 @@ class SACContinuousPreset(Preset):
     def test_agent(self):
         policy = SoftDeterministicPolicy(self.policy_model, space=self.action_space)
         return TimeFeature(SACTestAgent(policy))
+
 
 sac = preset_builder('sac', default_hyperparameters, SACContinuousPreset)
