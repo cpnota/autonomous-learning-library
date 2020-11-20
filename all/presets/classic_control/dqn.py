@@ -66,8 +66,6 @@ class DQNClassicControlPreset(Preset):
         self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
-        n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
-
         optimizer = Adam(self.model.parameters(), lr=self.hyperparameters['lr'])
 
         q = QNetwork(

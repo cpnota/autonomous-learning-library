@@ -14,7 +14,7 @@ def preset_builder(default_name, default_hyperparameters, constructor):
 
         def name(self, name):
             return self.__class__(
-                name=_name,
+                name=name,
                 device=self._device,
                 hyperparameters=self._hyperparameters,
                 env=self._env

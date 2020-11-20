@@ -61,8 +61,6 @@ class VACClassicControlPreset(Preset):
         self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
-        n_updates = train_steps / self.hyperparameters["n_envs"]
-
         feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
         value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr_v"], eps=self.hyperparameters["eps"])
         policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
