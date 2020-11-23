@@ -46,8 +46,8 @@ class TestClassicControlPresets(unittest.TestCase):
     def test_vqn(self):
         self.validate(vqn())
 
-    def validate(self, make_agent):
-        validate_agent(make_agent, GymEnvironment("CartPole-v0"))
+    def validate(self, builder):
+        validate_agent(builder.device('cpu'), GymEnvironment("CartPole-v0"))
 
 
 if __name__ == "__main__":

@@ -20,8 +20,8 @@ class DeterministicPolicy(Approximation):
     def __init__(
             self,
             model,
-            optimizer,
-            space,
+            optimizer=None,
+            space=None,
             name='policy',
             **kwargs
     ):

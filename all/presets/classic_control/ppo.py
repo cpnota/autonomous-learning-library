@@ -1,44 +1,61 @@
+import copy
 from torch.optim import Adam
-from all.agents import PPO
+from torch.optim.lr_scheduler import CosineAnnealingLR
+from all.agents import PPO, PPOTestAgent
+from all.bodies import DeepmindAtariBody
 from all.approximation import VNetwork, FeatureNetwork
 from all.logging import DummyWriter
+from all.optim import LinearScheduler
 from all.policies import SoftmaxPolicy
 from .models import fc_relu_features, fc_policy_head, fc_value_head
+from ..builder import preset_builder
+from ..preset import Preset
 
 
-def ppo(
-        # Common settings
-        device="cpu",
-        discount_factor=0.99,
-        # Adam optimizer settings
-        lr=1e-3,
-        # Other optimization settings
-        clip_grad=0.1,
-        entropy_loss_scaling=0.001,
-        epsilon=0.2,
-        # Batch settings
-        epochs=4,
-        minibatches=4,
-        n_envs=8,
-        n_steps=8,
-        # GAE settings
-        lam=0.95,
-        # Model construction
-        feature_model_constructor=fc_relu_features,
-        value_model_constructor=fc_value_head,
-        policy_model_constructor=fc_policy_head
-):
+default_hyperparameters = {
+    # Common settings
+    "discount_factor": 0.99,
+    # Adam optimizer settings
+    "lr": 1e-3,
+    "eps": 1.5e-4,
+    # Other optimization settings
+    "clip_grad": 0.1,
+    "entropy_loss_scaling": 0.001,
+    "value_loss_scaling": 0.5,
+    "clip_initial": 0.1,
+    "clip_final": 0.01,
+    # Batch settings
+    "epochs": 4,
+    "minibatches": 4,
+    "n_envs": 8,
+    "n_steps": 8,
+    # GAE settings
+    "lam": 0.95,
+    # Model construction
+    "feature_model_constructor": fc_relu_features,
+    "value_model_constructor": fc_value_head,
+    "policy_model_constructor": fc_policy_head
+}
+
+
+class PPOClassicControlPreset(Preset):
     """
-    PPO classic control preset.
+    Proximal Policy Optimization (PPO) Classic Control preset.
 
     Args:
-        device (str): The device to load parameters and buffers onto for this agent.
+        env (all.environments.GymEnvironment): The environment for which to construct the agent.
+        device (torch.device, optional): The device on which to load the agent.
+
+    Keyword Args:
         discount_factor (float): Discount factor for future rewards.
         lr (float): Learning rate for the Adam optimizer.
+        eps (float): Stability parameters for the Adam optimizer.
         clip_grad (float): The maximum magnitude of the gradient for any given parameter.
             Set to 0 to disable.
         entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
-        epsilon (float): Value for epsilon in the clipped PPO objective function.
+        value_loss_scaling (float): Coefficient for the value function loss.
+        clip_initial (float): Value for epsilon in the clipped PPO objective function at the beginning of training.
+        clip_final (float): Value for epsilon in the clipped PPO objective function at the end of training.
         epochs (int): Number of times to iterature through each batch.
         minibatches (int): The number of minibatches to split each batch into.
         n_envs (int): Number of parallel actors.
@@ -48,45 +65,71 @@ def ppo(
         value_model_constructor (function): The function used to construct the neural value model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
-    def _ppo(envs, writer=DummyWriter()):
-        env = envs[0]
-        feature_model = feature_model_constructor(env).to(device)
-        value_model = value_model_constructor().to(device)
-        policy_model = policy_model_constructor(env).to(device)
 
-        feature_optimizer = Adam(feature_model.parameters(), lr=lr)
-        value_optimizer = Adam(value_model.parameters(), lr=lr)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr)
+    def __init__(self, env, device="cuda", **hyperparameters):
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
+        super().__init__(n_envs=hyperparameters['n_envs'])
+        self.value_model = hyperparameters['value_model_constructor']().to(device)
+        self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
+        self.feature_model = hyperparameters['feature_model_constructor'](env).to(device)
+        self.hyperparameters = hyperparameters
+        self.device = device
+
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        n_updates = train_steps * self.hyperparameters['epochs'] * self.hyperparameters['minibatches'] / (self.hyperparameters['n_steps'] * self.hyperparameters['n_envs'])
+
+        feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
+        value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
+        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
 
         features = FeatureNetwork(
-            feature_model, feature_optimizer, clip_grad=clip_grad)
+            self.feature_model,
+            feature_optimizer,
+            clip_grad=self.hyperparameters["clip_grad"],
+            writer=writer
+        )
+
         v = VNetwork(
-            value_model,
+            self.value_model,
             value_optimizer,
-            clip_grad=clip_grad,
+            loss_scaling=self.hyperparameters["value_loss_scaling"],
+            clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
+
         policy = SoftmaxPolicy(
-            policy_model,
+            self.policy_model,
             policy_optimizer,
-            clip_grad=clip_grad,
+            clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
+
         return PPO(
             features,
             v,
             policy,
-            epsilon=epsilon,
-            epochs=epochs,
-            lam=lam,
-            minibatches=minibatches,
-            n_envs=n_envs,
-            n_steps=n_steps,
-            discount_factor=discount_factor,
-            entropy_loss_scaling=entropy_loss_scaling,
-            writer=writer
+            epsilon=LinearScheduler(
+                self.hyperparameters["clip_initial"],
+                self.hyperparameters["clip_final"],
+                0,
+                n_updates,
+                name='clip',
+                writer=writer
+            ),
+            epochs=self.hyperparameters["epochs"],
+            minibatches=self.hyperparameters["minibatches"],
+            n_envs=self.hyperparameters["n_envs"],
+            n_steps=self.hyperparameters["n_steps"],
+            discount_factor=self.hyperparameters["discount_factor"],
+            lam=self.hyperparameters["lam"],
+            entropy_loss_scaling=self.hyperparameters["entropy_loss_scaling"],
+            writer=writer,
         )
-    return _ppo, n_envs
+
+    def test_agent(self):
+        features = FeatureNetwork(copy.deepcopy(self.feature_model))
+        policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
+        return PPOTestAgent(features, policy)
 
 
-__all__ = ["ppo"]
+ppo = preset_builder('ppo', default_hyperparameters, PPOClassicControlPreset)

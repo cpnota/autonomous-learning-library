@@ -19,19 +19,28 @@ def main():
         "--frames", type=int, default=40e6, help="The number of training frames."
     )
     parser.add_argument(
-        "--render", type=bool, default=False, help="Render the environment."
+        "--render", action="store_true", default=False, help="Render the environment."
     )
     parser.add_argument(
         "--logdir", default='runs', help="The base logging directory."
     )
+    parser.add_argument('--hyperparameters', default=[], nargs='*')
     args = parser.parse_args()
 
     env = AtariEnvironment(args.env, device=args.device)
     agent_name = args.agent
     agent = getattr(atari, agent_name)
+    agent = agent().device(args.device)
+
+    # parse hyperparameters
+    hyperparameters = {}
+    for hp in args.hyperparameters:
+        key, value = hp.split('=')
+        hyperparameters[key] = type(agent._hyperparameters[key])(value)
+    agent = agent.hyperparameters(**hyperparameters)
 
     run_experiment(
-        agent(device=args.device, last_frame=args.frames),
+        agent,
         env,
         args.frames,
         render=args.render,

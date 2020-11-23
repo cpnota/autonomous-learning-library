@@ -1,5 +1,6 @@
 from torch.nn.functional import mse_loss
 from ._agent import Agent
+from .a2c import A2CTestAgent
 
 
 class VAC(Agent):
@@ -56,3 +57,6 @@ class VAC(Agent):
             self.v.reinforce(value_loss)
             self.policy.reinforce(policy_loss)
             self.features.reinforce()
+
+
+VACTestAgent = A2CTestAgent

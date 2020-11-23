@@ -8,3 +8,4 @@ all.presets.continuous
 
 .. automodule:: all.presets.continuous
     :members:
+    :inherited-members:

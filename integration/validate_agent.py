@@ -16,9 +16,10 @@ class TestParallelEnvExperiment(ParallelEnvExperiment):
 
 
 def validate_agent(agent, env):
-    if isinstance(agent, tuple):
-        experiment = TestParallelEnvExperiment(agent, env, quiet=True)
+    preset = agent.env(env).build()
+    if preset.is_parallel():
+        experiment = TestParallelEnvExperiment(preset, env, quiet=True)
     else:
-        experiment = TestSingleEnvExperiment(agent, env, quiet=True)
+        experiment = TestSingleEnvExperiment(preset, env, quiet=True)
     experiment.train(episodes=2)
     experiment.test(episodes=2)
