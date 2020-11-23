@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch.nn.functional import mse_loss
 from ._agent import Agent
@@ -25,6 +26,7 @@ class DQN(Agent):
         replay_start_size (int): Number of experiences in replay buffer when training begins.
         update_frequency (int): Number of timesteps per training update.
     '''
+
     def __init__(self,
                  q,
                  policy,
@@ -75,5 +77,16 @@ class DQN(Agent):
 
     def _should_train(self):
         self._frames_seen += 1
-        return (self._frames_seen > self.replay_start_size and
-                self._frames_seen % self.update_frequency == 0)
+        return (self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0)
+
+
+class DQNTestAgent(Agent):
+    def __init__(self, q, n_actions, exploration=0.):
+        self.q = q
+        self.n_actions = n_actions
+        self.exploration = exploration
+
+    def act(self, state):
+        if np.random.rand() < self.exploration:
+            return np.random.randint(0, self.n_actions)
+        return torch.argmax(self.q.eval(state)).item()

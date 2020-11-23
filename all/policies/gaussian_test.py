@@ -11,6 +11,7 @@ from all.policies import GaussianPolicy
 STATE_DIM = 2
 ACTION_DIM = 3
 
+
 class TestGaussian(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(2)
@@ -61,8 +62,8 @@ class TestGaussian(unittest.TestCase):
         dist = self.policy.no_grad(state)
         tt.assert_almost_equal(dist.mean, torch.tensor([[-0.233, 0.459, -0.058]]), decimal=3)
         tt.assert_almost_equal(dist.entropy(), torch.tensor([4.251]), decimal=3)
-        best = self.policy.eval(state)
-        tt.assert_almost_equal(best, torch.tensor([[-0.233, 0.459, -0.058]]), decimal=3)
+        best = self.policy.eval(state).sample()
+        tt.assert_almost_equal(best, torch.tensor([[-0.977, -1.05, 0.311]]), decimal=3)
 
 
 if __name__ == '__main__':

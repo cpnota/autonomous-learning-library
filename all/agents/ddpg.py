@@ -3,6 +3,7 @@ from torch.distributions.normal import Normal
 from torch.nn.functional import mse_loss
 from ._agent import Agent
 
+
 class DDPG(Agent):
     """
     Deep Deterministic Policy Gradient (DDPG).
@@ -26,6 +27,7 @@ class DDPG(Agent):
         replay_start_size (int): Number of experiences in replay buffer when training begins.
         update_frequency (int): Number of timesteps per training update.
     """
+
     def __init__(self,
                  q,
                  policy,
@@ -91,3 +93,11 @@ class DDPG(Agent):
     def _should_train(self):
         self._frames_seen += 1
         return self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0
+
+
+class DDPGTestAgent(Agent):
+    def __init__(self, policy):
+        self.policy = policy
+
+    def act(self, state):
+        return self.policy.eval(state)

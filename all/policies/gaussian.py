@@ -24,11 +24,12 @@ class GaussianPolicy(Approximation):
         action_space (gym.spaces.Box): The Box representing the action space.
         kwargs (optional): Any other arguments accepted by all.approximation.Approximation
     '''
+
     def __init__(
             self,
             model,
-            optimizer,
-            space,
+            optimizer=None,
+            space=None,
             name='policy',
             **kwargs
     ):
@@ -39,6 +40,7 @@ class GaussianPolicy(Approximation):
             **kwargs
         )
 
+
 class GaussianPolicyNetwork(RLNetwork):
     def __init__(self, model, space):
         super().__init__(model)
@@ -47,13 +49,9 @@ class GaussianPolicyNetwork(RLNetwork):
 
     def forward(self, state):
         outputs = super().forward(state)
-        action_dim = outputs.shape[1] // 2
-        means = self._squash(outputs[:, 0:action_dim])
-
-        if not self.training:
-            return means
-
-        logvars = outputs[:, action_dim:] * self._scale
+        action_dim = outputs.shape[-1] // 2
+        means = self._squash(outputs[..., 0:action_dim])
+        logvars = outputs[..., action_dim:] * self._scale
         std = logvars.exp_()
         return Independent(Normal(means, std), 1)
 

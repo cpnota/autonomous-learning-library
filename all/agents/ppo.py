@@ -3,6 +3,7 @@ from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from all.memory import GeneralizedAdvantageBuffer
 from ._agent import Agent
+from .a2c import A2CTestAgent
 
 
 class PPO(Agent):
@@ -26,6 +27,7 @@ class PPO(Agent):
         n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
         writer (Writer): Used for logging.
     """
+
     def __init__(
             self,
             features,
@@ -138,4 +140,6 @@ class PPO(Agent):
             discount_factor=self.discount_factor,
             lam=self.lam
         )
- 
+
+
+PPOTestAgent = A2CTestAgent

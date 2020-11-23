@@ -19,11 +19,13 @@ def run_experiment(
         envs = [envs]
 
     for env in envs:
-        for agent in agents:
-            make_experiment = get_experiment_type(agent)
+        for preset_builder in agents:
+            preset = preset_builder.env(env).build()
+            make_experiment = get_experiment_type(preset)
             experiment = make_experiment(
-                agent,
+                preset,
                 env,
+                train_steps=frames,
                 logdir=logdir,
                 quiet=quiet,
                 render=render,
@@ -31,10 +33,11 @@ def run_experiment(
             )
             experiment.train(frames=frames)
             experiment.test(episodes=test_episodes)
+            experiment.save()
 
 
-def get_experiment_type(agent):
-    if is_parallel_env_agent(agent):
+def get_experiment_type(preset):
+    if preset.is_parallel():
         return ParallelEnvExperiment
     return SingleEnvExperiment
 

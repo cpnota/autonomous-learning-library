@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class Environment(ABC):
     """
     A reinforcement learning Environment.

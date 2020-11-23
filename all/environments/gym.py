@@ -4,6 +4,7 @@ from all.core import State
 from .abstract import Environment
 gym.logger.set_level(40)
 
+
 class GymEnvironment(Environment):
     '''
     A wrapper for OpenAI Gym environments (see: https://gym.openai.com).
@@ -19,6 +20,7 @@ class GymEnvironment(Environment):
         env: Either a string or an OpenAI gym environment
         device (optional): the device on which tensors will be stored
     '''
+
     def __init__(self, env, device=torch.device('cpu')):
         if isinstance(env, str):
             self._name = env

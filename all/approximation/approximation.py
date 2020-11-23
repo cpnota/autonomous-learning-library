@@ -3,9 +3,10 @@ import torch
 from torch.nn import utils
 from all.logging import DummyWriter
 from .target import TrivialTarget
-from .checkpointer import PeriodicCheckpointer
+from .checkpointer import DummyCheckpointer
 
 DEFAULT_CHECKPOINT_FREQUENCY = 200
+
 
 class Approximation():
     '''
@@ -46,10 +47,11 @@ class Approximation():
                 The standard object logs to tensorboard, however, other types of Writer objects
                 may be implemented by the user.
     '''
+
     def __init__(
             self,
             model,
-            optimizer,
+            optimizer=None,
             checkpointer=None,
             clip_grad=0,
             loss_scaling=1,
@@ -72,7 +74,7 @@ class Approximation():
         self._name = name
 
         if checkpointer is None:
-            checkpointer = PeriodicCheckpointer(DEFAULT_CHECKPOINT_FREQUENCY)
+            checkpointer = DummyCheckpointer()
         self._checkpointer = checkpointer
         self._checkpointer.init(
             self.model,

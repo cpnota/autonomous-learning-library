@@ -3,6 +3,7 @@ from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from ._agent import Agent
 
+
 class SAC(Agent):
     """
     Soft Actor-Critic (SAC).
@@ -28,6 +29,7 @@ class SAC(Agent):
         temperature_initial (float): The initial temperature used in the maximum entropy objective.
         update_frequency (int): Number of timesteps per training update.
     """
+
     def __init__(self,
                  policy,
                  q_1,
@@ -70,9 +72,6 @@ class SAC(Agent):
         self._action = self.policy.no_grad(state)[0]
         return self._action
 
-    def eval(self, state):
-        return self.policy.eval(state)
-
     def _train(self):
         if self._should_train():
             # sample from replay buffer
@@ -111,3 +110,11 @@ class SAC(Agent):
     def _should_train(self):
         self._frames_seen += 1
         return self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0
+
+
+class SACTestAgent(Agent):
+    def __init__(self, policy):
+        self.policy = policy
+
+    def act(self, state):
+        return self.policy.eval(state)

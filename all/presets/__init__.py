@@ -1,5 +1,7 @@
-import all.presets.atari
-import all.presets.classic_control
-import all.presets.continuous
 
-__all__ = ["atari", "classic_control", "continuous"]
+from all.presets import atari
+from all.presets import classic_control
+from all.presets import continuous
+from .preset import Preset
+
+__all__ = ["Preset", "atari", "classic_control", "continuous"]

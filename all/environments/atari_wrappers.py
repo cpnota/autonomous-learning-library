@@ -1,6 +1,5 @@
-# pylint: skip-file
 '''
-A subset of Atari wraooers modified from:
+A subset of Atari wrappers modified from:
 https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
 Other behaviors were implemented as Bodies.
 '''
@@ -43,18 +42,19 @@ class NoopResetEnv(gym.Wrapper):
     def step(self, ac):
         return self.env.step(ac)
 
+
 class FireResetEnv(gym.Wrapper):
     def __init__(self, env):
         '''
         Take action on reset for environments that are fixed until firing.
-        
+
         Important: This was modified to also fire on lives lost.
         '''
         gym.Wrapper.__init__(self, env)
         assert env.unwrapped.get_action_meanings()[1] == 'FIRE'
         assert len(env.unwrapped.get_action_meanings()) >= 3
         self.lives = 0
-        self.was_real_done  = True
+        self.was_real_done = True
 
     def reset(self, **kwargs):
         self.env.reset(**kwargs)
@@ -64,8 +64,7 @@ class FireResetEnv(gym.Wrapper):
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
-        lives = self.env.unwrapped.ale.lives()
-        if lives < self.lives and lives > 0:
+        if self.lost_life():
             obs, done = self.fire()
         self.lives = self.env.unwrapped.ale.lives()
         return obs, reward, done, info
@@ -73,14 +72,15 @@ class FireResetEnv(gym.Wrapper):
     def fire(self):
         obs, _, done, _ = self.env.step(1)
         if done:
-            self.env.reset(**kwargs)
+            self.env.reset()
         obs, _, done, _ = self.env.step(2)
         if done:
-            obs = self.env.reset(**kwargs)
+            obs = self.env.reset()
             done = False
         return obs, done
 
     def lost_life(self):
+        lives = self.env.unwrapped.ale.lives()
         return lives < self.lives and lives > 0
 
 
@@ -89,8 +89,8 @@ class MaxAndSkipEnv(gym.Wrapper):
         '''Return only every `skip`-th frame'''
         gym.Wrapper.__init__(self, env)
         # most recent raw observations (for max pooling across time steps)
-        self._obs_buffer = np.zeros((2,)+env.observation_space.shape, dtype=np.uint8)
-        self._skip       = skip
+        self._obs_buffer = np.zeros((2,) + env.observation_space.shape, dtype=np.uint8)
+        self._skip = skip
 
     def step(self, action):
         '''Repeat action, sum reward, and max over last observations.'''
@@ -98,8 +98,10 @@ class MaxAndSkipEnv(gym.Wrapper):
         done = None
         for i in range(self._skip):
             obs, reward, done, info = self.env.step(action)
-            if i == self._skip - 2: self._obs_buffer[0] = obs
-            if i == self._skip - 1: self._obs_buffer[1] = obs
+            if i == self._skip - 2:
+                self._obs_buffer[0] = obs
+            if i == self._skip - 1:
+                self._obs_buffer[1] = obs
             total_reward += reward
             if done:
                 break
@@ -165,6 +167,7 @@ class WarpFrame(gym.ObservationWrapper):
             obs[self._key] = frame
         return np.moveaxis(obs, -1, 0)
 
+
 class LifeLostEnv(gym.Wrapper):
     def __init__(self, env):
         '''
@@ -184,5 +187,5 @@ class LifeLostEnv(gym.Wrapper):
         lives = self.env.unwrapped.ale.lives()
         life_lost = (lives < self.lives and lives > 0)
         self.lives = lives
-        info = { 'life_lost': life_lost }
+        info = {'life_lost': life_lost}
         return obs, reward, done, info

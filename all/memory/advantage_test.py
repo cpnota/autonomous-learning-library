@@ -41,7 +41,6 @@ class NStepAdvantageBufferTest(unittest.TestCase):
             1, 1, 1
         ])
 
-
         self.assert_states_equal(states, expected_states)
         tt.assert_allclose(advantages, self._compute_expected_advantages(
             expected_states, expected_returns, expected_next_states, expected_lengths

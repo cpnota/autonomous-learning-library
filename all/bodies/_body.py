@@ -1,5 +1,6 @@
 from all.agents import Agent
 
+
 class Body(Agent):
     """
     A Body wraps a reinforcment learning Agent, altering its inputs and ouputs.

@@ -1,15 +1,19 @@
 from all.logging import DummyWriter
 
+
 class Schedulable:
     '''Allow "instance" descriptors to implement parameter scheduling.'''
+
     def __getattribute__(self, name):
         value = object.__getattribute__(self, name)
         if isinstance(value, Scheduler):
             value = value.__get__(self, self.__class__)
         return value
 
+
 class Scheduler:
     pass
+
 
 class LinearScheduler(Scheduler):
     def __init__(
