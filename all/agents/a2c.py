@@ -1,3 +1,4 @@
+import torch
 from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from all.memory import NStepAdvantageBuffer
@@ -61,9 +62,6 @@ class A2C(Agent):
         self._actions = self.policy.no_grad(self.features.no_grad(states)).sample()
         return self._actions
 
-    def eval(self, states):
-        return self.policy.eval(self.features.eval(states))
-
     def _train(self, next_states):
         if len(self._buffer) >= self._batch_size:
             # load trajectories from buffer
@@ -100,3 +98,12 @@ class A2C(Agent):
             self.n_envs,
             discount_factor=self.discount_factor
         )
+
+
+class A2CTestAgent(Agent):
+    def __init__(self, features, policy):
+        self.features = features
+        self.policy = policy
+
+    def act(self, state):
+        return self.policy.eval(self.features.eval(state)).sample()

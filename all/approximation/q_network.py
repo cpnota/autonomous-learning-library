@@ -7,7 +7,7 @@ class QNetwork(Approximation):
     def __init__(
             self,
             model,
-            optimizer,
+            optimizer=None,
             name='q',
             **kwargs
     ):

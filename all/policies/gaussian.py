@@ -28,8 +28,8 @@ class GaussianPolicy(Approximation):
     def __init__(
             self,
             model,
-            optimizer,
-            space,
+            optimizer=None,
+            space=None,
             name='policy',
             **kwargs
     ):
@@ -49,13 +49,9 @@ class GaussianPolicyNetwork(RLNetwork):
 
     def forward(self, state):
         outputs = super().forward(state)
-        action_dim = outputs.shape[1] // 2
-        means = self._squash(outputs[:, 0:action_dim])
-
-        if not self.training:
-            return means
-
-        logvars = outputs[:, action_dim:] * self._scale
+        action_dim = outputs.shape[-1] // 2
+        means = self._squash(outputs[..., 0:action_dim])
+        logvars = outputs[..., action_dim:] * self._scale
         std = logvars.exp_()
         return Independent(Normal(means, std), 1)
 

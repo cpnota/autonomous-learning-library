@@ -55,12 +55,16 @@ class TestSingleEnvExperiment(unittest.TestCase):
         self.env.seed(0)
         self.experiment = None
 
-    def test_adds_label(self):
-        experiment = MockExperiment(dqn(), self.env, quiet=True)
-        self.assertEqual(experiment._writer.label, "_dqn_CartPole-v0")
+    def test_adds_default_name(self):
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
+        self.assertEqual(experiment._writer.label, "DQNClassicControlPreset_CartPole-v0")
+
+    def test_adds_custom_name(self):
+        experiment = MockExperiment(self.make_preset(), self.env, name='dqn', quiet=True)
+        self.assertEqual(experiment._writer.label, "dqn_CartPole-v0")
 
     def test_writes_training_returns_eps(self):
-        experiment = MockExperiment(dqn(), self.env, quiet=True)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
         experiment.train(episodes=3)
         np.testing.assert_equal(
             experiment._writer.data["evaluation/returns/episode"]["values"],
@@ -72,7 +76,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         )
 
     def test_writes_test_returns(self):
-        experiment = MockExperiment(dqn(), self.env, quiet=True)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
         experiment.train(episodes=5)
         returns = experiment.test(episodes=4)
         expected_mean = 9.5
@@ -92,10 +96,13 @@ class TestSingleEnvExperiment(unittest.TestCase):
         )
 
     def test_writes_loss(self):
-        experiment = MockExperiment(dqn(), self.env, quiet=True, write_loss=True)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=True)
         self.assertTrue(experiment._writer.write_loss)
-        experiment = MockExperiment(dqn(), self.env, quiet=True, write_loss=False)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=False)
         self.assertFalse(experiment._writer.write_loss)
+
+    def make_preset(self):
+        return dqn().device('cpu').env(self.env).build()
 
 
 if __name__ == "__main__":

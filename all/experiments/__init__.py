@@ -5,7 +5,7 @@ from .parallel_env_experiment import ParallelEnvExperiment
 from .writer import ExperimentWriter
 from .plots import plot_returns_100
 from .slurm import SlurmExperiment
-from .watch import GreedyAgent, watch, load_and_watch
+from .watch import watch, load_and_watch
 
 __all__ = [
     "run_experiment",
@@ -13,7 +13,6 @@ __all__ = [
     "SingleEnvExperiment",
     "ParallelEnvExperiment",
     "SlurmExperiment",
-    "GreedyAgent",
     "ExperimentWriter",
     "watch",
     "load_and_watch",

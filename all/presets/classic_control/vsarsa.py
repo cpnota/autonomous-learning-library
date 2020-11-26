@@ -1,42 +1,98 @@
+import copy
 from torch.optim import Adam
-from all.agents import VSarsa
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.approximation import QNetwork
-from all.policies import ParallelGreedyPolicy
+from all.agents import VSarsa, VSarsaTestAgent
+from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
-from .models import fc_relu_q
+from all.optim import LinearScheduler
+from all.policies import ParallelGreedyPolicy
+from .models import dueling_fc_relu_q
+from ..builder import preset_builder
+from ..preset import Preset
 
 
-def vsarsa(
-        # Common settings
-        device="cpu",
-        discount_factor=0.99,
-        # Adam optimizer settings
-        lr=1e-2,
-        eps=1e-5,
-        # Exploration settings
-        epsilon=0.1,
-        # Parallel actors
-        n_envs=8,
-        # Model construction
-        model_constructor=fc_relu_q
-):
+default_hyperparameters = {
+    # Common settings
+    "discount_factor": 0.99,
+    # Adam optimizer settings
+    "lr": 1e-2,
+    "eps": 1.5e-4,
+    # Explicit exploration
+    "initial_exploration": 1.,
+    "final_exploration": 0.,
+    "final_exploration_step": 10000,
+    "test_exploration": 0.001,
+    # Parallel actors
+    "n_envs": 8,
+    # Model construction
+    "model_constructor": dueling_fc_relu_q
+}
+
+
+class VSarsaClassicControlPreset(Preset):
     """
-    Vanilla SARSA classic control preset.
+    Vanilla SARSA (VSarsa) Classic Control Preset.
 
     Args:
-        device (str): The device to load parameters and buffers onto for this agent.
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        device (torch.device, optional): The device on which to load the agent.
+
+    Keyword Args:
         discount_factor (float): Discount factor for future rewards.
         lr (float): Learning rate for the Adam optimizer.
         eps (float): Stability parameters for the Adam optimizer.
-        epsilon (int): Probability of choosing a random action.
+        initial_exploration (float): Initial probability of choosing a random action,
+            decayed over course of training.
+        final_exploration (float): Final probability of choosing a random action.
+        final_exploration_step (int): The step at which exploration decay is finished
+        test_exploration (float): The exploration rate of the test Agent
         n_envs (int): Number of parallel environments.
         model_constructor (function): The function used to construct the neural model.
     """
-    def _vsarsa(envs, writer=DummyWriter()):
-        env = envs[0]
-        model = model_constructor(env).to(device)
-        optimizer = Adam(model.parameters(), lr=lr, eps=eps)
-        q = QNetwork(model, optimizer, writer=writer)
-        policy = ParallelGreedyPolicy(q, env.action_space.n, epsilon=epsilon)
-        return VSarsa(q, policy, discount_factor=discount_factor)
-    return _vsarsa, n_envs
+
+    def __init__(self, env, device="cuda", **hyperparameters):
+        hyperparameters = {**default_hyperparameters, **hyperparameters}
+        super().__init__(n_envs=hyperparameters['n_envs'])
+        self.model = hyperparameters['model_constructor'](env).to(device)
+        self.hyperparameters = hyperparameters
+        self.n_actions = env.action_space.n
+        self.device = device
+
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        n_updates = train_steps / self.hyperparameters['n_envs']
+
+        optimizer = Adam(
+            self.model.parameters(),
+            lr=self.hyperparameters['lr'],
+            eps=self.hyperparameters['eps']
+        )
+
+        q = QNetwork(
+            self.model,
+            optimizer,
+            scheduler=CosineAnnealingLR(optimizer, n_updates),
+            writer=writer
+        )
+
+        policy = ParallelGreedyPolicy(
+            q,
+            self.n_actions,
+            epsilon=LinearScheduler(
+                self.hyperparameters['initial_exploration'],
+                self.hyperparameters['final_exploration'],
+                0,
+                self.hyperparameters["final_exploration_step"] / self.hyperparameters["n_envs"],
+                name="exploration",
+                writer=writer
+            )
+        )
+
+        return VSarsa(q, policy, discount_factor=self.hyperparameters['discount_factor'])
+
+    def test_agent(self):
+        q = QNetwork(copy.deepcopy(self.model))
+        return VSarsaTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
+
+
+vsarsa = preset_builder('vsarsa', default_hyperparameters, VSarsaClassicControlPreset)

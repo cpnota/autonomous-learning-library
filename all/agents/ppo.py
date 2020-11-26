@@ -3,6 +3,7 @@ from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from all.memory import GeneralizedAdvantageBuffer
 from ._agent import Agent
+from .a2c import A2CTestAgent
 
 
 class PPO(Agent):
@@ -139,3 +140,6 @@ class PPO(Agent):
             discount_factor=self.discount_factor,
             lam=self.lam
         )
+
+
+PPOTestAgent = A2CTestAgent

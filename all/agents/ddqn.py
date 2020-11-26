@@ -1,6 +1,7 @@
 import torch
 from all.nn import weighted_mse_loss
 from ._agent import Agent
+from .dqn import DQNTestAgent
 
 
 class DDQN(Agent):
@@ -80,3 +81,6 @@ class DDQN(Agent):
     def _should_train(self):
         self._frames_seen += 1
         return self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0
+
+
+DDQNTestAgent = DQNTestAgent

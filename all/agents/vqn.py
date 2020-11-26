@@ -1,6 +1,7 @@
 import torch
 from torch.nn.functional import mse_loss
 from ._agent import Agent
+from .dqn import DQNTestAgent
 
 
 class VQN(Agent):
@@ -46,3 +47,6 @@ class VQN(Agent):
             loss = mse_loss(value, target)
             # backward pass
             self.q.reinforce(loss)
+
+
+VQNTestAgent = DQNTestAgent
