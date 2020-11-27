@@ -56,7 +56,7 @@ class ToCache:
 class LazyState(State):
     @classmethod
     def from_state(cls, state, frames, to_cache):
-        state = LazyState(state, device=state.device)
+        state = LazyState(state, device=frames[0].device)
         state.to_cache = to_cache
         state['observation'] = frames
         return state
@@ -68,6 +68,16 @@ class LazyState(State):
                 return v
             return torch.cat(dict.__getitem__(self, key), dim=0)
         return super().__getitem__(key)
+
+    def update(self, key, value):
+        x = {}
+        for k in self.keys():
+            if not k == key:
+                x[k] = super().__getitem__(k)
+        x[key] = value
+        state = LazyState(x, device=self.device)
+        state.to_cache = self.to_cache
+        return state
 
     def to(self, device):
         if device == self.device:
@@ -81,4 +91,5 @@ class LazyState(State):
                 x[key] = value.to(device)
             else:
                 x[key] = value
-        return LazyState(x, device=device)
+        state = LazyState.from_state(x, x['observation'], self.to_cache)
+        return state
