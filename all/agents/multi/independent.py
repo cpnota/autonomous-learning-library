@@ -6,6 +6,3 @@ class IndependentMultiagent(Multiagent):
 
     def act(self, agent, state):
         return self.agents[agent].act(state)
-
-    def eval(self, agent, state):
-        return self.agents[agent].eval(state)

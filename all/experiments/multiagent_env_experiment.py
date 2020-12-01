@@ -7,17 +7,19 @@ class MultiagentEnvExperiment():
     '''An Experiment object for training and testing agents that interact with one environment at a time.'''
     def __init__(
             self,
-            multiagent,
+            preset,
             env,
+            name='multi',
             render=False,
             quiet=False,
             write_loss=True
     ):
-        self._writer = ExperimentWriter(self, multiagent.__name__, env.name, loss=write_loss)
+        self._writer = ExperimentWriter(self, name, env.name, loss=write_loss)
         self._writers = {
-            agent : ExperimentWriter(self, "{}_{}".format(multiagent.__name__, agent), env.name, loss=write_loss)
+            agent : ExperimentWriter(self, "{}_{}".format(name, agent), env.name, loss=write_loss)
             for agent in env.agents
         }
+        self._preset = preset
         self._agent = multiagent(env, self._writers)
         self._env = env
         self._render = render
