@@ -9,7 +9,7 @@ class FrameStack(Body):
         self._frames = []
         self._size = size
         self._lazy = lazy
-        self._to_cache = ToCache()
+        self._to_cache = TensorDeviceCache()
 
     def process_state(self, state):
         if not self._frames:
@@ -23,27 +23,22 @@ class FrameStack(Body):
         return state.update('observation', torch.cat(self._frames, dim=0))
 
 
-class ToCache:
-    def __init__(self, from_device=None, to_device=None, max_size=16):
-        self.from_device = from_device
-        self.to_device = to_device
+class TensorDeviceCache:
+    '''
+    To efficiently implement device trasfer of lazy states, this class
+    caches the transfered tensor so that it is not copied multiple times.
+    '''
+    def __init__(self, max_size=16):
         self.max_size = max_size
         self.cache_data = []
 
     def convert(self, value, device):
-        if self.from_device is None:
-            self.from_device = value.device
-        if self.to_device is None:
-            self.to_device = device
-        if self.from_device != value.device or self.to_device != device:
-            raise ValueError("bad devices to convert lazystate, must be internally consistent")
-
         cached = None
         for el in self.cache_data:
             if el[0] is value:
                 cached = el[1]
                 break
-        if cached is not None:
+        if cached is not None and cached.device == torch.device(device):
             new_v = cached
         else:
             new_v = value.to(device)

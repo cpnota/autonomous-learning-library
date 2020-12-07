@@ -23,11 +23,13 @@ class ReplayBuffer(ABC):
 # Adapted from:
 # https://github.com/Shmuma/ptan/blob/master/ptan/experience.py
 class ExperienceReplayBuffer(ReplayBuffer):
-    def __init__(self, size, device='cpu', store_device='cpu'):
+    def __init__(self, size, device='cpu', store_device=None):
         self.buffer = []
         self.capacity = int(size)
         self.pos = 0
         self.device = torch.device(device)
+        if store_device is None:
+            store_device = self.device
         self.store_device = torch.device(store_device)
 
     def store(self, state, action, next_state):
@@ -74,9 +76,10 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
             alpha=0.6,
             beta=0.4,
             epsilon=1e-5,
-            device=torch.device('cpu')
+            device=torch.device('cpu'),
+            store_device=None
     ):
-        super().__init__(buffer_size, device=device)
+        super().__init__(buffer_size, device=device, store_device=store_device)
 
         assert alpha >= 0
         self._alpha = alpha

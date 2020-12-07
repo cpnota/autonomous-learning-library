@@ -304,7 +304,7 @@ class StateArray(State):
         return tensor.view((*self.shape, *tensor.shape[1:]))
 
     def apply_mask(self, tensor):
-        return tensor * self.mask.unsqueeze(-1)  # pylint: disable=no-member
+        return tensor * self.mask.unsqueeze(-1)
 
     def flatten(self):
         """
