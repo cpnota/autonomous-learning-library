@@ -99,7 +99,7 @@ class StateTest(unittest.TestCase):
 
     def test_to_device(self):
         observation = torch.randn(3, 4)
-        state = State(observation,device=torch.device('cpu'))
+        state = State(observation, device=torch.device('cpu'))
         state_cpu = state.to("cpu")
         self.assertTrue(torch.equal(state['observation'], state_cpu['observation']))
         self.assertFalse(state is state_cpu)
