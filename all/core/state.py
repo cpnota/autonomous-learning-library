@@ -31,7 +31,6 @@ class State(dict):
         device (string):
             The torch device on which component tensors are stored.
     """
-
     def __init__(self, x, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
@@ -68,11 +67,15 @@ class State(dict):
         for key in list_of_states[0].keys():
             v = list_of_states[0][key]
             try:
-                if torch.is_tensor(v):
+                if isinstance(v, list) and len(v) > 0 and torch.is_tensor(v[0]):
+                    x[key] = torch.stack([torch.stack(state[key]) for state in list_of_states])
+                elif torch.is_tensor(v):
                     x[key] = torch.stack([state[key] for state in list_of_states])
                 else:
                     x[key] = torch.tensor([state[key] for state in list_of_states], device=device)
-            except BaseException:
+            except ValueError:
+                pass
+            except KeyError:
                 pass
         return StateArray(x, shape, device=device)
 
@@ -188,6 +191,17 @@ class State(dict):
             x[key] = info[key]
         return State(x, device=device)
 
+    def to(self, device):
+        if device == self.device:
+            return self
+        x = {}
+        for key, value in self.items():
+            if torch.is_tensor(value):
+                x[key] = value.to(device)
+            else:
+                x[key] = value
+        return type(self)(x, device=device, shape=self._shape)
+
     @property
     def observation(self):
         """A tensor containing the current observation."""
@@ -246,7 +260,6 @@ class StateArray(State):
             device (string):
                 The torch device on which component tensors are stored.
     """
-
     def __init__(self, x, shape, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
@@ -350,7 +363,7 @@ class StateArray(State):
             for (k, v) in self.items():
                 try:
                     d[k] = v[key]
-                except BaseException:
+                except KeyError:
                     pass
             return self.__class__(d, shape, device=self.device)
         try:
