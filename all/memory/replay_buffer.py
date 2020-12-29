@@ -151,6 +151,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
 
 class NStepReplayBuffer(ReplayBuffer):
     '''Converts any ReplayBuffer into an NStepReplayBuffer'''
+
     def __init__(
             self,
             steps,

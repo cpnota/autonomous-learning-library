@@ -28,6 +28,7 @@ class TensorDeviceCache:
     To efficiently implement device trasfer of lazy states, this class
     caches the transfered tensor so that it is not copied multiple times.
     '''
+
     def __init__(self, max_size=16):
         self.max_size = max_size
         self.cache_data = []

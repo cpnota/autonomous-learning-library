@@ -31,6 +31,7 @@ class State(dict):
         device (string):
             The torch device on which component tensors are stored.
     """
+
     def __init__(self, x, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
@@ -260,6 +261,7 @@ class StateArray(State):
             device (string):
                 The torch device on which component tensors are stored.
     """
+
     def __init__(self, x, shape, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
