@@ -77,6 +77,8 @@ class State(dict):
                 pass
             except KeyError:
                 pass
+            except TypeError:
+                pass
         return StateArray(x, shape, device=device)
 
     def apply(self, model, *keys):
