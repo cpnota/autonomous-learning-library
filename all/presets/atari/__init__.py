@@ -12,23 +12,13 @@ from .vsarsa import vsarsa, VSarsaAtariPreset
 
 __all__ = [
     "a2c",
-    "A2CAtariPreset",
     "c51",
-    "C51AtariPreset",
     "ddqn",
-    "DDQNAtariPreset",
     "dqn",
-    "DQNAtariPreset",
     "ppo",
-    "PPOAtariPreset",
     "rainbow",
-    "RainbowAtariPreset",
     "vac",
-    "VACAtariPreset",
     "vpg",
-    "VPGAtariPreset",
     "vqn",
-    "VQNAtariPreset",
     "vsarsa",
-    "VSarsaAtariPreset",
 ]
