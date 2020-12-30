@@ -108,7 +108,7 @@ class SlurmExperiment:
 
     def make_output_directory(self):
         try:
-            os.mkdir(OUT_DIR)
+            os.mkdir(self.outdir)
             print('Created output directory:', self.outdir)
         except FileExistsError:
             print('Output directory already exists:', self.outdir)
