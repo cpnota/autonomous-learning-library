@@ -109,9 +109,9 @@ class SlurmExperiment:
     def make_output_directory(self):
         try:
             os.mkdir(OUT_DIR)
-            print('Created output directory:', OUT_DIR)
+            print('Created output directory:', self.outdir)
         except FileExistsError:
-            print('Output directory already exists:', OUT_DIR)
+            print('Output directory already exists:', self.outdir)
 
     def run_sbatch_script(self):
         result = subprocess.run(
