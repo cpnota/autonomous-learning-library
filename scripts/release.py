@@ -9,13 +9,13 @@ def main():
     device = 'cuda'
 
     def get_agents(preset):
-        agents = [getattr(preset, agent_name) for agent_name in classic_control.__all__]
+        agents = [getattr(preset, agent_name) for agent_name in preset.__all__]
         return [agent(device=device) for agent in agents]
 
     SlurmExperiment(
         get_agents(atari),
         AtariEnvironment('Breakout', device=device),
-        2e7,
+        10e7,
         sbatch_args={
             'partition': '1080ti-long'
         }
