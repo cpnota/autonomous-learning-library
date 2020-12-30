@@ -7,6 +7,7 @@ from .atari_wrappers import (
     WarpFrame,
     LifeLostEnv,
 )
+from all.core import State
 
 
 class AtariEnvironment(GymEnvironment):
@@ -30,6 +31,11 @@ class AtariEnvironment(GymEnvironment):
     @property
     def name(self):
         return self._name
+
+    def reset(self):
+        state = self._env.reset(), 0., False, {'life_lost': False}
+        self._state = State.from_gym(state, dtype=self._env.observation_space.dtype, device=self._device)
+        return self._state
 
     def duplicate(self, n):
         return [
