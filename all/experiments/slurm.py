@@ -115,7 +115,7 @@ class SlurmExperiment:
 
     def run_sbatch_script(self):
         result = subprocess.run(
-            ['sbatch', SCRIPT_NAME],
+            ['sbatch', self.script_name],
             stdout=subprocess.PIPE,
             check=True
         )
