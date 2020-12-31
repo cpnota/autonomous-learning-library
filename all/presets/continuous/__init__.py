@@ -5,8 +5,6 @@ from .sac import sac
 
 __all__ = [
     'ddpg',
-    'DDPGContinuousPreset',
     'ppo',
-    'PPOContinuousPreset',
     'sac',
 ]
