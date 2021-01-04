@@ -24,7 +24,7 @@ class MultiagentEnvExperiment():
         self._episode = 1
 
         if render:
-            self._env.render(mode="human")
+            self._env.render()
 
     @property
     def frame(self):
@@ -58,6 +58,8 @@ class MultiagentEnvExperiment():
         returns = {agent : 0 for agent in self._env.agents}
 
         for agent in self._env.agent_iter():
+            if self._render:
+                self._env.render()
             state = self._env.last()
             returns[agent] += state.reward
             action = self._agent.act(state)

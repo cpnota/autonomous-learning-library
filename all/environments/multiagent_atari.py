@@ -53,6 +53,9 @@ class MultiAgentAtariEnv():
     def action_spaces(self):
         return self._env.action_spaces
 
+    def render(self):
+        return self._env.render(mode='human')
+
     def is_done(self, agent):
         return self._env.dones[agent]
 

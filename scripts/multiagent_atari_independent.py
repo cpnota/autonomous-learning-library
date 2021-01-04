@@ -22,17 +22,22 @@ def main():
         help="The name of the device to run the agent on (e.g. cpu, cuda, cuda:0).",
     )
     parser.add_argument(
+        "--replay_buffer_size",
+        default=100000,
+        help="The size of the replay buffer, if applicable",
+    )
+    parser.add_argument(
         "--frames", type=int, default=40e6, help="The number of training frames."
     )
     parser.add_argument(
-        "--render", type=bool, default=False, help="Render the environment."
+        "--render", action="store_true", default=False, help="Render the environment."
     )
     args = parser.parse_args()
 
     env = MultiAgentAtariEnv(args.env, device=args.device)
 
     presets = {
-        agent_id : getattr(atari, agent_type)().device(args.device).env(
+        agent_id : getattr(atari, agent_type)().hyperparameters(replay_buffer_size=args.replay_buffer_size).device(args.device).env(
             DummyEnv(
                 env.observation_spaces[agent_id], env.action_spaces[agent_id]
             )
@@ -43,7 +48,8 @@ def main():
     experiment = MultiagentEnvExperiment(
         IndependentMultiagentAtariPreset(presets),
         env,
-        write_loss=False
+        write_loss=False,
+        render=args.render
     )
     experiment.train()
 
