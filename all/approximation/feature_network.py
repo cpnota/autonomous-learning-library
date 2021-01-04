@@ -26,7 +26,7 @@ class FeatureNetwork(Approximation):
             state (all.environment.State): An environment State
 
         Returns:
-            all.environment.State: An enviornment State with the computed features
+            all.environment.State: An environment State with the computed features
         '''
         features = self.model(states)
         graphs = features.observation
