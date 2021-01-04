@@ -12,13 +12,12 @@ from all.memory import (
 
 
 class TestExperienceReplayBuffer(unittest.TestCase):
-    def setUp(self):
+    def test_run(self):
         np.random.seed(1)
         random.seed(1)
         torch.manual_seed(1)
         self.replay_buffer = ExperienceReplayBuffer(5)
 
-    def test_run(self):
         states = torch.arange(0, 20)
         actions = torch.arange(0, 20).view((-1, 1))
         rewards = torch.arange(0, 20)
@@ -50,6 +49,20 @@ class TestExperienceReplayBuffer(unittest.TestCase):
             torch.cat(actual_samples).view(expected_samples.shape), expected_samples
         )
         np.testing.assert_array_equal(expected_weights, np.vstack(actual_weights))
+
+    def test_store_device(self):
+        if torch.cuda.is_available():
+            self.replay_buffer = ExperienceReplayBuffer(5, device='cuda', store_device='cpu')
+
+            states = torch.arange(0, 20).to('cuda')
+            actions = torch.arange(0, 20).view((-1, 1)).to('cuda')
+            rewards = torch.arange(0, 20).to('cuda')
+            state = State(states[0])
+            next_state = State(states[1], reward=rewards[1])
+            self.replay_buffer.store(state, actions[0], next_state)
+            sample = self.replay_buffer.sample(3)
+            self.assertEqual(sample[0].device, torch.device('cuda'))
+            self.assertEqual(self.replay_buffer.buffer[0][0].device, torch.device('cpu'))
 
 
 class TestPrioritizedReplayBuffer(unittest.TestCase):

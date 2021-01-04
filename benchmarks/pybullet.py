@@ -11,9 +11,9 @@ def main():
     frames = int(1e7)
 
     agents = [
-        ddpg(last_frame=frames),
-        ppo(last_frame=frames),
-        sac(last_frame=frames)
+        ddpg(device=device),
+        ppo(device=device),
+        sac(device=device)
     ]
 
     envs = [GymEnvironment(env, device) for env in [
