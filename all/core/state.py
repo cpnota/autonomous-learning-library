@@ -63,7 +63,7 @@ class State(dict):
             A StateArray object.
         """
         device = list_of_states[0].device
-        shape = (len(list_of_states), *list_of_states[0].shape)
+        shape = (len(list_of_states), *list_of_states[0].shape) 
         x = {}
         for key in list_of_states[0].keys():
             v = list_of_states[0][key]
@@ -381,3 +381,62 @@ class StateArray(State):
 
     def __len__(self):
         return self.shape[0]
+
+class MultiAgentState(State):
+    def __init__(self, x, device='cpu', **kwargs):
+        if 'agent' not in x:
+            raise Exception('MultiAgentState must contain an agent ID')
+        super().__init__(x, device=device, **kwargs)
+
+    @classmethod
+    def from_zoo(cls, agent, state, device='cpu', dtype=np.float32):
+        """
+        Constructs a State object given the return value of an OpenAI gym reset()/step(action) call.
+
+        Args:
+            state (tuple): The return value of an OpenAI gym reset()/step(action) call
+            device (string): The device on which to store resulting tensors.
+            dtype: The type of the observation.
+
+        Returns:
+            A State object.
+        """
+        if not isinstance(state, tuple):
+            return MultiAgentState({
+                'agent': agent,
+                'observation': torch.from_numpy(
+                    np.array(
+                        state,
+                        dtype=dtype
+                    ),
+                ).to(device)
+            }, device=device)
+
+        observation, reward, done, info = state
+        observation = torch.from_numpy(
+            np.array(
+                observation,
+                dtype=dtype
+            ),
+        ).to(device)
+        x = {
+            'agent': agent,
+            'observation': observation,
+            'reward': float(reward),
+            'done': done,
+        }
+        info = info if info else {}
+        for key in info:
+            x[key] = info[key]
+        return MultiAgentState(x, device=device)
+
+    def to(self, device):
+        if device == self.device:
+            return self
+        x = {}
+        for key, value in self.items():
+            if torch.is_tensor(value):
+                x[key] = value.to(device)
+            else:
+                x[key] = value
+        return type(self)(x, device=device, shape=self._shape)

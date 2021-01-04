@@ -1,21 +1,21 @@
 from ..builder import preset_builder
 from ..preset import Preset
 from all.agents.multi.independent import IndependentMultiagent
+from all.logging import DummyWriter
 
 
 class IndependentMultiagentAtariPreset(Preset):
-    def __init__(self, env, builder):
-        self.presets = {
-            agent : builder.build() for agent in env.agents
-        }
-        self._agents = list(env.agents)
+    def __init__(self, presets):
+        self.presets = presets
 
-    def agent(self, writers=None, train_steps=float('inf')):
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         return IndependentMultiagent({
-            agent : self.presets[agent].agent(writer=writers[agent], train_steps=float('inf'))
+            agent_id : preset.agent(writer=writer, train_steps=train_steps)
+            for agent_id, preset in self.presets.items()
         })
 
     def test_agent(self):
         return IndependentMultiagent({
-            agent : self.presets[agent].test_agent()
+            agent_id : preset.test_agent()
+            for agent_id, preset in self.presets.items()
         })

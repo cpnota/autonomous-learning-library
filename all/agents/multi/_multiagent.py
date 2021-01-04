@@ -13,7 +13,7 @@ class Multiagent(ABC, Schedulable):
     """
 
     @abstractmethod
-    def act(self, agent, state):
+    def act(self, state):
         """
         Select an action for the current timestep and update internal parameters.
 
@@ -26,7 +26,7 @@ class Multiagent(ABC, Schedulable):
         However, the agent must ultimately return an action.
 
         Args:
-            state (all.environment.State): The environment state at the current timestep.
+            state (all.core.MultiAgentState): The environment state at the current timestep.
 
         Returns:
             torch.Tensor: The action to take at the current timestep.

@@ -5,11 +5,16 @@ from all.presets import atari
 from all.presets.multiagent_atari import IndependentMultiagentAtariPreset
 
 
+class DummyEnv():
+    def __init__(self, state_space, action_space):
+        self.state_space = state_space
+        self.action_space = action_space
+
 def main():
     parser = argparse.ArgumentParser(description="Run an multiagent Atari benchmark.")
     parser.add_argument("env", help="Name of the Atari game (e.g. Pong).")
     parser.add_argument(
-        "agent", help="Name of the agent (e.g. dqn). See presets for available agents."
+        "agents", nargs='*', help="List of agents."
     )
     parser.add_argument(
         "--device",
@@ -22,22 +27,21 @@ def main():
     parser.add_argument(
         "--render", type=bool, default=False, help="Render the environment."
     )
-    parser.add_argument('--hyperparameters', default=[], nargs='*')
     args = parser.parse_args()
 
-    agent_name = args.agent
-    agent = getattr(atari, agent_name)().device(args.device)
     env = MultiAgentAtariEnv(args.env, device=args.device)
 
-    # parse hyperparameters
-    hyperparameters = {}
-    for hp in args.hyperparameters:
-        key, value = hp.split('=')
-        hyperparameters[key] = type(agent._hyperparameters[key])(value)
-    agent = agent.hyperparameters(**hyperparameters)
+    presets = {
+        agent_id : getattr(atari, agent_type)().device(args.device).env(
+            DummyEnv(
+                env.observation_spaces[agent_id], env.action_spaces[agent_id]
+            )
+        ).build()
+        for agent_id, agent_type in zip(env.agents, args.agents)
+    }
 
     experiment = MultiagentEnvExperiment(
-        IndependentMultiagentAtariPreset(env, agent),
+        IndependentMultiagentAtariPreset(presets),
         env,
         write_loss=False
     )

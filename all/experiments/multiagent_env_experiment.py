@@ -10,17 +10,14 @@ class MultiagentEnvExperiment():
             preset,
             env,
             name='multi',
+            train_steps=float('inf'),
             render=False,
             quiet=False,
             write_loss=True
     ):
         self._writer = ExperimentWriter(self, name, env.name, loss=write_loss)
-        self._writers = {
-            agent : ExperimentWriter(self, "{}_{}".format(name, agent), env.name, loss=write_loss)
-            for agent in env.agents
-        }
         self._preset = preset
-        self._agent = multiagent(env, self._writers)
+        self._agent = self._preset.agent(writer=self._writer, train_steps=train_steps)
         self._env = env
         self._render = render
         self._frame = 1
@@ -57,13 +54,17 @@ class MultiagentEnvExperiment():
         start_frame = self._frame
 
         # initialize the episode
-        state = self._env.reset()
+        self._env.reset()
         returns = {agent : 0 for agent in self._env.agents}
 
         for agent in self._env.agent_iter():
+            state = self._env.last()
             returns[agent] += state.reward
-            action = self._agent.act(agent, state)
-            state = self._env.step(action)
+            action = self._agent.act(state)
+            if state.done:
+                self._env.step(None)
+            else:
+                self._env.step(action)
             self._frame += 1
 
         # stop the timer
@@ -80,7 +81,7 @@ class MultiagentEnvExperiment():
         print('returns: {}'.format(returns))
         print('fps: {}'.format(fps))
         for agent in self._env.agents:
-            self._writers[agent].add_evaluation('returns/frame', returns[agent], step="frame")
+            self._writer.add_evaluation('{}/returns/frame'.format(agent), returns[agent], step="frame")
 
     def _run_test_episode(self):
         # initialize the episode

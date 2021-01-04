@@ -3,7 +3,9 @@ import numpy as np
 import torch
 from pettingzoo import atari
 from supersuit import resize_v0, frame_skip_v0, frame_stack_v0, sticky_actions_v0, color_reduction_v0
-from all.core import State
+from supersuit.gym_wrappers import BasicObservationWrapper
+from all.core import MultiAgentState
+
 
 
 class MultiAgentAtariEnv():
@@ -11,6 +13,8 @@ class MultiAgentAtariEnv():
         env = importlib.import_module('pettingzoo.atari.{}'.format(env_name)).env(obs_type='grayscale_image')
         env = frame_skip_v0(env, 4)
         env = resize_v0(env, 84, 84)
+        # env = expand_dims(env, 0)
+        env.reset()
         self._env = env
         self.name = env_name
         self.device = device
@@ -21,17 +25,18 @@ class MultiAgentAtariEnv():
         }
 
     def reset(self):
-        observation = self._env.reset()
-        state = State.from_gym((observation.reshape((1, 84, 84),)), device=self.device, dtype=np.uint8)
-        return state
+        self._env.reset()
+        return self.last()
 
     def step(self, action):
+        if action is None:
+            self._env.step(action)
+            return
         if torch.is_tensor(action):
-            observation = self._env.step(action.item())
+            self._env.step(action.item())
         else:
-            observation = self._env.step(action)
-        reward, done, info = self._env.last()
-        return State.from_gym((observation.reshape((1, 84, 84)), reward, done, info), device='cuda', dtype=np.uint8)
+            self._env.step(action)
+        return self.last()
 
     def agent_iter(self):
         return self._env.agent_iter()
@@ -47,6 +52,15 @@ class MultiAgentAtariEnv():
     @property
     def action_spaces(self):
         return self._env.action_spaces
+
+    def is_done(self, agent):
+        return self._env.dones[agent]
+
+    def last(self):
+        observation, reward, done, info = self._env.last()
+        observation = np.expand_dims(observation, 0)
+        return MultiAgentState.from_zoo(self._env.agent_selection, (observation, reward, done, info), device='cuda', dtype=np.uint8)
+
 
 class SubEnv():
     def __init__(self, name, device, state_space, action_space):
