@@ -388,6 +388,10 @@ class MultiAgentState(State):
             raise Exception('MultiAgentState must contain an agent ID')
         super().__init__(x, device=device, **kwargs)
 
+    @property
+    def agent(self):
+        return self['agent']
+
     @classmethod
     def from_zoo(cls, agent, state, device='cpu', dtype=np.float32):
         """

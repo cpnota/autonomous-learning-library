@@ -1,18 +1,13 @@
 import importlib
 import numpy as np
 import torch
-from pettingzoo import atari
-from supersuit import resize_v0, frame_skip_v0, frame_stack_v0, sticky_actions_v0, color_reduction_v0
-from supersuit.gym_wrappers import BasicObservationWrapper
+import gym
 from all.core import MultiAgentState
-
 
 
 class MultiAgentAtariEnv():
     def __init__(self, env_name, device='cuda'):
-        env = importlib.import_module('pettingzoo.atari.{}'.format(env_name)).env(obs_type='grayscale_image')
-        env = frame_skip_v0(env, 4)
-        env = resize_v0(env, 84, 84)
+        env = self._load_env(env_name)
         # env = expand_dims(env, 0)
         env.reset()
         self._env = env
@@ -43,11 +38,11 @@ class MultiAgentAtariEnv():
 
     @property
     def state_spaces(self):
-        return self._env.observation_spaces
+        return { agent: gym.spaces.Box(0, 255, (1, 84, 84), np.uint8) for agent in self._env.possible_agents}
 
     @property
     def observation_spaces(self):
-        return self._env.observation_spaces
+        return self.state_spaces
 
     @property
     def action_spaces(self):
@@ -64,6 +59,13 @@ class MultiAgentAtariEnv():
         observation = np.expand_dims(observation, 0)
         return MultiAgentState.from_zoo(self._env.agent_selection, (observation, reward, done, info), device='cuda', dtype=np.uint8)
 
+    def _load_env(self, env_name):
+        from pettingzoo import atari
+        from supersuit import resize_v0, frame_skip_v0
+        env = importlib.import_module('pettingzoo.atari.{}'.format(env_name)).env(obs_type='grayscale_image')
+        env = frame_skip_v0(env, 4)
+        env = resize_v0(env, 84, 84)
+        return env
 
 class SubEnv():
     def __init__(self, name, device, state_space, action_space):
