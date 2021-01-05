@@ -13,15 +13,17 @@ class MultiagentEnvExperiment():
             train_steps=float('inf'),
             render=False,
             quiet=False,
-            write_loss=True
+            write_loss=True,
+            save_freq=100,
     ):
         self._writer = ExperimentWriter(self, name, env.name, loss=write_loss)
         self._preset = preset
         self._agent = self._preset.agent(writer=self._writer, train_steps=train_steps)
         self._env = env
         self._render = render
-        self._frame = 1
-        self._episode = 1
+        self._frame = 0
+        self._episode = 0
+        self._save_freq = 100
 
         if render:
             self._env.render()
@@ -73,10 +75,8 @@ class MultiagentEnvExperiment():
         end_time = timer()
         fps = (self._frame - start_frame) / (end_time - start_time)
 
-        # log the results
         self._log_training_episode(returns, fps)
-
-        # update experiment state
+        self._save_model()
         self._episode += 1
 
     def _log_training_episode(self, returns, fps):
@@ -103,6 +103,10 @@ class MultiagentEnvExperiment():
 
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes
+
+    def _save_model(self):
+        if self._episode % self._save_freq == 0:
+            self._preset.save('{}/preset.pt'.format(self._writer.log_dir))
 
     def _make_writer(self, agent_name, env_name, write_loss):
         return ExperimentWriter(self, agent_name, env_name, loss=write_loss)
