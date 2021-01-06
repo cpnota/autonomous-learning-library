@@ -6,7 +6,7 @@ from all.core import MultiAgentState
 from ._multiagent_environment import MultiagentEnvironment
 
 
-class MultiagentAtariEnv():
+class MultiagentAtariEnv(MultiagentEnvironment):
     '''
     A wrapper for PettingZoo Atari environments (see: https://www.pettingzoo.ml/atari).
 
@@ -19,11 +19,10 @@ class MultiagentAtariEnv():
     '''
     def __init__(self, env_name, device='cuda'):
         env = self._load_env(env_name)
-        # env = expand_dims(env, 0)
         env.reset()
         self._env = env
-        self.name = env_name
-        self.device = device
+        self._name = env_name
+        self._device = device
         self.agents = self._env.agents
         self.subenvs = {
             agent : SubEnv(agent, device, self.state_spaces[agent], self.action_spaces[agent])
@@ -59,8 +58,30 @@ class MultiagentAtariEnv():
             self._env.step(action)
         return self.last()
 
+    def render(self, mode='human'):
+        return self._env.render(mode=mode)
+
+    def close(self):
+        self._env.close()
+
     def agent_iter(self):
         return self._env.agent_iter()
+
+    def is_done(self, agent):
+        return self._env.dones[agent]
+
+    def last(self):
+        observation, reward, done, info = self._env.last()
+        observation = np.expand_dims(observation, 0)
+        return MultiAgentState.from_zoo(self._env.agent_selection, (observation, reward, done, info), device='cuda', dtype=np.uint8)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def device(self):
+        return self._device
 
     @property
     def state_spaces(self):
@@ -73,17 +94,6 @@ class MultiagentAtariEnv():
     @property
     def action_spaces(self):
         return self._env.action_spaces
-
-    def render(self, mode='human'):
-        return self._env.render(mode=mode)
-
-    def is_done(self, agent):
-        return self._env.dones[agent]
-
-    def last(self):
-        observation, reward, done, info = self._env.last()
-        observation = np.expand_dims(observation, 0)
-        return MultiAgentState.from_zoo(self._env.agent_selection, (observation, reward, done, info), device='cuda', dtype=np.uint8)
 
     def _load_env(self, env_name):
         from pettingzoo import atari
