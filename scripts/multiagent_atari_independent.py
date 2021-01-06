@@ -1,5 +1,5 @@
 import argparse
-from all.environments import MultiAgentAtariEnv
+from all.environments import MultiagentAtariEnv
 from all.experiments.multiagent_env_experiment import MultiagentEnvExperiment
 from all.presets import atari
 from all.presets.multiagent_atari import IndependentMultiagentAtariPreset
@@ -34,7 +34,7 @@ def main():
     )
     args = parser.parse_args()
 
-    env = MultiAgentAtariEnv(args.env, device=args.device)
+    env = MultiagentAtariEnv(args.env, device=args.device)
 
     presets = {
         agent_id : getattr(atari, agent_type)().hyperparameters(replay_buffer_size=args.replay_buffer_size).device(args.device).env(

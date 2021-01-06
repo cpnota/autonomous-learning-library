@@ -1,5 +1,5 @@
 import argparse
-from all.environments import MultiAgentAtariEnv
+from all.environments import MultiagentAtariEnv
 from all.experiments.multiagent_env_experiment import MultiagentEnvExperiment
 from all.presets import multiagent_atari
 
@@ -22,7 +22,7 @@ def main():
     )
     args = parser.parse_args()
 
-    env = MultiAgentAtariEnv(args.env, device=args.device)
+    env = MultiagentAtariEnv(args.env, device=args.device)
     agent_name = args.agent
     agent = getattr(multiagent_atari, agent_name)
     experiment = MultiagentEnvExperiment(agent(device=args.device), env, write_loss=False)

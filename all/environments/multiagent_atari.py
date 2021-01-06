@@ -3,9 +3,10 @@ import numpy as np
 import torch
 import gym
 from all.core import MultiAgentState
+from ._multiagent_environment import MultiagentEnvironment
 
 
-class MultiAgentAtariEnv():
+class MultiagentAtariEnv():
     '''
     A wrapper for PettingZoo Atari environments (see: https://www.pettingzoo.ml/atari).
 
@@ -58,59 +59,27 @@ class MultiAgentAtariEnv():
             self._env.step(action)
         return self.last()
 
-    '''
-    Create an iterable which that the next element is always the name of the agent whose turn it is to act.
-
-    Returns:
-        An Iterable over Agent strings.
-    '''
     def agent_iter(self):
         return self._env.agent_iter()
 
-    '''A dictionary of state spaces for each agent.'''
     @property
     def state_spaces(self):
         return { agent: gym.spaces.Box(0, 255, (1, 84, 84), np.uint8) for agent in self._env.possible_agents}
 
-    '''Alias for state_spaces property.'''
     @property
     def observation_spaces(self):
         return self.state_spaces
 
-    '''A dictionary of action spaces for each agent.'''
     @property
     def action_spaces(self):
         return self._env.action_spaces
 
-    '''
-    Render the environment.
-
-    Args:
-        mode (str, optional): The render mode (default: 'human')
-    '''
     def render(self, mode='human'):
         return self._env.render(mode=mode)
 
-
-    '''
-    Determine whether a given agent is done.
-    
-    Args:
-        agent (str): The name of the agent.
-
-    Returns:
-        A boolean representing whether the given agent is done.
-    '''
     def is_done(self, agent):
         return self._env.dones[agent]
 
-
-    '''
-    Get the MultiagentState object for the current agent.
-
-    Returns:
-        The all.core.MultiagentState object for the current agent.
-    '''
     def last(self):
         observation, reward, done, info = self._env.last()
         observation = np.expand_dims(observation, 0)

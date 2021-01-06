@@ -2,7 +2,7 @@ import argparse
 import time
 import torch
 from all.bodies import DeepmindAtariBody
-from all.environments import MultiAgentAtariEnv
+from all.environments import MultiagentAtariEnv
 from all.experiments import load_and_watch
 
 def watch(env, filename, fps, reload):
@@ -49,7 +49,7 @@ def main():
         action="store_true", default=False, help="Reload the model from disk after every episode"
     )
     args = parser.parse_args()
-    env = MultiAgentAtariEnv(args.env, device=args.device)
+    env = MultiagentAtariEnv(args.env, device=args.device)
     watch(env, args.filename, args.fps, args.reload)
 
 
