@@ -23,14 +23,16 @@ class MultiagentEnvExperiment():
             preset,
             env,
             logdir='runs',
-            name='multi',
+            name=None,
             quiet=False,
             render=False,
             save_freq=100,
             train_steps=float('inf'),
             write_loss=True,
     ):
-        self._agent = self._preset.agent(writer=self._writer, train_steps=train_steps)
+        self._name = name if name is not None else preset.__class__.__name__
+        self._writer = self._make_writer(self._name, env.name, write_loss, logdir)
+        self._agent = preset.agent(writer=self._writer, train_steps=train_steps)
         self._env = env
         self._episode = 0
         self._frame = 0
@@ -38,7 +40,6 @@ class MultiagentEnvExperiment():
         self._preset = preset
         self._render = render
         self._save_freq = 100
-        self._writer = ExperimentWriter(self, name, env.name, loss=write_loss, logdir=logdir)
 
         if render:
             self._env.render()
@@ -141,5 +142,5 @@ class MultiagentEnvExperiment():
         if self._episode % self._save_freq == 0:
             self._preset.save('{}/preset.pt'.format(self._writer.log_dir))
 
-    def _make_writer(self, agent_name, env_name, write_loss):
-        return ExperimentWriter(self, agent_name, env_name, loss=write_loss)
+    def _make_writer(self, agent_name, env_name, write_loss, logdir):
+        return ExperimentWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
