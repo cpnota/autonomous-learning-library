@@ -6,6 +6,16 @@ from all.core import MultiAgentState
 
 
 class MultiAgentAtariEnv():
+    '''
+    A wrapper for PettingZoo Atari environments (see: https://www.pettingzoo.ml/atari).
+
+    This wrapper converts the output of the PettingZoo environment to PyTorch tensors,
+    and wraps them in a State object that can be passed to an Agent.
+
+    Args:
+        env_name (string): A string representing the name of the environment (e.g. pong-v1)
+        device (optional): the device on which tensors will be stored
+    '''
     def __init__(self, env_name, device='cuda'):
         env = self._load_env(env_name)
         # env = expand_dims(env, 0)
@@ -19,10 +29,25 @@ class MultiAgentAtariEnv():
             for agent in self.agents
         }
 
+    '''
+    Reset the environment and return a new intial state.
+
+    Returns:
+        An initial MultiagentState object.
+    '''
     def reset(self):
         self._env.reset()
         return self.last()
 
+    '''
+    Reset the environment and return a new intial state.
+
+    Args:
+        action (int): An int or tensor containing a single integer representing the action.
+
+    Returns:
+        The MultiagentState object for the next agent
+    '''
     def step(self, action):
         if action is None:
             self._env.step(action)
@@ -33,27 +58,59 @@ class MultiAgentAtariEnv():
             self._env.step(action)
         return self.last()
 
+    '''
+    Create an iterable which that the next element is always the name of the agent whose turn it is to act.
+
+    Returns:
+        An Iterable over Agent strings.
+    '''
     def agent_iter(self):
         return self._env.agent_iter()
 
+    '''A dictionary of state spaces for each agent.'''
     @property
     def state_spaces(self):
         return { agent: gym.spaces.Box(0, 255, (1, 84, 84), np.uint8) for agent in self._env.possible_agents}
 
+    '''Alias for state_spaces property.'''
     @property
     def observation_spaces(self):
         return self.state_spaces
 
+    '''A dictionary of action spaces for each agent.'''
     @property
     def action_spaces(self):
         return self._env.action_spaces
 
-    def render(self):
-        return self._env.render(mode='human')
+    '''
+    Render the environment.
 
+    Args:
+        mode (str, optional): The render mode (default: 'human')
+    '''
+    def render(self, mode='human'):
+        return self._env.render(mode=mode)
+
+
+    '''
+    Determine whether a given agent is done.
+    
+    Args:
+        agent (str): The name of the agent.
+
+    Returns:
+        A boolean representing whether the given agent is done.
+    '''
     def is_done(self, agent):
         return self._env.dones[agent]
 
+
+    '''
+    Get the MultiagentState object for the current agent.
+
+    Returns:
+        The all.core.MultiagentState object for the current agent.
+    '''
     def last(self):
         observation, reward, done, info = self._env.last()
         observation = np.expand_dims(observation, 0)
