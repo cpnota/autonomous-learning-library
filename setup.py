@@ -22,18 +22,17 @@ setup(
         ],
     },
     install_requires=[
-        "gym[atari,box2d]",     # common environments
+        "gym",                  # common environments
         "numpy",                # math library
         "matplotlib",           # plotting library
-        "opencv-python>=3.,<4.",# used by atari wrappers
-        "pybullet",             # continuous environments
-        "tensorboardX",         # tensorboard compatibility
+
     ],
     extras_require={
         "pytorch": [
             "torch",            # deep learning
             "torchvision",      # additional utilities
             "tensorboard"       # visualizations
+            "tensorboardX",     # tensorboard compatibility
         ],
         "docs": [
             "sphinx",
@@ -44,6 +43,11 @@ setup(
         "dev": [
             "pylint",           # code quality tool
             "torch-testing"     # pytorch assertion library
+        ]
+        "envs": [
+            "gym[atari,box2d]",     # common environments
+            "opencv-python>=3.,<4.",# used by atari wrappers
+            "pybullet",             # continuous environments
         ]
     },
 )
