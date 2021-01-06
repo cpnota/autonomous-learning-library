@@ -4,51 +4,83 @@ from .writer import ExperimentWriter
 from .experiment import Experiment
 
 class MultiagentEnvExperiment():
-    '''An Experiment object for training and testing agents that interact with one environment at a time.'''
+    '''
+    An Experiment object for training and testing Multiagents.
+    
+    Args:
+        preset (all.presets.Preset): A Multiagent preset.
+        env (all.environments.MultiagentEnvironment): A multiagent environment.
+        log_dir (str, optional): The directory in which to save the logs and model.
+        name (str, optional): The name of the experiment.
+        quiet (bool, optional): Whether or not to print training information.
+        render (bool, optional): Whether or not to render during training.
+        save_freq (int, optional): How often to save the model to disk.
+        train_steps (int, optional): The number of steps for which to train.
+        write_loss (bool, optional): Whether or not to log advanced loss information.
+    '''
     def __init__(
             self,
             preset,
             env,
+            logdir='runs',
             name='multi',
-            train_steps=float('inf'),
-            render=False,
             quiet=False,
-            write_loss=True,
+            render=False,
             save_freq=100,
+            train_steps=float('inf'),
+            write_loss=True,
     ):
-        self._writer = ExperimentWriter(self, name, env.name, loss=write_loss)
-        self._preset = preset
         self._agent = self._preset.agent(writer=self._writer, train_steps=train_steps)
         self._env = env
-        self._render = render
-        self._frame = 0
         self._episode = 0
+        self._frame = 0
+        self._logdir = logdir
+        self._preset = preset
+        self._render = render
         self._save_freq = 100
+        self._writer = ExperimentWriter(self, name, env.name, loss=write_loss, logdir=logdir)
 
         if render:
             self._env.render()
 
+    '''
+    Train the Multiagent for a certain number of frames or episodes.
+    If both frames and episodes are specified, then the training loop will exit
+    when either condition is satisfied.
+
+    Args:
+        frames (int): The maximum number of training frames.
+        episodes (bool): The maximum number of training episodes.
+
+    Returns:
+        MultiagentEnvExperiment: The experiment object.
+    '''
+    def train(self, frames=np.inf, episodes=np.inf):
+        while not self._done(frames, episodes):
+            self._run_training_episode()
+        return self
+
+    '''
+    Test the agent in eval mode for a certain number of episodes.
+
+    Args:
+        episodes (int): The number of test epsiodes.
+
+    Returns:
+        list(float): A list of all returns received during testing.
+    '''
+    def test(self, episodes=100):
+        pass
+
+    '''int: The number of completed training frames'''
     @property
     def frame(self):
         return self._frame
 
+    '''int: The number of completed training episodes'''
     @property
     def episode(self):
         return self._episode
-
-    def train(self, frames=np.inf, episodes=np.inf):
-        while not self._done(frames, episodes):
-            self._run_training_episode()
-
-    def test(self, episodes=100):
-        pass
-        # returns = []
-        # for episode in range(episodes):
-        #     episode_return = self._run_test_episode()
-        #     returns.append(episode_return)
-        #     self._log_test_episode(episode, episode_return)
-        # self._log_test(returns)
-        # return returns
 
     def _run_training_episode(self):
         # initialize timer
@@ -75,6 +107,7 @@ class MultiagentEnvExperiment():
         end_time = timer()
         fps = (self._frame - start_frame) / (end_time - start_time)
 
+        # finalize the episode
         self._log_training_episode(returns, fps)
         self._save_model()
         self._episode += 1

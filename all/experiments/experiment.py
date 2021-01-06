@@ -20,16 +20,6 @@ class Experiment(ABC):
         self._best_returns = -np.inf
         self._returns100 = []
 
-    @property
-    @abstractmethod
-    def frame(self):
-        '''The index of the current training frame.'''
-
-    @property
-    @abstractmethod
-    def episode(self):
-        '''The index of the current training episode'''
-
     @abstractmethod
     def train(self, frames=np.inf, episodes=np.inf):
         '''
@@ -53,6 +43,16 @@ class Experiment(ABC):
         Returns:
             list(float): A list of all returns received during testing.
         '''
+
+    @property
+    @abstractmethod
+    def frame(self):
+        '''The index of the current training frame.'''
+
+    @property
+    @abstractmethod
+    def episode(self):
+        '''The index of the current training episode'''
 
     def _log_training_episode(self, returns, fps):
         if not self._quiet:
