@@ -1,4 +1,8 @@
-from .independent import IndependentMultiagentAtariPreset
+from .independent import IndependentMultiagentPreset
+from .parameter_sharing import ParameterSharingMultiagentPreset
 
 
-__all__ = ["IndependentMultiagentAtariPreset"]
+__all__ = [
+    "IndependentMultiagentPreset",
+    "ParameterSharingMultiagentPreset",
+]
