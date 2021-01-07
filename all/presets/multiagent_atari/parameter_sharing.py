@@ -2,7 +2,18 @@ from ..builder import preset_builder
 from ..preset import Preset
 from all.agents.multi.independent import IndependentMultiagent
 from all.logging import DummyWriter
+from all.agents import Agent
 import copy
+
+
+def copy_agent(object):
+    if isinstance(object, Agent):
+        agent = copy.copy(object)
+        for name, var in agent.__dict__.items():
+            agent.__dict__[name] = copy_agent(var)
+        return agent
+    else:
+        return object
 
 
 class ParameterSharingMultiagentPreset(Preset):
@@ -13,7 +24,7 @@ class ParameterSharingMultiagentPreset(Preset):
     there is no guarentee and should only be used when the implications are understood.
 
     In particular, in the currently implementation schedules may not work as expected
-    as the schedule count will be shared between agents. 
+    as the schedule count will be shared between agents.
     '''
     def __init__(self, preset, agent_names):
         self.preset = preset
@@ -24,13 +35,13 @@ class ParameterSharingMultiagentPreset(Preset):
         # independently learn with shallow copies of the agents
         # the shallow copy ensures that agents use the same replay buffer and networks
         return IndependentMultiagent({
-            agent_id : copy.copy(base_agent)
+            agent_id : copy_agent(base_agent)
             for agent_id in self.agent_names
         })
 
     def test_agent(self):
         base_agent = self.preset.test_agent()
         return IndependentMultiagent({
-            agent_id : copy.copy(base_agent)
+            agent_id : copy_agent(base_agent)
             for agent_id in self.agent_names
         })
