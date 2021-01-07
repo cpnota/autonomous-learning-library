@@ -6,7 +6,7 @@ from .experiment import Experiment
 class MultiagentEnvExperiment():
     '''
     An Experiment object for training and testing Multiagents.
-    
+
     Args:
         preset (all.presets.Preset): A Multiagent preset.
         env (all.environments.MultiagentEnvironment): A multiagent environment.
@@ -30,7 +30,6 @@ class MultiagentEnvExperiment():
             train_steps=float('inf'),
             write_loss=True,
     ):
-        self._agent = self._preset.agent(writer=self._writer, train_steps=train_steps)
         self._env = env
         self._episode = 0
         self._frame = 0
@@ -39,6 +38,7 @@ class MultiagentEnvExperiment():
         self._render = render
         self._save_freq = 100
         self._writer = ExperimentWriter(self, name, env.name, loss=write_loss, logdir=logdir)
+        self._agent = self._preset.agent(writer=self._writer, train_steps=train_steps)
 
         if render:
             self._env.render()
@@ -120,17 +120,21 @@ class MultiagentEnvExperiment():
 
     def _run_test_episode(self):
         # initialize the episode
-        state = self._env.reset()
+        self._env.reset()
         action = self._agent.eval(state)
         returns = 0
 
         # loop until the episode is finished
-        while not state.done:
+        for agent in self._env.agent_iter():
             if self._render:
                 self._env.render()
-            state = self._env.step(action)
-            action = self._agent.eval(state)
+            state = self._env.last()
             returns += state.reward
+            action = self._agent.act(state)
+            if state.done:
+                self._env.step(None)
+            else:
+                self._env.step(action)
 
         return returns
 

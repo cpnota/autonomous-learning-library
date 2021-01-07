@@ -1,5 +1,5 @@
-from all.agents.multi import *
-import all.agents.multi as multi
+from .multi import *
+from . import multi
 from ._agent import Agent
 from .a2c import A2C, A2CTestAgent
 from .c51 import C51, C51TestAgent
