@@ -3,7 +3,7 @@ import numpy as np
 from .writer import ExperimentWriter
 from .experiment import Experiment
 
-class MultiagentEnvExperiment():
+class MultiagentEnvExperiment(Experiment):
     '''
     An Experiment object for training and testing Multiagents.
 
@@ -30,6 +30,8 @@ class MultiagentEnvExperiment():
             train_steps=float('inf'),
             write_loss=True,
     ):
+        self._name = name if name is not None else preset.__class__.__name__
+        super().__init__(self._make_writer(logdir, self._name, env.name, write_loss), quiet)
         self._env = env
         self._episode = 0
         self._frame = 0
@@ -70,7 +72,14 @@ class MultiagentEnvExperiment():
         list(float): A list of all returns received during testing.
     '''
     def test(self, episodes=100):
-        pass
+        test_agent = self._preset.test_agent()
+        returns = []
+        for episode in range(episodes):
+            episode_return = self._run_test_episode(test_agent)
+            returns.append(episode_return)
+            self._log_test_episode(episode, episode_return)
+        self._log_test(returns)
+        return returns
 
     '''int: The number of completed training frames'''
     @property
@@ -118,10 +127,9 @@ class MultiagentEnvExperiment():
         for agent in self._env.agents:
             self._writer.add_evaluation('{}/returns/frame'.format(agent), returns[agent], step="frame")
 
-    def _run_test_episode(self):
+    def _run_test_episode(self, test_agent):
         # initialize the episode
         self._env.reset()
-        action = self._agent.eval(state)
         returns = 0
 
         # loop until the episode is finished
@@ -130,7 +138,7 @@ class MultiagentEnvExperiment():
                 self._env.render()
             state = self._env.last()
             returns += state.reward
-            action = self._agent.act(state)
+            action = test_agent.act(state)
             if state.done:
                 self._env.step(None)
             else:
@@ -145,5 +153,5 @@ class MultiagentEnvExperiment():
         if self._episode % self._save_freq == 0:
             self._preset.save('{}/preset.pt'.format(self._writer.log_dir))
 
-    def _make_writer(self, agent_name, env_name, write_loss):
-        return ExperimentWriter(self, agent_name, env_name, loss=write_loss)
+    def _make_writer(self, logdir, agent_name, env_name, write_loss):
+        return ExperimentWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
