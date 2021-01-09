@@ -52,7 +52,7 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
         torch.manual_seed(0)
-        self.env = MultiagentAtariEnv('pong_v1')
+        self.env = MultiagentAtariEnv('pong_v1', device='cpu')
         self.env.seed(0)
         self.experiment = None
 
@@ -83,14 +83,10 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         experiment._writer.data = {}
         experiment.test(episodes=3)
         self.assertEqual(experiment._writer.data, {
-            'evaluation/first_0/returns/frame': {
-                'steps': [2716, 4314, 7766, 10708],
-                'values': [-10.0, 21.0, -2.0, 10.0]
-            },
-            'evaluation/second_0/returns/frame': {
-                'steps': [2716, 4314, 7766, 10708],
-                'values': [10.0, -21.0, 2.0, -10.0]
-            }
+            'evaluation/first_0/returns-test/mean': {'steps': [15088], 'values': [21.0]},
+            'evaluation/first_0/returns-test/std': {'steps': [15088], 'values': [0.0]},
+            'evaluation/second_0/returns-test/mean': {'steps': [15088], 'values': [-21.0]},
+            'evaluation/second_0/returns-test/std': {'steps': [15088], 'values': [0.0]},
         })
 
     def test_writes_loss(self):

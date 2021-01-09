@@ -38,6 +38,7 @@ class MultiagentEnvExperiment():
         self._frame = 0
         self._logdir = logdir
         self._preset = preset
+        self._quiet = quiet
         self._render = render
         self._save_freq = 100
 
@@ -71,7 +72,18 @@ class MultiagentEnvExperiment():
         list(float): A list of all returns received during testing.
     '''
     def test(self, episodes=100):
-        pass
+        test_agent = self._preset.test_agent()
+        returns = {}
+        for episode in range(episodes):
+            episode_returns = self._run_test_episode(test_agent)
+            for agent, r in episode_returns.items():
+                if agent in returns:
+                    returns[agent].append(r)
+                else:
+                    returns[agent] = [r]
+            self._log_test_episode(episode, episode_returns)
+        self._log_test(returns)
+        return returns
 
     '''int: The number of completed training frames'''
     @property
@@ -113,30 +125,43 @@ class MultiagentEnvExperiment():
         self._save_model()
         self._episode += 1
 
-    def _log_training_episode(self, returns, fps):
-        print('returns: {}'.format(returns))
-        print('fps: {}'.format(fps))
-        for agent in self._env.agents:
-            self._writer.add_evaluation('{}/returns/frame'.format(agent), returns[agent], step="frame")
+    def _run_test_episode(self, test_agent):
+        self._env.reset()
+        returns = {agent : 0 for agent in self._env.agents}
 
-    def _run_test_episode(self):
-        # initialize the episode
-        state = self._env.reset()
-        action = self._agent.eval(state)
-        returns = 0
-
-        # loop until the episode is finished
-        while not state.done:
+        for agent in self._env.agent_iter():
             if self._render:
                 self._env.render()
-            state = self._env.step(action)
-            action = self._agent.eval(state)
-            returns += state.reward
+            state = self._env.last()
+            returns[agent] += state.reward
+            action = test_agent.act(state)
+            if state.done:
+                self._env.step(None)
+            else:
+                self._env.step(action)
+            self._frame += 1
 
         return returns
 
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes
+
+    def _log_training_episode(self, returns, fps):
+        if not self._quiet:
+            print('returns: {}'.format(returns))
+            print('fps: {}'.format(fps))
+        for agent in self._env.agents:
+            self._writer.add_evaluation('{}/returns/frame'.format(agent), returns[agent], step="frame")
+
+    def _log_test_episode(self, episode, returns):
+        if not self._quiet:
+            print('test episode: {}, returns: {}'.format(episode, returns))
+
+    def _log_test(self, returns):
+        for agent, agent_returns in returns.items():
+            if not self._quiet:
+                print('{} test returns (mean ± sem): {} ± {}'.format(agent, np.mean(agent_returns), stats.sem(agent_returns)))
+            self._writer.add_summary('{}/returns-test'.format(agent), np.mean(agent_returns), np.std(agent_returns))
 
     def _save_model(self):
         if self._episode % self._save_freq == 0:

@@ -73,7 +73,12 @@ class MultiagentAtariEnv(MultiagentEnvironment):
     def last(self):
         observation, reward, done, info = self._env.last()
         observation = np.expand_dims(observation, 0)
-        return MultiAgentState.from_zoo(self._env.agent_selection, (observation, reward, done, info), device='cuda', dtype=np.uint8)
+        return MultiAgentState.from_zoo(
+            self._env.agent_selection,
+            (observation, reward, done, info),
+            device=self._device,
+            dtype=np.uint8
+        )
 
     def seed(self, seed):
         self._env.seed(seed)
