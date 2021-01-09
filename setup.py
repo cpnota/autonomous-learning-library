@@ -12,6 +12,10 @@ extras = {
     "pybullet": [
         "pybullet>=3.0.6",            # open-source robotics environments
     ],
+    "ma-atari": [
+        "PettingZoo[atari]>=1.5.0",   # Multiagent atari environments
+        "supersuit>=2.3.0",           # Multiagent env wrappers
+    ],
     "test": [
         "flake8>=3.8",                # linter for pep8 compliance
         "autopep8>=1.5",              # automatically fixes some pep8 errors
@@ -25,7 +29,7 @@ extras = {
     ]
 }
 
-extras["all"] = extras["atari"]  + extras["box2d"] + extras["pybullet"]
+extras["all"] = extras["atari"]  + extras["box2d"] + extras["pybullet"] + extras["ma-atari"]
 extras["dev"] = extras["all"] + extras["test"] + extras["docs"]
 
 setup(

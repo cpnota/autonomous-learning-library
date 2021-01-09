@@ -26,7 +26,7 @@ def main():
     agent_name = args.agent
     agent = getattr(multiagent_atari, agent_name)
     experiment = MultiagentEnvExperiment(agent(device=args.device), env, write_loss=False)
-    experiment.train()
+    experiment.train(frames=args.frames)
 
 if __name__ == "__main__":
     main()
