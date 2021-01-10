@@ -2,6 +2,7 @@ import gym
 import torch
 from all.core import State
 from .abstract import Environment
+import cloudpickle
 gym.logger.set_level(40)
 
 
@@ -63,7 +64,7 @@ class GymEnvironment(Environment):
         self._env.seed(seed)
 
     def duplicate(self, n):
-        return [GymEnvironment(self._name, device=self.device) for _ in range(n)]
+        return [GymEnvironment(cloudpickle.loads(cloudpickle.dumps(self._env)), device=self.device) for _ in range(n)]
 
     @property
     def state_space(self):

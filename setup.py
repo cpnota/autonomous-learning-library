@@ -57,6 +57,7 @@ setup(
         "torch~=1.5.1",            # core deep learning library
         "tensorboard>=2.3.0",      # logging and visualization
         "tensorboardX>=2.1.0",     # tensorboard/pytorch compatibility
+        "cloudpickle",             # used to copy environments
     ],
     extras_require=extras
 )
