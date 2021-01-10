@@ -41,11 +41,11 @@ class FeatureNetwork(Approximation):
         '''
         Backward pass of the model.
         '''
-        try:
+        if self.model.requires_grad:
             graphs, grads = self._dequeue()
             graphs.backward(grads)
             self.step()
-        except:
+        else:
             pass
 
     def _enqueue(self, features, out):
