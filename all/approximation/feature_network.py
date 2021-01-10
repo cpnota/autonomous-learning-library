@@ -1,6 +1,5 @@
 import torch
 from .approximation import Approximation
-import warnings
 
 
 class FeatureNetwork(Approximation):
@@ -42,13 +41,10 @@ class FeatureNetwork(Approximation):
         '''
         Backward pass of the model.
         '''
-        if self.model.requires_grad:
-            graphs, grads = self._dequeue()
+        graphs, grads = self._dequeue()
+        if graphs.requires_grad:
             graphs.backward(grads)
             self.step()
-        else:
-            warnings.warn('Non-differentiable feature network, treating network as pass through')
-            pass
 
     def _enqueue(self, features, out):
         self._cache.append(features)

@@ -70,10 +70,11 @@ class TestFeatureNetwork(unittest.TestCase):
         y = features(x)
         tt.assert_equal(y.observation, x.observation)
 
-        # backward pass shouldn't crash
+        # backward pass shouldn't raise exception
         loss = y.observation.sum()
         loss.backward()
         features.reinforce()
+
 
 if __name__ == "__main__":
     unittest.main()
