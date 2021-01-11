@@ -43,7 +43,7 @@ class MockWriter(Writer):
 
 
 class MockExperiment(MultiagentEnvExperiment):
-    def _make_writer(self, agent_name, env_name, write_loss, logdir):
+    def _make_writer(self, logdir, agent_name, env_name, write_loss):
         self._writer = MockWriter(self, agent_name + '_' + env_name, write_loss)
         return self._writer
 
