@@ -43,7 +43,7 @@ class MultiagentEnvExperiment():
         self._preset = preset
         self._quiet = quiet
         self._render = render
-        self._save_freq = 100
+        self._save_freq = save_freq
 
         if render:
             self._env.render()
@@ -169,7 +169,7 @@ class MultiagentEnvExperiment():
             self._writer.add_summary('{}/returns-test'.format(agent), np.mean(agent_returns), np.std(agent_returns))
 
     def _save_model(self):
-        if self._episode % self._save_freq == 0:
+        if self._save_freq != float('inf') and self._episode % self._save_freq == 0:
             self._preset.save('{}/preset.pt'.format(self._writer.log_dir))
 
     def _make_writer(self, logdir, agent_name, env_name, write_loss):

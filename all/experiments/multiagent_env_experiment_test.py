@@ -57,15 +57,15 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         self.experiment = None
 
     def test_adds_default_name(self):
-        experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
         self.assertEqual(experiment._writer.label, "IndependentMultiagentAtariPreset_pong_v1")
 
     def test_adds_custom_name(self):
-        experiment = MockExperiment(self.make_preset(), self.env, name='custom', quiet=True)
+        experiment = MockExperiment(self.make_preset(), self.env, name='custom', quiet=True, save_freq=float('inf'))
         self.assertEqual(experiment._writer.label, "custom_pong_v1")
 
     def test_writes_training_returns(self):
-        experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
         experiment.train(episodes=3)
         self.assertEqual(experiment._writer.data, {
             'evaluation/first_0/returns/frame': {
@@ -78,7 +78,7 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         })
 
     def test_writes_test_returns(self):
-        experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
         experiment.train(episodes=3)
         experiment._writer.data = {}
         experiment.test(episodes=3)
@@ -90,9 +90,9 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         })
 
     def test_writes_loss(self):
-        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=True)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=True, save_freq=float('inf'))
         self.assertTrue(experiment._writer.write_loss)
-        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=False)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=False, save_freq=float('inf'))
         self.assertFalse(experiment._writer.write_loss)
 
     def make_preset(self):
