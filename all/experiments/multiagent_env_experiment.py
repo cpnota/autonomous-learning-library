@@ -1,12 +1,14 @@
 from timeit import default_timer as timer
 import numpy as np
+from scipy import stats
 from .writer import ExperimentWriter
 from .experiment import Experiment
+
 
 class MultiagentEnvExperiment():
     '''
     An Experiment object for training and testing Multiagents.
-    
+
     Args:
         preset (all.presets.Preset): A Multiagent preset.
         env (all.environments.MultiagentEnvironment): A multiagent environment.
@@ -18,6 +20,7 @@ class MultiagentEnvExperiment():
         train_steps (int, optional): The number of steps for which to train.
         write_loss (bool, optional): Whether or not to log advanced loss information.
     '''
+
     def __init__(
             self,
             preset,
@@ -57,6 +60,7 @@ class MultiagentEnvExperiment():
     Returns:
         MultiagentEnvExperiment: The experiment object.
     '''
+
     def train(self, frames=np.inf, episodes=np.inf):
         while not self._done(frames, episodes):
             self._run_training_episode()
@@ -71,6 +75,7 @@ class MultiagentEnvExperiment():
     Returns:
         list(float): A list of all returns received during testing.
     '''
+
     def test(self, episodes=100):
         test_agent = self._preset.test_agent()
         returns = {}
@@ -102,7 +107,7 @@ class MultiagentEnvExperiment():
 
         # initialize the episode
         self._env.reset()
-        returns = {agent : 0 for agent in self._env.agents}
+        returns = {agent: 0 for agent in self._env.agents}
 
         for agent in self._env.agent_iter():
             if self._render:
@@ -127,7 +132,7 @@ class MultiagentEnvExperiment():
 
     def _run_test_episode(self, test_agent):
         self._env.reset()
-        returns = {agent : 0 for agent in self._env.agents}
+        returns = {agent: 0 for agent in self._env.agents}
 
         for agent in self._env.agent_iter():
             if self._render:

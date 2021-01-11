@@ -63,7 +63,7 @@ class MultiagentEnvironment(ABC):
     def is_done(self, agent):
         '''
         Determine whether a given agent is done.
-        
+
         Args:
             agent (str): The name of the agent.
 

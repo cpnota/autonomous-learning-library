@@ -17,6 +17,7 @@ class MultiagentAtariEnv(MultiagentEnvironment):
         env_name (string): A string representing the name of the environment (e.g. pong-v1)
         device (optional): the device on which tensors will be stored
     '''
+
     def __init__(self, env_name, device='cuda'):
         env = self._load_env(env_name)
         env.reset()
@@ -25,7 +26,7 @@ class MultiagentAtariEnv(MultiagentEnvironment):
         self._device = device
         self.agents = self._env.agents
         self.subenvs = {
-            agent : SubEnv(agent, device, self.state_spaces[agent], self.action_spaces[agent])
+            agent: SubEnv(agent, device, self.state_spaces[agent], self.action_spaces[agent])
             for agent in self.agents
         }
 
@@ -35,6 +36,7 @@ class MultiagentAtariEnv(MultiagentEnvironment):
     Returns:
         An initial MultiagentState object.
     '''
+
     def reset(self):
         self._env.reset()
         return self.last()
@@ -48,6 +50,7 @@ class MultiagentAtariEnv(MultiagentEnvironment):
     Returns:
         The MultiagentState object for the next agent
     '''
+
     def step(self, action):
         if action is None:
             self._env.step(action)
@@ -93,7 +96,7 @@ class MultiagentAtariEnv(MultiagentEnvironment):
 
     @property
     def state_spaces(self):
-        return { agent: gym.spaces.Box(0, 255, (1, 84, 84), np.uint8) for agent in self._env.possible_agents}
+        return {agent: gym.spaces.Box(0, 255, (1, 84, 84), np.uint8) for agent in self._env.possible_agents}
 
     @property
     def observation_spaces(self):
@@ -110,6 +113,7 @@ class MultiagentAtariEnv(MultiagentEnvironment):
         env = frame_skip_v0(env, 4)
         env = resize_v0(env, 84, 84)
         return env
+
 
 class SubEnv():
     def __init__(self, name, device, state_space, action_space):

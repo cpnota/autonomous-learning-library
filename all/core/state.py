@@ -63,7 +63,7 @@ class State(dict):
             A StateArray object.
         """
         device = list_of_states[0].device
-        shape = (len(list_of_states), *list_of_states[0].shape) 
+        shape = (len(list_of_states), *list_of_states[0].shape)
         x = {}
         for key in list_of_states[0].keys():
             v = list_of_states[0][key]
@@ -381,6 +381,7 @@ class StateArray(State):
 
     def __len__(self):
         return self.shape[0]
+
 
 class MultiAgentState(State):
     def __init__(self, x, device='cpu', **kwargs):
