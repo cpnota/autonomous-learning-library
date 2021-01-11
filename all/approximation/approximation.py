@@ -32,6 +32,8 @@ class Approximation():
                 gradient to this value in order prevent large updates and
                 improve stability.
                 See torch.nn.utils.clip_grad.
+            device (string, optional): The device that the model is on. If none is passed,
+                the device will be automatically determined based on model.parameters()
             loss_scaling (float, optional): Multiplies the loss by this value before
                 performing a backwards pass. Useful when used with multi-headed networks
                 with shared feature layers.
@@ -54,6 +56,7 @@ class Approximation():
             optimizer=None,
             checkpointer=None,
             clip_grad=0,
+            device=None,
             loss_scaling=1,
             name='approximation',
             scheduler=None,
@@ -61,7 +64,7 @@ class Approximation():
             writer=DummyWriter(),
     ):
         self.model = model
-        self.device = next(model.parameters()).device
+        self.device = device if device else next(model.parameters()).device
         self._target = target or TrivialTarget()
         self._scheduler = scheduler
         self._target.init(model)

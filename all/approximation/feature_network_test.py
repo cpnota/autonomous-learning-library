@@ -60,6 +60,21 @@ class TestFeatureNetwork(unittest.TestCase):
         tt.assert_almost_equal(actual.observation, expected.observation, decimal=2)
         tt.assert_equal(actual.mask, expected.mask)
 
+    def test_identity_features(self):
+        model = nn.Sequential(nn.Identity())
+        optimizer = torch.optim.SGD(self.model.parameters(), lr=0.1)
+        features = FeatureNetwork(model, optimizer, device='cpu')
+
+        # forward pass
+        x = State({'observation': torch.tensor([1., 2., 3.])})
+        y = features(x)
+        tt.assert_equal(y.observation, x.observation)
+
+        # backward pass shouldn't raise exception
+        loss = y.observation.sum()
+        loss.backward()
+        features.reinforce()
+
 
 if __name__ == "__main__":
     unittest.main()
