@@ -84,7 +84,7 @@ class DQNTestAgent(Agent):
     def __init__(self, q, n_actions, exploration=0.):
         self.q = q
         self.n_actions = n_actions
-        self.exploration = exploration
+        self.exploration = 0.001
 
     def act(self, state):
         if np.random.rand() < self.exploration:

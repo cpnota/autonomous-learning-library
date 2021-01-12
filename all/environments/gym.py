@@ -1,7 +1,7 @@
 import gym
 import torch
 from all.core import State
-from .abstract import Environment
+from ._environment import Environment
 import cloudpickle
 gym.logger.set_level(40)
 

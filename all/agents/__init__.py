@@ -1,3 +1,4 @@
+from .multi import Multiagent, IndependentMultiagent
 from ._agent import Agent
 from .a2c import A2C, A2CTestAgent
 from .c51 import C51, C51TestAgent
@@ -12,7 +13,9 @@ from .vpg import VPG, VPGTestAgent
 from .vqn import VQN, VQNTestAgent
 from .vsarsa import VSarsa, VSarsaTestAgent
 
+
 __all__ = [
+    # single agents
     "Agent",
     "A2C",
     "A2CTestAgent",
@@ -37,5 +40,8 @@ __all__ = [
     "VQN",
     "VQNTestAgent",
     "VSarsa",
-    "VSarsaTestAgent"
+    "VSarsaTestAgent",
+    # multiagents
+    "Multiagent",
+    "IndependentMultiagent",
 ]
