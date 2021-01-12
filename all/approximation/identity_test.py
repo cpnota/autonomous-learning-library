@@ -15,9 +15,9 @@ class TestIdentityNetwork(unittest.TestCase):
         tt.assert_equal(inputs, outputs)
 
     def test_forward_state(self):
-        inputs = State({ 
+        inputs = State({
             'observation': torch.tensor([1, 2, 3])
-         })
+        })
         outputs = self.model(inputs)
         self.assertEqual(inputs, outputs)
 
@@ -30,7 +30,6 @@ class TestIdentityNetwork(unittest.TestCase):
         inputs = torch.tensor([1, 2, 3])
         outputs = self.model.target(inputs)
         tt.assert_equal(inputs, outputs)
-
 
     def test_reinforce(self):
         self.model.reinforce()
