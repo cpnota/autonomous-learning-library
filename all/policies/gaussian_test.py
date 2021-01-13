@@ -63,7 +63,7 @@ class TestGaussian(unittest.TestCase):
         tt.assert_almost_equal(dist.mean, torch.tensor([[-0.237, 0.497, -0.058]]), decimal=3)
         tt.assert_almost_equal(dist.entropy(), torch.tensor([4.254]), decimal=3)
         best = self.policy.eval(state).sample()
-        tt.assert_almost_equal(best, torch.tensor([[-0.888, -0.887,  0.404]]), decimal=3)
+        tt.assert_almost_equal(best, torch.tensor([[-0.888, -0.887, 0.404]]), decimal=3)
 
 
 if __name__ == '__main__':
