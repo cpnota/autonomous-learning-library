@@ -3,6 +3,7 @@ from._multiagent_environment import MultiagentEnvironment
 from .gym import GymEnvironment
 from .atari import AtariEnvironment
 from .multiagent_atari import MultiagentAtariEnv
+from .multiagent_pettingzoo import MultiagentPettingZooEnv
 
 __all__ = [
     "Environment",
@@ -10,4 +11,5 @@ __all__ = [
     "GymEnvironment",
     "AtariEnvironment",
     "MultiagentAtariEnv",
+    "MultiagentPettingZooEnv",
 ]
