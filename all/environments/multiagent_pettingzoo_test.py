@@ -6,10 +6,10 @@ from pettingzoo.mpe import simple_world_comm_v2
 
 class MultiagentPettingZooEnvTest(unittest.TestCase):
     def test_init(self):
-        MultiagentPettingZooEnv(simple_world_comm_v2.env(), device='cpu')
+        MultiagentPettingZooEnv(simple_world_comm_v2.env(), name="simple_world_comm_v2", device='cpu')
 
     def test_variable_spaces(self):
-        env = MultiagentPettingZooEnv(simple_world_comm_v2.env(), device='cpu')
+        env = MultiagentPettingZooEnv(simple_world_comm_v2.env(), name="simple_world_comm_v2", device='cpu')
         state = env.reset()
         # tests that action spaces work
         for agent in env.agents:

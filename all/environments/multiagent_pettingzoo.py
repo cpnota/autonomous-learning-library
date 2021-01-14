@@ -17,7 +17,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         zoo_env (AECEnv): A PettingZoo AECEnv environment (e.g. pettingzoo.mpe.simple_push_v2)
         device (optional): the device on which tensors will be stored
     '''
-    def __init__(self, zoo_env, name="PettingZooEnv", device='cuda'):
+    def __init__(self, zoo_env, name, device='cuda'):
         env = zoo_env
         env.reset()
         self._env = env

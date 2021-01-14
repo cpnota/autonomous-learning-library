@@ -52,29 +52,24 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
         torch.manual_seed(0)
-        self.env = MultiagentAtariEnv('pong_v1', device='cpu')
+        self.env = MultiagentAtariEnv('space_invaders_v1', device='cpu')
         self.env.seed(0)
         self.experiment = None
 
     def test_adds_default_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
-        self.assertEqual(experiment._writer.label, "IndependentMultiagentAtariPreset_pong_v1")
+        self.assertEqual(experiment._writer.label, "IndependentMultiagentAtariPreset_space_invaders_v1")
 
     def test_adds_custom_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, name='custom', quiet=True, save_freq=float('inf'))
-        self.assertEqual(experiment._writer.label, "custom_pong_v1")
+        self.assertEqual(experiment._writer.label, "custom_space_invaders_v1")
 
     def test_writes_training_returns(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
         experiment.train(episodes=3)
         self.assertEqual(experiment._writer.data, {
-            'evaluation/first_0/returns/frame': {
-                'values': [-10.0, 21.0, -2.0, 10.0],
-                'steps': [2716, 4314, 7766, 10708]},
-            'evaluation/second_0/returns/frame': {
-                'values': [10.0, -21.0, 2.0, -10.0],
-                'steps': [2716, 4314, 7766, 10708]
-            }
+            'evaluation/first_0/returns/frame': {'values': [465.0, 235.0, 735.0, 415.0], 'steps': [766, 1524, 2440, 3038]},
+            'evaluation/second_0/returns/frame': {'values': [235.0, 465.0, 170.0, 295.0], 'steps': [766, 1524, 2440, 3038]}
         })
 
     def test_writes_test_returns(self):
@@ -83,10 +78,10 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         experiment._writer.data = {}
         experiment.test(episodes=3)
         self.assertEqual(experiment._writer.data, {
-            'evaluation/first_0/returns-test/mean': {'steps': [15088], 'values': [21.0]},
-            'evaluation/first_0/returns-test/std': {'steps': [15088], 'values': [0.0]},
-            'evaluation/second_0/returns-test/mean': {'steps': [15088], 'values': [-21.0]},
-            'evaluation/second_0/returns-test/std': {'steps': [15088], 'values': [0.0]},
+            'evaluation/first_0/returns-test/mean': {'values': [333.3333333333333], 'steps': [6422]},
+            'evaluation/first_0/returns-test/std': {'values': [188.56180831641268], 'steps': [6422]},
+            'evaluation/second_0/returns-test/mean': {'values': [400.0], 'steps': [6422]},
+            'evaluation/second_0/returns-test/std': {'values': [0.0], 'steps': [6422]}
         })
 
     def test_writes_loss(self):
