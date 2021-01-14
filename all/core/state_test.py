@@ -1,4 +1,5 @@
 import unittest
+import warnings
 import numpy as np
 import torch
 import torch_testing as tt
@@ -169,6 +170,37 @@ class StateArrayTest(unittest.TestCase):
         state = state.view((2, 3))
         self.assertEqual(state.shape, (2, 3))
         self.assertEqual(state.observation.shape, (2, 3, 3, 4))
+
+    def test_key_error(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            StateArray.array([
+                State({
+                    'observation': torch.tensor([1, 2]),
+                    'other_key': True
+                }),
+                State({
+                    'observation': torch.tensor([1, 2]),
+                }),
+            ])
+            self.assertEqual(len(w), 1)
+            self.assertEqual(w[0].message.args[0], 'KeyError while creating StateArray for key "other_key", omitting.')
+
+    def test_type_error(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            StateArray.array([
+                State({
+                    'observation': torch.tensor([1, 2]),
+                    'other_key': torch.tensor([1])
+                }),
+                State({
+                    'observation': torch.tensor([1, 2]),
+                    'other_key': 5.
+                }),
+            ])
+            self.assertEqual(len(w), 1)
+            self.assertEqual(w[0].message.args[0], 'TypeError while creating StateArray for key "other_key", omitting.')
 
 
 if __name__ == "__main__":

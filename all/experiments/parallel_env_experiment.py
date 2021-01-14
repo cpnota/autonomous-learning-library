@@ -61,9 +61,10 @@ class ParallelEnvExperiment(Experiment):
 
     def test(self, episodes=100):
         test_agent = self._preset.test_agent()
+        env = self._envs[0].duplicate(1)[0]
         returns = []
         for episode in range(episodes):
-            episode_return = self._run_test_episode(test_agent)
+            episode_return = self._run_test_episode(test_agent, env)
             returns.append(episode_return)
             self._log_test_episode(episode, episode_return)
         self._log_test(returns)
@@ -117,9 +118,8 @@ class ParallelEnvExperiment(Experiment):
             device=self._envs[0].device
         )
 
-    def _run_test_episode(self, test_agent):
+    def _run_test_episode(self, test_agent, env):
         # initialize the episode
-        env = self._envs[0].duplicate(1)[0]
         state = env.reset()
         action = test_agent.act(state)
         returns = 0
