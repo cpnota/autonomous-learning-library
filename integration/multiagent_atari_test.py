@@ -1,7 +1,7 @@
 import unittest
 import torch
 from all.environments import MultiagentAtariEnv
-from all.presets.multiagent_atari import IndependentMultiagentAtariPreset
+from all.presets import IndependentMultiagentPreset
 from all.presets.atari import dqn
 from validate_agent import validate_multiagent
 
@@ -25,7 +25,7 @@ class TestMultiagentAtariPresets(unittest.TestCase):
             agent_id : dqn().device(CPU).env(env.subenvs[agent_id]).build()
             for agent_id in env.agents
         }
-        validate_multiagent(IndependentMultiagentAtariPreset(presets), env)
+        validate_multiagent(IndependentMultiagentPreset(presets), env)
 
     def test_independent_cuda(self):
         env = MultiagentAtariEnv('pong_v1', device=CUDA)
@@ -33,7 +33,7 @@ class TestMultiagentAtariPresets(unittest.TestCase):
             agent_id : dqn().device(CUDA).env(env.subenvs[agent_id]).build()
             for agent_id in env.agents
         }
-        validate_multiagent(IndependentMultiagentAtariPreset(presets), env)
+        validate_multiagent(IndependentMultiagentPreset(presets), env)
 
 
 if __name__ == "__main__":
