@@ -2,12 +2,12 @@ import copy
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import PPO, PPOTestAgent
-from all.approximation import VNetwork, FeatureNetwork
+from all.approximation import VNetwork, FeatureNetwork, Identity
 from all.bodies import TimeFeature
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import GaussianPolicy
-from .models import fc_actor_critic
+from .models import fc_policy, fc_v
 from ..builder import preset_builder
 from ..preset import Preset
 
@@ -33,7 +33,8 @@ default_hyperparameters = {
     # GAE settings
     "lam": 0.95,
     # Model construction
-    "ac_model_constructor": fc_actor_critic
+    "value_model_constructor": fc_v,
+    "policy_model_constructor": fc_policy,
 }
 
 
@@ -51,7 +52,8 @@ class PPOContinuousPreset(Preset):
         eps (float): Stability parameters for the Adam optimizer.
         entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
         value_loss_scaling (float): Coefficient for the value function loss.
-        clip_grad (float): The maximum magnitude of the gradient for any given parameter. Set to 0 to disable.
+        clip_grad (float): Clips the gradient during training so that its L2 norm (calculated over all parameters) 
+        # is no greater than this bound. Set to 0 to disable.
         clip_initial (float): Value for epsilon in the clipped PPO objective function at the beginning of training.
         clip_final (float): Value for epsilon in the clipped PPO objective function at the end of training.
         epochs (int): Number of times to iterature through each batch.
@@ -59,16 +61,15 @@ class PPOContinuousPreset(Preset):
         n_envs (int): Number of parallel actors.
         n_steps (int): Length of each rollout.
         lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
-        ac_model_constructor (function): The function used to construct the neural feature, value and policy model.
+        value_model_constructor (function): The function used to construct the neural value model.
+        policy_model_constructor (function): The function used to construct the neural policy model.
     """
 
     def __init__(self, env, device="cuda", **hyperparameters):
         hyperparameters = {**default_hyperparameters, **hyperparameters}
         super().__init__(hyperparameters["n_envs"])
-        feature_model, value_model, policy_model = hyperparameters["ac_model_constructor"](env)
-        self.feature_model = feature_model.to(device)
-        self.value_model = value_model.to(device)
-        self.policy_model = policy_model.to(device)
+        self.value_model = hyperparameters["value_model_constructor"](env).to(device)
+        self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
         self.device = device
         self.action_space = env.action_space
         self.hyperparameters = hyperparameters
@@ -76,20 +77,10 @@ class PPOContinuousPreset(Preset):
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         n_updates = train_steps * self.hyperparameters['epochs'] * self.hyperparameters['minibatches'] / (self.hyperparameters['n_steps'] * self.hyperparameters['n_envs'])
 
-        feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters['lr'], eps=self.hyperparameters['eps'])
         value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters['lr'], eps=self.hyperparameters['eps'])
         policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters['lr'], eps=self.hyperparameters['eps'])
 
-        features = FeatureNetwork(
-            self.feature_model,
-            feature_optimizer,
-            clip_grad=self.hyperparameters['clip_grad'],
-            scheduler=CosineAnnealingLR(
-                feature_optimizer,
-                n_updates
-            ),
-            writer=writer
-        )
+        features = Identity(self.device)
 
         v = VNetwork(
             self.value_model,
@@ -138,9 +129,8 @@ class PPOContinuousPreset(Preset):
         ))
 
     def test_agent(self):
-        feature = FeatureNetwork(copy.deepcopy(self.feature_model))
         policy = GaussianPolicy(copy.deepcopy(self.policy_model), space=self.action_space)
-        return TimeFeature(PPOTestAgent(feature, policy))
+        return TimeFeature(PPOTestAgent(Identity(self.device), policy))
 
 
 ppo = preset_builder('ppo', default_hyperparameters, PPOContinuousPreset)
