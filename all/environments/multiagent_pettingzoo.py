@@ -53,10 +53,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         if action is None:
             self._env.step(action)
             return
-        if torch.is_tensor(action):
-            self._env.step(action.item())
-        else:
-            self._env.step(action)
+        self._env.step(self._convert(action))
         return self.last()
 
     def seed(self, seed):
@@ -105,6 +102,17 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
     @property
     def action_spaces(self):
         return self._env.action_spaces
+
+    def _convert(self, action):
+        agent = self._env.agent_selection
+        action_space = self._env.action_spaces[agent]
+        if torch.is_tensor(action):
+            if isinstance(action_space, gym.spaces.Discrete):
+                return action.item()
+            if isinstance(action_space, gym.spaces.Box):
+                return action.cpu().detach().numpy().reshape(-1)
+            raise TypeError("Unknown action space type")
+        return action
 
 
 class SubEnv():
