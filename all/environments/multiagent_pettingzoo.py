@@ -79,7 +79,8 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
 
     def last(self):
         observation, reward, done, info = self._env.last()
-        return MultiAgentState.from_zoo(self._env.agent_selection, (observation, reward, done, info), device=self._device, dtype=np.uint8)
+        selected_obs_space = self._env.observation_spaces[self._env.agent_selection]
+        return MultiAgentState.from_zoo(self._env.agent_selection, (observation, reward, done, info), device=self._device, dtype=selected_obs_space.dtype)
 
     @property
     def name(self):
