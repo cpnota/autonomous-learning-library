@@ -2,6 +2,7 @@ from timeit import default_timer as timer
 import numpy as np
 from scipy import stats
 from .writer import ExperimentWriter
+from .writer import CometWriter
 from .experiment import Experiment
 
 
@@ -32,9 +33,10 @@ class MultiagentEnvExperiment():
             save_freq=100,
             train_steps=float('inf'),
             write_loss=True,
+            writer="tensorboard"
     ):
         self._name = name if name is not None else preset.__class__.__name__
-        self._writer = self._make_writer(logdir, self._name, env.name, write_loss)
+        self._writer = self._make_writer(logdir, self._name, env.name, write_loss, writer)
         self._agent = preset.agent(writer=self._writer, train_steps=train_steps)
         self._env = env
         self._episode = 0
@@ -172,5 +174,8 @@ class MultiagentEnvExperiment():
         if self._save_freq != float('inf') and self._episode % self._save_freq == 0:
             self._preset.save('{}/preset.pt'.format(self._writer.log_dir))
 
-    def _make_writer(self, logdir, agent_name, env_name, write_loss):
-        return ExperimentWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
+    def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
+        if writer == "comet":
+            return CometWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
+        else:
+            return ExperimentWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)

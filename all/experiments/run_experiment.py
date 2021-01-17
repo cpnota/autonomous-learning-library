@@ -10,7 +10,8 @@ def run_experiment(
         quiet=False,
         render=False,
         test_episodes=100,
-        write_loss=True
+        write_loss=True,
+        writer="tensorboard"
 ):
     if not isinstance(agents, list):
         agents = [agents]
@@ -29,7 +30,8 @@ def run_experiment(
                 logdir=logdir,
                 quiet=quiet,
                 render=render,
-                write_loss=write_loss
+                write_loss=write_loss,
+                writer=writer
             )
             experiment.train(frames=frames)
             experiment.test(episodes=test_episodes)

@@ -5,6 +5,7 @@ import subprocess
 from datetime import datetime
 from tensorboardX import SummaryWriter
 from all.logging import Writer
+from comet_ml import Experiment
 
 
 class ExperimentWriter(SummaryWriter, Writer):
@@ -70,6 +71,59 @@ class ExperimentWriter(SummaryWriter, Writer):
         if _type == "episode":
             return self._experiment.episode
         return _type
+
+    def close(self):
+        pass
+
+
+class CometWriter():
+    '''
+    The Writer object to be used by all.experiments.Experiment.
+    Writes logs using comet.ml Requires an API key to be stored in .comet.config.
+    Look at https://www.comet.ml/docs/python-sdk/advanced/#python-configuration for more info.
+    Args:
+        experiment (all.experiments.Experiment): The Experiment associated with the Writer object.
+        agent_name (str): The name of the Agent the Experiment is being performed on
+        env_name (str): The name of the environment the Experiment is being performed in
+        loss (bool, optional): Whether or not to log loss/scheduling metrics, or only evaluation and summary metrics.
+    '''
+
+    def __init__(self, experiment, agent_name, env_name, loss=True, logdir='runs'):
+        self.env_name = env_name
+        self._experiment = experiment
+        self._loss = loss
+        self._comet = Experiment(project_name=env_name)
+        self._comet.set_name(agent_name)
+        self.log_dir = logdir
+        # super().__init__(log_dir=self.log_dir)
+
+    def add_loss(self, name, value, step="frame"):
+        if self._loss:
+            self.add_evaluation("loss/" + name, value, step)
+
+    def add_evaluation(self, name, value, step="frame"):
+        self._comet.log_metric(name, value, self._get_step(step))
+
+    def add_schedule(self, name, value, step="frame"):
+        if self._loss:
+            self._comet.log_parameter(name, value)
+
+    def add_summary(self, name, mean, std, step="frame"):
+        self.add_evaluation(name + "/mean", mean, step)
+        self.add_evaluation(name + "/std", std, step)
+
+    def add_scalar(self, name, value, step="frame"):
+        pass
+
+    def _get_step(self, _type):
+        if _type == "frame":
+            return self._experiment.frame
+        if _type == "episode":
+            return self._experiment.episode
+        return _type
+
+    def close(self):
+        self._comet.end()
 
 
 def get_commit_hash():

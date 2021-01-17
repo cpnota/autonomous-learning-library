@@ -80,4 +80,5 @@ class Experiment(ABC):
         self._writer.add_summary('returns-test', np.mean(returns), np.std(returns))
 
     def save(self):
+        self._writer.close()
         return self._preset.save('{}/preset.pt'.format(self._writer.log_dir))
