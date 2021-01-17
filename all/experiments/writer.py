@@ -16,7 +16,7 @@ except ImportError:
 
 class ExperimentWriter(SummaryWriter, Writer):
     '''
-    The Writer object used by all.experiments.Experiment.
+    The default Writer object used by all.experiments.Experiment.
     Writes logs using tensorboard into the current logdir directory ('runs' by default),
     tagging the run with a combination of the agent name, the commit hash of the
     current git repo of the working directory (if any), and the current time.
@@ -82,7 +82,7 @@ class ExperimentWriter(SummaryWriter, Writer):
         pass
 
 
-class CometWriter():
+class CometWriter(Writer):
     '''
     The Writer object to be used by all.experiments.Experiment.
     Writes logs using comet.ml Requires an API key to be stored in .comet.config.
