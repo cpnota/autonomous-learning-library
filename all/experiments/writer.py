@@ -84,14 +84,15 @@ class ExperimentWriter(SummaryWriter, Writer):
 
 class CometWriter(Writer):
     '''
-    The Writer object to be used by all.experiments.Experiment.
-    Writes logs using comet.ml Requires an API key to be stored in .comet.config.
+    A Writer object to be used by all.experiments.Experiment.
+    Writes logs using comet.ml Requires an API key to be stored in .comet.config or as an environment variable.
     Look at https://www.comet.ml/docs/python-sdk/advanced/#python-configuration for more info.
     Args:
         experiment (all.experiments.Experiment): The Experiment associated with the Writer object.
         agent_name (str): The name of the Agent the Experiment is being performed on
         env_name (str): The name of the environment the Experiment is being performed in
         loss (bool, optional): Whether or not to log loss/scheduling metrics, or only evaluation and summary metrics.
+        logdir (str): The directory where run information is stored.
     '''
 
     def __init__(self, experiment, agent_name, env_name, loss=True, logdir='runs'):
