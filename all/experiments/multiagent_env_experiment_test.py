@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import torch
 from all.presets.atari import dqn
-from all.presets.multiagent_atari import IndependentMultiagentAtariPreset
+from all.presets import IndependentMultiagentPreset
 from all.environments import MultiagentAtariEnv
 from all.experiments import MultiagentEnvExperiment
 from all.logging import Writer
@@ -58,7 +58,7 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
 
     def test_adds_default_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
-        self.assertEqual(experiment._writer.label, "IndependentMultiagentAtariPreset_pong_v1")
+        self.assertEqual(experiment._writer.label, "IndependentMultiagentPreset_pong_v1")
 
     def test_adds_custom_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, name='custom', quiet=True, save_freq=float('inf'))
@@ -96,7 +96,7 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         self.assertFalse(experiment._writer.write_loss)
 
     def make_preset(self):
-        return IndependentMultiagentAtariPreset({
+        return IndependentMultiagentPreset({
             agent: dqn().device('cpu').env(env).build()
             for agent, env in self.env.subenvs.items()
         })
