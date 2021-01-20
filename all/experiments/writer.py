@@ -5,13 +5,6 @@ import subprocess
 from datetime import datetime
 from tensorboardX import SummaryWriter
 from all.logging import Writer
-from comet_ml import Experiment
-
-COMET_AVAILABLE = True
-try:
-    from comet_ml import Experiment
-except ImportError:
-    COMET_AVAILABLE = False
 
 
 class ExperimentWriter(SummaryWriter, Writer):
@@ -96,11 +89,15 @@ class CometWriter(Writer):
     '''
 
     def __init__(self, experiment, agent_name, env_name, loss=True, logdir='runs'):
-        assert COMET_AVAILABLE, "Failed to import comet_ml. CometWriter requires that comet_ml be installed"
         self.env_name = env_name
         self._experiment = experiment
         self._loss = loss
 
+        try:
+            from comet_ml import Experiment
+        except ImportError as e:
+            print("Failed to import comet_ml. CometWriter requires that comet_ml be installed")
+            raise e
         try:
             self._comet = Experiment(project_name=env_name)
         except ImportError as e:
@@ -123,14 +120,14 @@ class CometWriter(Writer):
 
     def add_schedule(self, name, value, step="frame"):
         if self._loss:
-            self._comet.log_parameter(name, value)
+            self.add_scalar(name, value, step)
 
     def add_summary(self, name, mean, std, step="frame"):
         self.add_evaluation(name + "/mean", mean, step)
         self.add_evaluation(name + "/std", std, step)
 
     def add_scalar(self, name, value, step="frame"):
-        pass
+        self._comet.log_parameter(name, value, self._get_step(step))
 
     def _get_step(self, _type):
         if _type == "frame":

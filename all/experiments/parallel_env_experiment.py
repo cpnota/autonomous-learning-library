@@ -3,8 +3,7 @@ from timeit import default_timer as timer
 import torch
 import numpy as np
 from all.core import State
-from .writer import ExperimentWriter
-from .writer import CometWriter
+from .writer import ExperimentWriter, CometWriter
 from .experiment import Experiment
 
 
@@ -143,5 +142,4 @@ class ParallelEnvExperiment(Experiment):
     def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
         if writer == "comet":
             return CometWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
-        else:
-            return ExperimentWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
+        return ExperimentWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)

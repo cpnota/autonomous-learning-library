@@ -65,11 +65,6 @@ class Writer(ABC):
             step (str, optional): Which step to use (e.g., "frame" or "episode")
         '''
 
-    # @abstractmethod
-    # def set_phase(self, name, mean, std, step="frame"):
-    #     # TODO: Fill
-    #     pass
-
     @abstractmethod
     def close(self):
         '''
