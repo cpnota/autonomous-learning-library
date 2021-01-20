@@ -26,7 +26,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         self._device = device
         self.agents = self._env.agents
         self.subenvs = {
-            agent : SubEnv(agent, device, self.state_spaces[agent], self.action_spaces[agent])
+            agent: SubEnv(agent, device, self.state_spaces[agent], self.action_spaces[agent])
             for agent in self.agents
         }
 

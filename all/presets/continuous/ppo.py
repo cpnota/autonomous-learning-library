@@ -52,7 +52,7 @@ class PPOContinuousPreset(Preset):
         eps (float): Stability parameters for the Adam optimizer.
         entropy_loss_scaling (float): Coefficient for the entropy term in the total loss.
         value_loss_scaling (float): Coefficient for the value function loss.
-        clip_grad (float): Clips the gradient during training so that its L2 norm (calculated over all parameters) 
+        clip_grad (float): Clips the gradient during training so that its L2 norm (calculated over all parameters)
         # is no greater than this bound. Set to 0 to disable.
         clip_initial (float): Value for epsilon in the clipped PPO objective function at the beginning of training.
         clip_final (float): Value for epsilon in the clipped PPO objective function at the end of training.

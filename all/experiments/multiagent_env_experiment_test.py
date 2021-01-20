@@ -78,10 +78,10 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         experiment._writer.data = {}
         experiment.test(episodes=3)
         self.assertEqual(experiment._writer.data, {
-            'evaluation/first_0/returns-test/mean': {'values': [333.3333333333333], 'steps': [6422]},
-            'evaluation/first_0/returns-test/std': {'values': [188.56180831641268], 'steps': [6422]},
-            'evaluation/second_0/returns-test/mean': {'values': [400.0], 'steps': [6422]},
-            'evaluation/second_0/returns-test/std': {'values': [0.0], 'steps': [6422]}
+            'evaluation/first_0/returns-test/mean': {'values': [856.6666666666666], 'steps': [7288]},
+            'evaluation/first_0/returns-test/std': {'values': [2.357022603955158], 'steps': [7288]},
+            'evaluation/second_0/returns-test/mean': {'values': [731.6666666666666], 'steps': [7288]},
+            'evaluation/second_0/returns-test/std': {'values': [18.856180831641264], 'steps': [7288]}
         })
 
     def test_writes_loss(self):
