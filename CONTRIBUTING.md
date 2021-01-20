@@ -26,6 +26,12 @@ The unit tests may be run using:
 make test
 ```
 
+You can automatically format your code to match our code style using:
+
+```
+make format
+```
+
 Finally, you rebuild the documentation using:
 
 ```
