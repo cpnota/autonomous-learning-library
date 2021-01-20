@@ -127,7 +127,7 @@ class CometWriter(Writer):
         self.add_evaluation(name + "/std", std, step)
 
     def add_scalar(self, name, value, step="frame"):
-        self._comet.log_parameter(name, value, self._get_step(step))
+        self._comet.log_metric(name, value, self._get_step(step))
 
     def _get_step(self, _type):
         if _type == "frame":
