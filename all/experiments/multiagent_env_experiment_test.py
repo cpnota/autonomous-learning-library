@@ -41,6 +41,9 @@ class MockWriter(Writer):
             return self.experiment.episode
         return _type
 
+    def close(self):
+        pass
+
 
 class MockExperiment(MultiagentEnvExperiment):
     def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
