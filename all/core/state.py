@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import warnings
 
 
 class State(dict):
@@ -65,6 +66,7 @@ class State(dict):
         device = list_of_states[0].device
         shape = (len(list_of_states), *list_of_states[0].shape)
         x = {}
+
         for key in list_of_states[0].keys():
             v = list_of_states[0][key]
             try:
@@ -74,10 +76,13 @@ class State(dict):
                     x[key] = torch.stack([state[key] for state in list_of_states])
                 else:
                     x[key] = torch.tensor([state[key] for state in list_of_states], device=device)
-            except ValueError:
-                pass
             except KeyError:
-                pass
+                warnings.warn('KeyError while creating StateArray for key "{}", omitting.'.format(key))
+            except ValueError:
+                warnings.warn('ValueError while creating StateArray for key "{}", omitting.'.format(key))
+            except TypeError:
+                warnings.warn('TypeError while creating StateArray for key "{}", omitting.'.format(key))
+
         return StateArray(x, shape, device=device)
 
     def apply(self, model, *keys):

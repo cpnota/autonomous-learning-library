@@ -60,10 +60,10 @@ class TestGaussian(unittest.TestCase):
     def test_eval(self):
         state = State(torch.randn(1, STATE_DIM))
         dist = self.policy.no_grad(state)
-        tt.assert_almost_equal(dist.mean, torch.tensor([[-0.233, 0.459, -0.058]]), decimal=3)
-        tt.assert_almost_equal(dist.entropy(), torch.tensor([4.251]), decimal=3)
+        tt.assert_almost_equal(dist.mean, torch.tensor([[-0.237, 0.497, -0.058]]), decimal=3)
+        tt.assert_almost_equal(dist.entropy(), torch.tensor([4.254]), decimal=3)
         best = self.policy.eval(state).sample()
-        tt.assert_almost_equal(best, torch.tensor([[-0.977, -1.05, 0.311]]), decimal=3)
+        tt.assert_almost_equal(best, torch.tensor([[-0.888, -0.887, 0.404]]), decimal=3)
 
 
 if __name__ == '__main__':

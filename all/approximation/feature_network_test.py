@@ -62,8 +62,7 @@ class TestFeatureNetwork(unittest.TestCase):
 
     def test_identity_features(self):
         model = nn.Sequential(nn.Identity())
-        optimizer = torch.optim.SGD(self.model.parameters(), lr=0.1)
-        features = FeatureNetwork(model, optimizer, device='cpu')
+        features = FeatureNetwork(model, None, device='cpu')
 
         # forward pass
         x = State({'observation': torch.tensor([1., 2., 3.])})
