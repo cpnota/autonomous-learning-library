@@ -1,9 +1,10 @@
 from torch.nn.functional import mse_loss
 from ._agent import Agent
+from ._parallel_agent import ParallelAgent
 from .a2c import A2CTestAgent
 
 
-class VAC(Agent):
+class VAC(ParallelAgent):
     '''
     Vanilla Actor-Critic (VAC).
     VAC is an implementation of the actor-critic alogorithm found in the Sutton and Barto (2018) textbook.

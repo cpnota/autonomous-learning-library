@@ -1,6 +1,6 @@
 from .builder import preset_builder
 from .preset import Preset
-from all.agents.multi.independent import IndependentMultiagent
+from all.agents import IndependentMultiagent
 from all.logging import DummyWriter
 
 
