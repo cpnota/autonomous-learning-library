@@ -109,7 +109,6 @@ class CometWriter(Writer):
 
         self._comet.set_name(agent_name)
         self.log_dir = logdir
-        # super().__init__(log_dir=self.log_dir)
 
     def add_loss(self, name, value, step="frame"):
         if self._loss:

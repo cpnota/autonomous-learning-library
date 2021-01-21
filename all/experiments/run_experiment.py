@@ -36,6 +36,7 @@ def run_experiment(
             experiment.train(frames=frames)
             experiment.test(episodes=test_episodes)
             experiment.save()
+            experiment.close()
 
 
 def get_experiment_type(preset):
