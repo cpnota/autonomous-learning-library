@@ -4,18 +4,18 @@ from all.experiments import SingleEnvExperiment, ParallelEnvExperiment, Multiage
 
 
 class TestSingleEnvExperiment(SingleEnvExperiment):
-    def _make_writer(self, logdir, agent_name, env_name, write_loss):
+    def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
         os.makedirs(logdir, exist_ok=True)
         return DummyWriter()
 
 
 class TestParallelEnvExperiment(ParallelEnvExperiment):
-    def _make_writer(self, logdir, agent_name, env_name, write_loss):
+    def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
         os.makedirs(logdir, exist_ok=True)
         return DummyWriter()
 
 class TestMultiagentEnvExperiment(MultiagentEnvExperiment):
-    def _make_writer(self, logdir, agent_name, env_name, write_loss):
+    def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
         os.makedirs(logdir, exist_ok=True)
         return DummyWriter()
 

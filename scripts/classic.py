@@ -24,13 +24,23 @@ def main():
     parser.add_argument(
         "--logdir", default='runs', help="The base logging directory."
     )
+    parser.add_argument(
+        "--writer", default='tensorboard', help="The backend used for tracking experiment metrics."
+    )
     args = parser.parse_args()
 
     env = GymEnvironment(args.env, device=args.device)
     agent_name = args.agent
     agent = getattr(classic_control, agent_name)
 
-    run_experiment(agent(device=args.device), env, args.frames, render=args.render, logdir=args.logdir)
+    run_experiment(
+        agent(device=args.device),
+        env,
+        args.frames,
+        render=args.render,
+        logdir=args.logdir,
+        writer=args.writer,
+    )
 
 
 if __name__ == "__main__":

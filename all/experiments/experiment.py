@@ -81,3 +81,6 @@ class Experiment(ABC):
 
     def save(self):
         return self._preset.save('{}/preset.pt'.format(self._writer.log_dir))
+
+    def close(self):
+        self._writer.close()
