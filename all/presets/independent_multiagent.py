@@ -1,10 +1,10 @@
-from ..builder import preset_builder
-from ..preset import Preset
+from .builder import preset_builder
+from .preset import Preset
 from all.agents.multi.independent import IndependentMultiagent
 from all.logging import DummyWriter
 
 
-class IndependentMultiagentAtariPreset(Preset):
+class IndependentMultiagentPreset(Preset):
     def __init__(self, presets):
         self.presets = presets
 

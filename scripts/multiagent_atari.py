@@ -20,12 +20,15 @@ def main():
     parser.add_argument(
         "--render", type=bool, default=False, help="Render the environment."
     )
+    parser.add_argument(
+        "--writer", default='tensorboard', help="The backend used for tracking experiment metrics."
+    )
     args = parser.parse_args()
 
     env = MultiagentAtariEnv(args.env, device=args.device)
     agent_name = args.agent
     agent = getattr(multiagent_atari, agent_name)
-    experiment = MultiagentEnvExperiment(agent(device=args.device), env, write_loss=False)
+    experiment = MultiagentEnvExperiment(agent(device=args.device), env, write_loss=False, writer=args.writer)
     experiment.train(frames=args.frames)
 
 if __name__ == "__main__":
