@@ -18,6 +18,7 @@ class MultiagentAtariEnv(MultiagentPettingZooEnv):
         env_name (string): A string representing the name of the environment (e.g. pong-v1)
         device (optional): the device on which tensors will be stored
     '''
+
     def __init__(self, env_name, device='cuda'):
         env = self._load_env(env_name)
         super().__init__(env, name=env_name, device=device)

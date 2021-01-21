@@ -18,6 +18,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         zoo_env (AECEnv): A PettingZoo AECEnv environment (e.g. pettingzoo.mpe.simple_push_v2)
         device (optional): the device on which tensors will be stored
     '''
+
     def __init__(self, zoo_env, name, device='cuda'):
         env = zoo_env
         env.reset()
@@ -36,6 +37,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
     Returns:
         An initial MultiagentState object.
     '''
+
     def reset(self):
         self._env.reset()
         return self.last()
@@ -49,6 +51,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
     Returns:
         The MultiagentState object for the next agent
     '''
+
     def step(self, action):
         if action is None:
             self._env.step(action)
