@@ -61,7 +61,7 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
 
     def test_adds_default_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
-        self.assertEqual(experiment._writer.label, "IndependentMultiagentPreset_pong_v1")
+        self.assertEqual(experiment._writer.label, "IndependentMultiagentPreset_space_invaders_v1")
 
     def test_adds_custom_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, name='custom', quiet=True, save_freq=float('inf'))
