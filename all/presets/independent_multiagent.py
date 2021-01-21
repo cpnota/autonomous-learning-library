@@ -1,4 +1,4 @@
-from .builder import preset_builder
+from .builder import PresetBuilder
 from .preset import Preset
 from all.agents import IndependentMultiagent
 from all.logging import DummyWriter

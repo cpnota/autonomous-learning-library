@@ -19,7 +19,7 @@ class TestAtariPresets(unittest.TestCase):
     def test_independent(self):
         env = MultiagentAtariEnv('pong_v1', device='cpu')
         presets = {
-            agent_id: dqn().device('cpu').env(env.subenvs[agent_id]).build()
+            agent_id: dqn.device('cpu').env(env.subenvs[agent_id]).build()
             for agent_id in env.agents
         }
         self.validate_preset(IndependentMultiagentPreset(presets), env)

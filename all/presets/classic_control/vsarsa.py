@@ -7,9 +7,9 @@ from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import ParallelGreedyPolicy
-from .models import dueling_fc_relu_q
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
+from all.presets.classic_control.models import dueling_fc_relu_q
 
 
 default_hyperparameters = {
@@ -95,4 +95,4 @@ class VSarsaClassicControlPreset(Preset):
         return VSarsaTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
 
 
-vsarsa = preset_builder('vsarsa', default_hyperparameters, VSarsaClassicControlPreset)
+vsarsa = PresetBuilder('vsarsa', default_hyperparameters, VSarsaClassicControlPreset)

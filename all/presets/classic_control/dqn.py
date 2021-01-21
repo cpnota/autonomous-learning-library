@@ -6,9 +6,9 @@ from all.logging import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
-from .models import fc_relu_q
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.classic_control.models import fc_relu_q
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -108,4 +108,4 @@ class DQNClassicControlPreset(Preset):
         return DQNTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
 
 
-dqn = preset_builder('dqn', default_hyperparameters, DQNClassicControlPreset)
+dqn = PresetBuilder('dqn', default_hyperparameters, DQNClassicControlPreset)

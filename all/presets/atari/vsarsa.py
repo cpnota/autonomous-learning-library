@@ -8,8 +8,8 @@ from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import ParallelGreedyPolicy
 from .models import nature_ddqn
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -99,4 +99,4 @@ class VSarsaAtariPreset(Preset):
         )
 
 
-vsarsa = preset_builder('vsarsa', default_hyperparameters, VSarsaAtariPreset)
+vsarsa = PresetBuilder('vsarsa', default_hyperparameters, VSarsaAtariPreset)

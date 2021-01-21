@@ -6,9 +6,10 @@ from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
-from .models import fc_relu_features, fc_policy_head, fc_value_head
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
+from all.presets.classic_control.models import fc_relu_features, fc_policy_head, fc_value_head
+
 
 default_hyperparameters = {
     # Common settings
@@ -95,4 +96,4 @@ class VACClassicControlPreset(Preset):
         return VACTestAgent(features, policy)
 
 
-vac = preset_builder('vac', default_hyperparameters, VACClassicControlPreset)
+vac = PresetBuilder('vac', default_hyperparameters, VACClassicControlPreset)

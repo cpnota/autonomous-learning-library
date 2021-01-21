@@ -6,9 +6,9 @@ from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
-from .models import fc_relu_features, fc_policy_head, fc_value_head
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.classic_control.models import fc_relu_features, fc_policy_head, fc_value_head
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -95,4 +95,4 @@ class VPGClassicControlPreset(Preset):
         return VPGTestAgent(features, policy)
 
 
-vpg = preset_builder('vpg', default_hyperparameters, VPGClassicControlPreset)
+vpg = PresetBuilder('vpg', default_hyperparameters, VPGClassicControlPreset)

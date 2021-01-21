@@ -7,8 +7,8 @@ from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import nature_features, nature_value_head, nature_policy_head
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -102,4 +102,4 @@ class VPGAtariPreset(Preset):
         return DeepmindAtariBody(VPGTestAgent(features, policy))
 
 
-vpg = preset_builder('vpg', default_hyperparameters, VPGAtariPreset)
+vpg = PresetBuilder('vpg', default_hyperparameters, VPGAtariPreset)

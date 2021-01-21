@@ -8,8 +8,8 @@ from all.logging import DummyWriter
 from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer
 from all.optim import LinearScheduler
 from .models import nature_rainbow
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -150,4 +150,4 @@ class RainbowAtariPreset(Preset):
         return DeepmindAtariBody(RainbowTestAgent(q_dist, self.n_actions, self.hyperparameters["test_exploration"]))
 
 
-rainbow = preset_builder('rainbow', default_hyperparameters, RainbowAtariPreset)
+rainbow = PresetBuilder('rainbow', default_hyperparameters, RainbowAtariPreset)

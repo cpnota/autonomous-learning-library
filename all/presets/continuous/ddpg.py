@@ -8,8 +8,8 @@ from all.logging import DummyWriter
 from all.policies import DeterministicPolicy
 from all.memory import ExperienceReplayBuffer
 from .models import fc_q, fc_deterministic_policy
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -119,4 +119,4 @@ class DDPGContinuousPreset(Preset):
         return TimeFeature(DDPGTestAgent(policy))
 
 
-ddpg = preset_builder('ddpg', default_hyperparameters, DDPGContinuousPreset)
+ddpg = PresetBuilder('ddpg', default_hyperparameters, DDPGContinuousPreset)

@@ -8,8 +8,8 @@ from all.approximation import VNetwork, FeatureNetwork
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import nature_features, nature_value_head, nature_policy_head
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -115,4 +115,4 @@ class A2CAtariPreset(Preset):
         return DeepmindAtariBody(A2CTestAgent(features, policy))
 
 
-a2c = preset_builder('a2c', default_hyperparameters, A2CAtariPreset)
+a2c = PresetBuilder('a2c', default_hyperparameters, A2CAtariPreset)

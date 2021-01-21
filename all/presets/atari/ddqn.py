@@ -10,8 +10,8 @@ from all.nn import weighted_smooth_l1_loss
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
 from .models import nature_ddqn
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -131,4 +131,4 @@ class DDQNAtariPreset(Preset):
         )
 
 
-ddqn = preset_builder('ddqn', default_hyperparameters, DDQNAtariPreset)
+ddqn = PresetBuilder('ddqn', default_hyperparameters, DDQNAtariPreset)

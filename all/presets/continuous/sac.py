@@ -8,8 +8,8 @@ from all.logging import DummyWriter
 from all.policies.soft_deterministic import SoftDeterministicPolicy
 from all.memory import ExperienceReplayBuffer
 from .models import fc_q, fc_v, fc_soft_policy
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -153,4 +153,4 @@ class SACContinuousPreset(Preset):
         return TimeFeature(SACTestAgent(policy))
 
 
-sac = preset_builder('sac', default_hyperparameters, SACContinuousPreset)
+sac = PresetBuilder('sac', default_hyperparameters, SACContinuousPreset)

@@ -7,8 +7,8 @@ from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
 from .models import nature_features, nature_value_head, nature_policy_head
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 default_hyperparameters = {
     # Common settings
@@ -102,4 +102,4 @@ class VACAtariPreset(Preset):
         return DeepmindAtariBody(VACTestAgent(features, policy))
 
 
-vac = preset_builder('vac', default_hyperparameters, VACAtariPreset)
+vac = PresetBuilder('vac', default_hyperparameters, VACAtariPreset)

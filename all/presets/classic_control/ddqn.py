@@ -6,9 +6,9 @@ from all.logging import DummyWriter
 from all.memory import PrioritizedReplayBuffer
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
-from .models import dueling_fc_relu_q
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.classic_control.models import dueling_fc_relu_q
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -116,4 +116,4 @@ class DDQNClassicControlPreset(Preset):
         return DDQNTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
 
 
-ddqn = preset_builder('ddqn', default_hyperparameters, DDQNClassicControlPreset)
+ddqn = PresetBuilder('ddqn', default_hyperparameters, DDQNClassicControlPreset)

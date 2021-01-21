@@ -8,8 +8,8 @@ from all.logging import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from .models import nature_c51
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -134,4 +134,4 @@ class C51AtariPreset(Preset):
         return DeepmindAtariBody(C51TestAgent(q_dist, self.n_actions, self.hyperparameters["test_exploration"]))
 
 
-c51 = preset_builder('c51', default_hyperparameters, C51AtariPreset)
+c51 = PresetBuilder('c51', default_hyperparameters, C51AtariPreset)

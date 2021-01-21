@@ -8,8 +8,8 @@ from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import GaussianPolicy
 from .models import fc_policy, fc_v
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -133,4 +133,4 @@ class PPOContinuousPreset(Preset):
         return TimeFeature(PPOTestAgent(Identity(self.device), policy))
 
 
-ppo = preset_builder('ppo', default_hyperparameters, PPOContinuousPreset)
+ppo = PresetBuilder('ppo', default_hyperparameters, PPOContinuousPreset)

@@ -4,9 +4,9 @@ from all.agents import A2C, A2CTestAgent
 from all.approximation import VNetwork, FeatureNetwork
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
-from .models import fc_relu_features, fc_policy_head, fc_value_head
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import ParallelPresetBuilder
+from all.presets.preset import ParallelPreset
+from all.presets.classic_control.models import fc_relu_features, fc_policy_head, fc_value_head
 
 
 default_hyperparameters = {
@@ -28,7 +28,7 @@ default_hyperparameters = {
 }
 
 
-class A2CClassicControlPreset(Preset):
+class A2CClassicControlPreset(ParallelPreset):
     """
     Advantaged Actor-Critic (A2C) classic control preset.
 
@@ -102,4 +102,4 @@ class A2CClassicControlPreset(Preset):
         return A2CTestAgent(features, policy)
 
 
-a2c = preset_builder('a2c', default_hyperparameters, A2CClassicControlPreset)
+a2c = ParallelPresetBuilder('a2c', default_hyperparameters, A2CClassicControlPreset)

@@ -13,8 +13,8 @@ from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
 from .models import nature_dqn
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -129,4 +129,4 @@ class DQNAtariPreset(Preset):
         )
 
 
-dqn = preset_builder('dqn', default_hyperparameters, DQNAtariPreset)
+dqn = PresetBuilder('dqn', default_hyperparameters, DQNAtariPreset)

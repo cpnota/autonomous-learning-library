@@ -8,8 +8,8 @@ from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import SoftmaxPolicy
 from .models import nature_features, nature_value_head, nature_policy_head
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -137,4 +137,4 @@ class PPOAtariPreset(Preset):
         return DeepmindAtariBody(PPOTestAgent(features, policy))
 
 
-ppo = preset_builder('ppo', default_hyperparameters, PPOAtariPreset)
+ppo = PresetBuilder('ppo', default_hyperparameters, PPOAtariPreset)

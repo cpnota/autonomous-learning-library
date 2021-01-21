@@ -5,9 +5,9 @@ from all.approximation import QDist, FixedTarget
 from all.logging import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
-from .models import fc_relu_dist_q
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.classic_control.models import fc_relu_dist_q
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -120,4 +120,4 @@ class C51ClassicControlPreset(Preset):
         return C51TestAgent(q_dist, self.n_actions, self.hyperparameters["test_exploration"])
 
 
-c51 = preset_builder('c51', default_hyperparameters, C51ClassicControlPreset)
+c51 = PresetBuilder('c51', default_hyperparameters, C51ClassicControlPreset)

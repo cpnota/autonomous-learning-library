@@ -7,9 +7,9 @@ from all.approximation import VNetwork, FeatureNetwork
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import SoftmaxPolicy
-from .models import fc_relu_features, fc_policy_head, fc_value_head
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.classic_control.models import fc_relu_features, fc_policy_head, fc_value_head
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -132,4 +132,4 @@ class PPOClassicControlPreset(Preset):
         return PPOTestAgent(features, policy)
 
 
-ppo = preset_builder('ppo', default_hyperparameters, PPOClassicControlPreset)
+ppo = PresetBuilder('ppo', default_hyperparameters, PPOClassicControlPreset)

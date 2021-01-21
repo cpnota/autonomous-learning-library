@@ -1,50 +1,79 @@
 from abc import ABC, abstractmethod
 
 
-def preset_builder(default_name, default_hyperparameters, constructor):
-    class PresetBuilder():
-        def __init__(self, name=default_name, hyperparameters=default_hyperparameters, env=None, device='cuda'):
-            if default_hyperparameters is None:
-                raise AttributeError('default_hyperparameters must be defined')
-            self._validate_hyperparameters(hyperparameters)
-            self._name = name
-            self._device = device
-            self._env = env
-            self._hyperparameters = {**default_hyperparameters, **hyperparameters}
+class PresetBuilder():
+    def __init__(
+        self,
+        default_name,
+        default_hyperparameters,
+        constructor,
+        device="cuda",
+        env=None,
+        hyperparameters=None,
+        name=None,
+    ):
+        self.default_name = default_name
+        self.default_hyperparameters = default_hyperparameters
+        self.constructor = constructor
+        self._device = device
+        self._env = env
+        self._hyperparameters = self._merge_hyperparameters(default_hyperparameters, hyperparameters)
+        self._name = name or default_name
 
-        def name(self, name):
-            return self.__class__(
-                name=name,
-                device=self._device,
-                hyperparameters=self._hyperparameters,
-                env=self._env
-            )
+    def device(self, device):
+        return self._preset_builder(device=device)
 
-        def hyperparameters(self, **hyperparameters):
-            return self.__class__(
-                name=self._name,
-                device=self._device,
-                hyperparameters=hyperparameters,
-                env=self._env
-            )
+    def env(self, env):
+        return self._preset_builder(env=env)
 
-        def env(self, env):
-            return self.__class__(
-                name=self._name,
-                device=self._device,
-                hyperparameters=self._hyperparameters,
-                env=env
-            )
+    def hyperparameters(self, hyperparameters):
+        return self._preset_builder(hyperparameters=self._merge_hyperparameters(self._hyperparameters, hyperparameters))
 
-        def device(self, device):
-            return self.__class__(name=self._name, device=device, hyperparameters=self._hyperparameters, env=self._env)
+    def name(self, name):
+        return self._preset_builder(name=name)
 
-        def _validate_hyperparameters(self, hyperparameters):
-            for key in hyperparameters.keys():
-                if key not in default_hyperparameters:
-                    raise KeyError("Invalid hyperparameter: {}".format(key))
+    def build(self):
+        return self.constructor(self._env, device=self._device, **self._hyperparameters)
 
-        def build(self):
-            return constructor(self._env, device=self._device, **self._hyperparameters)
+    def _merge_hyperparameters(self, h1, h2):
+        if h2 is None:
+            return h1
+        for key in h2.keys():
+            if key not in h1:
+                raise KeyError("Invalid hyperparameter: {}".format(key))
+        return {**h1, **h2}
 
-    return PresetBuilder
+    def _preset_builder(self, **kwargs):
+        old_kwargs = {
+            'device': self._device,
+            'env': self._env,
+            'hyperparameters': self._hyperparameters,
+            'name': self._name,
+        }
+        return PresetBuilder(self.default_name, self.default_hyperparameters, self.constructor, **{**old_kwargs, **kwargs})
+
+class ParallelPresetBuilder(PresetBuilder):
+    def __init__(
+        self,
+        default_name,
+        default_hyperparameters,
+        constructor,
+        device="cuda",
+        env=None,
+        hyperparameters=None,
+        name=None,
+    ):
+        if not 'n_envs' in default_hyperparameters:
+            raise Exception('ParallelPreset hyperparameters must include n_envs')
+        super().__init__(
+            default_name,
+            default_hyperparameters,
+            constructor,
+            device=device,
+            env=env,
+            hyperparameters=hyperparameters,
+            name=name
+        )
+
+    def build(self):
+        return super().build()
