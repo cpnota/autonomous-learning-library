@@ -1,6 +1,7 @@
 from timeit import default_timer as timer
 import numpy as np
-from .writer import ExperimentWriter
+from .writer import ExperimentWriter, CometWriter
+
 from .experiment import Experiment
 
 
@@ -16,10 +17,11 @@ class SingleEnvExperiment(Experiment):
             logdir='runs',
             quiet=False,
             render=False,
-            write_loss=True
+            write_loss=True,
+            writer="tensorboard"
     ):
         self._name = name if name is not None else preset.__class__.__name__
-        super().__init__(self._make_writer(logdir, self._name, env.name, write_loss), quiet)
+        super().__init__(self._make_writer(logdir, self._name, env.name, write_loss, writer), quiet)
         self._logdir = logdir
         self._preset = preset
         self._agent = self._preset.agent(writer=self._writer, train_steps=train_steps)
@@ -101,5 +103,7 @@ class SingleEnvExperiment(Experiment):
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes
 
-    def _make_writer(self, logdir, agent_name, env_name, write_loss):
+    def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
+        if writer == "comet":
+            return CometWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
         return ExperimentWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)

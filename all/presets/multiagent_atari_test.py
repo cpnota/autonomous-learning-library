@@ -4,7 +4,7 @@ import torch
 from all.environments import MultiagentAtariEnv
 from all.logging import DummyWriter
 from all.presets.atari import dqn
-from all.presets.multiagent_atari import IndependentMultiagentAtariPreset
+from all.presets import IndependentMultiagentPreset
 
 
 class TestAtariPresets(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestAtariPresets(unittest.TestCase):
             agent_id: dqn().device('cpu').env(env.subenvs[agent_id]).build()
             for agent_id in env.agents
         }
-        self.validate_preset(IndependentMultiagentAtariPreset(presets), env)
+        self.validate_preset(IndependentMultiagentPreset(presets), env)
 
     def validate_preset(self, preset, env):
         # normal agent

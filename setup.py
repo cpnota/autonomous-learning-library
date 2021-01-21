@@ -27,11 +27,14 @@ extras = {
         "sphinx-autobuild>=2020.9.1", # documentation live reload
         "sphinx-rtd-theme>=0.5.0",    # documentation theme
         "sphinx-automodapi>=0.13",    # autogenerate docs for modules
+    ],
+    "comet": [
+        "comet-ml>=3.2.11",           # experiment tracking using Comet.ml
     ]
 }
 
-extras["all"] = extras["atari"]  + extras["box2d"] + extras["pybullet"] + extras["ma-atari"]
-extras["dev"] = extras["all"] + extras["test"] + extras["docs"]
+extras["all"] = extras["atari"]  + extras["box2d"] + extras["pybullet"] + extras["ma-atari"] + extras["comet"]
+extras["dev"] = extras["all"] + extras["test"] + extras["docs"] + extras["comet"]
 
 setup(
     name="autonomous-learning-library",

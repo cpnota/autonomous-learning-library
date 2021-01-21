@@ -32,6 +32,9 @@ def main():
     parser.add_argument(
         "--render", action="store_true", default=False, help="Render the environment."
     )
+    parser.add_argument(
+        "--writer", default='tensorboard', help="The backend used for tracking experiment metrics."
+    )
     args = parser.parse_args()
 
     env = MultiagentAtariEnv(args.env, device=args.device)
@@ -49,7 +52,8 @@ def main():
         IndependentMultiagentAtariPreset(presets),
         env,
         write_loss=False,
-        render=args.render
+        render=args.render,
+        writer=args.writer,
     )
     experiment.train()
 
