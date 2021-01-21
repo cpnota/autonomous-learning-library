@@ -10,7 +10,7 @@ class Agent(ABC, Schedulable):
     Usually, an agent tries to maximize a reward signal.
     It does this by observing environment "states", taking "actions", receiving "rewards",
     and in doing so, learning which state-action pairs correlate with high rewards.
-    An Agent implementation should encapsulate some particular reinforcement learning algorihthm.
+    An Agent implementation should encapsulate some particular reinforcement learning algorithm.
     """
 
     @abstractmethod

@@ -2,10 +2,11 @@ from abc import ABC, abstractmethod
 from all.optim import Schedulable
 
 
-class Multiagent(ABC, Schedulable):
+class ParallelAgent(ABC, Schedulable):
     """
-    A multiagent RL agent. Differs from standard agents in that it accepts a multiagent state.
-
+    A reinforcement learning agent that chooses actions for multiple states simultaneously.
+    Differs from SingleAgent in that it accepts a StateArray instead of a STate.
+    
     In reinforcement learning, an Agent learns by interacting with an Environment.
     Usually, an agent tries to maximize a reward signal.
     It does this by observing environment "states", taking "actions", receiving "rewards",
@@ -14,7 +15,7 @@ class Multiagent(ABC, Schedulable):
     """
 
     @abstractmethod
-    def act(self, multiagent_state):
+    def act(self, state_array):
         """
         Select an action for the current timestep and update internal parameters.
 
@@ -27,8 +28,8 @@ class Multiagent(ABC, Schedulable):
         However, the agent must ultimately return an action.
 
         Args:
-            multiagent_state (all.core.MultiAgentState): The environment state at the current timestep.
+            state_array (all.environment.StateArray): An array of states for each parallel environment.
 
         Returns:
-            torch.Tensor: The action for the current agent to take at the current timestep.
+            torch.Tensor: The actions to take for each parallel environmets.
         """
