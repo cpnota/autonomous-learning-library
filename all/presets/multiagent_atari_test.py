@@ -7,7 +7,7 @@ from all.presets.atari import dqn
 from all.presets.multiagent_atari import IndependentMultiagentAtariPreset
 
 
-class TestAtariPresets(unittest.TestCase):
+class TestMultiagentAtariPresets(unittest.TestCase):
     def setUp(self):
         self.env = MultiagentAtariEnv('pong_v1', device='cpu')
         self.env.reset()
