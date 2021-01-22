@@ -102,7 +102,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         self.assertFalse(experiment._writer.write_loss)
 
     def make_preset(self):
-        return dqn().device('cpu').env(self.env).build()
+        return dqn.device('cpu').env(self.env).build()
 
 
 if __name__ == "__main__":
