@@ -6,9 +6,9 @@ from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
-from .models import nature_features, nature_value_head, nature_policy_head
 from all.presets.builder import PresetBuilder
 from all.presets.preset import Preset
+from all.presets.atari.models import nature_features, nature_value_head, nature_policy_head
 
 
 default_hyperparameters = {
@@ -51,14 +51,11 @@ class VPGAtariPreset(Preset):
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
-        super().__init__()
+    def __init__(self, env, name, device, hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.value_model = hyperparameters['value_model_constructor']().to(device)
         self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
         self.feature_model = hyperparameters['feature_model_constructor']().to(device)
-        self.hyperparameters = hyperparameters
-        self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         n_updates = train_steps / self.hyperparameters["min_batch_size"]

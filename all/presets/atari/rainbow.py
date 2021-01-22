@@ -7,9 +7,9 @@ from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer
 from all.optim import LinearScheduler
-from .models import nature_rainbow
 from all.presets.builder import PresetBuilder
 from all.presets.preset import Preset
+from all.presets.atari.models import nature_rainbow
 
 
 default_hyperparameters = {
@@ -76,13 +76,10 @@ class RainbowAtariPreset(Preset):
         model_constructor (function): The function used to construct the neural model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        super().__init__()
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
+    def __init__(self, env, name, device, hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.model = hyperparameters['model_constructor'](env, atoms=hyperparameters["atoms"], sigma=hyperparameters["sigma"]).to(device)
-        self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
-        self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
