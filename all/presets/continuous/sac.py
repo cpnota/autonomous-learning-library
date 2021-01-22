@@ -7,9 +7,9 @@ from all.bodies import TimeFeature
 from all.logging import DummyWriter
 from all.policies.soft_deterministic import SoftDeterministicPolicy
 from all.memory import ExperienceReplayBuffer
-from .models import fc_q, fc_v, fc_soft_policy
 from all.presets.builder import PresetBuilder
 from all.presets.preset import Preset
+from all.presets.continuous.models import fc_q, fc_v, fc_soft_policy
 
 
 default_hyperparameters = {
@@ -64,15 +64,12 @@ class SACContinuousPreset(Preset):
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        super().__init__()
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
+    def __init__(self, env, name, device, hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.q_1_model = hyperparameters["q1_model_constructor"](env).to(device)
         self.q_2_model = hyperparameters["q2_model_constructor"](env).to(device)
         self.v_model = hyperparameters["v_model_constructor"](env).to(device)
         self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
-        self.device = device
-        self.hyperparameters = hyperparameters
         self.action_space = env.action_space
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):

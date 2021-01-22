@@ -7,9 +7,9 @@ from all.bodies import TimeFeature
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import GaussianPolicy
-from .models import fc_policy, fc_v
-from all.presets.builder import PresetBuilder
-from all.presets.preset import Preset
+from all.presets.builder import ParallelPresetBuilder
+from all.presets.preset import ParallelPreset
+from all.presets.continuous.models import fc_policy, fc_v
 
 
 default_hyperparameters = {
@@ -38,7 +38,7 @@ default_hyperparameters = {
 }
 
 
-class PPOContinuousPreset(Preset):
+class PPOContinuousPreset(ParallelPreset):
     """
     Proximal Policy Optimization (PPO) Continuous Control Preset.
 
@@ -65,14 +65,11 @@ class PPOContinuousPreset(Preset):
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
-        super().__init__(hyperparameters["n_envs"])
+    def __init__(self, env, name, device, hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.value_model = hyperparameters["value_model_constructor"](env).to(device)
         self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
-        self.device = device
         self.action_space = env.action_space
-        self.hyperparameters = hyperparameters
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         n_updates = train_steps * self.hyperparameters['epochs'] * self.hyperparameters['minibatches'] / (self.hyperparameters['n_steps'] * self.hyperparameters['n_envs'])
@@ -133,4 +130,4 @@ class PPOContinuousPreset(Preset):
         return TimeFeature(PPOTestAgent(Identity(self.device), policy))
 
 
-ppo = PresetBuilder('ppo', default_hyperparameters, PPOContinuousPreset)
+ppo = ParallelPresetBuilder('ppo', default_hyperparameters, PPOContinuousPreset)
