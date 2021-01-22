@@ -11,6 +11,7 @@ class Preset(ABC):
     However, other objects, such as ReplayBuffers, are independently created for each Agent.
     The Preset can be saved and loaded from disk.
     """
+
     def __init__(self, name, device, hyperparameters):
         self.name = name
         self.device = device
@@ -63,6 +64,7 @@ class ParallelPreset():
     However, other objects, such as ReplayBuffers, are independently created for each Agent.
     The ParallelPreset can be saved and loaded from disk.
     """
+
     def __init__(self, name, device, hyperparameters):
         self.name = name
         self.device = device

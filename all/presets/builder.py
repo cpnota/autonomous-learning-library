@@ -60,6 +60,7 @@ class PresetBuilder():
         }
         return PresetBuilder(self.default_name, self.default_hyperparameters, self.constructor, **{**old_kwargs, **kwargs})
 
+
 class ParallelPresetBuilder(PresetBuilder):
     def __init__(
         self,
@@ -71,7 +72,7 @@ class ParallelPresetBuilder(PresetBuilder):
         hyperparameters=None,
         name=None,
     ):
-        if not 'n_envs' in default_hyperparameters:
+        if 'n_envs' not in default_hyperparameters:
             raise Exception('ParallelPreset hyperparameters must include n_envs')
         super().__init__(
             default_name,

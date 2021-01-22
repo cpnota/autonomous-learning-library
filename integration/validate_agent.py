@@ -31,6 +31,7 @@ def validate_agent(agent, env):
     experiment.train(episodes=2)
     experiment.test(episodes=2)
 
+
 def validate_multiagent(preset, env):
     experiment = TestMultiagentEnvExperiment(preset, env, quiet=True)
     experiment.train(episodes=2)

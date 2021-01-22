@@ -6,7 +6,7 @@ class ParallelAgent(ABC, Schedulable):
     """
     A reinforcement learning agent that chooses actions for multiple states simultaneously.
     Differs from SingleAgent in that it accepts a StateArray instead of a STate.
-    
+
     In reinforcement learning, an Agent learns by interacting with an Environment.
     Usually, an agent tries to maximize a reward signal.
     It does this by observing environment "states", taking "actions", receiving "rewards",
