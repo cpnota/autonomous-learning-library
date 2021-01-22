@@ -33,7 +33,15 @@ class PresetBuilder():
         return self._preset_builder(name=name)
 
     def build(self):
-        return self.constructor(self._env, device=self._device, **self._hyperparameters)
+        if not self._env:
+            raise Exception('Env is required')
+
+        return self.constructor(
+            self._env,
+            device=self._device,
+            name=self._name,
+            hyperparameters=self._hyperparameters
+        )
 
     def _merge_hyperparameters(self, h1, h2):
         if h2 is None:

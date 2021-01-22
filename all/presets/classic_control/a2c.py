@@ -51,14 +51,11 @@ class A2CClassicControlPreset(ParallelPreset):
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
-        super().__init__(n_envs=hyperparameters['n_envs'])
+    def __init__(self, env, name, device, hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.value_model = hyperparameters['value_model_constructor']().to(device)
         self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
         self.feature_model = hyperparameters['feature_model_constructor'](env).to(device)
-        self.hyperparameters = hyperparameters
-        self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr"])

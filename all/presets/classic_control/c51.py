@@ -5,9 +5,9 @@ from all.approximation import QDist, FixedTarget
 from all.logging import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
-from all.presets.classic_control.models import fc_relu_dist_q
 from all.presets.builder import PresetBuilder
 from all.presets.preset import Preset
+from all.presets.classic_control.models import fc_relu_dist_q
 
 
 default_hyperparameters = {
@@ -63,13 +63,10 @@ class C51ClassicControlPreset(Preset):
         model_constructor (function): The function used to construct the neural model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
-        super().__init__()
+    def __init__(self, env, name, device, hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.model = hyperparameters['model_constructor'](env, atoms=hyperparameters['atoms']).to(device)
-        self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
-        self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         optimizer = Adam(self.model.parameters(), lr=self.hyperparameters['lr'])

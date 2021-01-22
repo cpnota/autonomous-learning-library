@@ -7,9 +7,9 @@ from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import ParallelGreedyPolicy
+from all.presets.builder import ParallelPresetBuilder
+from all.presets.preset import ParallelPreset
 from all.presets.classic_control.models import dueling_fc_relu_q
-from all.presets.builder import PresetBuilder
-from all.presets.preset import Preset
 
 
 default_hyperparameters = {
@@ -30,7 +30,7 @@ default_hyperparameters = {
 }
 
 
-class VQNClassicControlPreset(Preset):
+class VQNClassicControlPreset(ParallelPreset):
     """
     Vanilla Q-Network (VQN) Classic Control Preset.
 
@@ -51,13 +51,10 @@ class VQNClassicControlPreset(Preset):
         model_constructor (function): The function used to construct the neural model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
-        super().__init__(n_envs=hyperparameters['n_envs'])
+    def __init__(self, env, name, device, hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.model = hyperparameters['model_constructor'](env).to(device)
-        self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
-        self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         n_updates = train_steps / self.hyperparameters['n_envs']
@@ -95,4 +92,4 @@ class VQNClassicControlPreset(Preset):
         return VQNTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
 
 
-vqn = PresetBuilder('vqn', default_hyperparameters, VQNClassicControlPreset)
+vqn = ParallelPresetBuilder('vqn', default_hyperparameters, VQNClassicControlPreset)

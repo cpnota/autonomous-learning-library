@@ -11,6 +11,10 @@ class Preset(ABC):
     However, other objects, such as ReplayBuffers, are independently created for each Agent.
     The Preset can be saved and loaded from disk.
     """
+    def __init__(self, name, device, hyperparameters):
+        self.name = name
+        self.device = device
+        self.hyperparameters = hyperparameters
 
     @abstractmethod
     def agent(self, writer=None, train_steps=float('inf')):
@@ -36,11 +40,6 @@ class Preset(ABC):
         """
         pass
 
-    @property
-    def name(self):
-        """The name of the Preset."""
-        return self.__class__.__name__
-
     def save(self, filename):
         """
         Save the preset and the contained model to disk.
@@ -64,6 +63,10 @@ class ParallelPreset():
     However, other objects, such as ReplayBuffers, are independently created for each Agent.
     The ParallelPreset can be saved and loaded from disk.
     """
+    def __init__(self, name, device, hyperparameters):
+        self.name = name
+        self.device = device
+        self.hyperparameters = hyperparameters
 
     @abstractmethod
     def agent(self, writer=None, train_steps=float('inf')):
@@ -90,14 +93,8 @@ class ParallelPreset():
         pass
 
     @property
-    def name(self):
-        """The name of the ParallelPreset."""
-        return self.__class__.__name__
-
-    @property
     def n_envs(self):
-        """The number of parallel environments"""
-        pass
+        return self.hyperparameters['n_envs']
 
     def save(self, filename):
         """
