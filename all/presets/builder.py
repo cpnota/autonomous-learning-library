@@ -26,7 +26,7 @@ class PresetBuilder():
     def env(self, env):
         return self._preset_builder(env=env)
 
-    def hyperparameters(self, hyperparameters):
+    def hyperparameters(self, **hyperparameters):
         return self._preset_builder(hyperparameters=self._merge_hyperparameters(self._hyperparameters, hyperparameters))
 
     def name(self, name):

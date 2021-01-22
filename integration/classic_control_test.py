@@ -17,34 +17,34 @@ from validate_agent import validate_agent
 
 class TestClassicControlPresets(unittest.TestCase):
     def test_a2c(self):
-        self.validate(a2c())
+        self.validate(a2c)
 
     def test_c51(self):
-        self.validate(c51())
+        self.validate(c51)
 
     def test_ddqn(self):
-        self.validate(ddqn())
+        self.validate(ddqn)
 
     def test_dqn(self):
-        self.validate(dqn())
+        self.validate(dqn)
 
     def test_ppo(self):
-        self.validate(ppo())
+        self.validate(ppo)
 
     def test_rainbow(self):
-        self.validate(rainbow())
+        self.validate(rainbow)
 
     def test_vac(self):
-        self.validate(vac())
+        self.validate(vac)
 
     def test_vpg(self):
-        self.validate(vpg())
+        self.validate(vpg)
 
     def test_vsarsa(self):
-        self.validate(vsarsa())
+        self.validate(vsarsa)
 
     def test_vqn(self):
-        self.validate(vqn())
+        self.validate(vqn)
 
     def validate(self, builder):
         validate_agent(builder.device('cpu'), GymEnvironment("CartPole-v0"))
