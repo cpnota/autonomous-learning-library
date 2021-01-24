@@ -45,7 +45,8 @@ class DDQNAtariPreset(Preset):
 
     Args:
         env (all.environments.AtariEnvironment): The environment for which to construct the agent.
-        device (torch.device, optional): the device on which to load the agent
+        name (str): A human-readable name for the preset.
+        device (torch.device): The device on which to load the agent.
 
     Keyword Args:
         discount_factor (float): Discount factor for future rewards.
@@ -68,7 +69,7 @@ class DDQNAtariPreset(Preset):
         model_constructor (function): The function used to construct the neural model.
     """
 
-    def __init__(self, env, name, device, hyperparameters):
+    def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
         self.model = hyperparameters['model_constructor'](env).to(device)
         self.n_actions = env.action_space.n

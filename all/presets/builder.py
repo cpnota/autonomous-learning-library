@@ -40,7 +40,7 @@ class PresetBuilder():
             self._env,
             device=self._device,
             name=self._name,
-            hyperparameters=self._hyperparameters
+            **self._hyperparameters
         )
 
     def _merge_hyperparameters(self, h1, h2):

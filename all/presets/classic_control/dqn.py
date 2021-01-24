@@ -38,8 +38,9 @@ class DQNClassicControlPreset(Preset):
     Deep Q-Network (DQN) Classic Control Preset.
 
     Args:
-        env (all.environments.GymEnvironment): The environment for which to construct the agent.
-        device (torch.device, optional): The device on which to load the agent.
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        name (str): A human-readable name for the preset.
+        device (torch.device): The device on which to load the agent.
 
     Keyword Args:
         discount_factor (float, optional): Discount factor for future rewards.
@@ -57,7 +58,7 @@ class DQNClassicControlPreset(Preset):
         model_constructor (function): The function used to construct the neural model.
     """
 
-    def __init__(self, env, name, device, hyperparameters):
+    def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
         self.model = hyperparameters['model_constructor'](env).to(device)
         self.n_actions = env.action_space.n
