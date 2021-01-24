@@ -28,6 +28,7 @@ def main():
     args = parser.parse_args()
 
     env = AtariEnvironment(args.env, device=args.device)
+
     agent_name = args.agent
     agent = getattr(atari, agent_name)
     agent = agent.device(args.device)

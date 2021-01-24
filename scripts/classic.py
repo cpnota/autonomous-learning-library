@@ -24,13 +24,28 @@ def main():
     parser.add_argument(
         "--logdir", default='runs', help="The base logging directory."
     )
+    parser.add_argument(
+        '--hyperparameters',
+        default=[],
+        nargs='*',
+        help="Custom hyperparameters, in the format hyperparameter1=value1 hyperparameter2=value2 etc."
+    )
     args = parser.parse_args()
 
     env = GymEnvironment(args.env, device=args.device)
+
     agent_name = args.agent
     agent = getattr(classic_control, agent_name)
+    agent = agent.device(args.device)
 
-    run_experiment(agent(device=args.device), env, args.frames, render=args.render, logdir=args.logdir)
+    # parse hyperparameters
+    hyperparameters = {}
+    for hp in args.hyperparameters:
+        key, value = hp.split('=')
+        hyperparameters[key] = type(agent.default_hyperparameters[key])(value)
+    agent = agent.hyperparameters(**hyperparameters)
+
+    run_experiment(agent, env, args.frames, render=args.render, logdir=args.logdir)
 
 
 if __name__ == "__main__":

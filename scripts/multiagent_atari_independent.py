@@ -10,6 +10,7 @@ class DummyEnv():
         self.state_space = state_space
         self.action_space = action_space
 
+
 def main():
     parser = argparse.ArgumentParser(description="Run an multiagent Atari benchmark.")
     parser.add_argument("env", help="Name of the Atari game (e.g. Pong).")
@@ -37,7 +38,7 @@ def main():
     env = MultiagentAtariEnv(args.env, device=args.device)
 
     presets = {
-        agent_id : getattr(atari, agent_type)().hyperparameters(replay_buffer_size=args.replay_buffer_size).device(args.device).env(
+        agent_id: getattr(atari, agent_type)().hyperparameters(replay_buffer_size=args.replay_buffer_size).device(args.device).env(
             DummyEnv(
                 env.observation_spaces[agent_id], env.action_spaces[agent_id]
             )

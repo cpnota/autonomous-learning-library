@@ -5,6 +5,7 @@ from all.bodies import DeepmindAtariBody
 from all.environments import MultiagentAtariEnv
 from all.experiments import load_and_watch
 
+
 def watch(env, filename, fps, reload):
     agent = torch.load(filename).test_agent()
 
@@ -17,6 +18,7 @@ def watch(env, filename, fps, reload):
                 print('Warning: error reloading model: {}'.format(filename))
                 print(e)
 
+
 def watch_episode(env, agent, fps):
     env.reset()
     for _ in env.agent_iter():
@@ -28,6 +30,7 @@ def watch_episode(env, agent, fps):
         else:
             env.step(action)
         time.sleep(1 / fps)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Watch pretrained multiagent atari")
