@@ -5,12 +5,13 @@ from all.optim import Schedulable
 class ParallelAgent(ABC, Schedulable):
     """
     A reinforcement learning agent that chooses actions for multiple states simultaneously.
-    Differs from SingleAgent in that it accepts a StateArray instead of a STate.
+    Differs from SingleAgent in that it accepts a StateArray instead of a State to process
+    input from multiple environments in parallel.
 
     In reinforcement learning, an Agent learns by interacting with an Environment.
-    Usually, an agent tries to maximize a reward signal.
+    Usually, an Agent tries to maximize a reward signal.
     It does this by observing environment "states", taking "actions", receiving "rewards",
-    and in doing so, learning which state-action pairs correlate with high rewards.
+    and learning which state-action pairs correlate with high rewards.
     An Agent implementation should encapsulate some particular reinforcement learning algorithm.
     """
 
