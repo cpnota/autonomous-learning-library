@@ -65,6 +65,12 @@ class Writer(ABC):
             step (str, optional): Which step to use (e.g., "frame" or "episode")
         '''
 
+    @abstractmethod
+    def close(self):
+        '''
+        Close the writer and perform any necessary cleanup.
+        '''
+
 
 class DummyWriter(Writer):
     '''A default Writer object that performs no logging and has no side effects.'''
@@ -82,4 +88,7 @@ class DummyWriter(Writer):
         pass
 
     def add_summary(self, name, mean, std, step="frame"):
+        pass
+
+    def close(self):
         pass

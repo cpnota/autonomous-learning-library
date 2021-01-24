@@ -40,9 +40,12 @@ class MockWriter(Writer):
             return self.experiment.episode
         return _type
 
+    def close(self):
+        pass
+
 
 class MockExperiment(SingleEnvExperiment):
-    def _make_writer(self, logdir, agent_name, env_name, write_loss):
+    def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
         self._writer = MockWriter(self, agent_name + '_' + env_name, write_loss)
         return self._writer
 

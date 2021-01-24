@@ -24,6 +24,9 @@ def main():
     parser.add_argument(
         "--logdir", default='runs', help="The base logging directory."
     )
+    parser.add_argument(
+        "--writer", default='tensorboard', help="The backend used for tracking experiment metrics."
+    )
     parser.add_argument('--hyperparameters', default=[], nargs='*')
     args = parser.parse_args()
 
@@ -45,7 +48,8 @@ def main():
         env,
         args.frames,
         render=args.render,
-        logdir=args.logdir
+        logdir=args.logdir,
+        writer=args.writer,
     )
 
 

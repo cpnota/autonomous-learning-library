@@ -41,6 +41,7 @@ def main():
     parser.add_argument(
         "--logdir", default='runs', help="The base logging directory."
     )
+    parser.add_argument("--writer", default='tensorboard', help="The backend used for tracking experiment metrics.")
     parser.add_argument(
         '--hyperparameters',
         default=[],
@@ -67,7 +68,14 @@ def main():
         hyperparameters[key] = type(agent.default_hyperparameters[key])(value)
     agent = agent.hyperparameters(**hyperparameters)
 
-    run_experiment(agent, env, frames=args.frames, render=args.render, logdir=args.logdir)
+    run_experiment(
+        agent,
+        env,
+        frames=args.frames,
+        render=args.render,
+        logdir=args.logdir,
+        writer=args.writer,
+    )
 
 
 if __name__ == "__main__":

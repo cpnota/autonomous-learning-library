@@ -3,7 +3,7 @@ from timeit import default_timer as timer
 import torch
 import numpy as np
 from all.core import State
-from .writer import ExperimentWriter
+from .writer import ExperimentWriter, CometWriter
 from .experiment import Experiment
 
 
@@ -19,10 +19,11 @@ class ParallelEnvExperiment(Experiment):
             logdir='runs',
             quiet=False,
             render=False,
-            write_loss=True
+            write_loss=True,
+            writer="tensorboard"
     ):
         self._name = name if name is not None else preset.__class__.__name__
-        super().__init__(self._make_writer(logdir, self._name, env.name, write_loss), quiet)
+        super().__init__(self._make_writer(logdir, self._name, env.name, write_loss, writer), quiet)
         self._n_envs = preset.n_envs
         self._envs = env.duplicate(self._n_envs)
         self._preset = preset
@@ -138,5 +139,7 @@ class ParallelEnvExperiment(Experiment):
         end_time = timer()
         return (self._frame - self._episode_start_frames[i]) / (end_time - self._episode_start_times[i])
 
-    def _make_writer(self, logdir, agent_name, env_name, write_loss):
+    def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
+        if writer == "comet":
+            return CometWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
         return ExperimentWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
