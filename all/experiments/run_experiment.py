@@ -1,6 +1,6 @@
 from .single_env_experiment import SingleEnvExperiment
 from .parallel_env_experiment import ParallelEnvExperiment
-
+from all.presets import ParallelPreset
 
 def run_experiment(
         agents,
@@ -37,10 +37,6 @@ def run_experiment(
 
 
 def get_experiment_type(preset):
-    if preset.is_parallel():
+    if isinstance(preset, ParallelPreset):
         return ParallelEnvExperiment
     return SingleEnvExperiment
-
-
-def is_parallel_env_agent(agent):
-    return isinstance(agent, tuple)
