@@ -3,9 +3,10 @@ from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from all.memory import NStepAdvantageBuffer
 from ._agent import Agent
+from ._parallel_agent import ParallelAgent
 
 
-class A2C(Agent):
+class A2C(ParallelAgent):
     """
     Advantage Actor-Critic (A2C).
     A2C is policy gradient method in the actor-critic family.

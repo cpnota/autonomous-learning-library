@@ -41,8 +41,12 @@ def main():
     parser.add_argument(
         "--logdir", default='runs', help="The base logging directory."
     )
+    parser.add_argument("--writer", default='tensorboard', help="The backend used for tracking experiment metrics.")
     parser.add_argument(
-        "--writer", default='tensorboard', help="The backend used for tracking experiment metrics."
+        '--hyperparameters',
+        default=[],
+        nargs='*',
+        help="Custom hyperparameters, in the format hyperparameter1=value1 hyperparameter2=value2 etc."
     )
     args = parser.parse_args()
 
@@ -52,11 +56,20 @@ def main():
         env_id = args.env
 
     env = GymEnvironment(env_id, device=args.device)
+
     agent_name = args.agent
     agent = getattr(continuous, agent_name)
+    agent = agent.device(args.device)
+
+    # parse hyperparameters
+    hyperparameters = {}
+    for hp in args.hyperparameters:
+        key, value = hp.split('=')
+        hyperparameters[key] = type(agent.default_hyperparameters[key])(value)
+    agent = agent.hyperparameters(**hyperparameters)
 
     run_experiment(
-        agent(device=args.device),
+        agent,
         env,
         frames=args.frames,
         render=args.render,

@@ -94,8 +94,8 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         self.assertFalse(experiment._writer.write_loss)
 
     def make_preset(self):
-        return IndependentMultiagentPreset({
-            agent: dqn().device('cpu').env(env).build()
+        return IndependentMultiagentPreset('independent', 'cpu', {
+            agent: dqn.device('cpu').env(env).build()
             for agent, env in self.env.subenvs.items()
         })
 

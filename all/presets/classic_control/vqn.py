@@ -7,9 +7,9 @@ from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
 from all.policies import ParallelGreedyPolicy
-from .models import dueling_fc_relu_q
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import ParallelPresetBuilder
+from all.presets.preset import ParallelPreset
+from all.presets.classic_control.models import dueling_fc_relu_q
 
 
 default_hyperparameters = {
@@ -30,13 +30,14 @@ default_hyperparameters = {
 }
 
 
-class VQNClassicControlPreset(Preset):
+class VQNClassicControlPreset(ParallelPreset):
     """
     Vanilla Q-Network (VQN) Classic Control Preset.
 
     Args:
         env (all.environments.AtariEnvironment): The environment for which to construct the agent.
-        device (torch.device, optional): The device on which to load the agent.
+        name (str): A human-readable name for the preset.
+        device (torch.device): The device on which to load the agent.
 
     Keyword Args:
         discount_factor (float): Discount factor for future rewards.
@@ -51,13 +52,10 @@ class VQNClassicControlPreset(Preset):
         model_constructor (function): The function used to construct the neural model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
-        super().__init__(n_envs=hyperparameters['n_envs'])
+    def __init__(self, env, name, device, **hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.model = hyperparameters['model_constructor'](env).to(device)
-        self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
-        self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         n_updates = train_steps / self.hyperparameters['n_envs']
@@ -95,4 +93,4 @@ class VQNClassicControlPreset(Preset):
         return VQNTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
 
 
-vqn = preset_builder('vqn', default_hyperparameters, VQNClassicControlPreset)
+vqn = ParallelPresetBuilder('vqn', default_hyperparameters, VQNClassicControlPreset)

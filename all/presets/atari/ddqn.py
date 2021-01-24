@@ -9,9 +9,9 @@ from all.memory import PrioritizedReplayBuffer
 from all.nn import weighted_smooth_l1_loss
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
-from .models import nature_ddqn
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
+from all.presets.atari.models import nature_ddqn
 
 
 default_hyperparameters = {
@@ -45,7 +45,8 @@ class DDQNAtariPreset(Preset):
 
     Args:
         env (all.environments.AtariEnvironment): The environment for which to construct the agent.
-        device (torch.device, optional): the device on which to load the agent
+        name (str): A human-readable name for the preset.
+        device (torch.device): The device on which to load the agent.
 
     Keyword Args:
         discount_factor (float): Discount factor for future rewards.
@@ -68,13 +69,10 @@ class DDQNAtariPreset(Preset):
         model_constructor (function): The function used to construct the neural model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        super().__init__()
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
+    def __init__(self, env, name, device, **hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.model = hyperparameters['model_constructor'](env).to(device)
-        self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
-        self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
@@ -131,4 +129,4 @@ class DDQNAtariPreset(Preset):
         )
 
 
-ddqn = preset_builder('ddqn', default_hyperparameters, DDQNAtariPreset)
+ddqn = PresetBuilder('ddqn', default_hyperparameters, DDQNAtariPreset)

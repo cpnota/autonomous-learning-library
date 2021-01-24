@@ -59,7 +59,6 @@ class MultiagentPettingZooEnvTest(unittest.TestCase):
 
     def test_list_agents(self):
         env = self._make_env()
-        print(env.agents)
         self.assertEqual(env.agents, ['leadadversary_0', 'adversary_0', 'adversary_1', 'adversary_2', 'agent_0', 'agent_1'])
 
     def test_is_done(self):

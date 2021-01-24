@@ -7,9 +7,9 @@ from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
-from .models import nature_c51
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
+from all.presets.atari.models import nature_c51
 
 
 default_hyperparameters = {
@@ -44,7 +44,8 @@ class C51AtariPreset(Preset):
 
     Args:
         env (all.environments.AtariEnvironment): The environment for which to construct the agent.
-        device (torch.device, optional): the device on which to load the agent
+        name (str): A human-readable name for the preset.
+        device (torch.device): The device on which to load the agent.
 
     Keyword Args:
         discount_factor (float): Discount factor for future rewards.
@@ -67,13 +68,10 @@ class C51AtariPreset(Preset):
         model_constructor (function): The function used to construct the neural model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
-        super().__init__()
+    def __init__(self, env, name, device, **hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.model = hyperparameters['model_constructor'](env, atoms=hyperparameters['atoms']).to(device)
-        self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
-        self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
@@ -134,4 +132,4 @@ class C51AtariPreset(Preset):
         return DeepmindAtariBody(C51TestAgent(q_dist, self.n_actions, self.hyperparameters["test_exploration"]))
 
 
-c51 = preset_builder('c51', default_hyperparameters, C51AtariPreset)
+c51 = PresetBuilder('c51', default_hyperparameters, C51AtariPreset)

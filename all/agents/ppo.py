@@ -3,10 +3,11 @@ from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from all.memory import GeneralizedAdvantageBuffer
 from ._agent import Agent
+from ._parallel_agent import ParallelAgent
 from .a2c import A2CTestAgent
 
 
-class PPO(Agent):
+class PPO(ParallelAgent):
     """
     Proximal Policy Optimization (PPO).
     PPO is an actor-critic style policy gradient algorithm that allows for the reuse of samples

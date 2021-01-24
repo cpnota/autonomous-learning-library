@@ -5,9 +5,9 @@ from all.approximation import QDist, FixedTarget
 from all.logging import DummyWriter
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
-from .models import fc_relu_dist_q
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
+from all.presets.classic_control.models import fc_relu_dist_q
 
 
 default_hyperparameters = {
@@ -40,8 +40,9 @@ class C51ClassicControlPreset(Preset):
     Categorical DQN (C51) Atari preset.
 
     Args:
-        env (all.environments.GymEnvironment): The environment for which to construct the agent.
-        device (torch.device, optional): the device on which to load the agent
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        name (str): A human-readable name for the preset.
+        device (torch.device): The device on which to load the agent.
 
     Keyword Args:
         discount_factor (float): Discount factor for future rewards.
@@ -63,13 +64,10 @@ class C51ClassicControlPreset(Preset):
         model_constructor (function): The function used to construct the neural model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
-        super().__init__()
+    def __init__(self, env, name, device, **hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.model = hyperparameters['model_constructor'](env, atoms=hyperparameters['atoms']).to(device)
-        self.hyperparameters = hyperparameters
         self.n_actions = env.action_space.n
-        self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         optimizer = Adam(self.model.parameters(), lr=self.hyperparameters['lr'])
@@ -120,4 +118,4 @@ class C51ClassicControlPreset(Preset):
         return C51TestAgent(q_dist, self.n_actions, self.hyperparameters["test_exploration"])
 
 
-c51 = preset_builder('c51', default_hyperparameters, C51ClassicControlPreset)
+c51 = PresetBuilder('c51', default_hyperparameters, C51ClassicControlPreset)

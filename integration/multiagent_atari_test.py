@@ -22,18 +22,18 @@ class TestMultiagentAtariPresets(unittest.TestCase):
     def test_independent(self):
         env = MultiagentAtariEnv('pong_v1', device=CPU)
         presets = {
-            agent_id : dqn().device(CPU).env(env.subenvs[agent_id]).build()
+            agent_id: dqn.device(CPU).env(env.subenvs[agent_id]).build()
             for agent_id in env.agents
         }
-        validate_multiagent(IndependentMultiagentPreset(presets), env)
+        validate_multiagent(IndependentMultiagentPreset('independent', CPU, presets), env)
 
     def test_independent_cuda(self):
         env = MultiagentAtariEnv('pong_v1', device=CUDA)
         presets = {
-            agent_id : dqn().device(CUDA).env(env.subenvs[agent_id]).build()
+            agent_id: dqn.device(CUDA).env(env.subenvs[agent_id]).build()
             for agent_id in env.agents
         }
-        validate_multiagent(IndependentMultiagentPreset(presets), env)
+        validate_multiagent(IndependentMultiagentPreset('independent', CUDA, presets), env)
 
 
 if __name__ == "__main__":

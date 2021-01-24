@@ -4,17 +4,17 @@ from all.optim import Schedulable
 
 class Multiagent(ABC, Schedulable):
     """
-    A reinforcement learning agent.
+    A multiagent RL agent. Differs from standard agents in that it accepts a multiagent state.
 
     In reinforcement learning, an Agent learns by interacting with an Environment.
     Usually, an agent tries to maximize a reward signal.
     It does this by observing environment "states", taking "actions", receiving "rewards",
-    and in doing so, learning which state-action pairs correlate with high rewards.
-    An Agent implementation should encapsulate some particular reinforcement learning algorihthm.
+    and learning which state-action pairs correlate with high rewards.
+    An Agent implementation should encapsulate some particular reinforcement learning algorithm.
     """
 
     @abstractmethod
-    def act(self, state):
+    def act(self, multiagent_state):
         """
         Select an action for the current timestep and update internal parameters.
 
@@ -27,8 +27,8 @@ class Multiagent(ABC, Schedulable):
         However, the agent must ultimately return an action.
 
         Args:
-            state (all.core.MultiAgentState): The environment state at the current timestep.
+            multiagent_state (all.core.MultiAgentState): The environment state at the current timestep.
 
         Returns:
-            torch.Tensor: The action to take at the current timestep.
+            torch.Tensor: The action for the current agent to take at the current timestep.
         """

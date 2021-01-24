@@ -7,9 +7,9 @@ from all.bodies import TimeFeature
 from all.logging import DummyWriter
 from all.policies import DeterministicPolicy
 from all.memory import ExperienceReplayBuffer
-from .models import fc_q, fc_deterministic_policy
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import PresetBuilder
+from all.presets.preset import Preset
+from all.presets.continuous.models import fc_q, fc_deterministic_policy
 
 
 default_hyperparameters = {
@@ -38,8 +38,9 @@ class DDPGContinuousPreset(Preset):
     DDPG continuous control preset.
 
     Args:
-        env (all.environments.GymEnvironment): The classic control environment for which to construct the agent.
-        device (torch.device, optional): the device on which to load the agent
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        name (str): A human-readable name for the preset.
+        device (torch.device): The device on which to load the agent.
 
     Keyword Args:
         discount_factor (float): Discount factor for future rewards.
@@ -55,13 +56,10 @@ class DDPGContinuousPreset(Preset):
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        super().__init__()
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
+    def __init__(self, env, name, device, **hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.q_model = hyperparameters["q_model_constructor"](env).to(device)
         self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
-        self.hyperparameters = hyperparameters
-        self.device = device
         self.action_space = env.action_space
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
@@ -119,4 +117,4 @@ class DDPGContinuousPreset(Preset):
         return TimeFeature(DDPGTestAgent(policy))
 
 
-ddpg = preset_builder('ddpg', default_hyperparameters, DDPGContinuousPreset)
+ddpg = PresetBuilder('ddpg', default_hyperparameters, DDPGContinuousPreset)

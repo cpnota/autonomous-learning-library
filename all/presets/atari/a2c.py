@@ -7,9 +7,9 @@ from all.bodies import DeepmindAtariBody
 from all.approximation import VNetwork, FeatureNetwork
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
-from .models import nature_features, nature_value_head, nature_policy_head
-from ..builder import preset_builder
-from ..preset import Preset
+from all.presets.builder import ParallelPresetBuilder
+from all.presets.preset import ParallelPreset
+from all.presets.atari.models import nature_features, nature_value_head, nature_policy_head
 
 
 default_hyperparameters = {
@@ -32,13 +32,14 @@ default_hyperparameters = {
 }
 
 
-class A2CAtariPreset(Preset):
+class A2CAtariPreset(ParallelPreset):
     """
     Advantage Actor-Critic (A2C) Atari preset.
 
     Args:
         env (all.environments.AtariEnvironment): The environment for which to construct the agent.
-        device (torch.device, optional): the device on which to load the agent
+        name (str): A human-readable name for the preset.
+        device (torch.device): The device on which to load the agent.
 
     Keyword Args:
         discount_factor (float): Discount factor for future rewards.
@@ -55,14 +56,11 @@ class A2CAtariPreset(Preset):
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
 
-    def __init__(self, env, device="cuda", **hyperparameters):
-        hyperparameters = {**default_hyperparameters, **hyperparameters}
-        super().__init__(n_envs=hyperparameters['n_envs'])
+    def __init__(self, env, name, device, **hyperparameters):
+        super().__init__(name, device, hyperparameters)
         self.value_model = hyperparameters['value_model_constructor']().to(device)
         self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
         self.feature_model = hyperparameters['feature_model_constructor']().to(device)
-        self.hyperparameters = hyperparameters
-        self.device = device
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
         n_updates = train_steps / (self.hyperparameters['n_steps'] * self.hyperparameters['n_envs'])
@@ -115,4 +113,4 @@ class A2CAtariPreset(Preset):
         return DeepmindAtariBody(A2CTestAgent(features, policy))
 
 
-a2c = preset_builder('a2c', default_hyperparameters, A2CAtariPreset)
+a2c = ParallelPresetBuilder('a2c', default_hyperparameters, A2CAtariPreset)

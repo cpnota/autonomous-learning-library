@@ -57,7 +57,7 @@ class TestClassicControlPresets(unittest.TestCase):
         self.validate(vqn)
 
     def validate(self, builder):
-        preset = builder().device('cpu').env(self.env).build()
+        preset = builder.device('cpu').env(self.env).build()
         # normal agent
         agent = preset.agent(writer=DummyWriter(), train_steps=100000)
         agent.act(self.env.state)

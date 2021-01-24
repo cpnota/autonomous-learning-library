@@ -1,9 +1,10 @@
 from torch.nn.functional import mse_loss
 from ._agent import Agent
+from ._parallel_agent import ParallelAgent
 from .dqn import DQNTestAgent
 
 
-class VSarsa(Agent):
+class VSarsa(ParallelAgent):
     '''
     Vanilla SARSA (VSarsa).
     SARSA (State-Action-Reward-State-Action) is an on-policy alternative to Q-learning. Unlike Q-learning,

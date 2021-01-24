@@ -31,15 +31,16 @@ def main():
     args = parser.parse_args()
 
     env = AtariEnvironment(args.env, device=args.device)
+
     agent_name = args.agent
     agent = getattr(atari, agent_name)
-    agent = agent().device(args.device)
+    agent = agent.device(args.device)
 
     # parse hyperparameters
     hyperparameters = {}
     for hp in args.hyperparameters:
         key, value = hp.split('=')
-        hyperparameters[key] = type(agent._hyperparameters[key])(value)
+        hyperparameters[key] = type(agent.default_hyperparameters[key])(value)
     agent = agent.hyperparameters(**hyperparameters)
 
     run_experiment(
