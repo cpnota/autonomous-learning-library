@@ -38,7 +38,7 @@ class Experiment(ABC):
         Test the agent in eval mode for a certain number of episodes.
 
         Args:
-            episodes (int): The number of test epsiodes.
+            episodes (int): The number of test episodes.
 
         Returns:
             list(float): A list of all returns received during testing.

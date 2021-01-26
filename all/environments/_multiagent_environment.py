@@ -15,7 +15,7 @@ class MultiagentEnvironment(ABC):
     @abstractmethod
     def reset(self):
         '''
-        Reset the environment and return a new intial state for the first agent.
+        Reset the environment and return a new initial state for the first agent.
 
         Returns
             all.core.MultiagentState: The initial state for the next episode.
@@ -39,7 +39,7 @@ class MultiagentEnvironment(ABC):
 
     @abstractmethod
     def close(self):
-        '''Clean up any extraneaous environment objects.'''
+        '''Clean up any extraneous environment objects.'''
 
     @abstractmethod
     def agent_iter(self):

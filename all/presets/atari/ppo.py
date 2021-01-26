@@ -57,7 +57,7 @@ class PPOAtariPreset(ParallelPreset):
         value_loss_scaling (float): Coefficient for the value function loss.
         clip_initial (float): Value for epsilon in the clipped PPO objective function at the beginning of training.
         clip_final (float): Value for epsilon in the clipped PPO objective function at the end of training.
-        epochs (int): Number of times to iterature through each batch.
+        epochs (int): Number of times to literature through each batch.
         minibatches (int): The number of minibatches to split each batch into.
         n_envs (int): Number of parallel actors.
         n_steps (int): Length of each rollout.

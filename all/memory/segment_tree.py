@@ -15,7 +15,7 @@ class SegmentTree(object):
                operation which reduces `operation` over
                a contiguous subsequence of items in the
                array.
-        Paramters
+        Parameters
         ---------
         capacity: int
             Total size of the array - must be a power of two.
@@ -108,7 +108,7 @@ class SumSegmentTree(SegmentTree):
         Parameters
         ----------
         perfixsum: float
-            upperbound on the sum of array prefix
+            upper bound on the sum of array prefix
         Returns
         -------
         idx: int
