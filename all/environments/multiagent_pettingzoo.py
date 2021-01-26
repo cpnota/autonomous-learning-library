@@ -32,7 +32,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         }
 
     '''
-    Reset the environment and return a new intial state.
+    Reset the environment and return a new initial state.
 
     Returns:
         An initial MultiagentState object.
@@ -43,7 +43,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         return self.last()
 
     '''
-    Reset the environment and return a new intial state.
+    Reset the environment and return a new initial state.
 
     Args:
         action (int): An int or tensor containing a single integer representing the action.

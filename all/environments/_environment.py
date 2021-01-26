@@ -22,7 +22,7 @@ class Environment(ABC):
     @abstractmethod
     def reset(self):
         """
-        Reset the environment and return a new intial state.
+        Reset the environment and return a new initial state.
 
         Returns
         -------
@@ -58,7 +58,7 @@ class Environment(ABC):
     @abstractmethod
     def close(self):
         """
-        Clean up any extraneaous environment objects.
+        Clean up any extraneous environment objects.
         """
 
     @property
@@ -83,7 +83,7 @@ class Environment(ABC):
     @property
     def observation_space(self):
         """
-        Alias for Environemnt.state_space.
+        Alias for Environment.state_space.
 
         Returns
         -------

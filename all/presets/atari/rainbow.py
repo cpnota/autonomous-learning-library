@@ -72,7 +72,7 @@ class RainbowAtariPreset(Preset):
         atoms (int): The number of atoms in the categorical distribution used to represent
             the distributional value function.
         v_min (int): The expected return corresponding to the smallest atom.
-        v_max (int): The expected return correspodning to the larget atom.
+        v_max (int): The expected return corresponding to the largest atom.
         sigma (float): Initial noisy network noise.
         model_constructor (function): The function used to construct the neural model.
     """

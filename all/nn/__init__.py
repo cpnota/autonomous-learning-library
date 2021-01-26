@@ -27,8 +27,8 @@ class Aggregation(nn.Module):
     https://arxiv.org/abs/1511.06581
     This layer computes a Q function by combining
     an estimate of V with an estimate of the advantage.
-    The advantage is normalized by substracting the average
-    advantage so that we can propertly
+    The advantage is normalized by subtracting the average
+    advantage so that we can properly
     """
 
     def forward(self, value, advantages):

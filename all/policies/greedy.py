@@ -8,7 +8,7 @@ class GreedyPolicy(Schedulable):
     An  "epsilon-greedy" action selection policy for discrete action spaces.
 
     This policy will usually choose the optimal action according to an approximation
-    of the action value function (the "q-function"), but with probabilty epsilon will
+    of the action value function (the "q-function"), but with probability epsilon will
     choose a random action instead. GreedyPolicy is a Schedulable, meaning that
     epsilon can be varied over time by passing a Scheduler object.
 
@@ -47,7 +47,7 @@ class ParallelGreedyPolicy(Schedulable):
     A parallel version of the "epsilon-greedy" action selection policy for discrete action spaces.
 
     This policy will usually choose the optimal action according to an approximation
-    of the action value function (the "q-function"), but with probabilty epsilon will
+    of the action value function (the "q-function"), but with probability epsilon will
     choose a random action instead. GreedyPolicy is a Schedulable, meaning that
     epsilon can be varied over time by passing a Scheduler object.
 
