@@ -10,7 +10,7 @@ def main():
     device = 'cpu'
     timesteps = 40000
     run_experiment(
-        [dqn(), a2c()],
+        [dqn.hyperparameters(), a2c.hyperparameters()],
         [GymEnvironment('CartPole-v0', device), GymEnvironment('Acrobot-v1', device)],
         timesteps,
     )
