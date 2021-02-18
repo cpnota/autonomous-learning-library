@@ -5,6 +5,7 @@ import numpy as np
 from all.core import State
 from .writer import ExperimentWriter, CometWriter
 from .experiment import Experiment
+from all.environments import VectorEnvironment
 
 
 class ParallelEnvExperiment(Experiment):
@@ -25,7 +26,11 @@ class ParallelEnvExperiment(Experiment):
         self._name = name if name is not None else preset.__class__.__name__
         super().__init__(self._make_writer(logdir, self._name, env.name, write_loss, writer), quiet)
         self._n_envs = preset.n_envs
-        self._envs = env.duplicate(self._n_envs)
+        if isinstance(env, VectorEnvironment):
+            assert self._n_envs == env.num_envs
+            self._env = env
+        else:
+            self._env = env.duplicate(self._n_envs)
         self._preset = preset
         self._agent = preset.agent(writer=self._writer, train_steps=train_steps)
         self._render = render
@@ -56,80 +61,54 @@ class ParallelEnvExperiment(Experiment):
         return self._episode
 
     def train(self, frames=np.inf, episodes=np.inf):
-        self._reset()
-        while not (self._frame > frames or self._episode > episodes):
-            self._step()
+        returns = np.zeros(self._env.num_envs)
+        state_array = self._env.reset()
+        start_time = time.time()
+        start_frame = self._frame
+        while not self._done(frames, episodes):
+            action = self._agent.act(state_array)
+            state_array = self._env.step(action)
+            self._frame += int(self._env.num_envs)
+            episodes_completed = int(state_array.done.type(torch.IntTensor).sum())
+            self._episode += episodes_completed
+            if episodes_completed > 0:
+                end_time = time.time()
+                fps = 1
+                start_frame = self._frame
+                start_time = time.time()
 
     def test(self, episodes=100):
         test_agent = self._preset.test_agent()
-        env = self._envs[0].duplicate(1)[0]
-        returns = []
-        for episode in range(episodes):
-            episode_return = self._run_test_episode(test_agent, env)
-            returns.append(episode_return)
-            self._log_test_episode(episode, episode_return)
-        self._log_test(returns)
-        return returns
+        returns = np.zeros(self._env.num_envs)
+        state_array = self._env.reset()
+        eps_returns = []
+        while len(eps_returns) < episodes:
+            action = self._agent.act(state_array)
+            state_array = self._env.step(action)
+            dones = state_array.done.cpu().detach().numpy()
+            rews = state_array.reward.cpu().detach().numpy()
+            returns += rews
+            for i in range(self._env.num_envs):
+                if dones[i]:
+                    episode_return = returns[i]
+                    esp_index = len(eps_returns)
+                    eps_returns.append(episode_return)
+                    returns[i] = 0
+                    self._log_test_episode(esp_index, episode_return)
+        self._log_test(eps_returns)
+        return eps_returns
 
-    def _reset(self):
-        for env in self._envs:
-            env.reset()
-        rewards = torch.zeros(
-            (self._n_envs),
-            dtype=torch.float,
-            device=self._envs[0].device
-        )
-        self._returns = rewards
-        self._episode_start_times = [timer()] * self._n_envs
-        self._episode_start_frames = [self._frame] * self._n_envs
-
-    def _step(self):
-        states = self._aggregate_states()
-        actions = self._agent.act(states)
-        self._step_envs(actions)
-
-    def _step_envs(self, actions):
-        for i, env in enumerate(self._envs):
-            state = env.state
-            if self._render:
-                env.render()
-
-            if state.done:
-                self._returns[i] += state.reward
-                self._log_training_episode(self._returns[i].item(), self._fps(i))
-                env.reset()
-                self._returns[i] = 0
-                self._episode += 1
-                self._episode_start_times[i] = timer()
-                self._episode_start_frames[i] = self._frame
-            else:
-                action = actions[i]
-                if action is not None:
-                    self._returns[i] += state.reward
-                    env.step(action)
-                    self._frame += 1
-
-    def _aggregate_states(self):
-        return State.array([env.state for env in self._envs])
-
-    def _aggregate_rewards(self):
-        return torch.tensor(
-            [env.state.reward for env in self._envs],
-            dtype=torch.float,
-            device=self._envs[0].device
-        )
-
-    def _run_test_episode(self, test_agent, env):
+    def _run_test_episode(self, test_agent):
         # initialize the episode
-        state = env.reset()
+        state = self._env.reset()
         action = test_agent.act(state)
         returns = 0
 
         # loop until the episode is finished
         while not state.done:
             if self._render:
-                env.render()
-            state = env.step(action)
+                self._env.render()
+            state = self._env.step(action)
             action = test_agent.act(state)
             returns += state.reward
 
@@ -138,6 +117,9 @@ class ParallelEnvExperiment(Experiment):
     def _fps(self, i):
         end_time = timer()
         return (self._frame - self._episode_start_frames[i]) / (end_time - self._episode_start_times[i])
+
+    def _done(self, frames, episodes):
+        return self._frame > frames or self._episode > episodes
 
     def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
         if writer == "comet":

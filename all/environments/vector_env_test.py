@@ -41,11 +41,14 @@ class GymVectorEnvironmentTest(unittest.TestCase):
     def test_step_until_done(self):
         num_envs = 3
         env = GymVectorEnvironment(make_vec_env(num_envs), "CartPole")
+        env.seed(5)
         env.reset()
         for _ in range(100):
             state = env.step(torch.ones(num_envs, dtype=torch.int32))
             if state.done[0]:
                 break
+        else:
+            self.assertTrue(False)
         self.assertEqual(state[0].observation.shape, (4,))
         self.assertEqual(state[0].reward, 1.)
         self.assertTrue(state[0].done)
