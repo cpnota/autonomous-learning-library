@@ -81,7 +81,7 @@ class LazyState(State):
         x = {}
         for key, value in self.items():
             if key == 'observation':
-                x[key] = [self.to_cache.convert(v, device) for v in value]
+                x[key] = self.to_cache.convert(value, device)
                 # x[key] = [v.to(device) for v in value]#torch.cat(value,axis=0).to(device)
             elif torch.is_tensor(value):
                 x[key] = value.to(device)
