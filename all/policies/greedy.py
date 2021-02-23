@@ -70,13 +70,13 @@ class ParallelGreedyPolicy(Schedulable):
     def __call__(self, state):
         best_actions = torch.argmax(self.q(state), dim=-1)
         random_actions = torch.randint(0, self.n_actions, best_actions.shape, device=best_actions.device)
-        choices = (torch.randn_like(best_actions) < self.epsilon).int()
+        choices = (torch.rand(best_actions.shape, device=best_actions.device) < self.epsilon).int()
         return choices * random_actions + (1 - choices) * best_actions
 
     def no_grad(self, state):
         best_actions = torch.argmax(self.q.no_grad(state), dim=-1)
         random_actions = torch.randint(0, self.num_actions, best_actions.shape, device=best_actions.device)
-        choices = (torch.randn(best_actions.shape, device=best_actions.device) < self.epsilon).int()
+        choices = (torch.rand(best_actions.shape, device=best_actions.device) < self.epsilon).int()
         return choices * random_actions + (1 - choices) * best_actions
 
     def eval(self, state):
