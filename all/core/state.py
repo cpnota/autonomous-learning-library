@@ -388,10 +388,10 @@ class StateArray(State):
         return self.shape[0]
 
 
-class MultiAgentState(State):
+class MultiagentState(State):
     def __init__(self, x, device='cpu', **kwargs):
         if 'agent' not in x:
-            raise Exception('MultiAgentState must contain an agent ID')
+            raise Exception('MultiagentState must contain an agent ID')
         super().__init__(x, device=device, **kwargs)
 
     @property
@@ -412,7 +412,7 @@ class MultiAgentState(State):
             A State object.
         """
         if not isinstance(state, tuple):
-            return MultiAgentState({
+            return MultiagentState({
                 'agent': agent,
                 'observation': torch.from_numpy(
                     np.array(
@@ -438,7 +438,7 @@ class MultiAgentState(State):
         info = info if info else {}
         for key in info:
             x[key] = info[key]
-        return MultiAgentState(x, device=device)
+        return MultiagentState(x, device=device)
 
     def to(self, device):
         if device == self.device:

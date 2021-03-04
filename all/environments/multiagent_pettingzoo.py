@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import cloudpickle
 import gym
-from all.core import MultiAgentState
+from all.core import MultiagentState
 from ._multiagent_environment import MultiagentEnvironment
 
 
@@ -80,7 +80,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
     def last(self):
         observation, reward, done, info = self._env.last()
         selected_obs_space = self._env.observation_spaces[self._env.agent_selection]
-        return MultiAgentState.from_zoo(self._env.agent_selection, (observation, reward, done, info), device=self._device, dtype=selected_obs_space.dtype)
+        return MultiagentState.from_zoo(self._env.agent_selection, (observation, reward, done, info), device=self._device, dtype=selected_obs_space.dtype)
 
     @property
     def name(self):
