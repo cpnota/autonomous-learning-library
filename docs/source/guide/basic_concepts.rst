@@ -29,12 +29,7 @@ Here's the ``Agent`` interface in the autonomous-learning-library:
         def act(self, state):
             pass
 
-        @abstractmethod
-        def eval(self, state):
-            pass
-
 The ``act`` function is called when training the agent.
-The ``eval`` function is called when evaluating the agent, e.g., after a training run has completed.
 When and how the ``Agent`` trains inside of this function is nobody's business except the ``Agent`` itself.
 When the ``Agent`` is allowed to act is determined by some outer control loop, and is not of concern to the ``Agent``.
 What might an implementation of ``act`` look like? Here's the act function from our DQN implementation:
@@ -45,8 +40,8 @@ What might an implementation of ``act`` look like? Here's the act function from 
         self.replay_buffer.store(self._state, self._action, state)
         self._train()
         self._state = state
-        self._action = self.policy(state)
-        return self.action
+        self._action = self.policy.no_grad(state)
+        return self._action
 
 That's it. ``_train()`` is a private helper methods.
 There is no reason for the control loop to know anything about these details.
@@ -64,6 +59,29 @@ It contains some default entries, including ``state['observation']``, ``state['r
 A ``StateArray`` object can be constucted by calling ``State.array(list_of_states)``, and provides an abstraction for batch processing of states.
 Arbitrary entries can be added to a ``State``, and use of the ``StateArray`` abstraction ensures that these entries are combined and sliced properly.
 The code does not need to be tightly coupled to the shape of the data, but rather can act on the abstraction. 
+
+Parallel Agents and Multiagents
+-------------------------------
+
+We described above the base ``Agent`` interface.
+However, some algorithms do not fit this interface.
+For example, a ``ParallelAgent`` accepts a ``StateArray`` rather than a ``State``.
+A ``Multiagent`` accepts a ``State`` object containing a special ``Agent`` key indicating to which of the multiagents the current state belongs,
+we we call a ``MultiagentState``.
+Nevertheless, we stick to the spirit of having a single ``act()`` function as closely as possible.
+The resulting interfaces are as follows:
+
+.. code-block:: python
+
+    class ParallelAgent(ABC):
+        @abstractmethod
+        def act(self, state_array):
+            pass
+
+    class Multiagent(ABC):
+        @abstractmethod
+        def act(self, multiagent_state):
+            pass
 
 Function Approximation
 ----------------------
