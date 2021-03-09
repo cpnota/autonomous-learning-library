@@ -226,62 +226,54 @@ The library provides a number of functions which compose these objects in specif
 We call such a function a ``preset``, and several such presets are contained in the ``all.presets`` package.
 (This is an example of the more general `factory method pattern <https://en.wikipedia.org/wiki/Factory_method_pattern>`_).
 
-For example, ``all.agents.vqn`` contains a high-level description of a vanilla Q-learning algorithm.
-In order to actually apply this agent to a problem, for example, a classic control problem, we might define the following preset:
+
+For example, ``all.agents.dqn`` contains a high-level description of the DQN algorithm.
+However, how do we actually instansiate a particular network architecture, choose a learning rate, etc.?
+This is what presets are for.
+Before we dive into the details, let us show the simplest usage in practice:
+
+.. code-block python
+
+    from all.presets.atari import dqn
+    from all.environments import AtariEnvironment
+    
+    # create an environment
+    env = AtariEnvironment('Breakout')
+
+    # configure and build the preset
+    preset = dqn.env(env).build()
+
+    # use the preset to create an agent
+    agent = preset.agent()
+
+Instansiating the Agent is separated into two steps:
+First we configure and build the ``Preset``, then we use the configured ``Preset`` to instansiate an ``Agent``.
+Let's dig into the ``Preset`` interface first:
 
 .. code-block:: python
 
-    # The outer function signature contains the set of hyperparameters
-    def vqn(
-        # Common settings
-        device="cpu",
-        # Hyperparameters
-        discount_factor=0.99,
-        lr=1e-2,
-        exploration=0.1,
-    ):
-        # The inner function creates a closure over the hyperparameters passed into the outer function.
-        # It accepts an "env" object which is passed right before the Experiment begins, as well as
-        # the writer created by the Experiment which defines the logging parameters.
-        def _vqn(env, writer=DummyWriter()):
-            # create a pytorch model
-            model = nn.Sequential(
-                nn.Linear(env.state_space.shape[0], 64),
-                nn.ReLU(),
-                nn.Linear(64, env.action_space.n),
-            ).to(device)
+    class Preset(ABC):
+        @abstractmethod
+        def agent(self, writer=None, train_steps=float('inf')):
+            pass
 
-            # create a pytorch optimizer for the model
-            optimizer = Adam(model.parameters(), lr=lr)
+        @abstractmethod
+        def test_agent(self):
+            pass
 
-            # create an Approximation of the Q-function
-            q = QNetwork(model, optimizer, writer=writer)
+        def save(self, filename):
+            return torch.save(self, filename)
 
-            # create a Policy object derived from the Q-function
-            policy = GreedyPolicy(q, env.action_space.n, epsilon=exploration)
 
-            # instansiate the agent
-            return VQN(q, policy, discount_factor=discount_factor)
+The ``agent()`` method instansiates a training ``Agent``.
+The ``test_agent()`` method instansiates a test-mode ``Agent`` using the same network parameters as the training ``Agent``.
+The ``save()`` then allows the ``Preset`` to be saved to a disk.
+Critically, all agents created by a given instance of a ``Preset`` share the underlying network parameters.
+The test agents, however, will instead copy the parameters, allowing test agents to be compared from multiple points in training.
+If a ``Preset`` is loaded from disk, then we can instansiate a test ``Agent`` using the pre-trained parameters.
 
-        # return the inner function
-        return _vqn
 
-Notice how there is an "outer function" and an "inner" function.
-This approach allows the separation of configuration and instantiation.
-While this may seem redundant, it can sometimes be useful.
-For example, suppose we want to run the same agent on multiple environments.
-This can be done as follows:
 
-.. code-block:: python
-
-    agent = vqn()
-    some_custom_runner(agent(), GymEnvironment('CartPole-v0'))
-    some_custom_runner(agent(), GymEnvironment('MountainCar-v0'))
-
-Now, each call to ``some_custom_runner`` receives a unique instance of the agent.
-This is sometimes achieved in other libraries by providing a "reset" function on the agent.
-We find our approach allows us to keep the ``Agent`` interface clean,
-and is overall more elegant and less error prone.
 
 Experiment
 ----------
