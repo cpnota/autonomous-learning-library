@@ -74,7 +74,7 @@ class GymVectorEnvironmentTest(unittest.TestCase):
             self.assertTrue(torch.all(torch.eq(state1.mask, state2.mask)))
             actions = torch.tensor([act_space.sample() for i in range(n_envs)])
             state1 = env1.step(actions)
-            state2 = env1.step(actions)
+            state2 = env2.step(actions)
 
 if __name__ == "__main__":
     unittest.main()

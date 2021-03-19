@@ -39,7 +39,6 @@ class GymVectorEnvironment(VectorEnvironment):
     def reset(self):
         state_tuple = self._env.reset(), np.zeros(self._env.num_envs), np.zeros(self._env.num_envs), None
         self._state = self._to_state(*state_tuple)
-        self._was_done = self._state.done
         return self._state
 
     def _to_state(self, obs, rew, done, info):
@@ -53,10 +52,6 @@ class GymVectorEnvironment(VectorEnvironment):
     def step(self, action):
         state_tuple = self._env.step(action.cpu().detach().numpy())
         self._state = self._to_state(*state_tuple)
-        new_was_done = self._state.done
-        self._state.update('done', self._was_done)
-        self._state.update('observation', self._was_done)
-        self._was_done = new_was_done
         return self._state
 
     def close(self):
