@@ -1,8 +1,7 @@
 import unittest
 import gym
 import torch
-from all.environments import GymVectorEnvironment
-
+from all.environments import GymVectorEnvironment, GymEnvironment, DuplicateEnvironment
 
 def make_vec_env(num_envs=3):
     env = gym.vector.SyncVectorEnv([lambda: gym.make('CartPole-v0')]*num_envs)
@@ -53,3 +52,29 @@ class GymVectorEnvironmentTest(unittest.TestCase):
         self.assertEqual(state[0].reward, 1.)
         self.assertTrue(state[0].done)
         self.assertEqual(state[0].mask, 0)
+
+    def test_same_as_duplicate(self):
+        n_envs = 3
+        torch.manual_seed(42)
+        env1 = DuplicateEnvironment([GymEnvironment('CartPole-v0') for i in range(n_envs)])
+        env2 = GymVectorEnvironment(make_vec_env(n_envs), "CartPole-v0")
+        env1.seed(42)
+        env2.seed(42)
+        state1 = env1.reset()
+        state2 = env2.reset()
+        assert env1.name == env2.name
+        assert env1.action_space.n == env2.action_space.n
+        assert env1.observation_space.shape == env2.observation_space.shape
+        assert env1.num_envs == 3 and env2.num_envs == 3
+        act_space = env1.action_space
+        for i in range(10):
+            self.assertTrue(torch.all(torch.eq(state1.observation, state2.observation)))
+            self.assertTrue(torch.all(torch.eq(state1.reward, state2.reward)))
+            self.assertTrue(torch.all(torch.eq(state1.done, state2.done)))
+            self.assertTrue(torch.all(torch.eq(state1.mask, state2.mask)))
+            actions = torch.tensor([act_space.sample() for i in range(n_envs)])
+            state1 = env1.step(actions)
+            state2 = env1.step(actions)
+
+if __name__ == "__main__":
+    unittest.main()

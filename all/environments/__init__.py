@@ -5,8 +5,8 @@ from .gym import GymEnvironment
 from .atari import AtariEnvironment
 from .multiagent_atari import MultiagentAtariEnv
 from .multiagent_pettingzoo import MultiagentPettingZooEnv
-from .vector_env import GymVectorEnvironment
 from .duplicate_env import DuplicateEnvironment
+from .vector_env import GymVectorEnvironment
 
 __all__ = [
     "Environment",

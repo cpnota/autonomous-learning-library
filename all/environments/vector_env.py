@@ -55,6 +55,7 @@ class GymVectorEnvironment(VectorEnvironment):
         self._state = self._to_state(*state_tuple)
         new_was_done = self._state.done
         self._state.update('done', self._was_done)
+        self._state.update('observation', self._was_done)
         self._was_done = new_was_done
         return self._state
 
@@ -66,11 +67,11 @@ class GymVectorEnvironment(VectorEnvironment):
 
     @property
     def state_space(self):
-        return self._env.observation_space
+        return getattr(self._env, "single_observation_space", getattr(self._env, "observation_space"))
 
     @property
     def action_space(self):
-        return self._env.action_space
+        return getattr(self._env, "single_action_space", getattr(self._env, "action_space"))
 
     @property
     def state_array(self):
