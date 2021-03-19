@@ -1,6 +1,6 @@
 
-from timeit import default_timer as timer
 import torch
+import time
 import numpy as np
 from all.core import State
 from .writer import ExperimentWriter, CometWriter
@@ -61,21 +61,31 @@ class ParallelEnvExperiment(Experiment):
         return self._episode
 
     def train(self, frames=np.inf, episodes=np.inf):
-        returns = np.zeros(self._env.num_envs)
+        num_envs = int(self._env.num_envs)
+        returns = np.zeros(num_envs)
         state_array = self._env.reset()
         start_time = time.time()
+        completed_frames = 0
+        tot_time = 0
         start_frame = self._frame
         while not self._done(frames, episodes):
             action = self._agent.act(state_array)
             state_array = self._env.step(action)
-            self._frame += int(self._env.num_envs)
-            episodes_completed = int(state_array.done.type(torch.IntTensor).sum())
-            self._episode += episodes_completed
+            self._frame += num_envs
+            episodes_completed = state_array.done.type(torch.IntTensor).sum().item()
+            completed_frames += num_envs
+            returns += state_array.reward.detach().numpy()
             if episodes_completed > 0:
-                end_time = time.time()
-                fps = 1
-                start_frame = self._frame
-                start_time = time.time()
+                dones = state_array.done.detach().numpy()
+                cur_time = time.time()
+                fps = (cur_time - start_time)/completed_frames
+                completed_frames = 0
+                start_time = cur_time
+                for i in range(num_envs):
+                    if dones[i]:
+                        self._log_training_episode(returns[i], fps)
+                        returns[i] = 0
+            self._episode += episodes_completed
 
     def test(self, episodes=100):
         test_agent = self._preset.test_agent()
@@ -95,6 +105,7 @@ class ParallelEnvExperiment(Experiment):
                     eps_returns.append(episode_return)
                     returns[i] = 0
                     self._log_test_episode(esp_index, episode_return)
+
         self._log_test(eps_returns)
         return eps_returns
 
@@ -113,10 +124,6 @@ class ParallelEnvExperiment(Experiment):
             returns += state.reward
 
         return returns
-
-    def _fps(self, i):
-        end_time = timer()
-        return (self._frame - self._episode_start_frames[i]) / (end_time - self._episode_start_times[i])
 
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes
