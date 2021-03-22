@@ -74,7 +74,7 @@ class SACContinuousPreset(Preset):
         self.action_space = env.action_space
 
     def agent(self, writer=DummyWriter(), train_steps=float('inf')):
-        n_updates = (train_steps - self.hyperparameters["replay_start_size"]) // self.hyperparameters["update_frequency"]
+        n_updates = (train_steps - self.hyperparameters["replay_start_size"]) / self.hyperparameters["update_frequency"]
 
         q_1_optimizer = Adam(self.q_1_model.parameters(), lr=self.hyperparameters["lr_q"])
         q_1 = QContinuous(

@@ -4,7 +4,7 @@ Getting Started
 Prerequisites
 -------------
 
-The Autonomous Learning Library requires a recent version of PyTorch (>= 10.3).
+The Autonomous Learning Library requires a recent version of PyTorch (~=1.8.0 recommended).
 Additionally, Tensorboard is required in order to enable logging.
 We also strongly recommend using a machine with a fast GPU (at minimum a GTX 970 or better, a GTX 1080ti or better is preferred).
 
