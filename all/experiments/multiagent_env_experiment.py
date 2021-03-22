@@ -34,7 +34,7 @@ class MultiagentEnvExperiment():
             write_loss=True,
             writer="tensorboard"
     ):
-        self._name = name if name is not None else preset.__class__.__name__
+        self._name = name if name is not None else preset.name
         self._writer = self._make_writer(logdir, self._name, env.name, write_loss, writer)
         self._agent = preset.agent(writer=self._writer, train_steps=train_steps)
         self._env = env

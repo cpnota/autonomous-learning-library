@@ -27,7 +27,7 @@ class Multiagent(ABC, Schedulable):
         However, the agent must ultimately return an action.
 
         Args:
-            multiagent_state (all.core.MultiAgentState): The environment state at the current timestep.
+            multiagent_state (all.core.MultiagentState): The environment state at the current timestep.
 
         Returns:
             torch.Tensor: The action for the current agent to take at the current timestep.

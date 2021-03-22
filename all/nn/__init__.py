@@ -6,6 +6,10 @@ import numpy as np
 from all.core import State
 
 
+""""A Pytorch Module"""
+Module = nn.Module
+
+
 class RLNetwork(nn.Module):
     """
     Wraps a network such that States can be given as input.

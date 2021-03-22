@@ -60,7 +60,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
 
     def test_adds_default_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
-        self.assertEqual(experiment._writer.label, "DQNClassicControlPreset_CartPole-v0")
+        self.assertEqual(experiment._writer.label, "dqn_CartPole-v0")
 
     def test_adds_custom_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, name='dqn', quiet=True)

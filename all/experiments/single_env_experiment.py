@@ -20,7 +20,7 @@ class SingleEnvExperiment(Experiment):
             write_loss=True,
             writer="tensorboard"
     ):
-        self._name = name if name is not None else preset.__class__.__name__
+        self._name = name if name is not None else preset.name
         super().__init__(self._make_writer(logdir, self._name, env.name, write_loss, writer), quiet)
         self._logdir = logdir
         self._preset = preset
