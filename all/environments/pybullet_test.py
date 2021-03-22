@@ -13,7 +13,7 @@ class PybulletEnvironmentTest(unittest.TestCase):
         self.assertEqual(env.name, 'HalfCheetahBulletEnv-v0')
 
     def test_reset(self):
-        env = PybulletEnvironment('HalfCheetahBulletEnv-v0')
+        env = PybulletEnvironment('cheetah')
         state = env.reset()
         self.assertEqual(state.observation.shape, (26,))
         self.assertEqual(state.reward, 0.)
@@ -21,7 +21,7 @@ class PybulletEnvironmentTest(unittest.TestCase):
         self.assertEqual(state.mask, 1)
 
     def test_step(self):
-        env = PybulletEnvironment('HalfCheetahBulletEnv-v0')
+        env = PybulletEnvironment('cheetah')
         env.seed(0)
         state = env.reset()
         state = env.step(env.action_space.sample())
