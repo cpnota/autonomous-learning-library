@@ -25,7 +25,7 @@ def load_returns_100_data(runs_dir):
         data[env][agent] = np.genfromtxt(file, delimiter=",").reshape((-1, 3))
 
     for agent_dir in os.listdir(runs_dir):
-        agent = agent_dir.split(" ")[0].strip("_")
+        agent = agent_dir.split("_")[0]
         agent_path = os.path.join(runs_dir, agent_dir)
         if os.path.isdir(agent_path):
             for env in os.listdir(agent_path):
