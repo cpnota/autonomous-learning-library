@@ -10,8 +10,8 @@ class PybulletEnvironment(GymEnvironment):
         "walker": "Walker2DBulletEnv-v0"
     }
 
-    def __init__(self, name, device='cuda'):
+    def __init__(self, name, **kwargs):
         import pybullet_envs
         if name in self.short_names:
             name = self.short_names[name]
-        super().__init__(name, device=device)
+        super().__init__(name, **kwargs)
