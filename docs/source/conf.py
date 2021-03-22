@@ -50,7 +50,7 @@ autodoc_inherit_docstrings = True
 
 # Mock requirements to save resources during doc build machine setup
 autodoc_mock_imports = [
-    # 'torch',
+    'torch',
     'torchvision',
 ]
 
