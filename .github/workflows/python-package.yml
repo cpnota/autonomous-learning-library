@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -27,12 +27,12 @@ jobs:
       run: |
         sudo apt-get install swig
         sudo apt-get install unrar
-        pip install torch==1.5.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+        pip install torch==1.8.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
         make install
         AutoROM -v
-    - name: Linting
+    - name: Lint code
       run: |
         make lint
-    - name: Unit and integration testing
+    - name: Run tests
       run: |
         make test

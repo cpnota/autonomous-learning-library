@@ -38,7 +38,7 @@ extras["dev"] = extras["all"] + extras["test"] + extras["docs"] + extras["comet"
 
 setup(
     name="autonomous-learning-library",
-    version="0.6.2",
+    version="0.7.0-dev",
     description=("A library for building reinforcement learning agents in Pytorch"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",
@@ -62,7 +62,7 @@ setup(
         "numpy>=1.18.0",           # math library
         "matplotlib>=3.3.0",       # plotting library
         "opencv-python~=3.4.0",      # used by atari wrappers
-        "torch~=1.5.1",            # core deep learning library
+        "torch~=1.8.0",            # core deep learning library
         "tensorboard>=2.3.0",      # logging and visualization
         "tensorboardX>=2.1.0",     # tensorboard/pytorch compatibility
         "cloudpickle>=1.2.0",      # used to copy environments
