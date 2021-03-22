@@ -30,9 +30,9 @@ jobs:
         pip install torch==1.8.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
         make install
         AutoROM -v
-    - name: Linting
+    - name: Run linter
       run: |
         make lint
-    - name: Unit and integration testing
+    - name: Run unit and integration tests
       run: |
         make test
