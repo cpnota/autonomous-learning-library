@@ -22,7 +22,7 @@ class ParallelEnvExperiment(Experiment):
             write_loss=True,
             writer="tensorboard"
     ):
-        self._name = name if name is not None else preset.__class__.__name__
+        self._name = name if name is not None else preset.name
         super().__init__(self._make_writer(logdir, self._name, env.name, write_loss, writer), quiet)
         self._n_envs = preset.n_envs
         self._envs = env.duplicate(self._n_envs)

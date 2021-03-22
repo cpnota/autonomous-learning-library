@@ -23,15 +23,10 @@ class ExperimentWriter(SummaryWriter, Writer):
 
     def __init__(self, experiment, agent_name, env_name, loss=True, logdir='runs'):
         self.env_name = env_name
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S %f')
-        os.makedirs(
-            os.path.join(
-                logdir, ("%s %s %s" % (agent_name, COMMIT_HASH, current_time)), env_name
-            )
-        )
-        self.log_dir = os.path.join(
-            logdir, ("%s %s %s" % (agent_name, COMMIT_HASH, current_time))
-        )
+        current_time = datetime.now().strftime('%Y-%m-%d_%H:%M:%S_%f')
+        dir_name = "%s_%s_%s" % (agent_name, COMMIT_HASH, current_time)
+        os.makedirs(os.path.join(logdir, dir_name, env_name))
+        self.log_dir = os.path.join(logdir, dir_name)
         self._experiment = experiment
         self._loss = loss
         super().__init__(log_dir=self.log_dir)

@@ -24,7 +24,7 @@ class TestParallelEnvExperiment(unittest.TestCase):
             env.seed(i)
 
     def test_adds_default_label(self):
-        self.assertEqual(self.experiment._writer.label, "A2CClassicControlPreset_CartPole-v0")
+        self.assertEqual(self.experiment._writer.label, "a2c_CartPole-v0")
 
     def test_adds_custom_label(self):
         env = GymEnvironment('CartPole-v0')
