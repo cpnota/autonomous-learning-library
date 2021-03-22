@@ -1,8 +1,6 @@
-import pybullet
-import pybullet_envs
 from all.experiments import SlurmExperiment
 from all.presets.continuous import ddpg, ppo, sac
-from all.environments import GymEnvironment
+from all.environments import PybulletEnvironment
 
 
 def main():
@@ -16,13 +14,7 @@ def main():
         sac
     ]
 
-    envs = [GymEnvironment(env, device) for env in [
-        'AntBulletEnv-v0',
-        "HalfCheetahBulletEnv-v0",
-        'HumanoidBulletEnv-v0',
-        'HopperBulletEnv-v0',
-        'Walker2DBulletEnv-v0'
-    ]]
+    envs = [PybulletEnvironment(env, device) for env in PybulletEnvironment.short_names]
 
     SlurmExperiment(agents, envs, frames, sbatch_args={
         'partition': '1080ti-long'

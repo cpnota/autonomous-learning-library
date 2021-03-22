@@ -181,7 +181,7 @@ Below, we show how several different types of environments can be created:
 
 .. code-block:: python
 
-    from all.environments import AtariEnvironment, GymEnvironment
+    from all.environments import AtariEnvironment, GymEnvironment, PybulletEnvironment
 
     # create an Atari environment on the gpu
     env = AtariEnvironment('Breakout', device='cuda')
@@ -190,8 +190,7 @@ Below, we show how several different types of environments can be created:
     env = GymEnvironment('CartPole-v0')
 
     # create a PyBullet environment on the cpu
-    import pybullet_envs
-    env = GymEnvironment('HalfCheetahBulletEnv-v0')
+    env = PybulletEnvironment('cheetah')
 
 Now we can write our first control loop:
 

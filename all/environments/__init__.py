@@ -4,6 +4,7 @@ from .gym import GymEnvironment
 from .atari import AtariEnvironment
 from .multiagent_atari import MultiagentAtariEnv
 from .multiagent_pettingzoo import MultiagentPettingZooEnv
+from .pybullet import PybulletEnvironment
 
 __all__ = [
     "Environment",
@@ -12,4 +13,5 @@ __all__ = [
     "AtariEnvironment",
     "MultiagentAtariEnv",
     "MultiagentPettingZooEnv",
+    "PybulletEnvironment",
 ]
