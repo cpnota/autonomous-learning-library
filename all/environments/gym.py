@@ -23,7 +23,7 @@ class GymEnvironment(Environment):
         device (str, optional): the device on which tensors will be stored
     '''
 
-    def __init__(self, env, name=None, device=torch.device('cpu')):
+    def __init__(self, env, device=torch.device('cpu'), name=None):
         if isinstance(env, str):
             self._name = env
             env = gym.make(env)
