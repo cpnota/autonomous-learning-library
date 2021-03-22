@@ -16,7 +16,7 @@ def main():
 
     envs = [PybulletEnvironment(env, device) for env in PybulletEnvironment.short_names]
 
-    SlurmExperiment(agents, envs, frames, sbatch_args={
+    SlurmExperiment(agents, envs, frames, 'benchmarks/pybullet', sbatch_args={
         'partition': '1080ti-long'
     })
 
