@@ -4,8 +4,6 @@ from all.environments import PybulletEnvironment
 
 
 def main():
-    device = 'cuda'
-
     frames = int(1e7)
 
     agents = [
@@ -14,7 +12,7 @@ def main():
         sac
     ]
 
-    envs = [PybulletEnvironment(env, device) for env in PybulletEnvironment.short_names]
+    envs = [PybulletEnvironment(env, device='cuda') for env in PybulletEnvironment.short_names]
 
     SlurmExperiment(agents, envs, frames, 'benchmarks/pybullet', sbatch_args={
         'partition': '1080ti-long'
