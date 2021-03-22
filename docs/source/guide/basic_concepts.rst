@@ -12,12 +12,12 @@ To see what we mean by this, check out the OpenAI Baselines implementation of DQ
 There's a giant function called ``learn`` which accepts an environment and a bunch of hyperparameters, at the heart of which there is a control loop which calls many different functions.
 Which part of this function is the agent? Which part is the environment? Which part is something else?
 We call this implementation algorithm-based because the central abstraction is a function called ``learn`` which provides the complete specification of an algorithm.
-What should the proper abstraction for agent be, then? We have to look no further than the following famous diagram:
+What should the proper abstraction for agent be, then? We have to look no further than the following famous diagram from the Sutton and Barto textbook:
 
 .. image:: ./rl.jpg
 
 The definition of an ``Agent`` is simple.
-It accepts a state and returns an action.
+It accepts a state and reward, and returns an action.
 That's it.
 Everything else is an implementation detail.
 Here's the ``Agent`` interface in the autonomous-learning-library:
@@ -50,7 +50,7 @@ This approach simplifies both our ``Agent`` implementation and the control loop 
 
 Separating the control loop logic from the ``Agent`` logic allows greater flexibility in the way agents are used.
 In fact, ``Agent`` is entirely decoupled from the ``Environment`` interface.
-This means that our agents can be used outside of standard research environments, such as part of a REST api, a multi-agent system, etc.
+This means that our agents can be used outside of standard research environments, such as part of a REST API, a multi-agent system, etc.
 Any code that passes a ``State`` is compatible with our agents.
 
 What is a ``State``?
@@ -157,7 +157,7 @@ By encapsulating these details in ``Approximation``, we are able to follow the `
 
 A few other quick things to note: ``f.no_grad(x)`` runs a forward pass with ``torch.no_grad()``, speeding computation.
 ``f.eval(x)`` does the same, but also puts the model in `eval` mode first, (e.g., ``BatchNorm`` or ``Dropout`` layers), and then puts the model back into its previous mode before returning. 
-``f.target(x)`` calls the *target network* (an advanced concept used in algorithms such as DQN. S, for example, David Silver's `course notes <http://www0.cs.ucl.ac.uk/staff/d.silver/web/Talks_files/deep_rl.pdf>`_) associated with the ``Approximation``, also with ``torch.no_grad()``.
+``f.target(x)`` calls the *target network* (an advanced concept used in algorithms such as DQN. For example, David Silver's `course notes <http://www0.cs.ucl.ac.uk/staff/d.silver/web/Talks_files/deep_rl.pdf>`_) associated with the ``Approximation``, also with ``torch.no_grad()``.
 The ``autonomous-learning-library`` provides a few thin wrappers over ``Approximation`` for particular purposes, such as ``QNetwork``, ``VNetwork``, ``FeatureNetwork``, and several ``Policy`` implementations.
 
 Environments
@@ -186,7 +186,7 @@ Below, we show how several different types of environments can be created:
     # create an Atari environment on the gpu
     env = AtariEnvironment('Breakout', device='cuda')
 
-    # create a classic control environment on the compute
+    # create a classic control environment on the cpu
     env = GymEnvironment('CartPole-v0')
 
     # create a PyBullet environment on the cpu
@@ -232,7 +232,7 @@ However, how do we actually instansiate a particular network architecture, choos
 This is what presets are for.
 Before we dive into the details, let us show the simplest usage in practice:
 
-.. code-block python
+.. code-block:: python
 
     from all.presets.atari import dqn
     from all.environments import AtariEnvironment
@@ -280,7 +280,7 @@ Experiment
 
 Finally, we have all of the components necessary to introduce the ``run_experiment`` helper function.
 ``run_experiment`` is the built-in control loop for running reinforcement learning experiment.
-It instansiates its own ``Writer`` object, which is then passed to each of the agents, and runs each agent on each environment passed to it for some number of timesteps (frames) or episodes).
+It instansiates its own ``Writer`` object for logging, which is then passed to each of the presets, and runs each agent on each environment passed to it for some number of timesteps (frames) or episodes).
 Here is a quick example:
 
 .. code-block:: python
@@ -334,7 +334,7 @@ This is useful measuring the final performance of an agent.
 You can also pass optional parameters to ``run_experiment`` to change its behavior.
 You can set ``render=True`` to watch the agent during training (generally not recommended: it slows the agent considerably!).
 You can set ``quiet=True`` to silence command line output.
-Lastly, you can set ``write_loss=False`` to disable writing debugging information to ``tensorboard``.
+Lastly, you can set ``write_loss=False`` to disable writing loss and debugging information to ``tensorboard``.
 These files can become large, so this is recommended if you have limited storage!
 
 Finally, ``run_experiment`` relies on an underlying ``Experiment`` API.
