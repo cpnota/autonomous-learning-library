@@ -67,7 +67,7 @@ class GymVectorEnvironmentTest(unittest.TestCase):
         assert env1.observation_space.shape == env2.observation_space.shape
         assert env1.num_envs == 3 and env2.num_envs == 3
         act_space = env1.action_space
-        for i in range(10):
+        for i in range(2):
             self.assertTrue(torch.all(torch.eq(state1.observation, state2.observation)))
             self.assertTrue(torch.all(torch.eq(state1.reward, state2.reward)))
             self.assertTrue(torch.all(torch.eq(state1.done, state2.done)))
