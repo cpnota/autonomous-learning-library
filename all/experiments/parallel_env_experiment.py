@@ -76,7 +76,7 @@ class ParallelEnvExperiment(Experiment):
             if episodes_completed > 0:
                 dones = state_array.done.detach().numpy()
                 cur_time = time.time()
-                fps = (cur_time - start_time) / completed_frames
+                fps = completed_frames / (cur_time - start_time)
                 completed_frames = 0
                 start_time = cur_time
                 for i in range(num_envs):
