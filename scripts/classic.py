@@ -16,7 +16,7 @@ def main():
         help="The name of the device to run the agent on (e.g. cpu, cuda, cuda:0).",
     )
     parser.add_argument(
-        "--frames", type=int, default=20000, help="The number of training frames."
+        "--frames", type=int, default=50000, help="The number of training frames."
     )
     parser.add_argument(
         "--render", action="store_true", default=False, help="Render the environment."

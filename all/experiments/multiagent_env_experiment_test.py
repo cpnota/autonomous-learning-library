@@ -61,7 +61,7 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
 
     def test_adds_default_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
-        self.assertEqual(experiment._writer.label, "IndependentMultiagentPreset_space_invaders_v1")
+        self.assertEqual(experiment._writer.label, "independent_space_invaders_v1")
 
     def test_adds_custom_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, name='custom', quiet=True, save_freq=float('inf'))
@@ -80,12 +80,18 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         experiment.train(episodes=3)
         experiment._writer.data = {}
         experiment.test(episodes=3)
-        self.assertEqual(experiment._writer.data, {
-            'evaluation/first_0/returns-test/mean': {'values': [856.6666666666666], 'steps': [7288]},
-            'evaluation/first_0/returns-test/std': {'values': [2.357022603955158], 'steps': [7288]},
-            'evaluation/second_0/returns-test/mean': {'values': [731.6666666666666], 'steps': [7288]},
-            'evaluation/second_0/returns-test/std': {'values': [18.856180831641264], 'steps': [7288]}
-        })
+        self.assertEqual(list(experiment._writer.data.keys()), [
+            'evaluation/first_0/returns-test/mean',
+            'evaluation/first_0/returns-test/std',
+            'evaluation/second_0/returns-test/mean',
+            'evaluation/second_0/returns-test/std'
+        ])
+        steps = experiment._writer.data['evaluation/first_0/returns-test/mean']['steps'][0]
+        for datum in experiment._writer.data.values():
+            self.assertEqual(len(datum['values']), 1)
+            self.assertGreaterEqual(datum['values'][0], 0.0)
+            self.assertEqual(len(datum['steps']), 1)
+            self.assertEqual(datum['steps'][0], steps)
 
     def test_writes_loss(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=True, save_freq=float('inf'))

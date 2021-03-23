@@ -35,8 +35,8 @@ def run_experiment(
                 writer=writer
             )
             experiment.train(frames=frames)
-            experiment.test(episodes=test_episodes)
             experiment.save()
+            experiment.test(episodes=test_episodes)
             experiment.close()
 
 

@@ -20,16 +20,18 @@ class GymEnvironment(Environment):
 
     Args:
         env: Either a string or an OpenAI gym environment
-        device (optional): the device on which tensors will be stored
+        name (str, optional): the name of the environment
+        device (str, optional): the device on which tensors will be stored
     '''
 
-    def __init__(self, env, device=torch.device('cpu')):
+    def __init__(self, env, device=torch.device('cpu'), name=None):
         if isinstance(env, str):
             self._name = env
             env = gym.make(env)
         else:
             self._name = env.__class__.__name__
-
+        if name:
+            self._name = name
         self._env = env
         self._state = None
         self._action = None
