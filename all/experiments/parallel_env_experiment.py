@@ -6,6 +6,8 @@ from all.core import State
 from .writer import ExperimentWriter, CometWriter
 from .experiment import Experiment
 from all.environments import VectorEnvironment
+from all.agents import ParallelAgent
+import gym
 
 
 class ParallelEnvExperiment(Experiment):
@@ -72,9 +74,9 @@ class ParallelEnvExperiment(Experiment):
             self._frame += num_envs
             episodes_completed = state_array.done.type(torch.IntTensor).sum().item()
             completed_frames += num_envs
-            returns += state_array.reward.detach().numpy()
+            returns += state_array.reward.cpu().detach().numpy()
             if episodes_completed > 0:
-                dones = state_array.done.detach().numpy()
+                dones = state_array.done.cpu().detach().numpy()
                 cur_time = time.time()
                 fps = completed_frames / (cur_time - start_time)
                 completed_frames = 0
@@ -87,21 +89,26 @@ class ParallelEnvExperiment(Experiment):
 
     def test(self, episodes=100):
         test_agent = self._preset.test_agent()
-        returns = np.zeros(self._env.num_envs)
-        state_array = self._env.reset()
+        returns = 0
+        first_state = self._env.reset()[0]
         eps_returns = []
         while len(eps_returns) < episodes:
-            action = test_agent.act(state_array)
+            first_action = test_agent.act(first_state)
+            if isinstance(self._env.action_space, gym.spaces.Discrete):
+                action = torch.tensor([first_action] * self._env.num_envs)
+            else:
+                action = torch.tensor(first_action).reshape(1, -1).repeat(self._env.num_envs, 1)
             state_array = self._env.step(action)
             dones = state_array.done.cpu().detach().numpy()
             rews = state_array.reward.cpu().detach().numpy()
-            returns += rews
-            for i in range(self._env.num_envs):
+            first_state = state_array[0]
+            returns += rews[0]
+            for i in range(1):
                 if dones[i]:
-                    episode_return = returns[i]
+                    episode_return = returns
                     esp_index = len(eps_returns)
                     eps_returns.append(episode_return)
-                    returns[i] = 0
+                    returns = 0
                     self._log_test_episode(esp_index, episode_return)
 
         self._log_test(eps_returns)

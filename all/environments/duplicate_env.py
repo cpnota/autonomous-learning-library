@@ -38,8 +38,9 @@ class DuplicateEnvironment(VectorEnvironment):
 
     def step(self, actions):
         states = []
-        for sub_env, action, env in zip(self._envs, actions, self._envs):
-            state = sub_env.reset() if env.state.done else sub_env.step(action)
+        actions = actions.cpu().detach().numpy()
+        for sub_env, action in zip(self._envs, actions):
+            state = sub_env.reset() if sub_env.state.done else sub_env.step(action)
             states.append(state)
         self._state = State.array(states)
         return self._state
