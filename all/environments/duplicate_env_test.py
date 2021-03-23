@@ -8,6 +8,7 @@ def make_vec_env(num_envs=3):
     env = [GymEnvironment('CartPole-v0') for i in range(num_envs)]
     return env
 
+
 class DuplicateEnvironmentTest(unittest.TestCase):
     def test_env_name(self):
         env = DuplicateEnvironment(make_vec_env())

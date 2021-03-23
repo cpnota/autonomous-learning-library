@@ -45,10 +45,10 @@ class GymVectorEnvironment(VectorEnvironment):
         obs = obs.astype(self.observation_space.dtype)
         rew = rew.astype("float32")
         return StateArray({
-            "observation": torch.tensor(obs,device=self._device),
-            "reward": torch.tensor(rew,device=self._device),
-            "done": torch.tensor(done,device=self._device),
-            "mask": torch.tensor(1-done,device=self._device)
+            "observation": torch.tensor(obs, device=self._device),
+            "reward": torch.tensor(rew, device=self._device),
+            "done": torch.tensor(done, device=self._device),
+            "mask": torch.tensor(1 - done, device=self._device)
         }, shape=(self._env.num_envs,))
 
     def step(self, action):

@@ -3,9 +3,11 @@ import gym
 import torch
 from all.environments import GymVectorEnvironment, GymEnvironment, DuplicateEnvironment
 
+
 def make_vec_env(num_envs=3):
-    env = gym.vector.SyncVectorEnv([lambda: gym.make('CartPole-v0')]*num_envs)
+    env = gym.vector.SyncVectorEnv([lambda: gym.make('CartPole-v0')] * num_envs)
     return env
+
 
 class GymVectorEnvironmentTest(unittest.TestCase):
     def test_env_name(self):
@@ -75,6 +77,7 @@ class GymVectorEnvironmentTest(unittest.TestCase):
             actions = torch.tensor([act_space.sample() for i in range(n_envs)])
             state1 = env1.step(actions)
             state2 = env2.step(actions)
+
 
 if __name__ == "__main__":
     unittest.main()

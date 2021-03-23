@@ -66,8 +66,6 @@ class ParallelEnvExperiment(Experiment):
         state_array = self._env.reset()
         start_time = time.time()
         completed_frames = 0
-        tot_time = 0
-        start_frame = self._frame
         while not self._done(frames, episodes):
             action = self._agent.act(state_array)
             state_array = self._env.step(action)
@@ -78,7 +76,7 @@ class ParallelEnvExperiment(Experiment):
             if episodes_completed > 0:
                 dones = state_array.done.detach().numpy()
                 cur_time = time.time()
-                fps = (cur_time - start_time)/completed_frames
+                fps = (cur_time - start_time) / completed_frames
                 completed_frames = 0
                 start_time = cur_time
                 for i in range(num_envs):
@@ -93,7 +91,7 @@ class ParallelEnvExperiment(Experiment):
         state_array = self._env.reset()
         eps_returns = []
         while len(eps_returns) < episodes:
-            action = self._agent.act(state_array)
+            action = test_agent.act(state_array)
             state_array = self._env.step(action)
             dones = state_array.done.cpu().detach().numpy()
             rews = state_array.reward.cpu().detach().numpy()
