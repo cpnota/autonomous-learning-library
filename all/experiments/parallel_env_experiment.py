@@ -109,22 +109,6 @@ class ParallelEnvExperiment(Experiment):
         self._log_test(eps_returns)
         return eps_returns
 
-    def _run_test_episode(self, test_agent):
-        # initialize the episode
-        state = self._env.reset()
-        action = test_agent.act(state)
-        returns = 0
-
-        # loop until the episode is finished
-        while not state.done:
-            if self._render:
-                self._env.render()
-            state = self._env.step(action)
-            action = test_agent.act(state)
-            returns += state.reward
-
-        return returns
-
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes
 

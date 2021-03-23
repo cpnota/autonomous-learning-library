@@ -42,6 +42,8 @@ class GymVectorEnvironment(VectorEnvironment):
         return self._state
 
     def _to_state(self, obs, rew, done, info):
+        obs = obs.astype(self.observation_space.dtype)
+        rew = rew.astype("float32")
         return StateArray({
             "observation": torch.tensor(obs,device=self._device),
             "reward": torch.tensor(rew,device=self._device),
