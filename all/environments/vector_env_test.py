@@ -64,10 +64,11 @@ class GymVectorEnvironmentTest(unittest.TestCase):
         env2.seed(42)
         state1 = env1.reset()
         state2 = env2.reset()
-        assert env1.name == env2.name
-        assert env1.action_space.n == env2.action_space.n
-        assert env1.observation_space.shape == env2.observation_space.shape
-        assert env1.num_envs == 3 and env2.num_envs == 3
+        self.assertEqual(env1.name, env2.name)
+        self.assertEqual(env1.action_space.n, env2.action_space.n)
+        self.assertEqual(env1.observation_space.shape, env2.observation_space.shape)
+        self.assertEqual(env1.num_envs, 3)
+        self.assertEqual(env2.num_envs, 3)
         act_space = env1.action_space
         for i in range(2):
             self.assertTrue(torch.all(torch.eq(state1.observation, state2.observation)))
