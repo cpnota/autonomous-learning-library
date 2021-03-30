@@ -101,7 +101,7 @@ class A2C(ParallelAgent):
         )
 
 
-class A2CTestAgent(Agent):
+class A2CTestAgent(Agent, ParallelAgent):
     def __init__(self, features, policy):
         self.features = features
         self.policy = policy
