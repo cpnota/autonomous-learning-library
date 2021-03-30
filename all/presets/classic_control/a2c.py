@@ -102,4 +102,5 @@ class A2CClassicControlPreset(ParallelPreset):
     def parallel_test_agent(self):
         return self.test_agent()
 
+
 a2c = ParallelPresetBuilder('a2c', default_hyperparameters, A2CClassicControlPreset)
