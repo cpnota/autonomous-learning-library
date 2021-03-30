@@ -111,7 +111,8 @@ class DDQNClassicControlPreset(Preset):
 
     def test_agent(self):
         q = QNetwork(copy.deepcopy(self.model))
-        return DDQNTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
+        policy = GreedyPolicy(q, self.n_actions, epsilon=self.hyperparameters['test_exploration'])
+        return DDQNTestAgent(policy)
 
 
 ddqn = PresetBuilder('ddqn', default_hyperparameters, DDQNClassicControlPreset)

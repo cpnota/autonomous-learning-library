@@ -129,5 +129,8 @@ class PPOClassicControlPreset(ParallelPreset):
         policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
         return PPOTestAgent(features, policy)
 
+    def parallel_test_agent(self):
+        return self.test_agent()
+
 
 ppo = ParallelPresetBuilder('ppo', default_hyperparameters, PPOClassicControlPreset)
