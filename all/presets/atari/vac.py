@@ -100,5 +100,8 @@ class VACAtariPreset(ParallelPreset):
         policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
         return DeepmindAtariBody(VACTestAgent(features, policy))
 
+    def parallel_test_agent(self):
+        return self.test_agent()
+
 
 vac = ParallelPresetBuilder('vac', default_hyperparameters, VACAtariPreset)

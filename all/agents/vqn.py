@@ -50,4 +50,9 @@ class VQN(ParallelAgent):
             self.q.reinforce(loss)
 
 
-VQNTestAgent = DQNTestAgent
+class VQNTestAgent(Agent, ParallelAgent):
+    def __init__(self, policy):
+        self.policy = policy
+
+    def act(self, state):
+        return self.policy.eval(state)

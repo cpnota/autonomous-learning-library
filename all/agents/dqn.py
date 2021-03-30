@@ -81,12 +81,8 @@ class DQN(Agent):
 
 
 class DQNTestAgent(Agent):
-    def __init__(self, q, n_actions, exploration=0.):
-        self.q = q
-        self.n_actions = n_actions
-        self.exploration = 0.001
+    def __init__(self, policy):
+        self.policy = policy
 
     def act(self, state):
-        if np.random.rand() < self.exploration:
-            return np.random.randint(0, self.n_actions)
-        return torch.argmax(self.q.eval(state)).item()
+        return self.policy.eval(state)
