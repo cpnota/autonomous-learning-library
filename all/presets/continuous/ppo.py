@@ -130,5 +130,8 @@ class PPOContinuousPreset(ParallelPreset):
         policy = GaussianPolicy(copy.deepcopy(self.policy_model), space=self.action_space)
         return TimeFeature(PPOTestAgent(Identity(self.device), policy))
 
+    def parallel_test_agent(self):
+        return self.test_agent()
+
 
 ppo = ParallelPresetBuilder('ppo', default_hyperparameters, PPOContinuousPreset)
