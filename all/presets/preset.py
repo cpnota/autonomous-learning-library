@@ -54,7 +54,7 @@ class Preset(ABC):
         return torch.save(self, filename)
 
 
-class ParallelPreset():
+class ParallelPreset(ABC):
     """
     A Preset ParallelAgent factory.
 
@@ -88,9 +88,21 @@ class ParallelPreset():
     def test_agent(self):
         """
         Instantiate a test-mode Agent with the existing model.
+        See also: ParallelPreset.parallel_test_agent()
 
         Returns:
             all.agents.Agent: The instantiated test Agent.
+        """
+        pass
+
+    @abstractmethod
+    def parallel_test_agent(self):
+        """
+        Instantiate a test-mode ParallelAgent with the existing model.
+        See also: ParallelPreset.test_agent()
+
+        Returns:
+            all.agents.ParallelAgent: The instantiated test ParallelAgent.
         """
         pass
 

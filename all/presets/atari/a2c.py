@@ -112,5 +112,8 @@ class A2CAtariPreset(ParallelPreset):
         policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
         return DeepmindAtariBody(A2CTestAgent(features, policy))
 
+    def parallel_test_agent(self):
+        return self.test_agent()
+
 
 a2c = ParallelPresetBuilder('a2c', default_hyperparameters, A2CAtariPreset)

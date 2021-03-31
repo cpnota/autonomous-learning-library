@@ -88,31 +88,38 @@ class ParallelEnvExperiment(Experiment):
             self._episode += episodes_completed
 
     def test(self, episodes=100):
-        test_agent = self._preset.test_agent()
-        returns = 0
-        first_state = self._env.reset()[0]
-        eps_returns = []
-        while len(eps_returns) < episodes:
-            first_action = test_agent.act(first_state)
-            if isinstance(self._env.action_space, gym.spaces.Discrete):
-                action = torch.tensor([first_action] * self._env.num_envs)
-            else:
-                action = torch.tensor(first_action).reshape(1, -1).repeat(self._env.num_envs, 1)
-            state_array = self._env.step(action)
-            dones = state_array.done.cpu().detach().numpy()
-            rews = state_array.reward.cpu().detach().numpy()
-            first_state = state_array[0]
-            returns += rews[0]
-            for i in range(1):
-                if dones[i]:
-                    episode_return = returns
-                    esp_index = len(eps_returns)
-                    eps_returns.append(episode_return)
-                    returns = 0
-                    self._log_test_episode(esp_index, episode_return)
+        test_agent = self._preset.parallel_test_agent()
 
-        self._log_test(eps_returns)
-        return eps_returns
+        # Note that we need to record the first N episodes that are STARTED,
+        # not the first N that are completed, or we introduce bias.
+        test_returns = []
+        episodes_started = self._n_envs
+        should_record = [True] * self._n_envs
+
+        # initialize state
+        states = self._env.reset()
+        returns = states.reward.clone()
+
+        while len(test_returns) < episodes:
+            # step the agent and environments
+            actions = test_agent.act(states)
+            states = self._env.step(actions)
+            returns += states.reward
+
+            # record any episodes that have finished
+            for i, done in enumerate(states.done):
+                if done:
+                    if should_record[i] and len(test_returns) < episodes:
+                        episode_return = returns[i].item()
+                        test_returns.append(episode_return)
+                        self._log_test_episode(len(test_returns), episode_return)
+                    returns[i] = 0.
+                    episodes_started += 1
+                    if episodes_started > episodes:
+                        should_record[i] = False
+
+        self._log_test(test_returns)
+        return test_returns
 
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes

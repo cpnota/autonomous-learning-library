@@ -93,5 +93,8 @@ class VACClassicControlPreset(ParallelPreset):
         policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
         return VACTestAgent(features, policy)
 
+    def parallel_test_agent(self):
+        return self.test_agent()
+
 
 vac = ParallelPresetBuilder('vac', default_hyperparameters, VACClassicControlPreset)

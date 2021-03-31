@@ -1,7 +1,6 @@
 from torch.nn.functional import mse_loss
-from ._agent import Agent
 from ._parallel_agent import ParallelAgent
-from .dqn import DQNTestAgent
+from .vqn import VQNTestAgent
 
 
 class VSarsa(ParallelAgent):
@@ -47,4 +46,4 @@ class VSarsa(ParallelAgent):
             self.q.reinforce(loss)
 
 
-VSarsaTestAgent = DQNTestAgent
+VSarsaTestAgent = VQNTestAgent
