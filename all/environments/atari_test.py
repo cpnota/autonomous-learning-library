@@ -21,7 +21,6 @@ class AtariEnvironmentTest(unittest.TestCase):
         self.assertEqual(state.mask, 1)
         self.assertEqual(state['life_lost'], False)
 
-
     def test_step_until_life_lost(self):
         env = AtariEnvironment('Breakout')
         env.reset()
@@ -34,7 +33,6 @@ class AtariEnvironmentTest(unittest.TestCase):
         self.assertFalse(state.done)
         self.assertEqual(state.mask, 1)
         self.assertEqual(state['life_lost'], True)
-
 
     def test_step_until_done(self):
         env = AtariEnvironment('Breakout')

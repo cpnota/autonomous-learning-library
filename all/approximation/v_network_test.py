@@ -7,9 +7,11 @@ from all.core import StateArray
 
 STATE_DIM = 2
 
+
 def loss(value, error):
     target = value + error
     return ((target.detach() - value) ** 2).mean()
+
 
 class TestVNetwork(unittest.TestCase):
     def setUp(self):
@@ -48,6 +50,7 @@ class TestVNetwork(unittest.TestCase):
         self.v.reinforce(loss(result3, torch.tensor([1, 2])).float())
         with self.assertRaises(Exception):
             self.v.reinforce(loss(result3, torch.tensor([1, 2])).float())
+
 
 if __name__ == '__main__':
     unittest.main()

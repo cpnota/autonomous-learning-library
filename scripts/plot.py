@@ -9,5 +9,6 @@ def main():
     args = parser.parse_args()
     plot_returns_100(args.logdir, timesteps=args.timesteps)
 
+
 if __name__ == "__main__":
     main()

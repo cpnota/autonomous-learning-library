@@ -1,7 +1,9 @@
 import torch
 from all.core import State
+from all.optim import Schedulable
 
-class GeneralizedAdvantageBuffer:
+
+class GeneralizedAdvantageBuffer(Schedulable):
     def __init__(
             self,
             v,

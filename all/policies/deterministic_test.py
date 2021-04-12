@@ -11,6 +11,7 @@ from all.policies import DeterministicPolicy
 STATE_DIM = 2
 ACTION_DIM = 3
 
+
 class TestDeterministic(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(2)
@@ -78,6 +79,7 @@ class TestDeterministic(unittest.TestCase):
             torch.tensor([[-0.574482, -0.574482, -0.574482]]),
             atol=1e-4,
         )
+
 
 if __name__ == '__main__':
     unittest.main()

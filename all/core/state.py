@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import warnings
 
 
 class State(dict):
@@ -31,6 +32,7 @@ class State(dict):
         device (string):
             The torch device on which component tensors are stored.
     """
+
     def __init__(self, x, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
@@ -64,15 +66,23 @@ class State(dict):
         device = list_of_states[0].device
         shape = (len(list_of_states), *list_of_states[0].shape)
         x = {}
+
         for key in list_of_states[0].keys():
             v = list_of_states[0][key]
             try:
-                if torch.is_tensor(v):
+                if isinstance(v, list) and len(v) > 0 and torch.is_tensor(v[0]):
+                    x[key] = torch.stack([torch.stack(state[key]) for state in list_of_states])
+                elif torch.is_tensor(v):
                     x[key] = torch.stack([state[key] for state in list_of_states])
                 else:
                     x[key] = torch.tensor([state[key] for state in list_of_states], device=device)
-            except: # # pylint: disable=bare-except
-                pass
+            except KeyError:
+                warnings.warn('KeyError while creating StateArray for key "{}", omitting.'.format(key))
+            except ValueError:
+                warnings.warn('ValueError while creating StateArray for key "{}", omitting.'.format(key))
+            except TypeError:
+                warnings.warn('TypeError while creating StateArray for key "{}", omitting.'.format(key))
+
         return StateArray(x, shape, device=device)
 
     def apply(self, model, *keys):
@@ -187,6 +197,17 @@ class State(dict):
             x[key] = info[key]
         return State(x, device=device)
 
+    def to(self, device):
+        if device == self.device:
+            return self
+        x = {}
+        for key, value in self.items():
+            if torch.is_tensor(value):
+                x[key] = value.to(device)
+            else:
+                x[key] = value
+        return type(self)(x, device=device, shape=self._shape)
+
     @property
     def observation(self):
         """A tensor containing the current observation."""
@@ -214,6 +235,7 @@ class State(dict):
 
     def __len__(self):
         return 1
+
 
 class StateArray(State):
     """
@@ -244,6 +266,7 @@ class StateArray(State):
             device (string):
                 The torch device on which component tensors are stored.
     """
+
     def __init__(self, x, shape, device='cpu', **kwargs):
         if not isinstance(x, dict):
             x = {'observation': x}
@@ -288,7 +311,7 @@ class StateArray(State):
         return tensor.view((*self.shape, *tensor.shape[1:]))
 
     def apply_mask(self, tensor):
-        return tensor * self.mask.unsqueeze(-1) # pylint: disable=no-member
+        return tensor * self.mask.unsqueeze(-1)
 
     def flatten(self):
         """
@@ -337,9 +360,9 @@ class StateArray(State):
     def __getitem__(self, key):
         if isinstance(key, slice):
             shape = self['mask'][key].shape
-            return StateArray({k:v[key] for (k, v) in self.items()}, shape, device=self.device)
+            return StateArray({k: v[key] for (k, v) in self.items()}, shape, device=self.device)
         if isinstance(key, int):
-            return State({k:v[key] for (k, v) in self.items()}, device=self.device)
+            return State({k: v[key] for (k, v) in self.items()}, device=self.device)
         if torch.is_tensor(key):
             # some things may get los
             d = {}
@@ -347,7 +370,7 @@ class StateArray(State):
             for (k, v) in self.items():
                 try:
                     d[k] = v[key]
-                except: # pylint: disable=bare-except
+                except KeyError:
                     pass
             return self.__class__(d, shape, device=self.device)
         try:
@@ -363,3 +386,67 @@ class StateArray(State):
 
     def __len__(self):
         return self.shape[0]
+
+
+class MultiagentState(State):
+    def __init__(self, x, device='cpu', **kwargs):
+        if 'agent' not in x:
+            raise Exception('MultiagentState must contain an agent ID')
+        super().__init__(x, device=device, **kwargs)
+
+    @property
+    def agent(self):
+        return self['agent']
+
+    @classmethod
+    def from_zoo(cls, agent, state, device='cpu', dtype=np.float32):
+        """
+        Constructs a State object given the return value of an OpenAI gym reset()/step(action) call.
+
+        Args:
+            state (tuple): The return value of an OpenAI gym reset()/step(action) call
+            device (string): The device on which to store resulting tensors.
+            dtype: The type of the observation.
+
+        Returns:
+            A State object.
+        """
+        if not isinstance(state, tuple):
+            return MultiagentState({
+                'agent': agent,
+                'observation': torch.from_numpy(
+                    np.array(
+                        state,
+                        dtype=dtype
+                    ),
+                ).to(device)
+            }, device=device)
+
+        observation, reward, done, info = state
+        observation = torch.from_numpy(
+            np.array(
+                observation,
+                dtype=dtype
+            ),
+        ).to(device)
+        x = {
+            'agent': agent,
+            'observation': observation,
+            'reward': float(reward),
+            'done': done,
+        }
+        info = info if info else {}
+        for key in info:
+            x[key] = info[key]
+        return MultiagentState(x, device=device)
+
+    def to(self, device):
+        if device == self.device:
+            return self
+        x = {}
+        for key, value in self.items():
+            if torch.is_tensor(value):
+                x[key] = value.to(device)
+            else:
+                x[key] = value
+        return type(self)(x, device=device, shape=self._shape)

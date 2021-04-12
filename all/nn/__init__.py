@@ -1,15 +1,20 @@
 import torch
 from torch import nn
-from torch.nn import *  # export everthing
+from torch.nn import *  # noqa
 from torch.nn import functional as F
 import numpy as np
 from all.core import State
+
+
+""""A Pytorch Module"""
+Module = nn.Module
 
 
 class RLNetwork(nn.Module):
     """
     Wraps a network such that States can be given as input.
     """
+
     def __init__(self, model, _=None):
         super().__init__()
         self.model = model
@@ -18,6 +23,7 @@ class RLNetwork(nn.Module):
     def forward(self, state):
         return state.apply(self.model, 'observation')
 
+
 class Aggregation(nn.Module):
     """
     Aggregation layer for the Dueling architecture.
@@ -25,8 +31,8 @@ class Aggregation(nn.Module):
     https://arxiv.org/abs/1511.06581
     This layer computes a Q function by combining
     an estimate of V with an estimate of the advantage.
-    The advantage is normalized by substracting the average
-    advantage so that we can propertly
+    The advantage is normalized by subtracting the average
+    advantage so that we can properly
     """
 
     def forward(self, value, advantages):
@@ -74,7 +80,7 @@ class CategoricalDueling(nn.Module):
         ).view((batch_size, -1))
 
 
-class Flatten(nn.Module):  # pylint: disable=function-redefined
+class Flatten(nn.Module):
     """
     Flatten a tensor, e.g., between conv2d and linear layers.
 
@@ -125,6 +131,7 @@ class NoisyLinear(nn.Linear):
             bias = bias + self.sigma_bias * self.epsilon_bias
         return F.linear(x, self.weight + self.sigma_weight * self.epsilon_weight, bias)
 
+
 class NoisyFactorizedLinear(nn.Linear):
     """
     NoisyNet layer with factorized gaussian noise
@@ -168,6 +175,7 @@ class NoisyFactorizedLinear(nn.Linear):
         noise_v = torch.mul(eps_in, eps_out)
         return F.linear(input, self.weight + self.sigma_weight * noise_v, bias)
 
+
 class Linear0(nn.Linear):
     def reset_parameters(self):
         nn.init.constant_(self.weight, 0.0)
@@ -197,15 +205,18 @@ class TanhActionBound(nn.Module):
     def forward(self, x):
         return torch.tanh(x) * self.weight + self.bias
 
+
 def td_loss(loss):
     def _loss(estimates, errors):
         return loss(estimates, errors + estimates.detach())
 
     return _loss
 
+
 def weighted_mse_loss(input, target, weight, reduction='mean'):
     loss = (weight * ((target - input) ** 2))
     return torch.mean(loss) if reduction == 'mean' else torch.sum(loss)
+
 
 def weighted_smooth_l1_loss(input, target, weight, reduction='mean'):
     t = torch.abs(input - target)

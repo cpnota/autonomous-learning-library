@@ -12,6 +12,7 @@ class FeatureNetwork(Approximation):
     The reinforce() function will then backpropagate the accumulated gradients on the output
     through the original computation graph.
     '''
+
     def __init__(self, model, optimizer=None, name='feature', **kwargs):
         model = FeatureModule(model)
         super().__init__(model, optimizer, name=name, **kwargs)
@@ -26,11 +27,10 @@ class FeatureNetwork(Approximation):
             state (all.environment.State): An environment State
 
         Returns:
-            all.environment.State: An enviornment State with the computed features
+            all.environment.State: An environment State with the computed features
         '''
         features = self.model(states)
         graphs = features.observation
-        # pylint: disable=protected-access
         observation = graphs.detach()
         observation.requires_grad = True
         features['observation'] = observation
@@ -42,8 +42,9 @@ class FeatureNetwork(Approximation):
         Backward pass of the model.
         '''
         graphs, grads = self._dequeue()
-        graphs.backward(grads)
-        self.step()
+        if graphs.requires_grad:
+            graphs.backward(grads)
+            self.step()
 
     def _enqueue(self, features, out):
         self._cache.append(features)
@@ -59,6 +60,7 @@ class FeatureNetwork(Approximation):
         self._cache = []
         self._out = []
         return torch.cat(graphs), torch.cat(grads)
+
 
 class FeatureModule(torch.nn.Module):
     def __init__(self, model):

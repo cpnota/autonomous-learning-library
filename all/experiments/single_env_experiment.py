@@ -1,21 +1,30 @@
 from timeit import default_timer as timer
 import numpy as np
-from .writer import ExperimentWriter
+from .writer import ExperimentWriter, CometWriter
+
 from .experiment import Experiment
+
 
 class SingleEnvExperiment(Experiment):
     '''An Experiment object for training and testing agents that interact with one environment at a time.'''
+
     def __init__(
             self,
-            agent,
+            preset,
             env,
+            name=None,
+            train_steps=float('inf'),
             logdir='runs',
             quiet=False,
             render=False,
-            write_loss=True
+            write_loss=True,
+            writer="tensorboard"
     ):
-        super().__init__(self._make_writer(logdir, agent.__name__, env.name, write_loss), quiet)
-        self._agent = agent(env, self._writer)
+        self._name = name if name is not None else preset.name
+        super().__init__(self._make_writer(logdir, self._name, env.name, write_loss, writer), quiet)
+        self._logdir = logdir
+        self._preset = preset
+        self._agent = self._preset.agent(writer=self._writer, train_steps=train_steps)
         self._env = env
         self._render = render
         self._frame = 1
@@ -37,9 +46,10 @@ class SingleEnvExperiment(Experiment):
             self._run_training_episode()
 
     def test(self, episodes=100):
+        test_agent = self._preset.test_agent()
         returns = []
         for episode in range(episodes):
-            episode_return = self._run_test_episode()
+            episode_return = self._run_test_episode(test_agent)
             returns.append(episode_return)
             self._log_test_episode(episode, episode_return)
         self._log_test(returns)
@@ -74,10 +84,10 @@ class SingleEnvExperiment(Experiment):
         # update experiment state
         self._episode += 1
 
-    def _run_test_episode(self):
+    def _run_test_episode(self, test_agent):
         # initialize the episode
         state = self._env.reset()
-        action = self._agent.eval(state)
+        action = test_agent.act(state)
         returns = 0
 
         # loop until the episode is finished
@@ -85,7 +95,7 @@ class SingleEnvExperiment(Experiment):
             if self._render:
                 self._env.render()
             state = self._env.step(action)
-            action = self._agent.eval(state)
+            action = test_agent.act(state)
             returns += state.reward
 
         return returns
@@ -93,5 +103,7 @@ class SingleEnvExperiment(Experiment):
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes
 
-    def _make_writer(self, logdir, agent_name, env_name, write_loss):
+    def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
+        if writer == "comet":
+            return CometWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
         return ExperimentWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)

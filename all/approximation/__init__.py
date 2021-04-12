@@ -4,6 +4,7 @@ from .q_dist import QDist
 from .q_network import QNetwork
 from .v_network import VNetwork
 from .feature_network import FeatureNetwork
+from .identity import Identity
 from .target import TargetNetwork, FixedTarget, PolyakTarget, TrivialTarget
 from .checkpointer import Checkpointer, DummyCheckpointer, PeriodicCheckpointer
 
@@ -16,10 +17,11 @@ __all__ = [
     "VNetwork",
     "FeatureNetwork",
     "TargetNetwork",
+    "Identity",
     "FixedTarget",
     "PolyakTarget",
     "TrivialTarget",
     "Checkpointer",
     "DummyCheckpointer",
-    "PeriodicCheckpointer"
+    "PeriodicCheckpointer",
 ]

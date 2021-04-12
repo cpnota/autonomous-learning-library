@@ -2,6 +2,8 @@ import torch
 from torch.nn.functional import mse_loss
 from all.core import State
 from ._agent import Agent
+from .a2c import A2CTestAgent
+
 
 class VPG(Agent):
     '''
@@ -24,6 +26,7 @@ class VPG(Agent):
             this many state-action pairs are seen. Set this to a large value in order
             to train on multiple episodes at once.
     '''
+
     def __init__(
             self,
             features,
@@ -128,3 +131,6 @@ class VPG(Agent):
             returns[t] = discounted_return
             t -= 1
         return returns
+
+
+VPGTestAgent = A2CTestAgent

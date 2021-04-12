@@ -1,8 +1,10 @@
 import gym
 import torch
 from all.core import State
-from .abstract import Environment
+from ._environment import Environment
+import cloudpickle
 gym.logger.set_level(40)
+
 
 class GymEnvironment(Environment):
     '''
@@ -17,15 +19,18 @@ class GymEnvironment(Environment):
 
     Args:
         env: Either a string or an OpenAI gym environment
-        device (optional): the device on which tensors will be stored
+        name (str, optional): the name of the environment
+        device (str, optional): the device on which tensors will be stored
     '''
-    def __init__(self, env, device=torch.device('cpu')):
+
+    def __init__(self, env, device=torch.device('cpu'), name=None):
         if isinstance(env, str):
             self._name = env
             env = gym.make(env)
         else:
             self._name = env.__class__.__name__
-
+        if name:
+            self._name = name
         self._env = env
         self._state = None
         self._action = None
@@ -39,7 +44,8 @@ class GymEnvironment(Environment):
         return self._name
 
     def reset(self):
-        self._state = State.from_gym(self._env.reset(), dtype=self._env.observation_space.dtype, device=self._device)
+        state = self._env.reset(), 0., False, None
+        self._state = State.from_gym(state, dtype=self._env.observation_space.dtype, device=self._device)
         return self._state
 
     def step(self, action):
@@ -60,7 +66,7 @@ class GymEnvironment(Environment):
         self._env.seed(seed)
 
     def duplicate(self, n):
-        return [GymEnvironment(self._name, device=self.device) for _ in range(n)]
+        return [GymEnvironment(cloudpickle.loads(cloudpickle.dumps(self._env)), device=self.device) for _ in range(n)]
 
     @property
     def state_space(self):

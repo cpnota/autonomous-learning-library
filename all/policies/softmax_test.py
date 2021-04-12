@@ -8,6 +8,7 @@ from all.policies import SoftmaxPolicy
 STATE_DIM = 2
 ACTIONS = 3
 
+
 class TestSoftmax(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(2)
@@ -78,7 +79,7 @@ class TestSoftmax(unittest.TestCase):
             [0.266, 0.196, 0.538],
             [0.469, 0.227, 0.304]
         ]), decimal=3)
-        best = self.policy.eval(states)
+        best = self.policy.eval(states).sample()
         tt.assert_equal(best, torch.tensor([2, 2, 0]))
 
 

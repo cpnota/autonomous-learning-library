@@ -3,9 +3,10 @@ import torch
 from torch.nn import utils
 from all.logging import DummyWriter
 from .target import TrivialTarget
-from .checkpointer import PeriodicCheckpointer
+from .checkpointer import DummyCheckpointer
 
 DEFAULT_CHECKPOINT_FREQUENCY = 200
+
 
 class Approximation():
     '''
@@ -31,6 +32,8 @@ class Approximation():
                 gradient to this value in order prevent large updates and
                 improve stability.
                 See torch.nn.utils.clip_grad.
+            device (string, optional): The device that the model is on. If none is passed,
+                the device will be automatically determined based on model.parameters()
             loss_scaling (float, optional): Multiplies the loss by this value before
                 performing a backwards pass. Useful when used with multi-headed networks
                 with shared feature layers.
@@ -46,12 +49,14 @@ class Approximation():
                 The standard object logs to tensorboard, however, other types of Writer objects
                 may be implemented by the user.
     '''
+
     def __init__(
             self,
             model,
-            optimizer,
+            optimizer=None,
             checkpointer=None,
             clip_grad=0,
+            device=None,
             loss_scaling=1,
             name='approximation',
             scheduler=None,
@@ -59,7 +64,7 @@ class Approximation():
             writer=DummyWriter(),
     ):
         self.model = model
-        self.device = next(model.parameters()).device
+        self.device = device if device else next(model.parameters()).device
         self._target = target or TrivialTarget()
         self._scheduler = scheduler
         self._target.init(model)
@@ -72,7 +77,7 @@ class Approximation():
         self._name = name
 
         if checkpointer is None:
-            checkpointer = PeriodicCheckpointer(DEFAULT_CHECKPOINT_FREQUENCY)
+            checkpointer = DummyCheckpointer()
         self._checkpointer = checkpointer
         self._checkpointer.init(
             self.model,

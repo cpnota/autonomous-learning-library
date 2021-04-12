@@ -1,3 +1,3 @@
-from .state import State, StateArray
+from .state import State, StateArray, MultiagentState
 
-__all__ = ['State', 'StateArray']
+__all__ = ['State', 'StateArray', 'MultiagentState']

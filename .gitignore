@@ -10,9 +10,14 @@ autonomous_learning_library.egg-info
 # editor
 .vscode
 .idea
+*.code-workspace
 
 # non-committed code
 local
 legacy
 /runs
 /out
+
+# notebooks
+*.ipynb
+*.ipynb_checkpoints

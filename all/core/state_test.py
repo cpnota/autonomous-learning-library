@@ -1,8 +1,10 @@
 import unittest
+import warnings
 import numpy as np
 import torch
 import torch_testing as tt
 from all.core import State, StateArray
+
 
 class StateTest(unittest.TestCase):
     def test_constructor_defaults(self):
@@ -88,7 +90,6 @@ class StateTest(unittest.TestCase):
         self.assertEqual(output.shape, (5, 3))
         self.assertNotEqual(output.sum().item(), 0)
 
-
     def test_apply_done(self):
         observation = torch.randn(3, 4)
         state = State.from_gym((observation, 0., True, {}))
@@ -96,6 +97,14 @@ class StateTest(unittest.TestCase):
         output = state.apply(model, 'observation')
         self.assertEqual(output.shape, (5, 3))
         self.assertEqual(output.sum().item(), 0)
+
+    def test_to_device(self):
+        observation = torch.randn(3, 4)
+        state = State(observation, device=torch.device('cpu'))
+        state_cpu = state.to("cpu")
+        self.assertTrue(torch.equal(state['observation'], state_cpu['observation']))
+        self.assertFalse(state is state_cpu)
+
 
 class StateArrayTest(unittest.TestCase):
     def test_constructor_defaults(self):
@@ -121,7 +130,6 @@ class StateArrayTest(unittest.TestCase):
         output = state.apply(model, 'observation')
         self.assertEqual(output.shape, (3, 2))
         self.assertEqual(output.sum().item(), 0)
-
 
     def test_as_output(self):
         observation = torch.randn(3, 4)
@@ -162,6 +170,37 @@ class StateArrayTest(unittest.TestCase):
         state = state.view((2, 3))
         self.assertEqual(state.shape, (2, 3))
         self.assertEqual(state.observation.shape, (2, 3, 3, 4))
+
+    def test_key_error(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            StateArray.array([
+                State({
+                    'observation': torch.tensor([1, 2]),
+                    'other_key': True
+                }),
+                State({
+                    'observation': torch.tensor([1, 2]),
+                }),
+            ])
+            self.assertEqual(len(w), 1)
+            self.assertEqual(w[0].message.args[0], 'KeyError while creating StateArray for key "other_key", omitting.')
+
+    def test_type_error(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            StateArray.array([
+                State({
+                    'observation': torch.tensor([1, 2]),
+                    'other_key': torch.tensor([1])
+                }),
+                State({
+                    'observation': torch.tensor([1, 2]),
+                    'other_key': 5.
+                }),
+            ])
+            self.assertEqual(len(w), 1)
+            self.assertEqual(w[0].message.args[0], 'TypeError while creating StateArray for key "other_key", omitting.')
 
 
 if __name__ == "__main__":

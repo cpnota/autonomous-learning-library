@@ -1,40 +1,48 @@
+import copy
+import math
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from all.agents import A2C
+from all.agents import A2C, A2CTestAgent
 from all.bodies import DeepmindAtariBody
 from all.approximation import VNetwork, FeatureNetwork
 from all.logging import DummyWriter
 from all.policies import SoftmaxPolicy
-from .models import nature_features, nature_value_head, nature_policy_head
+from all.presets.builder import ParallelPresetBuilder
+from all.presets.preset import ParallelPreset
+from all.presets.atari.models import nature_features, nature_value_head, nature_policy_head
 
 
-def a2c(
-        # Common settings
-        device="cuda",
-        discount_factor=0.99,
-        last_frame=40e6,
-        # Adam optimizer settings
-        lr=7e-4,
-        eps=1.5e-4,
-        # Other optimization settings
-        clip_grad=0.1,
-        entropy_loss_scaling=0.01,
-        value_loss_scaling=0.5,
-        # Batch settings
-        n_envs=16,
-        n_steps=5,
-        # Model construction
-        feature_model_constructor=nature_features,
-        value_model_constructor=nature_value_head,
-        policy_model_constructor=nature_policy_head
-):
+default_hyperparameters = {
+    # Common settings
+    "discount_factor": 0.99,
+    # Adam optimizer settings
+    "lr": 7e-4,
+    "eps": 1e-3,
+    # Other optimization settings
+    "clip_grad": 0.5,
+    "entropy_loss_scaling": 0.01,
+    "value_loss_scaling": 0.5,
+    # Batch settings
+    "n_envs": 16,
+    "n_steps": 5,
+    # Model construction
+    "feature_model_constructor": nature_features,
+    "value_model_constructor": nature_value_head,
+    "policy_model_constructor": nature_policy_head
+}
+
+
+class A2CAtariPreset(ParallelPreset):
     """
-    A2C Atari preset.
+    Advantage Actor-Critic (A2C) Atari preset.
 
     Args:
-        device (str): The device to load parameters and buffers onto for this agent.
+        env (all.environments.AtariEnvironment): The environment for which to construct the agent.
+        name (str): A human-readable name for the preset.
+        device (torch.device): The device on which to load the agent.
+
+    Keyword Args:
         discount_factor (float): Discount factor for future rewards.
-        last_frame (int): Number of frames to train.
         lr (float): Learning rate for the Adam optimizer.
         eps (float): Stability parameters for the Adam optimizer.
         clip_grad (float): The maximum magnitude of the gradient for any given parameter.
@@ -47,47 +55,42 @@ def a2c(
         value_model_constructor (function): The function used to construct the neural value model.
         policy_model_constructor (function): The function used to construct the neural policy model.
     """
-    def _a2c(envs, writer=DummyWriter()):
-        env = envs[0]
-        final_anneal_step = last_frame / (n_steps * n_envs * 4)
 
-        value_model = value_model_constructor().to(device)
-        policy_model = policy_model_constructor(env).to(device)
-        feature_model = feature_model_constructor().to(device)
+    def __init__(self, env, name, device, **hyperparameters):
+        super().__init__(name, device, hyperparameters)
+        self.value_model = hyperparameters['value_model_constructor']().to(device)
+        self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
+        self.feature_model = hyperparameters['feature_model_constructor']().to(device)
 
-        feature_optimizer = Adam(feature_model.parameters(), lr=lr, eps=eps)
-        value_optimizer = Adam(value_model.parameters(), lr=lr, eps=eps)
-        policy_optimizer = Adam(policy_model.parameters(), lr=lr, eps=eps)
+    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+        n_updates = train_steps / (self.hyperparameters['n_steps'] * self.hyperparameters['n_envs'])
+
+        feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
+        value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
+        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
 
         features = FeatureNetwork(
-            feature_model,
+            self.feature_model,
             feature_optimizer,
-            scheduler=CosineAnnealingLR(
-                feature_optimizer,
-                final_anneal_step,
-            ),
-            clip_grad=clip_grad,
+            scheduler=CosineAnnealingLR(feature_optimizer, n_updates),
+            clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
+
         v = VNetwork(
-            value_model,
+            self.value_model,
             value_optimizer,
-            scheduler=CosineAnnealingLR(
-                value_optimizer,
-                final_anneal_step,
-            ),
-            loss_scaling=value_loss_scaling,
-            clip_grad=clip_grad,
+            scheduler=CosineAnnealingLR(value_optimizer, n_updates),
+            loss_scaling=self.hyperparameters["value_loss_scaling"],
+            clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
+
         policy = SoftmaxPolicy(
-            policy_model,
+            self.policy_model,
             policy_optimizer,
-            scheduler=CosineAnnealingLR(
-                policy_optimizer,
-                final_anneal_step,
-            ),
-            clip_grad=clip_grad,
+            scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
+            clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
 
@@ -96,15 +99,18 @@ def a2c(
                 features,
                 v,
                 policy,
-                n_envs=n_envs,
-                n_steps=n_steps,
-                discount_factor=discount_factor,
-                entropy_loss_scaling=entropy_loss_scaling,
+                n_envs=self.hyperparameters["n_envs"],
+                n_steps=self.hyperparameters["n_steps"],
+                discount_factor=self.hyperparameters["discount_factor"],
+                entropy_loss_scaling=self.hyperparameters["entropy_loss_scaling"],
                 writer=writer
             ),
         )
 
-    return _a2c, n_envs
+    def test_agent(self):
+        features = FeatureNetwork(copy.deepcopy(self.feature_model))
+        policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
+        return DeepmindAtariBody(A2CTestAgent(features, policy))
 
 
-__all__ = ["a2c"]
+a2c = ParallelPresetBuilder('a2c', default_hyperparameters, A2CAtariPreset)

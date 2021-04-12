@@ -1,8 +1,10 @@
 from torch.nn.functional import mse_loss
 from ._agent import Agent
+from ._parallel_agent import ParallelAgent
+from .a2c import A2CTestAgent
 
 
-class VAC(Agent):
+class VAC(ParallelAgent):
     '''
     Vanilla Actor-Critic (VAC).
     VAC is an implementation of the actor-critic alogorithm found in the Sutton and Barto (2018) textbook.
@@ -19,6 +21,7 @@ class VAC(Agent):
         n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
         writer (Writer): Used for logging.
     '''
+
     def __init__(self, features, v, policy, discount_factor=1):
         self.features = features
         self.v = v
@@ -55,3 +58,6 @@ class VAC(Agent):
             self.v.reinforce(value_loss)
             self.policy.reinforce(policy_loss)
             self.features.reinforce()
+
+
+VACTestAgent = A2CTestAgent

@@ -1,31 +1,23 @@
-import pybullet
-import pybullet_envs
 from all.experiments import SlurmExperiment
 from all.presets.continuous import ddpg, ppo, sac
-from all.environments import GymEnvironment
+from all.environments import PybulletEnvironment
+
 
 def main():
-    device = 'cuda'
-
     frames = int(1e7)
 
     agents = [
-        ddpg(last_frame=frames),
-        ppo(last_frame=frames),
-        sac(last_frame=frames)
+        ddpg,
+        ppo,
+        sac
     ]
 
-    envs = [GymEnvironment(env, device) for env in [
-        'AntBulletEnv-v0',
-        "HalfCheetahBulletEnv-v0",
-        'HumanoidBulletEnv-v0',
-        'HopperBulletEnv-v0',
-        'Walker2DBulletEnv-v0'
-    ]]
+    envs = [PybulletEnvironment(env, device='cuda') for env in PybulletEnvironment.short_names]
 
-    SlurmExperiment(agents, envs, frames, sbatch_args={
+    SlurmExperiment(agents, envs, frames, logdir='benchmarks/pybullet', sbatch_args={
         'partition': '1080ti-long'
     })
+
 
 if __name__ == "__main__":
     main()

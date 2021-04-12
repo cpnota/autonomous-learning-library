@@ -1,10 +1,12 @@
+import torch
 from torch.nn.functional import mse_loss
 from all.logging import DummyWriter
 from all.memory import NStepAdvantageBuffer
 from ._agent import Agent
+from ._parallel_agent import ParallelAgent
 
 
-class A2C(Agent):
+class A2C(ParallelAgent):
     """
     Advantage Actor-Critic (A2C).
     A2C is policy gradient method in the actor-critic family.
@@ -24,6 +26,7 @@ class A2C(Agent):
         n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
         writer (Writer): Used for logging.
     """
+
     def __init__(
             self,
             features,
@@ -59,9 +62,6 @@ class A2C(Agent):
         self._states = states
         self._actions = self.policy.no_grad(self.features.no_grad(states)).sample()
         return self._actions
-
-    def eval(self, states):
-        return self.policy.eval(self.features.eval(states))
 
     def _train(self, next_states):
         if len(self._buffer) >= self._batch_size:
@@ -99,4 +99,12 @@ class A2C(Agent):
             self.n_envs,
             discount_factor=self.discount_factor
         )
- 
+
+
+class A2CTestAgent(Agent):
+    def __init__(self, features, policy):
+        self.features = features
+        self.policy = policy
+
+    def act(self, state):
+        return self.policy.eval(self.features.eval(state)).sample()

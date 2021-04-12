@@ -1,7 +1,8 @@
+import os
 import unittest
 import torch
 from all.environments import AtariEnvironment
-from all.presets.validate_agent import validate_agent
+from all.logging import DummyWriter
 from all.presets.atari import (
     a2c,
     c51,
@@ -15,105 +16,59 @@ from all.presets.atari import (
     vqn
 )
 
-CPU = torch.device("cpu")
-if torch.cuda.is_available():
-    CUDA = torch.device("cuda")
-else:
-    print(
-        "WARNING: CUDA is not available!",
-        "Running presets in cpu mode.",
-        "Enable CUDA for full test coverage!",
-    )
-    CUDA = torch.device("cpu")
-
 
 class TestAtariPresets(unittest.TestCase):
-    def test_a2c(self):
-        validate_agent(a2c(device=CPU), AtariEnvironment("Breakout", device=CPU))
+    def setUp(self):
+        self.env = AtariEnvironment('Breakout')
+        self.env.reset()
 
-    def test_a2c_cuda(self):
-        validate_agent(a2c(device=CUDA), AtariEnvironment("Breakout", device=CUDA))
+    def tearDown(self):
+        if os.path.exists('test_preset.pt'):
+            os.remove('test_preset.pt')
+
+    def test_a2c(self):
+        self.validate_preset(a2c)
 
     def test_c51(self):
-        validate_agent(c51(device=CPU), AtariEnvironment("Breakout", device=CPU))
-
-    def test_c51_cuda(self):
-        validate_agent(c51(device=CUDA), AtariEnvironment("Breakout", device=CUDA))
+        self.validate_preset(c51)
 
     def test_ddqn(self):
-        validate_agent(
-            ddqn(replay_start_size=64, device=CPU),
-            AtariEnvironment("Breakout", device=CPU),
-        )
-
-    def test_ddqn_cuda(self):
-        validate_agent(
-            ddqn(replay_start_size=64, device=CUDA),
-            AtariEnvironment("Breakout", device=CUDA),
-        )
+        self.validate_preset(ddqn)
 
     def test_dqn(self):
-        validate_agent(
-            dqn(replay_start_size=64, device=CPU),
-            AtariEnvironment("Breakout", device=CPU),
-        )
-
-    def test_dqn_cuda(self):
-        validate_agent(
-            dqn(replay_start_size=64, device=CUDA),
-            AtariEnvironment("Breakout", device=CUDA),
-        )
+        self.validate_preset(dqn)
 
     def test_ppo(self):
-        validate_agent(ppo(device=CPU, n_envs=4), AtariEnvironment("Breakout", device=CPU))
-
-    def test_ppo_cuda(self):
-        validate_agent(ppo(device=CUDA, n_envs=4), AtariEnvironment("Breakout", device=CUDA))
+        self.validate_preset(ppo)
 
     def test_rainbow(self):
-        validate_agent(
-            rainbow(replay_start_size=64, device=CPU),
-            AtariEnvironment("Breakout", device=CPU),
-        )
-
-    def test_rainbow_cuda(self):
-        validate_agent(
-            rainbow(replay_start_size=64, device=CUDA),
-            AtariEnvironment("Breakout", device=CUDA),
-        )
+        self.validate_preset(rainbow)
 
     def test_vac(self):
-        validate_agent(vac(device=CPU, n_envs=4), AtariEnvironment("Breakout", device=CPU))
+        self.validate_preset(vac)
 
-    def test_vac_cuda(self):
-        validate_agent(
-            vac(device=CUDA, n_envs=4), AtariEnvironment("Breakout", device=CUDA)
-        )
-
-    def test_vpg(self):
-        validate_agent(vpg(device=CPU), AtariEnvironment("Breakout", device=CPU))
-
-    def test_vpg_cuda(self):
-        validate_agent(
-            vpg(device=CUDA), AtariEnvironment("Breakout", device=CUDA)
-        )
+    def test_vpq(self):
+        self.validate_preset(vpg)
 
     def test_vsarsa(self):
-        validate_agent(vsarsa(device=CPU, n_envs=4), AtariEnvironment("Breakout", device=CPU))
-
-    def test_vsarsa_cuda(self):
-        validate_agent(
-            vsarsa(device=CUDA, n_envs=4), AtariEnvironment("Breakout", device=CUDA)
-        )
-
+        self.validate_preset(vsarsa)
 
     def test_vqn(self):
-        validate_agent(vqn(device=CPU, n_envs=4), AtariEnvironment("Breakout", device=CPU))
+        self.validate_preset(vqn)
 
-    def test_vqn_cuda(self):
-        validate_agent(
-            vqn(device=CUDA, n_envs=4), AtariEnvironment("Breakout", device=CUDA)
-        )
+    def validate_preset(self, builder):
+        preset = builder.device('cpu').env(self.env).build()
+        # normal agent
+        agent = preset.agent(writer=DummyWriter(), train_steps=100000)
+        agent.act(self.env.state)
+        # test agent
+        test_agent = preset.test_agent()
+        test_agent.act(self.env.state)
+        # test save/load
+        preset.save('test_preset.pt')
+        preset = torch.load('test_preset.pt')
+        test_agent = preset.test_agent()
+        test_agent.act(self.env.state)
 
 
 if __name__ == "__main__":

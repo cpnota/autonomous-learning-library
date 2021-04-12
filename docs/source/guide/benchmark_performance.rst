@@ -37,13 +37,13 @@ For comparison, we look at the results published in the paper, `Rainbow: Combini
 In these results, the authors ran each agent for 50 million timesteps (200 million frames).
 We can see that at the 10 million timestep mark, our results are similar or slightly better.
 Our ``dqn`` and ``ddqn`` in particular were better almost across the board.
-While there are almost certainly some minor implementation differences,
+While there are some minor implementation differences (for example, we use ``Adam`` for most algorithms instead of ``RMSprop``),
 our agents achieved very similar behavior to the agents tested by DeepMind.
 
 PyBullet Benchmark
 ------------------
 
-[PyBullet](https://pybullet.org/wordpress/) provides a free alternative to the popular MuJoCo robotics environments.
+`PyBullet <https://pybullet.org/wordpress/>`_ provides a free alternative to the popular MuJoCo robotics environments.
 While MuJoCo requires a license key and can be difficult for independent researchers to afford, PyBullet is free and open.
 Additionally, the PyBullet environments are widely considered more challenging, making them a more discriminant test bed.
 For these reasons, we chose to benchmark the ``all.presets.continuous`` presets using PyBullet.

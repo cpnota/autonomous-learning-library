@@ -1,8 +1,10 @@
 from torch.nn.functional import mse_loss
 from ._agent import Agent
+from ._parallel_agent import ParallelAgent
+from .dqn import DQNTestAgent
 
 
-class VSarsa(Agent):
+class VSarsa(ParallelAgent):
     '''
     Vanilla SARSA (VSarsa).
     SARSA (State-Action-Reward-State-Action) is an on-policy alternative to Q-learning. Unlike Q-learning,
@@ -15,6 +17,7 @@ class VSarsa(Agent):
         policy (GreedyPolicy): A policy derived from the Q-function.
         discount_factor (float): Discount factor for future rewards.
     '''
+
     def __init__(self, q, policy, discount_factor=0.99):
         self.q = q
         self.policy = policy
@@ -42,3 +45,6 @@ class VSarsa(Agent):
             loss = mse_loss(value, target)
             # backward pass
             self.q.reinforce(loss)
+
+
+VSarsaTestAgent = DQNTestAgent

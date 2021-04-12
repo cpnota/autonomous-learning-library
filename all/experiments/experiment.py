@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
+from scipy import stats
+import torch
 
 
 class Experiment(ABC):
@@ -11,21 +13,12 @@ class Experiment(ABC):
             quiet (bool): If False, the Experiment will print information about
                 episode returns to standard out.
     '''
+
     def __init__(self, writer, quiet):
         self._writer = writer
         self._quiet = quiet
         self._best_returns = -np.inf
         self._returns100 = []
-
-    @property
-    @abstractmethod
-    def frame(self):
-        '''The index of the current training frame.'''
-
-    @property
-    @abstractmethod
-    def episode(self):
-        '''The index of the current training episode'''
 
     @abstractmethod
     def train(self, frames=np.inf, episodes=np.inf):
@@ -45,11 +38,21 @@ class Experiment(ABC):
         Test the agent in eval mode for a certain number of episodes.
 
         Args:
-            episodes (int): The number of test epsiodes.
+            episodes (int): The number of test episodes.
 
         Returns:
             list(float): A list of all returns received during testing.
         '''
+
+    @property
+    @abstractmethod
+    def frame(self):
+        '''The index of the current training frame.'''
+
+    @property
+    @abstractmethod
+    def episode(self):
+        '''The index of the current training episode'''
 
     def _log_training_episode(self, returns, fps):
         if not self._quiet:
@@ -72,4 +75,12 @@ class Experiment(ABC):
             print('test episode: {}, returns: {}'.format(episode, returns))
 
     def _log_test(self, returns):
+        if not self._quiet:
+            print('test returns (mean ± sem): {} ± {}'.format(np.mean(returns), stats.sem(returns)))
         self._writer.add_summary('returns-test', np.mean(returns), np.std(returns))
+
+    def save(self):
+        return self._preset.save('{}/preset.pt'.format(self._writer.log_dir))
+
+    def close(self):
+        self._writer.close()

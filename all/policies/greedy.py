@@ -2,12 +2,13 @@ import numpy as np
 import torch
 from all.optim import Schedulable
 
+
 class GreedyPolicy(Schedulable):
     '''
     An  "epsilon-greedy" action selection policy for discrete action spaces.
 
     This policy will usually choose the optimal action according to an approximation
-    of the action value function (the "q-function"), but with probabilty epsilon will
+    of the action value function (the "q-function"), but with probability epsilon will
     choose a random action instead. GreedyPolicy is a Schedulable, meaning that
     epsilon can be varied over time by passing a Scheduler object.
 
@@ -16,6 +17,7 @@ class GreedyPolicy(Schedulable):
         num_actions (int): The number of available actions.
         epsilon (float, optional): The probability of selecting a random action.
     '''
+
     def __init__(
             self,
             q,
@@ -39,12 +41,13 @@ class GreedyPolicy(Schedulable):
     def eval(self, state):
         return torch.argmax(self.q.eval(state)).item()
 
+
 class ParallelGreedyPolicy(Schedulable):
     '''
     A parallel version of the "epsilon-greedy" action selection policy for discrete action spaces.
 
     This policy will usually choose the optimal action according to an approximation
-    of the action value function (the "q-function"), but with probabilty epsilon will
+    of the action value function (the "q-function"), but with probability epsilon will
     choose a random action instead. GreedyPolicy is a Schedulable, meaning that
     epsilon can be varied over time by passing a Scheduler object.
 
@@ -53,6 +56,7 @@ class ParallelGreedyPolicy(Schedulable):
         num_actions (int): The number of available actions.
         epsilon (float, optional): The probability of selecting a random action.
     '''
+
     def __init__(
             self,
             q,
@@ -66,13 +70,13 @@ class ParallelGreedyPolicy(Schedulable):
     def __call__(self, state):
         best_actions = torch.argmax(self.q(state), dim=-1)
         random_actions = torch.randint(0, self.n_actions, best_actions.shape, device=best_actions.device)
-        choices = (torch.randn_like(best_actions) < self.epsilon).int()
+        choices = (torch.rand(best_actions.shape, device=best_actions.device) < self.epsilon).int()
         return choices * random_actions + (1 - choices) * best_actions
 
     def no_grad(self, state):
         best_actions = torch.argmax(self.q.no_grad(state), dim=-1)
         random_actions = torch.randint(0, self.num_actions, best_actions.shape, device=best_actions.device)
-        choices = (torch.randn(best_actions.shape, device=best_actions.device) < self.epsilon).int()
+        choices = (torch.rand(best_actions.shape, device=best_actions.device) < self.epsilon).int()
         return choices * random_actions + (1 - choices) * best_actions
 
     def eval(self, state):

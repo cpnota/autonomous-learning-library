@@ -1,20 +1,18 @@
 # pylint: disable=unused-import
 import argparse
-import pybullet
-import pybullet_envs
 from all.bodies import TimeFeature
-from all.environments import GymEnvironment
-from all.experiments import GreedyAgent, watch
-from continuous import ENVS
+from all.environments import GymEnvironment, PybulletEnvironment
+from all.experiments import load_and_watch
+from .continuous import ENVS
 
 
 def main():
     parser = argparse.ArgumentParser(description="Watch a continuous agent.")
     parser.add_argument("env", help="ID of the Environment")
-    parser.add_argument("dir", help="Directory where the agent's model was saved.")
+    parser.add_argument("filename", help="File where the model was saved.")
     parser.add_argument(
         "--device",
-        default="cpu",
+        default="cuda",
         help="The name of the device to run the agent on (e.g. cpu, cuda, cuda:0)",
     )
     parser.add_argument(
@@ -25,13 +23,14 @@ def main():
     args = parser.parse_args()
 
     if args.env in ENVS:
-        env_id = ENVS[args.env]
+        env = GymEnvironment(args.env, device=args.device)
+    elif 'BulletEnv' in args.env or args.env in PybulletEnvironment.short_names:
+        env = PybulletEnvironment(args.env, device=args.device)
     else:
-        env_id = args.env
+        env = GymEnvironment(args.env, device=args.device)
 
-    env = GymEnvironment(env_id, device=args.device)
-    agent = TimeFeature(GreedyAgent.load(args.dir, env))
-    watch(agent, env, fps=args.fps)
+    load_and_watch(args.filename, env, fps=args.fps)
+
 
 if __name__ == "__main__":
     main()
