@@ -19,7 +19,7 @@ class EpisodicLives(Body):
         if 'life_lost' not in state:
             return state
 
-        if len(state) == 1:
+        if len(state.shape) == 0:
             if state['life_lost']:
                 return state.update('mask', 0.)
             return state
