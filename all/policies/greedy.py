@@ -39,6 +39,8 @@ class GreedyPolicy(Schedulable):
         return torch.argmax(self.q.no_grad(state)).item()
 
     def eval(self, state):
+        if np.random.rand() < self.epsilon:
+            return np.random.randint(0, self.num_actions)
         return torch.argmax(self.q.eval(state)).item()
 
 
@@ -80,4 +82,7 @@ class ParallelGreedyPolicy(Schedulable):
         return choices * random_actions + (1 - choices) * best_actions
 
     def eval(self, state):
-        return torch.argmax(self.q.eval(state), dim=-1)
+        best_actions = torch.argmax(self.q.eval(state), dim=-1)
+        random_actions = torch.randint(0, self.n_actions, best_actions.shape, device=best_actions.device)
+        choices = (torch.rand(best_actions.shape, device=best_actions.device) < self.epsilon).int()
+        return choices * random_actions + (1 - choices) * best_actions
