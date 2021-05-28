@@ -30,6 +30,7 @@ jobs:
         pip install torch==1.8.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
         make install
         AutoROM -v
+        python -m atari_py.import_roms $(python -c 'import site; print(site.getsitepackages()[0])')/multi_agent_ale_py/ROM
     - name: Lint code
       run: |
         make lint
