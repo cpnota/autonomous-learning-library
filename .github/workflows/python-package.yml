@@ -25,12 +25,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        which python
         sudo apt-get install swig
         sudo apt-get install unrar
         pip install torch==1.8.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
         make install
-        AutoROM -v -d 
+        AutoROM -v
         python -m atari_py.import_roms $pythonLocation/site-packages/multi_agent_ale_py/ROM
     - name: Lint code
       run: |
