@@ -70,19 +70,16 @@ class ParallelGreedyPolicy(Schedulable):
         self.epsilon = epsilon
 
     def __call__(self, state):
-        best_actions = torch.argmax(self.q(state), dim=-1)
-        random_actions = torch.randint(0, self.n_actions, best_actions.shape, device=best_actions.device)
-        choices = (torch.rand(best_actions.shape, device=best_actions.device) < self.epsilon).int()
-        return choices * random_actions + (1 - choices) * best_actions
+        return self._choose_action(self.q(state))
 
     def no_grad(self, state):
-        best_actions = torch.argmax(self.q.no_grad(state), dim=-1)
-        random_actions = torch.randint(0, self.num_actions, best_actions.shape, device=best_actions.device)
-        choices = (torch.rand(best_actions.shape, device=best_actions.device) < self.epsilon).int()
-        return choices * random_actions + (1 - choices) * best_actions
+        return self._choose_action(self.q.no_grad(state))
 
     def eval(self, state):
-        best_actions = torch.argmax(self.q.eval(state), dim=-1)
-        random_actions = torch.randint(0, self.n_actions, best_actions.shape, device=best_actions.device)
+        return self._choose_action(self.q.eval(state))
+
+    def _choose_action(self, action_values):
+        best_actions = torch.argmax(action_values, dim=-1)
+        random_actions = torch.randint(0, self.num_actions, best_actions.shape, device=best_actions.device)
         choices = (torch.rand(best_actions.shape, device=best_actions.device) < self.epsilon).int()
         return choices * random_actions + (1 - choices) * best_actions
