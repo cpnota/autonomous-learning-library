@@ -24,7 +24,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run:
+      run: |
         sudo apt-get install swig
         sudo apt-get install unrar
         pip install torch==1.8.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
