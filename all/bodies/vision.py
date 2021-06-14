@@ -69,10 +69,9 @@ class LazyState(State):
         x = {}
         for k in self.keys():
             if not k == key:
-                x[k] = super().__getitem__(k)
+                x[k] = dict.__getitem__(self, k)
         x[key] = value
-        state = LazyState(x, device=self.device)
-        state.to_cache = self.to_cache
+        state = LazyState.from_state(x, x['observation'], self.to_cache)
         return state
 
     def to(self, device):
