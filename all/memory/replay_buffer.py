@@ -99,7 +99,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
         if state is None or state.done:
             return
         idx = self.pos
-        super()._add((state, action, next_state))
+        super().store(state, action, next_state)
         self._it_sum[idx] = self._max_priority ** self._alpha
         self._it_min[idx] = self._max_priority ** self._alpha
 

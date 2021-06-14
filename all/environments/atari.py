@@ -8,6 +8,7 @@ from .atari_wrappers import (
     LifeLostEnv,
 )
 from all.core import State
+from .duplicate_env import DuplicateEnvironment
 
 
 class AtariEnvironment(GymEnvironment):
@@ -38,6 +39,6 @@ class AtariEnvironment(GymEnvironment):
         return self._state
 
     def duplicate(self, n):
-        return [
+        return DuplicateEnvironment([
             AtariEnvironment(self._name, *self._args, **self._kwargs) for _ in range(n)
-        ]
+        ])

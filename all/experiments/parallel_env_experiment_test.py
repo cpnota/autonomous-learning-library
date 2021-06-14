@@ -20,8 +20,7 @@ class TestParallelEnvExperiment(unittest.TestCase):
         self.env = GymEnvironment('CartPole-v0')
         self.env.seed(0)
         self.experiment = MockExperiment(self.make_agent(), self.env, quiet=True)
-        for i, env in enumerate(self.experiment._envs):
-            env.seed(i)
+        self.experiment._env.seed(0)
 
     def test_adds_default_label(self):
         self.assertEqual(self.experiment._writer.label, "a2c_CartPole-v0")

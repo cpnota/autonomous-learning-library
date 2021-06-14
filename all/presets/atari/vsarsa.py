@@ -6,7 +6,7 @@ from all.agents import VSarsa, VSarsaTestAgent
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
 from all.optim import LinearScheduler
-from all.policies import ParallelGreedyPolicy
+from all.policies import GreedyPolicy, ParallelGreedyPolicy
 from all.presets.builder import ParallelPresetBuilder
 from all.presets.preset import ParallelPreset
 from all.presets.atari.models import nature_ddqn
@@ -92,9 +92,13 @@ class VSarsaAtariPreset(ParallelPreset):
 
     def test_agent(self):
         q = QNetwork(copy.deepcopy(self.model))
-        return DeepmindAtariBody(
-            VSarsaTestAgent(q, self.n_actions, exploration=self.hyperparameters['test_exploration'])
-        )
+        policy = GreedyPolicy(q, self.n_actions, epsilon=self.hyperparameters['test_exploration'])
+        return DeepmindAtariBody(VSarsaTestAgent(policy))
+
+    def parallel_test_agent(self):
+        q = QNetwork(copy.deepcopy(self.model))
+        policy = ParallelGreedyPolicy(q, self.n_actions, epsilon=self.hyperparameters['test_exploration'])
+        return DeepmindAtariBody(VSarsaTestAgent(policy))
 
 
 vsarsa = ParallelPresetBuilder('vsarsa', default_hyperparameters, VSarsaAtariPreset)

@@ -13,7 +13,7 @@ extras = {
         "pybullet>=3.0.6",            # open-source robotics environments
     ],
     "ma-atari": [
-        "PettingZoo[atari]>=1.5.0",   # Multiagent atari environments
+        "PettingZoo[atari]>=1.9.0",   # Multiagent atari environments
         "supersuit>=2.4.0",           # Multiagent env wrappers
         "AutoROM>=0.1.19",            # Tool for downloading ROMs
     ],
@@ -38,7 +38,7 @@ extras["dev"] = extras["all"] + extras["test"] + extras["docs"] + extras["comet"
 
 setup(
     name="autonomous-learning-library",
-    version="0.7.0",
+    version="0.7.1",
     description=("A library for building reinforcement learning agents in Pytorch"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",
