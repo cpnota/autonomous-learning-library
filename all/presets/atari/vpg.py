@@ -99,5 +99,8 @@ class VPGAtariPreset(Preset):
         policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
         return DeepmindAtariBody(VPGTestAgent(features, policy))
 
+    def parallel_test_agent(self):
+        return self.test_agent()
+
 
 vpg = PresetBuilder('vpg', default_hyperparameters, VPGAtariPreset)

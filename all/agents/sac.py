@@ -98,7 +98,7 @@ class SAC(Agent):
 
             # adjust temperature
             temperature_grad = (_log_probs + self.entropy_target).mean()
-            self.temperature += self.lr_temperature * temperature_grad.detach()
+            self.temperature = max(0, self.temperature + self.lr_temperature * temperature_grad.detach())
 
             # additional debugging info
             self.writer.add_loss('entropy', -_log_probs.mean())

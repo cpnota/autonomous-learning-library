@@ -6,7 +6,8 @@ from .vision import FrameStack
 
 class DeepmindAtariBody(Body):
     def __init__(self, agent, lazy_frames=False, episodic_lives=True, frame_stack=4, clip_rewards=True):
-        agent = FrameStack(agent, lazy=lazy_frames, size=frame_stack)
+        if frame_stack > 1:
+            agent = FrameStack(agent, lazy=lazy_frames, size=frame_stack)
         if clip_rewards:
             agent = ClipRewards(agent)
         if episodic_lives:
@@ -19,7 +20,7 @@ class EpisodicLives(Body):
         if 'life_lost' not in state:
             return state
 
-        if len(state) == 1:
+        if len(state.shape) == 0:
             if state['life_lost']:
                 return state.update('mask', 0.)
             return state
