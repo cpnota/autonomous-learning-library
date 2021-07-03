@@ -84,7 +84,7 @@ and opening your browser to http://localhost:6006.
 Once the model is trained to your satisfaction, you can watch the trained model play using:
 
 ```
-all-watch-atari Breakout "runs/_a2c [id]"
+all-watch-atari Breakout "runs/a2c_[id]/preset.pt"
 ```
 
 where `id` is the ID of your particular run. You should should be able to find it using tab completion or by looking in the `runs` directory.
