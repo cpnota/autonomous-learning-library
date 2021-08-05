@@ -165,7 +165,7 @@ class Approximation():
     def _clip_grad_norm(self):
         '''Clip the gradient norm if set. Raises RuntimeError if norm is non-finite.'''
         if self._clip_grad != 0:
-            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
+            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad, error_if_nonfinite=True)
 
     def _step_lr_scheduler(self):
         '''Step the . Raises RuntimeError if norm is non-finite.'''
