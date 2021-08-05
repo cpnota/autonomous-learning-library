@@ -103,7 +103,7 @@ class Approximation():
         with torch.no_grad():
             # check current mode
             mode = self.model.training
-            # switch to eval mode
+            # switch model to eval mode
             self.model.eval()
             # run forward pass
             result = self.model(*inputs)
@@ -144,14 +144,11 @@ class Approximation():
         Returns:
             self: The current Approximation object
         '''
-        if self._clip_grad != 0:
-            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad)
+        self._clip_grad_norm()
         self._optimizer.step()
         self._optimizer.zero_grad()
+        self._step_lr_scheduler()
         self._target.update()
-        if self._scheduler:
-            self._writer.add_schedule(self._name + '/lr', self._optimizer.param_groups[0]['lr'])
-            self._scheduler.step()
         self._checkpointer()
         return self
 
@@ -164,3 +161,14 @@ class Approximation():
         '''
         self._optimizer.zero_grad()
         return self
+
+    def _clip_grad_norm(self):
+        '''Clip the gradient norm if set. Raises RuntimeError if norm is non-finite.'''
+        if self._clip_grad != 0:
+            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad, error_if_nonfinite=True)
+
+    def _step_lr_scheduler(self):
+        '''Step the . Raises RuntimeError if norm is non-finite.'''
+        if self._scheduler:
+            self._writer.add_schedule(self._name + '/lr', self._optimizer.param_groups[0]['lr'])
+            self._scheduler.step()
