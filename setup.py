@@ -61,8 +61,8 @@ setup(
         "gym~=0.18.0",             # common environment interface
         "numpy>=1.18.0",           # math library
         "matplotlib>=3.3.0",       # plotting library
-        "opencv-python~=3.4.0",      # used by atari wrappers
-        "torch~=1.8.0",            # core deep learning library
+        "opencv-python~=3.4.0",    # used by atari wrappers
+        "torch~=1.9.0",            # core deep learning library
         "tensorboard>=2.3.0",      # logging and visualization
         "tensorboardX>=2.1.0",     # tensorboard/pytorch compatibility
         "cloudpickle>=1.2.0",      # used to copy environments
