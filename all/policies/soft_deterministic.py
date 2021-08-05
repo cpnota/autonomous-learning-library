@@ -75,7 +75,7 @@ class SoftDeterministicPolicyNetwork(RLNetwork):
         '''
         log_prob = normal.log_prob(raw)
         log_prob -= torch.log(1 - torch.tanh(raw).pow(2) + 1e-6)
-        log_prob /= self._tanh_scale
+        log_prob -= torch.log(self._tanh_scale)
         return log_prob.sum(-1)
 
     def _squash(self, x):
