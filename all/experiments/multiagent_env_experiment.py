@@ -29,7 +29,7 @@ class MultiagentEnvExperiment():
             name=None,
             quiet=False,
             render=False,
-            save_freq=100,
+            save_freq=float('inf'),
             train_steps=float('inf'),
             write_loss=True,
             writer="tensorboard"
