@@ -24,6 +24,7 @@ class PPO(ParallelAgent):
         epochs (int): Number of times to reuse each sample.
         lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
         minibatches (int): The number of minibatches to split each batch into.
+        compute_batch_size (int): The batch size to use for computations that do not need backpropogation.
         n_envs (int): Number of parallel actors/environments.
         n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
         writer (Writer): Used for logging.
@@ -40,6 +41,7 @@ class PPO(ParallelAgent):
             epsilon=0.2,
             lam=0.95,
             minibatches=4,
+            compute_batch_size=256,
             n_envs=None,
             n_steps=4,
             writer=DummyWriter()
@@ -58,6 +60,7 @@ class PPO(ParallelAgent):
         self.epsilon = epsilon
         self.lam = lam
         self.minibatches = minibatches
+        self.compute_batch_size = compute_batch_size
         self.n_envs = n_envs
         self.n_steps = n_steps
         # private
@@ -82,9 +85,10 @@ class PPO(ParallelAgent):
             states, actions, advantages = self._buffer.advantages(next_states)
 
             # compute target values
-            features = self.features.no_grad(states)
-            pi_0 = self.policy.no_grad(features).log_prob(actions)
-            targets = self.v.no_grad(features) + advantages
+            features = states.batch_execute(self.comp_batch_size, self.features.no_grad)
+            features['actions'] = actions
+            pi_0 = features.batch_execute(self.comp_batch_size, lambda s: self.policy.no_grad(s).log_prob(s['actions']))
+            targets = features.batch_execute(self.comp_batch_size, self.v.no_grad) + advantages
 
             # train for several epochs
             for _ in range(self.epochs):
@@ -139,7 +143,8 @@ class PPO(ParallelAgent):
             self.n_steps,
             self.n_envs,
             discount_factor=self.discount_factor,
-            lam=self.lam
+            lam=self.lam,
+            compute_batch_size=self.compute_batch_size
         )
 
 
