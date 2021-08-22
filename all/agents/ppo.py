@@ -85,10 +85,10 @@ class PPO(ParallelAgent):
             states, actions, advantages = self._buffer.advantages(next_states)
 
             # compute target values
-            features = states.batch_execute(self.comp_batch_size, self.features.no_grad)
+            features = states.batch_execute(self.compute_batch_size, self.features.no_grad)
             features['actions'] = actions
-            pi_0 = features.batch_execute(self.comp_batch_size, lambda s: self.policy.no_grad(s).log_prob(s['actions']))
-            targets = features.batch_execute(self.comp_batch_size, self.v.no_grad) + advantages
+            pi_0 = features.batch_execute(self.compute_batch_size, lambda s: self.policy.no_grad(s).log_prob(s['actions']))
+            targets = features.batch_execute(self.compute_batch_size, self.v.no_grad) + advantages
 
             # train for several epochs
             for _ in range(self.epochs):
