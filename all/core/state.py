@@ -403,14 +403,6 @@ class StateArray(State):
             d[key] = torch.cat([state_array[key] for state_array in state_array_list], axis=axis)
         return StateArray(d, new_shape, device=state_array_list[0].device)
 
-    def flatten_for_execution(self, fn):
-        flat_size = np.prod(self.shape)
-        flat_data = self.view((flat_size,))
-        out = fn(flat_data)
-        assert out.shape[0] == flat_size, "first dimension out output of flatten_for_execution expected to match input"
-        spread = out.view(self.shape + out.shape[1:])
-        return spread
-
     def batch_execute(self, minibatch_size, fn):
         '''
         execute in batches to reduce memory consumption

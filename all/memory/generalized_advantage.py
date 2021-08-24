@@ -51,7 +51,7 @@ class GeneralizedAdvantageBuffer(Schedulable):
         states = State.array(self._states[0:self.n_steps + 1])
         actions = torch.cat(self._actions[:self.n_steps], dim=0)
         rewards = torch.stack(self._rewards[:self.n_steps])
-        _values = states.flatten_for_execution(lambda flat_state: flat_state.batch_execute(self.compute_batch_size, lambda s: self.v.target(self.features.target(s))))
+        _values = states.flatten().batch_execute(self.compute_batch_size, lambda s: self.v.target(self.features.target(s))).view(states.shape)
         values = _values[0:self.n_steps]
         next_values = _values[1:]
         td_errors = rewards + self.gamma * next_values - values

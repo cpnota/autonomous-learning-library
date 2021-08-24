@@ -199,20 +199,6 @@ class StateArrayTest(unittest.TestCase):
         self.assertEqual(cat.observation.shape, (2, 5, 4))
         self.assertEqual(cat.reward.shape, (2, 5))
 
-    def test_flatten_for_execution(self):
-        state = StateArray({'observation': torch.zeros((2, 3, 4)), 'reward': torch.ones((2, 3))}, shape=(2, 3))
-
-        def execute(s):
-            self.assertEqual(s.shape, (6,))
-            self.assertEqual(s.observation.shape, (6, 4))
-            self.assertEqual(s.reward.shape, (6,))
-            return s.update('observation', s.observation + 1)
-        out = state.flatten_for_execution(execute)
-        self.assertEqual(out.shape, (2, 3,))
-        self.assertEqual(out.observation.shape, (2, 3, 4))
-        self.assertEqual(out.reward.shape, (2, 3,))
-        self.assertTrue(torch.equal(out.observation, torch.ones((2, 3, 4))))
-
     def test_key_error(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
