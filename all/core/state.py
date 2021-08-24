@@ -358,13 +358,13 @@ class StateArray(State):
         return self['mask']
 
     def __getitem__(self, key):
-        if isinstance(key, slice):
+        if isinstance(key, slice) or isinstance(key, int):
             shape = self['mask'][key].shape
+            if len(shape) == 0:
+                return State({k: v[key] for (k, v) in self.items()}, device=self.device)
             return StateArray({k: v[key] for (k, v) in self.items()}, shape, device=self.device)
-        if isinstance(key, int):
-            return State({k: v[key] for (k, v) in self.items()}, device=self.device)
         if torch.is_tensor(key):
-            # some things may get los
+            # some things may get lost
             d = {}
             shape = self['mask'][key].shape
             for (k, v) in self.items():
