@@ -15,7 +15,7 @@ extras = {
     "ma-atari": [
         "PettingZoo[atari]>=1.9.0",   # Multiagent atari environments
         "supersuit>=2.4.0",           # Multiagent env wrappers
-        "AutoROM>=0.1.19",            # Tool for downloading ROMs
+        "AutoROM>=0.3.0",            # Tool for downloading ROMs
     ],
     "test": [
         "flake8>=3.8",                # linter for pep8 compliance
