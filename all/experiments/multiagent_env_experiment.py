@@ -1,8 +1,6 @@
 from timeit import default_timer as timer
 import numpy as np
-from scipy import stats
 from .writer import ExperimentWriter, CometWriter
-from .experiment import Experiment
 
 
 class MultiagentEnvExperiment():
@@ -166,7 +164,9 @@ class MultiagentEnvExperiment():
     def _log_test(self, returns):
         for agent, agent_returns in returns.items():
             if not self._quiet:
-                print('{} test returns (mean ± sem): {} ± {}'.format(agent, np.mean(agent_returns), stats.sem(agent_returns)))
+                mean = np.mean(agent_returns)
+                sem = np.variance(agent_returns) / np.sqrt(len(agent_returns))
+                print('{} test returns (mean ± sem): {} ± {}'.format(agent, mean, sem))
             self._writer.add_summary('{}/returns-test'.format(agent), np.mean(agent_returns), np.std(agent_returns))
 
     def _save_model(self):
