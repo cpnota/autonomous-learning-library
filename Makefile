@@ -1,5 +1,6 @@
 install:
 	pip install -e .[dev]
+	AutoROM -y --quiet
 
 test: unit-test integration-test
 

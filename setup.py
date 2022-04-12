@@ -1,7 +1,8 @@
 from setuptools import setup, find_packages
 
 
-GYM_VERSION = "0.21.0"
+GYM_VERSION = "0.23.1"
+PETTINGZOO_VERSION = "1.17.0"
 
 
 extras = {
@@ -15,9 +16,8 @@ extras = {
         "pybullet>=3.0.6",
     ],
     "ma-atari": [
-        "PettingZoo[atari]~=1.13.1",
+        "PettingZoo[atari]~={}".format(PETTINGZOO_VERSION),
         "supersuit~=3.3.0",
-        "AutoROM>=0.3.0",
     ],
     "test": [
         "flake8>=3.8",                 # linter for pep8 compliance
