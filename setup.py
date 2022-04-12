@@ -13,11 +13,11 @@ extras = {
         "gym[box2d]~={}".format(GYM_VERSION),
     ],
     "pybullet": [
-        "pybullet>=3.0.6",
+        "pybullet>=3.2.2",
     ],
     "ma-atari": [
         "PettingZoo[atari]~={}".format(PETTINGZOO_VERSION),
-        "supersuit~=3.3.0",
+        "supersuit~=3.3.5",
     ],
     "test": [
         "flake8>=3.8",                 # linter for pep8 compliance
@@ -31,7 +31,7 @@ extras = {
         "sphinx-automodapi>=0.13",     # autogenerate docs for modules
     ],
     "comet": [
-        "comet-ml>=3.2.11",            # experiment tracking using Comet.ml
+        "comet-ml>=3.28.3",            # experiment tracking using Comet.ml
     ]
 }
 
@@ -61,12 +61,12 @@ setup(
     },
     install_requires=[
         "gym~={}".format(GYM_VERSION),             # common environment interface
-        "numpy>=1.18.0",           # math library
-        "matplotlib>=3.3.0",       # plotting library
+        "numpy>=1.22.3",           # math library
+        "matplotlib>=3.5.1",       # plotting library
         "opencv-python~=3.4.0",    # used by atari wrappers
-        "torch~=1.9.0",            # core deep learning library
-        "tensorboard>=2.3.0",      # logging and visualization
-        "tensorboardX>=2.1.0",     # tensorboard/pytorch compatibility
+        "torch~=1.11.0",            # core deep learning library
+        "tensorboard>=2.8.0",      # logging and visualization
+        "tensorboardX>=2.5.0",     # tensorboard/pytorch compatibility
         "cloudpickle>=2.0.0",      # used to copy environments
     ],
     extras_require=extras
