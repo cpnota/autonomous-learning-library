@@ -49,14 +49,14 @@ class MultiagentAtariEnvTest(unittest.TestCase):
         self.assertEqual(next(it), 'first_0')
 
     def test_state_spaces(self):
-        state_spaces = MultiagentAtariEnv('pong_v2', device='cpu').state_spaces
-        self.assertEqual(state_spaces['first_0'].shape, (1, 84, 84))
-        self.assertEqual(state_spaces['second_0'].shape, (1, 84, 84))
+        env = MultiagentAtariEnv('pong_v2', device='cpu')
+        self.assertEqual(env.state_space('first_0').shape, (1, 84, 84))
+        self.assertEqual(env.state_space('second_0').shape, (1, 84, 84))
 
     def test_action_spaces(self):
-        action_spaces = MultiagentAtariEnv('pong_v2', device='cpu').action_spaces
-        self.assertEqual(action_spaces['first_0'].n, 18)
-        self.assertEqual(action_spaces['second_0'].n, 18)
+        env = MultiagentAtariEnv('pong_v2', device='cpu')
+        self.assertEqual(env.action_space('first_0').n, 18)
+        self.assertEqual(env.action_space('second_0').n, 18)
 
     def test_list_agents(self):
         env = MultiagentAtariEnv('pong_v2', device='cpu')
