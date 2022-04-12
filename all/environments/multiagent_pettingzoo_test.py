@@ -48,14 +48,14 @@ class MultiagentPettingZooEnvTest(unittest.TestCase):
         self.assertEqual(next(it), 'leadadversary_0')
 
     def test_state_spaces(self):
-        state_spaces = self._make_env().state_spaces
-        self.assertEqual(state_spaces['leadadversary_0'].shape, (34,))
-        self.assertEqual(state_spaces['adversary_0'].shape, (34,))
+        env = self._make_env()
+        self.assertEqual(env.state_space('leadadversary_0').shape, (34,))
+        self.assertEqual(env.state_space('adversary_0').shape, (34,))
 
     def test_action_spaces(self):
-        action_spaces = self._make_env().action_spaces
-        self.assertEqual(action_spaces['leadadversary_0'].n, 20)
-        self.assertEqual(action_spaces['adversary_0'].n, 5)
+        env = self._make_env()
+        self.assertEqual(env.action_space('leadadversary_0').n, 20)
+        self.assertEqual(env.action_space('adversary_0').n, 5)
 
     def test_list_agents(self):
         env = self._make_env()
@@ -83,8 +83,8 @@ class MultiagentPettingZooEnvTest(unittest.TestCase):
         # tests that action spaces work
         for agent in env.agents:
             state = env.last()
-            self.assertTrue(env.observation_spaces[agent].contains(state['observation'].cpu().detach().numpy()))
-            env.step(env.action_spaces[env.agent_selection].sample())
+            self.assertTrue(env.observation_space(agent).contains(state['observation'].cpu().detach().numpy()))
+            env.step(env.action_space(env.agent_selection).sample())
 
     def _make_env(self):
         return MultiagentPettingZooEnv(simple_world_comm_v2.env(), name="simple_world_comm_v2", device='cpu')

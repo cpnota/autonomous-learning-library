@@ -81,20 +81,17 @@ class MultiagentEnvironment(ABC):
     def name(self):
         '''str: The name of the environment.'''
 
-    @property
     @abstractmethod
-    def state_spaces(self):
-        '''A dictionary of state spaces for each agent.'''
+    def state_space(self, agent_id):
+        '''The state space for the given agent.'''
 
-    @property
-    def observation_spaces(self):
-        '''Alias for MultiagentEnvironment.state_spaces.'''
-        return self.state_space
+    def observation_space(self, agent_id):
+        '''Alias for MultiagentEnvironment.state_space(agent_id).'''
+        return self.state_space(agent_id)
 
-    @property
     @abstractmethod
-    def action_spaces(self):
-        '''A dictionary of action spaces for each agent.'''
+    def action_space(self):
+        '''The action space for the given agent.'''
 
     @property
     @abstractmethod

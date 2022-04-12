@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from scipy import stats
-import torch
 
 
 class Experiment(ABC):
@@ -76,7 +74,9 @@ class Experiment(ABC):
 
     def _log_test(self, returns):
         if not self._quiet:
-            print('test returns (mean ± sem): {} ± {}'.format(np.mean(returns), stats.sem(returns)))
+            mean = np.mean(returns)
+            sem = np.variance(returns) / np.sqrt(len(returns))
+            print('test returns (mean ± sem): {} ± {}'.format(mean, sem))
         self._writer.add_summary('returns-test', np.mean(returns), np.std(returns))
 
     def save(self):
