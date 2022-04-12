@@ -26,7 +26,7 @@ class AtariEnvironment(Environment):
         env = WarpFrame(env)
         env = LifeLostEnv(env)
 
-        # initialize member variables 
+        # initialize member variables
         self._env = env
         self._name = name
         self._state = None
@@ -89,8 +89,3 @@ class AtariEnvironment(Environment):
         if torch.is_tensor(action):
             return action.item()
         return action
-
-    def reset(self):
-        state = self._env.reset(), 0., False, {'life_lost': False}
-        self._state = State.from_gym(state, dtype=self._env.observation_space.dtype, device=self._device)
-        return self._state
