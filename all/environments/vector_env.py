@@ -2,7 +2,6 @@ import gym
 import torch
 from all.core import StateArray
 from ._vector_environment import VectorEnvironment
-import cloudpickle
 import numpy as np
 
 
@@ -13,7 +12,7 @@ class GymVectorEnvironment(VectorEnvironment):
 
     This wrapper converts the output of the vector environment to PyTorch tensors,
     and wraps them in a StateArray object that can be passed to a Parallel Agent.
-    This constructor accepts a preconstructed gym vetor environment. Note that
+    This constructor accepts a preconstructed gym vector environment. Note that
     in the latter case, the name property is set to be the whatever the name
     of the outermost wrapper on the environment is.
 

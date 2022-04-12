@@ -42,7 +42,7 @@ def main():
     args = parser.parse_args()
 
     if args.env in ENVS:
-        env = GymEnvironment(args.env, device=args.device)
+        env = GymEnvironment(ENVS[args.env], device=args.device)
     elif 'BulletEnv' in args.env or args.env in PybulletEnvironment.short_names:
         env = PybulletEnvironment(args.env, device=args.device)
     else:

@@ -8,22 +8,8 @@ class GymEnvironmentTest(unittest.TestCase):
         env = GymEnvironment('CartPole-v0')
         self.assertEqual(env.name, 'CartPole-v0')
 
-    def test_preconstructed_env_name(self):
-        env = GymEnvironment(gym.make('Blackjack-v1'))
-        # The wrapper name ends up being visible.
-        # Could try to unwrap in GymEnvironment?
-        self.assertEqual(env.name, 'OrderEnforcing')
-
     def test_reset(self):
         env = GymEnvironment('CartPole-v0')
-        state = env.reset()
-        self.assertEqual(state.observation.shape, (4,))
-        self.assertEqual(state.reward, 0)
-        self.assertFalse(state.done)
-        self.assertEqual(state.mask, 1)
-
-    def test_reset_preconstructed_env(self):
-        env = GymEnvironment(gym.make('CartPole-v0'))
         state = env.reset()
         self.assertEqual(state.observation.shape, (4,))
         self.assertEqual(state.reward, 0)

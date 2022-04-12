@@ -7,7 +7,7 @@ PETTINGZOO_VERSION = "1.17.0"
 
 extras = {
     "atari": [
-        "gym[atari]~={}".format(GYM_VERSION),
+        "gym[atari, accept-rom-license]~={}".format(GYM_VERSION),
     ],
     "box2d": [
         "gym[box2d]~={}".format(GYM_VERSION),
@@ -67,7 +67,7 @@ setup(
         "torch~=1.9.0",            # core deep learning library
         "tensorboard>=2.3.0",      # logging and visualization
         "tensorboardX>=2.1.0",     # tensorboard/pytorch compatibility
-        "cloudpickle>=1.2.0",      # used to copy environments
+        "cloudpickle>=2.0.0",      # used to copy environments
     ],
     extras_require=extras
 )
