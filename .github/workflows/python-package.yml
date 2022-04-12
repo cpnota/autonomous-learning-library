@@ -27,7 +27,7 @@ jobs:
       run: |
         sudo apt-get install swig
         sudo apt-get install unrar
-        pip install torch==1.11.0+cpu --extra-index-url https://download.pytorch.org/whl/cpu
+        pip install torch~=1.11.0+cpu --extra-index-url https://download.pytorch.org/whl/cpu
         make install
     - name: Lint code
       run: |
