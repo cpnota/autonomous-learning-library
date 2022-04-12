@@ -71,7 +71,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         experiment.train(episodes=3)
         np.testing.assert_equal(
             experiment._writer.data["evaluation/returns/episode"]["values"],
-            np.array([22.0, 20.0, 24.0]),
+            np.array([18., 23., 27.]),
         )
         np.testing.assert_equal(
             experiment._writer.data["evaluation/returns/episode"]["steps"],
@@ -82,20 +82,21 @@ class TestSingleEnvExperiment(unittest.TestCase):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
         experiment.train(episodes=5)
         returns = experiment.test(episodes=4)
-        expected_mean = 9.5
-        expected_std = 0.5
+        expected_mean = 8.75
+        expected_std = 0.433013
         np.testing.assert_equal(np.mean(returns), expected_mean)
         np.testing.assert_equal(
             experiment._writer.data["evaluation/returns-test/mean"]["values"],
             np.array([expected_mean]),
         )
-        np.testing.assert_equal(
-            experiment._writer.data["evaluation/returns-test/std"]["values"],
+        np.testing.assert_approx_equal(
+            np.array(experiment._writer.data["evaluation/returns-test/std"]["values"]),
             np.array([expected_std]),
+            significant=4
         )
         np.testing.assert_equal(
             experiment._writer.data["evaluation/returns-test/mean"]["steps"],
-            np.array([95.]),
+            np.array([94]),
         )
 
     def test_writes_loss(self):
