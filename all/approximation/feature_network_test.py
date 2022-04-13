@@ -38,8 +38,7 @@ class TestFeatureNetwork(unittest.TestCase):
         states = self.features(self.states)
         loss = torch.tensor(0)
         loss = torch.sum(states.observation)
-        loss.backward()
-        self.features.reinforce()
+        self.features.reinforce(loss)
         features = self.features(self.states)
         expected = State({
             'observation': torch.tensor([
@@ -59,20 +58,6 @@ class TestFeatureNetwork(unittest.TestCase):
     def assert_state_equal(self, actual, expected):
         tt.assert_almost_equal(actual.observation, expected.observation, decimal=2)
         tt.assert_equal(actual.mask, expected.mask)
-
-    def test_identity_features(self):
-        model = nn.Sequential(nn.Identity())
-        features = FeatureNetwork(model, None, device='cpu')
-
-        # forward pass
-        x = State({'observation': torch.tensor([1., 2., 3.])})
-        y = features(x)
-        tt.assert_equal(y.observation, x.observation)
-
-        # backward pass shouldn't raise exception
-        loss = y.observation.sum()
-        loss.backward()
-        features.reinforce()
 
 
 if __name__ == "__main__":
