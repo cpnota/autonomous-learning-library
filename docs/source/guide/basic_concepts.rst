@@ -290,12 +290,12 @@ Here is a quick example:
     from all.environments import AtariEnvironment
 
     agents = [
-        atari.dqn(),
-        atari.ddqn(),
-        atari.c51(),
-        atari.rainbow(),
-        atari.a2c(),
-        atari.ppo(),
+        atari.dqn,
+        atari.ddqn,
+        atari.c51,
+        atari.rainbow,
+        atari.a2c,
+        atari.ppo,
     ]
 
     envs = [AtariEnvironment(env, device='cuda') for env in ['BeamRider', 'Breakout', 'Pong', 'Qbert', 'SpaceInvaders']]
