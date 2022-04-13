@@ -5,6 +5,7 @@ import torch_testing as tt
 from all.core import State
 from all.approximation.feature_network import FeatureNetwork
 
+
 STATE_DIM = 2
 
 

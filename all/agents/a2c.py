@@ -81,15 +81,20 @@ class A2C(ParallelAgent):
             policy_gradient_loss = -(distribution.log_prob(actions) * advantages).mean()
             entropy_loss = -distribution.entropy().mean()
             policy_loss = policy_gradient_loss + self.entropy_loss_scaling * entropy_loss
+            loss = value_loss + policy_loss
 
             # backward pass
-            self.v.reinforce(value_loss)
-            self.policy.reinforce(policy_loss)
-            self.features.reinforce()
+            loss.backward()
+            self.v.step()
+            self.policy.step()
+            self.features.step()
 
-            # debugging
-            self.writer.add_loss('policy_gradient', policy_gradient_loss.detach())
-            self.writer.add_loss('entropy', entropy_loss.detach())
+            # record metrics
+            self.writer.add_loss('value', value_loss)
+            self.writer.add_loss('policy_gradient', policy_gradient_loss)
+            self.writer.add_loss('total', loss)
+            self.writer.add_scalar('entropy', -entropy_loss)
+            self.writer.add_scalar('normalized_value_loss', value_loss / targets.var())
 
     def _make_buffer(self):
         return NStepAdvantageBuffer(
