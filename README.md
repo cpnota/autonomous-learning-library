@@ -81,7 +81,7 @@ tensorboard --logdir runs
 ```
 
 and opening your browser to http://localhost:6006.
-Once the model is trained to your satisfaction, you can watch the trained model play using:
+Once the model is fully trained, you can watch the trained model play using:
 
 ```
 all-watch-atari Breakout "runs/a2c_[id]/preset.pt"
