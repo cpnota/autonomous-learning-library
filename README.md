@@ -46,24 +46,24 @@ It also contains implementations of the following "vanilla" agents, which provid
 ## Installation
 
 First, you will need a new version of [PyTorch](https://pytorch.org) (>1.3), as well as [Tensorboard](https://pypi.org/project/tensorboard/).
-Then, you can install the `autonomous-learning-library` through PyPi:
+Then, you can install the core `autonomous-learning-library` through PyPi:
 
 ```
 pip install autonomous-learning-library
 ```
 
-Alternately, you can install directly from this repository:
+You can also install all of the extras (such as Gym environments) using:
+
+```
+pip install autonomous-learning-library[all]
+```
+
+Finally, you can install directly from this repository including the dev dependencies using:
 
 ```
 git clone https://github.com/cpnota/autonomous-learning-library.git
 cd autonomous-learning-library
-pip install -e .
-```
-
-You can also install the prerequisites using:
-
-```
-pip install autonomous-learning-library[pytorch]
+pip install -e .[dev]
 ```
 
 ## Running the Presets
