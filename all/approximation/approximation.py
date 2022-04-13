@@ -146,7 +146,7 @@ class Approximation():
         Returns:
             self: The current Approximation object
         '''
-        if loss:
+        if loss is not None:
             self._writer.add_loss(self._name, loss.detach())
         self._clip_grad_norm()
         self._optimizer.step()
