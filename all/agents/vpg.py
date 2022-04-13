@@ -112,11 +112,13 @@ class VPG(Agent):
         # compute losses
         value_loss = mse_loss(values, targets)
         policy_loss = -(advantages * log_pis).mean()
+        loss = value_loss + policy_loss
 
         # backward pass
-        self.v.reinforce(value_loss)
-        self.policy.reinforce(policy_loss)
-        self.features.reinforce()
+        loss.backward()
+        self.v.step(loss=value_loss)
+        self.policy.step(loss=policy_loss)
+        self.features.step()
 
         # cleanup
         self._trajectories = []

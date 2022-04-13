@@ -129,21 +129,25 @@ class Approximation():
             self: The current Approximation object
         '''
         loss = self._loss_scaling * loss
-        self._writer.add_loss(self._name, loss.detach())
         loss.backward()
-        self.step()
+        self.step(loss=loss)
         return self
 
-    def step(self):
+    def step(self, loss=None):
         '''
-        Given that a backward pass has been made, run an optimization step
+        Given that a backward pass has been made, run an optimization step.
         Internally, this will perform most of the activities associated with a control loop
         in standard machine learning environments, depending on the configuration of the object:
         Gradient clipping, learning rate schedules, logging, checkpointing, etc.
 
+        Args:
+            loss (torch.Tensor, optional): The loss to log for this opdate step.
+
         Returns:
             self: The current Approximation object
         '''
+        if loss is not None:
+            self._writer.add_loss(self._name, loss.detach())
         self._clip_grad_norm()
         self._optimizer.step()
         self._optimizer.zero_grad()

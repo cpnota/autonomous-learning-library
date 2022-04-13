@@ -119,15 +119,17 @@ class PPO(ParallelAgent):
         policy_gradient_loss = self._clipped_policy_gradient_loss(pi_0, pi_i, advantages)
         entropy_loss = -distribution.entropy().mean()
         policy_loss = policy_gradient_loss + self.entropy_loss_scaling * entropy_loss
+        loss = value_loss + policy_loss
 
         # backward pass
-        self.v.reinforce(value_loss)
-        self.policy.reinforce(policy_loss)
-        self.features.reinforce()
+        loss.backward()
+        self.v.step(loss=value_loss)
+        self.policy.step(loss=policy_loss)
+        self.features.step()
 
         # debugging
-        self.writer.add_loss('policy_gradient', policy_gradient_loss.detach())
-        self.writer.add_loss('entropy', entropy_loss.detach())
+        self.writer.add_scalar('entropy', -entropy_loss)
+        self.writer.add_scalar('normalized_value_error', value_loss / targets.var())
 
     def _clipped_policy_gradient_loss(self, pi_0, pi_i, advantages):
         ratios = torch.exp(pi_i - pi_0)
