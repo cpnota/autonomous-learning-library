@@ -253,7 +253,7 @@ Let's dig into the ``Preset`` interface first:
 
     class Preset(ABC):
         @abstractmethod
-        def agent(self, writer=None, train_steps=float('inf')):
+        def agent(self, logger=None, train_steps=float('inf')):
             pass
 
         @abstractmethod

@@ -5,19 +5,19 @@ from all.presets import ParallelPreset, Preset
 
 
 class TestSingleEnvExperiment(SingleEnvExperiment):
-    def _make_logger(self, logdir, agent_name, env_name, write_loss, writer):
+    def _make_logger(self, logdir, agent_name, env_name, write_loss, logger):
         os.makedirs(logdir, exist_ok=True)
         return DummyLogger()
 
 
 class TestParallelEnvExperiment(ParallelEnvExperiment):
-    def _make_logger(self, logdir, agent_name, env_name, write_loss, writer):
+    def _make_logger(self, logdir, agent_name, env_name, write_loss, logger):
         os.makedirs(logdir, exist_ok=True)
         return DummyLogger()
 
 
 class TestMultiagentEnvExperiment(MultiagentEnvExperiment):
-    def _make_logger(self, logdir, agent_name, env_name, write_loss, writer):
+    def _make_logger(self, logdir, agent_name, env_name, write_loss, logger):
         os.makedirs(logdir, exist_ok=True)
         return DummyLogger()
 
