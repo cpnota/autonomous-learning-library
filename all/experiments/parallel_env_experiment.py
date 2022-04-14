@@ -2,12 +2,9 @@
 import torch
 import time
 import numpy as np
-from all.core import State
-from .writer import ExperimentWriter, CometWriter
+from all.logging import ExperimentWriter, CometWriter
 from .experiment import Experiment
 from all.environments import VectorEnvironment
-from all.agents import ParallelAgent
-import gym
 
 
 class ParallelEnvExperiment(Experiment):

@@ -4,7 +4,7 @@ import csv
 import subprocess
 from datetime import datetime
 from tensorboardX import SummaryWriter
-from all.logging import Writer
+from ._writer import Writer
 
 
 class ExperimentWriter(SummaryWriter, Writer):
@@ -135,13 +135,16 @@ class CometWriter(Writer):
 
 
 def get_commit_hash():
-    result = subprocess.run(
-        ["git", "rev-parse", "--short", "HEAD"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        check=False
-    )
-    return result.stdout.decode("utf-8").rstrip()
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=False
+        )
+        return result.stdout.decode("utf-8").rstrip()
+    except Exception:
+        return ''
 
 
 COMMIT_HASH = get_commit_hash()

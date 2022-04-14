@@ -1,6 +1,6 @@
 from timeit import default_timer as timer
 import numpy as np
-from .writer import ExperimentWriter, CometWriter
+from all.logging import ExperimentWriter, CometWriter
 
 
 class MultiagentEnvExperiment():
