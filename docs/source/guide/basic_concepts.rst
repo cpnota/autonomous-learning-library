@@ -279,7 +279,7 @@ Experiment
 
 Finally, we have all of the components necessary to introduce the ``run_experiment`` helper function.
 ``run_experiment`` is the built-in control loop for running reinforcement learning experiment.
-It instansiates its own ``Writer`` object for logging, which is then passed to each of the presets, and runs each agent on each environment passed to it for some number of timesteps (frames) or episodes).
+It instansiates its own ``Logger`` object for logging, which is then passed to each of the presets, and runs each agent on each environment passed to it for some number of timesteps (frames) or episodes).
 Here is a quick example:
 
 .. code-block:: python
