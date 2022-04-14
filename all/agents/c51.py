@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from ._agent import Agent
 
 
@@ -35,12 +35,12 @@ class C51(Agent):
             minibatch_size=32,
             replay_start_size=5000,
             update_frequency=1,
-            writer=DummyWriter(),
+            logger=DummyLogger(),
     ):
         # objects
         self.q_dist = q_dist
         self.replay_buffer = replay_buffer
-        self.writer = writer
+        self.logger = logger
         # hyperparameters
         self.eps = eps
         self.exploration = exploration
@@ -94,7 +94,7 @@ class C51(Agent):
             # update replay buffer priorities
             self.replay_buffer.update_priorities(kl.detach())
             # debugging
-            self.writer.add_loss(
+            self.logger.add_loss(
                 "q_mean", (dist.detach() * self.q_dist.atoms).sum(dim=1).mean()
             )
 

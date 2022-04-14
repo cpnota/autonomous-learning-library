@@ -7,13 +7,13 @@ class Experiment(ABC):
     An Experiment manages the basic train/test loop and logs results.
 
     Args:
-            writer (:torch.logging.writer:): A Writer object used for logging.
+            logger (:torch.logging.logger:): A Logger object used for logging.
             quiet (bool): If False, the Experiment will print information about
                 episode returns to standard out.
     '''
 
-    def __init__(self, writer, quiet):
-        self._writer = writer
+    def __init__(self, logger, quiet):
+        self._logger = logger
         self._quiet = quiet
         self._best_returns = -np.inf
         self._returns100 = []
@@ -61,12 +61,12 @@ class Experiment(ABC):
         if len(self._returns100) == 100:
             mean = np.mean(self._returns100)
             std = np.std(self._returns100)
-            self._writer.add_summary('returns100', mean, std, step="frame")
+            self._logger.add_summary('returns100', mean, std, step="frame")
             self._returns100 = []
-        self._writer.add_evaluation('returns/episode', returns, step="episode")
-        self._writer.add_evaluation('returns/frame', returns, step="frame")
-        self._writer.add_evaluation("returns/max", self._best_returns, step="frame")
-        self._writer.add_scalar('fps', fps, step="frame")
+        self._logger.add_evaluation('returns/episode', returns, step="episode")
+        self._logger.add_evaluation('returns/frame', returns, step="frame")
+        self._logger.add_evaluation("returns/max", self._best_returns, step="frame")
+        self._logger.add_scalar('fps', fps, step="frame")
 
     def _log_test_episode(self, episode, returns):
         if not self._quiet:
@@ -77,10 +77,10 @@ class Experiment(ABC):
             mean = np.mean(returns)
             sem = np.var(returns) / np.sqrt(len(returns))
             print('test returns (mean ± sem): {} ± {}'.format(mean, sem))
-        self._writer.add_summary('returns-test', np.mean(returns), np.std(returns))
+        self._logger.add_summary('returns-test', np.mean(returns), np.std(returns))
 
     def save(self):
-        return self._preset.save('{}/preset.pt'.format(self._writer.log_dir))
+        return self._preset.save('{}/preset.pt'.format(self._logger.log_dir))
 
     def close(self):
-        self._writer.close()
+        self._logger.close()

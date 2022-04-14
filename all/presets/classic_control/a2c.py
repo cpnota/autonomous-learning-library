@@ -2,7 +2,7 @@ import copy
 from torch.optim import Adam
 from all.agents import A2C, A2CTestAgent
 from all.approximation import VNetwork, FeatureNetwork
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.policies import SoftmaxPolicy
 from all.presets.builder import ParallelPresetBuilder
 from all.presets.preset import ParallelPreset
@@ -58,7 +58,7 @@ class A2CClassicControlPreset(ParallelPreset):
         self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
         self.feature_model = hyperparameters['feature_model_constructor'](env).to(device)
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr"])
         value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr"])
         policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr"])
@@ -73,14 +73,14 @@ class A2CClassicControlPreset(ParallelPreset):
             self.value_model,
             value_optimizer,
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         policy = SoftmaxPolicy(
             self.policy_model,
             policy_optimizer,
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         return A2C(
@@ -91,7 +91,7 @@ class A2CClassicControlPreset(ParallelPreset):
             n_steps=self.hyperparameters["n_steps"],
             discount_factor=self.hyperparameters["discount_factor"],
             entropy_loss_scaling=self.hyperparameters["entropy_loss_scaling"],
-            writer=writer
+            logger=logger
         )
 
     def test_agent(self):

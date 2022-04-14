@@ -4,7 +4,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import PPO, PPOTestAgent
 from all.bodies import DeepmindAtariBody
 from all.approximation import VNetwork, FeatureNetwork
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.optim import LinearScheduler
 from all.policies import SoftmaxPolicy
 from all.presets.builder import ParallelPresetBuilder
@@ -73,7 +73,7 @@ class PPOAtariPreset(ParallelPreset):
         self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
         self.feature_model = hyperparameters['feature_model_constructor']().to(device)
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         n_updates = train_steps * self.hyperparameters['epochs'] * self.hyperparameters['minibatches'] / (self.hyperparameters['n_steps'] * self.hyperparameters['n_envs'])
 
         feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
@@ -85,7 +85,7 @@ class PPOAtariPreset(ParallelPreset):
             feature_optimizer,
             scheduler=CosineAnnealingLR(feature_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         v = VNetwork(
@@ -94,7 +94,7 @@ class PPOAtariPreset(ParallelPreset):
             scheduler=CosineAnnealingLR(value_optimizer, n_updates),
             loss_scaling=self.hyperparameters["value_loss_scaling"],
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         policy = SoftmaxPolicy(
@@ -102,7 +102,7 @@ class PPOAtariPreset(ParallelPreset):
             policy_optimizer,
             scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         return DeepmindAtariBody(
@@ -116,7 +116,7 @@ class PPOAtariPreset(ParallelPreset):
                     0,
                     n_updates,
                     name='clip',
-                    writer=writer
+                    logger=logger
                 ),
                 epochs=self.hyperparameters["epochs"],
                 minibatches=self.hyperparameters["minibatches"],
@@ -125,7 +125,7 @@ class PPOAtariPreset(ParallelPreset):
                 discount_factor=self.hyperparameters["discount_factor"],
                 lam=self.hyperparameters["lam"],
                 entropy_loss_scaling=self.hyperparameters["entropy_loss_scaling"],
-                writer=writer,
+                logger=logger,
             )
         )
 

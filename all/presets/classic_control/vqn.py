@@ -4,7 +4,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.approximation import QNetwork
 from all.agents import VQN, VQNTestAgent
 from all.bodies import DeepmindAtariBody
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy, ParallelGreedyPolicy
 from all.presets.builder import ParallelPresetBuilder
@@ -57,7 +57,7 @@ class VQNClassicControlPreset(ParallelPreset):
         self.model = hyperparameters['model_constructor'](env).to(device)
         self.n_actions = env.action_space.n
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         n_updates = train_steps / self.hyperparameters['n_envs']
 
         optimizer = Adam(
@@ -70,7 +70,7 @@ class VQNClassicControlPreset(ParallelPreset):
             self.model,
             optimizer,
             scheduler=CosineAnnealingLR(optimizer, n_updates),
-            writer=writer
+            logger=logger
         )
 
         policy = ParallelGreedyPolicy(
@@ -82,7 +82,7 @@ class VQNClassicControlPreset(ParallelPreset):
                 0,
                 self.hyperparameters["final_exploration_step"] / self.hyperparameters["n_envs"],
                 name="exploration",
-                writer=writer
+                logger=logger
             )
         )
 

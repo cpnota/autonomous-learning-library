@@ -1,6 +1,6 @@
 from timeit import default_timer as timer
 import numpy as np
-from all.logging import ExperimentWriter, CometWriter
+from all.logging import ExperimentLogger, CometLogger
 
 
 class MultiagentEnvExperiment():
@@ -30,11 +30,11 @@ class MultiagentEnvExperiment():
             save_freq=100,
             train_steps=float('inf'),
             write_loss=True,
-            writer="tensorboard"
+            logger="tensorboard"
     ):
         self._name = name if name is not None else preset.name
-        self._writer = self._make_writer(logdir, self._name, env.name, write_loss, writer)
-        self._agent = preset.agent(writer=self._writer, train_steps=train_steps)
+        self._logger = self._make_logger(logdir, self._name, env.name, write_loss, logger)
+        self._agent = preset.agent(logger=self._logger, train_steps=train_steps)
         self._env = env
         self._episode = 0
         self._frame = 0
@@ -88,6 +88,12 @@ class MultiagentEnvExperiment():
             self._log_test_episode(episode, episode_returns)
         self._log_test(returns)
         return returns
+
+    def save(self):
+        return self._preset.save('{}/preset.pt'.format(self._logger.log_dir))
+
+    def close(self):
+        self._logger.close()
 
     '''int: The number of completed training frames'''
     @property
@@ -153,9 +159,9 @@ class MultiagentEnvExperiment():
     def _log_training_episode(self, returns, fps):
         if not self._quiet:
             print('returns: {}'.format(returns))
-            print('fps: {}'.format(fps))
+            print('frames: {}, fps: {}'.format(self._frame, fps))
         for agent in self._env.agents:
-            self._writer.add_evaluation('{}/returns/frame'.format(agent), returns[agent], step="frame")
+            self._logger.add_evaluation('{}/returns/frame'.format(agent), returns[agent], step="frame")
 
     def _log_test_episode(self, episode, returns):
         if not self._quiet:
@@ -167,13 +173,14 @@ class MultiagentEnvExperiment():
                 mean = np.mean(agent_returns)
                 sem = np.variance(agent_returns) / np.sqrt(len(agent_returns))
                 print('{} test returns (mean ± sem): {} ± {}'.format(agent, mean, sem))
-            self._writer.add_summary('{}/returns-test'.format(agent), np.mean(agent_returns), np.std(agent_returns))
+            self._logger.add_summary('{}/returns-test'.format(agent), np.mean(agent_returns), np.std(agent_returns))
 
     def _save_model(self):
         if self._save_freq != float('inf') and self._episode % self._save_freq == 0:
-            self._preset.save('{}/preset.pt'.format(self._writer.log_dir))
+            self.save()
 
-    def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
-        if writer == "comet":
-            return CometWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
-        return ExperimentWriter(self, agent_name, env_name, loss=write_loss, logdir=logdir)
+    def _make_logger(self, logdir, agent_name, env_name, write_loss, logger):
+        if logger == "comet":
+            return CometLogger(self, agent_name, env_name, loss=write_loss, logdir=logdir)
+        return ExperimentLogger(self, agent_name, env_name, loss=write_loss, logdir=logdir)
+

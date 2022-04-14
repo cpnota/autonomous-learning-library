@@ -4,7 +4,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import DDPG, DDPGTestAgent
 from all.approximation import QContinuous, PolyakTarget
 from all.bodies import TimeFeature
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.policies import DeterministicPolicy
 from all.memory import ExperienceReplayBuffer
 from all.presets.builder import PresetBuilder
@@ -62,7 +62,7 @@ class DDPGContinuousPreset(Preset):
         self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
         self.action_space = env.action_space
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         n_updates = (train_steps - self.hyperparameters["replay_start_size"]) / self.hyperparameters["update_frequency"]
 
         q_optimizer = Adam(self.q_model.parameters(), lr=self.hyperparameters["lr_q"])
@@ -75,7 +75,7 @@ class DDPGContinuousPreset(Preset):
                 q_optimizer,
                 n_updates
             ),
-            writer=writer
+            logger=logger
         )
 
         policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr_pi"])
@@ -88,7 +88,7 @@ class DDPGContinuousPreset(Preset):
                 policy_optimizer,
                 n_updates
             ),
-            writer=writer
+            logger=logger
         )
 
         replay_buffer = ExperienceReplayBuffer(

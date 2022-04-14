@@ -12,7 +12,7 @@ def run_experiment(
         render=False,
         test_episodes=100,
         write_loss=True,
-        writer="tensorboard"
+        logger="tensorboard"
 ):
     if not isinstance(agents, list):
         agents = [agents]
@@ -32,7 +32,7 @@ def run_experiment(
                 quiet=quiet,
                 render=render,
                 write_loss=write_loss,
-                writer=writer
+                logger=logger
             )
             experiment.train(frames=frames)
             experiment.save()

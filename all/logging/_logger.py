@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Writer(ABC):
+class Logger(ABC):
     log_dir = "runs"
 
     @abstractmethod

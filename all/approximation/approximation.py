@@ -1,7 +1,7 @@
 import os
 import torch
 from torch.nn import utils
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from .target import TrivialTarget
 from .checkpointer import DummyCheckpointer
 
@@ -45,8 +45,8 @@ class Approximation():
                 to be used during optimization. A target network updates more slowly than
                 the base model that is being optimizing, allowing for a more stable
                 optimization target.
-            writer (all.logging.Writer:, optional): A Writer object used for logging.
-                The standard object logs to tensorboard, however, other types of Writer objects
+            logger (all.logging.Logger:, optional): A Logger object used for logging.
+                The standard object logs to tensorboard, however, other types of Logger objects
                 may be implemented by the user.
     '''
 
@@ -61,7 +61,7 @@ class Approximation():
             name='approximation',
             scheduler=None,
             target=None,
-            writer=DummyWriter(),
+            logger=DummyLogger(),
     ):
         self.model = model
         self.device = device if device else next(model.parameters()).device
@@ -73,7 +73,7 @@ class Approximation():
         self._loss_scaling = loss_scaling
         self._cache = []
         self._clip_grad = clip_grad
-        self._writer = writer
+        self._logger = logger
         self._name = name
 
         if checkpointer is None:
@@ -81,7 +81,7 @@ class Approximation():
         self._checkpointer = checkpointer
         self._checkpointer.init(
             self.model,
-            os.path.join(writer.log_dir, name + '.pt')
+            os.path.join(logger.log_dir, name + '.pt')
         )
 
     def __call__(self, *inputs):
@@ -147,7 +147,7 @@ class Approximation():
             self: The current Approximation object
         '''
         if loss is not None:
-            self._writer.add_loss(self._name, loss.detach())
+            self._logger.add_loss(self._name, loss.detach())
         self._clip_grad_norm()
         self._optimizer.step()
         self._optimizer.zero_grad()
@@ -174,5 +174,5 @@ class Approximation():
     def _step_lr_scheduler(self):
         '''Step the . Raises RuntimeError if norm is non-finite.'''
         if self._scheduler:
-            self._writer.add_schedule(self._name + '/lr', self._optimizer.param_groups[0]['lr'])
+            self._logger.add_schedule(self._name + '/lr', self._optimizer.param_groups[0]['lr'])
             self._scheduler.step()

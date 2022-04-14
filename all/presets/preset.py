@@ -18,12 +18,12 @@ class Preset(ABC):
         self.hyperparameters = hyperparameters
 
     @abstractmethod
-    def agent(self, writer=None, train_steps=float('inf')):
+    def agent(self, logger=None, train_steps=float('inf')):
         """
         Instantiate a training-mode Agent with the existing model.
 
         Args:
-            writer (all.logging.Writer, optional): Coefficient for the entropy term in the total loss.
+            logger (all.logging.Logger, optional): Coefficient for the entropy term in the total loss.
             train_steps (int, optional): The number of steps for which the agent will be trained.
 
         Returns:
@@ -71,12 +71,12 @@ class ParallelPreset(ABC):
         self.hyperparameters = hyperparameters
 
     @abstractmethod
-    def agent(self, writer=None, train_steps=float('inf')):
+    def agent(self, logger=None, train_steps=float('inf')):
         """
         Instantiate a training-mode ParallelAgent with the existing model.
 
         Args:
-            writer (all.logging.Writer, optional): Coefficient for the entropy term in the total loss.
+            logger (all.logging.Logger, optional): Coefficient for the entropy term in the total loss.
             train_steps (int, optional): The number of steps for which the agent will be trained.
 
         Returns:

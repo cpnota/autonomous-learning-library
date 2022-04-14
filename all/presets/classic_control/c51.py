@@ -2,7 +2,7 @@ import copy
 from torch.optim import Adam
 from all.agents import C51, C51TestAgent
 from all.approximation import QDist, FixedTarget
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from all.presets.builder import PresetBuilder
@@ -69,7 +69,7 @@ class C51ClassicControlPreset(Preset):
         self.model = hyperparameters['model_constructor'](env, atoms=hyperparameters['atoms']).to(device)
         self.n_actions = env.action_space.n
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         optimizer = Adam(self.model.parameters(), lr=self.hyperparameters['lr'])
 
         q = QDist(
@@ -80,7 +80,7 @@ class C51ClassicControlPreset(Preset):
             v_min=self.hyperparameters['v_min'],
             v_max=self.hyperparameters['v_max'],
             target=FixedTarget(self.hyperparameters['target_update_frequency']),
-            writer=writer,
+            logger=logger,
         )
 
         replay_buffer = ExperienceReplayBuffer(
@@ -97,13 +97,13 @@ class C51ClassicControlPreset(Preset):
                 0,
                 self.hyperparameters["final_exploration_step"] - self.hyperparameters["replay_start_size"],
                 name="epsilon",
-                writer=writer,
+                logger=logger,
             ),
             discount_factor=self.hyperparameters["discount_factor"],
             minibatch_size=self.hyperparameters["minibatch_size"],
             replay_start_size=self.hyperparameters["replay_start_size"],
             update_frequency=self.hyperparameters["update_frequency"],
-            writer=writer
+            logger=logger
         )
 
     def test_agent(self):

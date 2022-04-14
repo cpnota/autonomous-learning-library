@@ -5,10 +5,10 @@ from all.presets.atari import dqn
 from all.presets import IndependentMultiagentPreset
 from all.environments import MultiagentAtariEnv
 from all.experiments import MultiagentEnvExperiment
-from all.logging import Writer
+from all.logging import Logger
 
 
-class MockWriter(Writer):
+class MockLogger(Logger):
     def __init__(self, experiment, label, write_loss):
         self.data = {}
         self.label = label
@@ -46,9 +46,9 @@ class MockWriter(Writer):
 
 
 class MockExperiment(MultiagentEnvExperiment):
-    def _make_writer(self, logdir, agent_name, env_name, write_loss, writer):
-        self._writer = MockWriter(self, agent_name + '_' + env_name, write_loss)
-        return self._writer
+    def _make_logger(self, logdir, agent_name, env_name, write_loss, logger):
+        self._logger = MockLogger(self, agent_name + '_' + env_name, write_loss)
+        return self._logger
 
 
 class TestMultiagentEnvExperiment(unittest.TestCase):
@@ -61,16 +61,16 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
 
     def test_adds_default_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
-        self.assertEqual(experiment._writer.label, "independent_space_invaders_v1")
+        self.assertEqual(experiment._logger.label, "independent_space_invaders_v1")
 
     def test_adds_custom_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, name='custom', quiet=True, save_freq=float('inf'))
-        self.assertEqual(experiment._writer.label, "custom_space_invaders_v1")
+        self.assertEqual(experiment._logger.label, "custom_space_invaders_v1")
 
     def test_writes_training_returns(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
         experiment.train(episodes=3)
-        self.assertEqual(experiment._writer.data, {
+        self.assertEqual(experiment._logger.data, {
             'evaluation/first_0/returns/frame': {'values': [465.0, 235.0, 735.0, 415.0], 'steps': [766, 1524, 2440, 3038]},
             'evaluation/second_0/returns/frame': {'values': [235.0, 465.0, 170.0, 295.0], 'steps': [766, 1524, 2440, 3038]}
         })
@@ -78,16 +78,16 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
     def test_writes_test_returns(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
         experiment.train(episodes=3)
-        experiment._writer.data = {}
+        experiment._logger.data = {}
         experiment.test(episodes=3)
-        self.assertEqual(list(experiment._writer.data.keys()), [
+        self.assertEqual(list(experiment._logger.data.keys()), [
             'evaluation/first_0/returns-test/mean',
             'evaluation/first_0/returns-test/std',
             'evaluation/second_0/returns-test/mean',
             'evaluation/second_0/returns-test/std'
         ])
-        steps = experiment._writer.data['evaluation/first_0/returns-test/mean']['steps'][0]
-        for datum in experiment._writer.data.values():
+        steps = experiment._logger.data['evaluation/first_0/returns-test/mean']['steps'][0]
+        for datum in experiment._logger.data.values():
             self.assertEqual(len(datum['values']), 1)
             self.assertGreaterEqual(datum['values'][0], 0.0)
             self.assertEqual(len(datum['steps']), 1)
@@ -95,9 +95,9 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
 
     def test_writes_loss(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=True, save_freq=float('inf'))
-        self.assertTrue(experiment._writer.write_loss)
+        self.assertTrue(experiment._logger.write_loss)
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=False, save_freq=float('inf'))
-        self.assertFalse(experiment._writer.write_loss)
+        self.assertFalse(experiment._logger.write_loss)
 
     def make_preset(self):
         return IndependentMultiagentPreset('independent', 'cpu', {

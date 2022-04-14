@@ -1,6 +1,6 @@
-from ._writer import Writer
-from .dummy import DummyWriter
-from .experiment import ExperimentWriter, CometWriter
+from ._logger import Logger
+from .dummy import DummyLogger
+from .experiment import ExperimentLogger, CometLogger
 
 
-__all__ = ["Writer", "DummyWriter", "ExperimentWriter", "CometWriter"]
+__all__ = ["Logger", "DummyLogger", "ExperimentLogger", "CometLogger"]

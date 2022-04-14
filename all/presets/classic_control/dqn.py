@@ -2,7 +2,7 @@ import copy
 from torch.optim import Adam
 from all.agents import DQN, DQNTestAgent
 from all.approximation import QNetwork, FixedTarget
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
@@ -63,14 +63,14 @@ class DQNClassicControlPreset(Preset):
         self.model = hyperparameters['model_constructor'](env).to(device)
         self.n_actions = env.action_space.n
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         optimizer = Adam(self.model.parameters(), lr=self.hyperparameters['lr'])
 
         q = QNetwork(
             self.model,
             optimizer,
             target=FixedTarget(self.hyperparameters['target_update_frequency']),
-            writer=writer
+            logger=logger
         )
 
         policy = GreedyPolicy(
@@ -82,7 +82,7 @@ class DQNClassicControlPreset(Preset):
                 self.hyperparameters['replay_start_size'],
                 self.hyperparameters['final_exploration_step'] - self.hyperparameters['replay_start_size'],
                 name="exploration",
-                writer=writer
+                logger=logger
             )
         )
 

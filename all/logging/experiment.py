@@ -4,18 +4,18 @@ import csv
 import subprocess
 from datetime import datetime
 from tensorboardX import SummaryWriter
-from ._writer import Writer
+from ._logger import Logger
 
 
-class ExperimentWriter(SummaryWriter, Writer):
+class ExperimentLogger(SummaryWriter, Logger):
     '''
-    The default Writer object used by all.experiments.Experiment.
+    The default Logger object used by all.experiments.Experiment.
     Writes logs using tensorboard into the current logdir directory ('runs' by default),
     tagging the run with a combination of the agent name, the commit hash of the
     current git repo of the working directory (if any), and the current time.
     Also writes summary statistics into CSV files.
     Args:
-        experiment (all.experiments.Experiment): The Experiment associated with the Writer object.
+        experiment (all.experiments.Experiment): The Experiment associated with the Logger object.
         agent_name (str): The name of the Agent the Experiment is being performed on
         env_name (str): The name of the environment the Experiment is being performed in
         loss (bool, optional): Whether or not to log loss/scheduling metrics, or only evaluation and summary metrics.
@@ -70,13 +70,13 @@ class ExperimentWriter(SummaryWriter, Writer):
         pass
 
 
-class CometWriter(Writer):
+class CometLogger(Logger):
     '''
-    A Writer object to be used by all.experiments.Experiment.
+    A Logger object to be used by all.experiments.Experiment.
     Writes logs using comet.ml Requires an API key to be stored in .comet.config or as an environment variable.
     Look at https://www.comet.ml/docs/python-sdk/advanced/#python-configuration for more info.
     Args:
-        experiment (all.experiments.Experiment): The Experiment associated with the Writer object.
+        experiment (all.experiments.Experiment): The Experiment associated with the Logger object.
         agent_name (str): The name of the Agent the Experiment is being performed on
         env_name (str): The name of the environment the Experiment is being performed in
         loss (bool, optional): Whether or not to log loss/scheduling metrics, or only evaluation and summary metrics.
@@ -91,7 +91,7 @@ class CometWriter(Writer):
         try:
             from comet_ml import Experiment
         except ImportError as e:
-            print("Failed to import comet_ml. CometWriter requires that comet_ml be installed")
+            print("Failed to import comet_ml. CometLogger requires that comet_ml be installed")
             raise e
         try:
             self._comet = Experiment(project_name=env_name)

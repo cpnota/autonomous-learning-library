@@ -19,7 +19,7 @@ class VAC(ParallelAgent):
         discount_factor (float): Discount factor for future rewards.
         n_envs (int): Number of parallel actors/environments
         n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
-        writer (Writer): Used for logging.
+        logger (Logger): Used for logging.
     '''
 
     def __init__(self, features, v, policy, discount_factor=1):

@@ -1,6 +1,6 @@
 import torch
 from torch.nn.functional import mse_loss
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from ._agent import Agent
 
 
@@ -43,7 +43,7 @@ class SAC(Agent):
                  replay_start_size=5000,
                  temperature_initial=0.1,
                  update_frequency=1,
-                 writer=DummyWriter()
+                 logger=DummyLogger()
                  ):
         # objects
         self.policy = policy
@@ -51,7 +51,7 @@ class SAC(Agent):
         self.q_1 = q_1
         self.q_2 = q_2
         self.replay_buffer = replay_buffer
-        self.writer = writer
+        self.logger = logger
         # hyperparameters
         self.discount_factor = discount_factor
         self.entropy_target = entropy_target
@@ -101,11 +101,11 @@ class SAC(Agent):
             self.temperature = max(0, self.temperature + self.lr_temperature * temperature_grad.detach())
 
             # additional debugging info
-            self.writer.add_loss('entropy', -_log_probs.mean())
-            self.writer.add_loss('v_mean', v_targets.mean())
-            self.writer.add_loss('r_mean', rewards.mean())
-            self.writer.add_loss('temperature_grad', temperature_grad)
-            self.writer.add_loss('temperature', self.temperature)
+            self.logger.add_loss('entropy', -_log_probs.mean())
+            self.logger.add_loss('v_mean', v_targets.mean())
+            self.logger.add_loss('r_mean', rewards.mean())
+            self.logger.add_loss('temperature_grad', temperature_grad)
+            self.logger.add_loss('temperature', self.temperature)
 
     def _should_train(self):
         self._frames_seen += 1

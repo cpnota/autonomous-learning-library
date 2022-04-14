@@ -4,7 +4,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.approximation import QNetwork, FixedTarget
 from all.agents import DDQN, DDQNTestAgent
 from all.bodies import DeepmindAtariBody
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.memory import PrioritizedReplayBuffer
 from all.nn import weighted_smooth_l1_loss
 from all.optim import LinearScheduler
@@ -74,7 +74,7 @@ class DDQNAtariPreset(Preset):
         self.model = hyperparameters['model_constructor'](env).to(device)
         self.n_actions = env.action_space.n
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
 
         optimizer = Adam(
@@ -88,7 +88,7 @@ class DDQNAtariPreset(Preset):
             optimizer,
             scheduler=CosineAnnealingLR(optimizer, n_updates),
             target=FixedTarget(self.hyperparameters['target_update_frequency']),
-            writer=writer
+            logger=logger
         )
 
         policy = GreedyPolicy(
@@ -100,7 +100,7 @@ class DDQNAtariPreset(Preset):
                 self.hyperparameters['replay_start_size'],
                 self.hyperparameters['final_exploration_step'] - self.hyperparameters['replay_start_size'],
                 name="exploration",
-                writer=writer
+                logger=logger
             )
         )
 

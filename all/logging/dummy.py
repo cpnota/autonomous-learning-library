@@ -1,7 +1,7 @@
-from ._writer import Writer
+from ._logger import Logger
 
 
-class DummyWriter(Writer):
+class DummyLogger(Logger):
     '''A default Logger object that performs no logging and has no side effects.'''
 
     def add_loss(self, name, value, step="frame"):
