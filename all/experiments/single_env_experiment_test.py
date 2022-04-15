@@ -20,7 +20,6 @@ class MockLogger(Logger):
         self.data[key]["values"].append(value)
         self.data[key]["steps"].append(self._get_step(step))
 
-
     def add_loss(self, name, value, step="frame"):
         pass
 

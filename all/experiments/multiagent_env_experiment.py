@@ -183,4 +183,3 @@ class MultiagentEnvExperiment():
         if logger == "comet":
             return CometLogger(self, agent_name, env_name, verbose=verbose, logdir=logdir)
         return ExperimentLogger(self, agent_name, env_name, verbose=verbose, logdir=logdir)
-
