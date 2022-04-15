@@ -161,7 +161,7 @@ class MultiagentEnvExperiment():
             print('returns: {}'.format(returns))
             print('frames: {}, fps: {}'.format(self._frame, fps))
         for agent in self._env.agents:
-            self._logger.add_evaluation('{}/returns/frame'.format(agent), returns[agent], step="frame")
+            self._logger.add_eval('{}/returns/frame'.format(agent), returns[agent], step="frame")
 
     def _log_test_episode(self, episode, returns):
         if not self._quiet:

@@ -14,24 +14,28 @@ class MockLogger(Logger):
         self.write_loss = write_loss
         self.experiment = experiment
 
-    def add_scalar(self, key, value, step="frame"):
+    def _add_scalar(self, key, value, step="frame"):
         if key not in self.data:
             self.data[key] = {"values": [], "steps": []}
         self.data[key]["values"].append(value)
         self.data[key]["steps"].append(self._get_step(step))
 
+
     def add_loss(self, name, value, step="frame"):
+        pass
+
+    def add_eval(self, name, value, step="frame"):
+        self._add_scalar("eval/" + name, value, step)
+
+    def add_info(self, name, value, step="frame"):
         pass
 
     def add_schedule(self, name, value, step="frame"):
         pass
 
-    def add_evaluation(self, name, value, step="frame"):
-        self.add_scalar("evaluation/" + name, value, self._get_step(step))
-
     def add_summary(self, name, mean, std, step="frame"):
-        self.add_evaluation(name + "/mean", mean, step)
-        self.add_evaluation(name + "/std", std, step)
+        self._add_scalar("summary/" + name + "/mean", mean, step)
+        self._add_scalar("summary/" + name + "/std", std, step)
 
     def _get_step(self, _type):
         if _type == "frame":
@@ -70,11 +74,11 @@ class TestSingleEnvExperiment(unittest.TestCase):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
         experiment.train(episodes=3)
         np.testing.assert_equal(
-            experiment._logger.data["evaluation/returns/episode"]["values"],
+            experiment._logger.data["eval/returns/episode"]["values"],
             np.array([18., 23., 27.]),
         )
         np.testing.assert_equal(
-            experiment._logger.data["evaluation/returns/episode"]["steps"],
+            experiment._logger.data["eval/returns/episode"]["steps"],
             np.array([1, 2, 3]),
         )
 
@@ -86,16 +90,16 @@ class TestSingleEnvExperiment(unittest.TestCase):
         expected_std = 0.433013
         np.testing.assert_equal(np.mean(returns), expected_mean)
         np.testing.assert_equal(
-            experiment._logger.data["evaluation/returns-test/mean"]["values"],
+            experiment._logger.data["summary/returns-test/mean"]["values"],
             np.array([expected_mean]),
         )
         np.testing.assert_approx_equal(
-            np.array(experiment._logger.data["evaluation/returns-test/std"]["values"]),
+            np.array(experiment._logger.data["summary/returns-test/std"]["values"]),
             np.array([expected_std]),
             significant=4
         )
         np.testing.assert_equal(
-            experiment._logger.data["evaluation/returns-test/mean"]["steps"],
+            experiment._logger.data["summary/returns-test/mean"]["steps"],
             np.array([94]),
         )
 

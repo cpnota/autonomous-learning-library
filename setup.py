@@ -66,7 +66,6 @@ setup(
         "opencv-python~=3.4.0",    # used by atari wrappers
         "torch~=1.11.0",            # core deep learning library
         "tensorboard>=2.8.0",      # logging and visualization
-        "tensorboardX>=2.5.0",     # tensorboard/pytorch compatibility
         "cloudpickle>=2.0.0",      # used to copy environments
     ],
     extras_require=extras

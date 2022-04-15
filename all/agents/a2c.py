@@ -90,8 +90,8 @@ class A2C(ParallelAgent):
             self.features.step()
 
             # record metrics
-            self.logger.add_scalar('entropy', -entropy_loss)
-            self.logger.add_scalar('normalized_value_error', value_loss / targets.var())
+            self.logger.add_info('entropy', -entropy_loss)
+            self.logger.add_info('normalized_value_error', value_loss / targets.var())
 
     def _make_buffer(self):
         return NStepAdvantageBuffer(

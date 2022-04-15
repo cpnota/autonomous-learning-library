@@ -33,11 +33,11 @@ class TestParallelEnvExperiment(unittest.TestCase):
     def test_writes_training_returns_eps(self):
         self.experiment.train(episodes=3)
         np.testing.assert_equal(
-            self.experiment._logger.data["evaluation/returns/episode"]["steps"],
+            self.experiment._logger.data["eval/returns/episode"]["steps"],
             np.array([1, 2, 3]),
         )
         np.testing.assert_equal(
-            self.experiment._logger.data["evaluation/returns/episode"]["values"],
+            self.experiment._logger.data["eval/returns/episode"]["values"],
             np.array([10., 12., 19.]),
         )
 
@@ -46,11 +46,11 @@ class TestParallelEnvExperiment(unittest.TestCase):
         returns = self.experiment.test(episodes=4)
         self.assertEqual(len(returns), 4)
         np.testing.assert_equal(
-            self.experiment._logger.data["evaluation/returns-test/mean"]["values"],
+            self.experiment._logger.data["summary/returns-test/mean"]["values"],
             np.array([np.mean(returns)]),
         )
         np.testing.assert_equal(
-            self.experiment._logger.data["evaluation/returns-test/std"]["values"],
+            self.experiment._logger.data["summary/returns-test/std"]["values"],
             np.array([np.std(returns)]),
         )
 

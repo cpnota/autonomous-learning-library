@@ -128,8 +128,8 @@ class PPO(ParallelAgent):
         self.features.step()
 
         # debugging
-        self.logger.add_scalar('entropy', -entropy_loss)
-        self.logger.add_scalar('normalized_value_error', value_loss / targets.var())
+        self.logger.add_info('entropy', -entropy_loss)
+        self.logger.add_info('normalized_value_error', value_loss / targets.var())
 
     def _clipped_policy_gradient_loss(self, pi_0, pi_i, advantages):
         ratios = torch.exp(pi_i - pi_0)

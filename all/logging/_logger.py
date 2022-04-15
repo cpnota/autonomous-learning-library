@@ -5,6 +5,18 @@ class Logger(ABC):
     log_dir = "runs"
 
     @abstractmethod
+    def add_summary(self, name, mean, std, step="frame"):
+        '''
+        Log a summary statistic.
+
+        Args:
+            name (str): The tag to associate with the summary statistic
+            mean (float): The mean of the statistic at the current step
+            std (float): The standard deviation of the statistic at the current step
+            step (str, optional): Which step to use (e.g., "frame" or "episode")
+        '''
+
+    @abstractmethod
     def add_loss(self, name, value, step="frame"):
         '''
         Log the given loss metric at the current step.
@@ -16,9 +28,9 @@ class Logger(ABC):
         '''
 
     @abstractmethod
-    def add_evaluation(self, name, value, step="frame"):
+    def add_eval(self, name, value, step="frame"):
         '''
-        Log the evaluation metric.
+        Log the given evaluation metric at the current step.
 
         Args:
             name (str): The tag to associate with the loss
@@ -27,13 +39,13 @@ class Logger(ABC):
         '''
 
     @abstractmethod
-    def add_scalar(self, name, value, step="frame"):
+    def add_info(self, name, value, step="frame"):
         '''
-        Log an arbitrary scalar.
+        Log the given informational metric at the current step.
 
         Args:
-            name (str): The tag to associate with the scalar
-            value (number): The value of the scalar at the current step
+            name (str): The tag to associate with the loss
+            value (number): The evaluation metric at the current step
             step (str, optional): Which step to use (e.g., "frame" or "episode")
         '''
 
@@ -45,18 +57,6 @@ class Logger(ABC):
         Args:
             name (str): The tag to associate with the hyperparameter schedule
             value (number): The value of the hyperparameter at the current step
-            step (str, optional): Which step to use (e.g., "frame" or "episode")
-        '''
-
-    @abstractmethod
-    def add_summary(self, name, mean, std, step="frame"):
-        '''
-        Log a summary statistic.
-
-        Args:
-            name (str): The tag to associate with the summary statistic
-            mean (float): The mean of the statistic at the current step
-            std (float): The standard deviation of the statistic at the current step
             step (str, optional): Which step to use (e.g., "frame" or "episode")
         '''
 

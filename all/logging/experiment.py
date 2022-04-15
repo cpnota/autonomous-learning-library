@@ -3,7 +3,7 @@ import os
 import csv
 import subprocess
 from datetime import datetime
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 from ._logger import Logger
 
 
@@ -21,43 +21,38 @@ class ExperimentLogger(SummaryWriter, Logger):
         loss (bool, optional): Whether or not to log loss/scheduling metrics, or only evaluation and summary metrics.
     '''
 
-    def __init__(self, experiment, agent_name, env_name, loss=True, logdir='runs'):
+    def __init__(self, experiment, agent_name, env_name, write_loss=True, logdir='runs'):
         self.env_name = env_name
         current_time = datetime.now().strftime('%Y-%m-%d_%H:%M:%S_%f')
         dir_name = "%s_%s_%s" % (agent_name, COMMIT_HASH, current_time)
         os.makedirs(os.path.join(logdir, dir_name, env_name))
         self.log_dir = os.path.join(logdir, dir_name)
         self._experiment = experiment
-        self._loss = loss
+        self._summary = not write_loss
         super().__init__(log_dir=self.log_dir)
 
-    def add_loss(self, name, value, step="frame"):
-        if self._loss:
-            self.add_scalar("loss/" + name, value, step)
-
-    def add_evaluation(self, name, value, step="frame"):
-        self.add_scalar("evaluation/" + name, value, self._get_step(step))
-
-    def add_schedule(self, name, value, step="frame"):
-        if self._loss:
-            self.add_scalar("schedule" + "/" + name, value, self._get_step(step))
-
-    def add_scalar(self, name, value, step="frame"):
-        '''
-        Log an arbitrary scalar.
-        Args:
-            name (str): The tag to associate with the scalar
-            value (number): The value of the scalar at the current step
-            step (str, optional): Which step to use (e.g., "frame" or "episode")
-        '''
-        super().add_scalar(self.env_name + "/" + name, value, self._get_step(step))
-
     def add_summary(self, name, mean, std, step="frame"):
-        self.add_evaluation(name + "/mean", mean, step)
-        self.add_evaluation(name + "/std", std, step)
+        super().add_scalar('{}/summary/{}/mean'.format(self.env_name, name), mean, self._get_step(step))
+        super().add_scalar('{}/summary/{}/std'.format(self.env_name, name), std, self._get_step(step))
 
         with open(os.path.join(self.log_dir, self.env_name, name + ".csv"), "a") as csvfile:
             csv.writer(csvfile).writerow([self._get_step(step), mean, std])
+
+    def add_loss(self, name, value, step="frame"):
+        self._add_scalar("loss/" + name, value, step)
+
+    def add_eval(self, name, value, step="frame"):
+        self._add_scalar("loss/" + name, value, step)
+
+    def add_info(self, name, value, step="frame"):
+        self._add_scalar("info/" + name, value, step)
+
+    def add_schedule(self, name, value, step="frame"):
+        self._add_scalar("schedule/" + name, value, step)
+
+    def _add_scalar(self, name, value, step="frame"):
+        if not self._summary:
+            super().add_scalar(self.env_name + "/" + name, value, self._get_step(step))
 
     def _get_step(self, _type):
         if _type == "frame":
@@ -83,10 +78,10 @@ class CometLogger(Logger):
         logdir (str): The directory where run information is stored.
     '''
 
-    def __init__(self, experiment, agent_name, env_name, loss=True, logdir='runs'):
+    def __init__(self, experiment, agent_name, env_name, write_loss=True, logdir='runs'):
         self.env_name = env_name
         self._experiment = experiment
-        self._loss = loss
+        self._summary = not write_loss
 
         try:
             from comet_ml import Experiment
@@ -105,23 +100,25 @@ class CometLogger(Logger):
         self._comet.set_name(agent_name)
         self.log_dir = logdir
 
-    def add_loss(self, name, value, step="frame"):
-        if self._loss:
-            self.add_evaluation("loss/" + name, value, step)
+    def add_summary(self, name, mean, std, step="frame"):
+        self._comet.log_metric('{}/summary/{}/mean'.format(self.env_name, name), mean, self._get_step(step))
+        self._comet.log_metric('{}/summary/{}/std'.format(self.env_name, name), std, self._get_step(step))
 
-    def add_evaluation(self, name, value, step="frame"):
-        self._comet.log_metric(name, value, self._get_step(step))
+    def add_loss(self, name, value, step="frame"):
+        self._add_scalar("loss/" + name, value, step)
+
+    def add_eval(self, name, value, step="frame"):
+        self._add_scalar("loss/" + name, value, step)
+
+    def add_info(self, name, value, step="frame"):
+        self._add_scalar("info/" + name, value, step)
 
     def add_schedule(self, name, value, step="frame"):
-        if self._loss:
-            self.add_scalar(name, value, step)
+        self._add_scalar("schedule/" + name, value, step)
 
-    def add_summary(self, name, mean, std, step="frame"):
-        self.add_evaluation(name + "/mean", mean, step)
-        self.add_evaluation(name + "/std", std, step)
-
-    def add_scalar(self, name, value, step="frame"):
-        self._comet.log_metric(name, value, self._get_step(step))
+    def _add_scalar(self, name, value, step="frame"):
+        if not self._summary:
+            self._comet.log_metric(name, value, self._get_step(step))
 
     def _get_step(self, _type):
         if _type == "frame":

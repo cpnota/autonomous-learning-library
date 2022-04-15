@@ -5,44 +5,7 @@ from all.presets.atari import dqn
 from all.presets import IndependentMultiagentPreset
 from all.environments import MultiagentAtariEnv
 from all.experiments import MultiagentEnvExperiment
-from all.logging import Logger
-
-
-class MockLogger(Logger):
-    def __init__(self, experiment, label, write_loss):
-        self.data = {}
-        self.label = label
-        self.write_loss = write_loss
-        self.experiment = experiment
-
-    def add_scalar(self, key, value, step="frame"):
-        if key not in self.data:
-            self.data[key] = {"values": [], "steps": []}
-        self.data[key]["values"].append(value)
-        self.data[key]["steps"].append(self._get_step(step))
-
-    def add_loss(self, name, value, step="frame"):
-        pass
-
-    def add_schedule(self, name, value, step="frame"):
-        pass
-
-    def add_evaluation(self, name, value, step="frame"):
-        self.add_scalar("evaluation/" + name, value, self._get_step(step))
-
-    def add_summary(self, name, mean, std, step="frame"):
-        self.add_evaluation(name + "/mean", mean, step)
-        self.add_evaluation(name + "/std", std, step)
-
-    def _get_step(self, _type):
-        if _type == "frame":
-            return self.experiment.frame
-        if _type == "episode":
-            return self.experiment.episode
-        return _type
-
-    def close(self):
-        pass
+from all.experiments.single_env_experiment_test import MockLogger
 
 
 class MockExperiment(MultiagentEnvExperiment):
@@ -71,8 +34,8 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
         experiment.train(episodes=3)
         self.assertEqual(experiment._logger.data, {
-            'evaluation/first_0/returns/frame': {'values': [465.0, 235.0, 735.0, 415.0], 'steps': [766, 1524, 2440, 3038]},
-            'evaluation/second_0/returns/frame': {'values': [235.0, 465.0, 170.0, 295.0], 'steps': [766, 1524, 2440, 3038]}
+            'eval/first_0/returns/frame': {'values': [465.0, 235.0, 735.0, 415.0], 'steps': [766, 1524, 2440, 3038]},
+            'eval/second_0/returns/frame': {'values': [235.0, 465.0, 170.0, 295.0], 'steps': [766, 1524, 2440, 3038]}
         })
 
     def test_writes_test_returns(self):
@@ -81,12 +44,12 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         experiment._logger.data = {}
         experiment.test(episodes=3)
         self.assertEqual(list(experiment._logger.data.keys()), [
-            'evaluation/first_0/returns-test/mean',
-            'evaluation/first_0/returns-test/std',
-            'evaluation/second_0/returns-test/mean',
-            'evaluation/second_0/returns-test/std'
+            'summary/first_0/returns-test/mean',
+            'summary/first_0/returns-test/std',
+            'summary/second_0/returns-test/mean',
+            'summary/second_0/returns-test/std'
         ])
-        steps = experiment._logger.data['evaluation/first_0/returns-test/mean']['steps'][0]
+        steps = experiment._logger.data['summary/first_0/returns-test/mean']['steps'][0]
         for datum in experiment._logger.data.values():
             self.assertEqual(len(datum['values']), 1)
             self.assertGreaterEqual(datum['values'][0], 0.0)

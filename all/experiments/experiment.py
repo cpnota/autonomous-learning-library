@@ -63,10 +63,10 @@ class Experiment(ABC):
             std = np.std(self._returns100)
             self._logger.add_summary('returns100', mean, std, step="frame")
             self._returns100 = []
-        self._logger.add_evaluation('returns/episode', returns, step="episode")
-        self._logger.add_evaluation('returns/frame', returns, step="frame")
-        self._logger.add_evaluation("returns/max", self._best_returns, step="frame")
-        self._logger.add_scalar('fps', fps, step="frame")
+        self._logger.add_eval('returns/episode', returns, step="episode")
+        self._logger.add_eval('returns/frame', returns, step="frame")
+        self._logger.add_eval("returns/max", self._best_returns, step="frame")
+        self._logger.add_eval('fps', fps, step="frame")
 
     def _log_test_episode(self, episode, returns):
         if not self._quiet:
