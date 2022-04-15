@@ -3,7 +3,7 @@ import unittest
 import torch
 from all.core import State
 from all.environments import GymEnvironment, DuplicateEnvironment
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.presets import Preset, ParallelPreset
 from all.presets.continuous import (
     ddpg,
@@ -43,7 +43,7 @@ class TestContinuousPresets(unittest.TestCase):
 
     def validate_standard_preset(self, preset):
         # train agent
-        agent = preset.agent(writer=DummyWriter(), train_steps=100000)
+        agent = preset.agent(logger=DummyLogger(), train_steps=100000)
         agent.act(self.env.state)
         # test agent
         test_agent = preset.test_agent()
@@ -56,7 +56,7 @@ class TestContinuousPresets(unittest.TestCase):
 
     def validate_parallel_preset(self, preset):
         # train agent
-        agent = preset.agent(writer=DummyWriter(), train_steps=100000)
+        agent = preset.agent(logger=DummyLogger(), train_steps=100000)
         agent.act(self.parallel_env.state_array)
         # test agent
         test_agent = preset.test_agent()

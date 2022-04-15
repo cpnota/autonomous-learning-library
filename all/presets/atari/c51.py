@@ -4,7 +4,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.approximation import QDist, FixedTarget
 from all.agents import C51, C51TestAgent
 from all.bodies import DeepmindAtariBody
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from all.presets.builder import PresetBuilder
@@ -73,7 +73,7 @@ class C51AtariPreset(Preset):
         self.model = hyperparameters['model_constructor'](env, atoms=hyperparameters['atoms']).to(device)
         self.n_actions = env.action_space.n
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
 
         optimizer = Adam(
@@ -91,7 +91,7 @@ class C51AtariPreset(Preset):
             v_max=self.hyperparameters['v_max'],
             target=FixedTarget(self.hyperparameters['target_update_frequency']),
             scheduler=CosineAnnealingLR(optimizer, n_updates),
-            writer=writer,
+            logger=logger,
         )
 
         replay_buffer = ExperienceReplayBuffer(
@@ -109,13 +109,13 @@ class C51AtariPreset(Preset):
                     0,
                     self.hyperparameters["final_exploration_step"] - self.hyperparameters["replay_start_size"],
                     name="epsilon",
-                    writer=writer,
+                    logger=logger,
                 ),
                 discount_factor=self.hyperparameters["discount_factor"],
                 minibatch_size=self.hyperparameters["minibatch_size"],
                 replay_start_size=self.hyperparameters["replay_start_size"],
                 update_frequency=self.hyperparameters["update_frequency"],
-                writer=writer
+                logger=logger
             ),
             lazy_frames=True,
             episodic_lives=True

@@ -4,7 +4,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.approximation import QDist, FixedTarget
 from all.agents import Rainbow, RainbowTestAgent
 from all.bodies import DeepmindAtariBody
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.memory import PrioritizedReplayBuffer, NStepReplayBuffer
 from all.optim import LinearScheduler
 from all.presets.builder import PresetBuilder
@@ -82,7 +82,7 @@ class RainbowAtariPreset(Preset):
         self.model = hyperparameters['model_constructor'](env, atoms=hyperparameters["atoms"], sigma=hyperparameters["sigma"]).to(device)
         self.n_actions = env.action_space.n
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
 
         optimizer = Adam(
@@ -100,7 +100,7 @@ class RainbowAtariPreset(Preset):
             v_min=self.hyperparameters['v_min'],
             v_max=self.hyperparameters['v_max'],
             target=FixedTarget(self.hyperparameters['target_update_frequency']),
-            writer=writer,
+            logger=logger,
         )
 
         replay_buffer = NStepReplayBuffer(
@@ -124,13 +124,13 @@ class RainbowAtariPreset(Preset):
                     0,
                     train_steps - self.hyperparameters['replay_start_size'],
                     name="exploration",
-                    writer=writer
+                    logger=logger
                 ),
                 discount_factor=self.hyperparameters['discount_factor'] ** self.hyperparameters["n_steps"],
                 minibatch_size=self.hyperparameters['minibatch_size'],
                 replay_start_size=self.hyperparameters['replay_start_size'],
                 update_frequency=self.hyperparameters['update_frequency'],
-                writer=writer,
+                logger=logger,
             ),
             lazy_frames=True,
             episodic_lives=True

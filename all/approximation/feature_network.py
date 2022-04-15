@@ -7,6 +7,7 @@ class FeatureNetwork(Approximation):
     An Approximation that accepts a state updates the observation key
     based on the given model.
     '''
+
     def __init__(self, model, optimizer=None, name='feature', **kwargs):
         model = FeatureModule(model)
         super().__init__(model, optimizer, name=name, **kwargs)

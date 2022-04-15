@@ -8,7 +8,7 @@ from all import nn
 from all.approximation import QNetwork, FixedTarget
 from all.agents import Agent, DQN, DQNTestAgent
 from all.bodies import DeepmindAtariBody
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
@@ -72,7 +72,7 @@ class DQNAtariPreset(Preset):
         self.model = hyperparameters['model_constructor'](env).to(device)
         self.n_actions = env.action_space.n
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
 
         optimizer = Adam(
@@ -86,7 +86,7 @@ class DQNAtariPreset(Preset):
             optimizer,
             scheduler=CosineAnnealingLR(optimizer, n_updates),
             target=FixedTarget(self.hyperparameters['target_update_frequency']),
-            writer=writer
+            logger=logger
         )
 
         policy = GreedyPolicy(
@@ -98,7 +98,7 @@ class DQNAtariPreset(Preset):
                 self.hyperparameters['replay_start_size'],
                 self.hyperparameters['final_exploration_step'] - self.hyperparameters['replay_start_size'],
                 name="exploration",
-                writer=writer
+                logger=logger
             )
         )
 

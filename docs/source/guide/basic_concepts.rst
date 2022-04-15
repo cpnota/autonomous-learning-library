@@ -253,7 +253,7 @@ Let's dig into the ``Preset`` interface first:
 
     class Preset(ABC):
         @abstractmethod
-        def agent(self, writer=None, train_steps=float('inf')):
+        def agent(self, logger=None, train_steps=float('inf')):
             pass
 
         @abstractmethod
@@ -279,7 +279,7 @@ Experiment
 
 Finally, we have all of the components necessary to introduce the ``run_experiment`` helper function.
 ``run_experiment`` is the built-in control loop for running reinforcement learning experiment.
-It instansiates its own ``Writer`` object for logging, which is then passed to each of the presets, and runs each agent on each environment passed to it for some number of timesteps (frames) or episodes).
+It instansiates its own ``Logger`` object for logging, which is then passed to each of the presets, and runs each agent on each environment passed to it for some number of timesteps (frames) or episodes).
 Here is a quick example:
 
 .. code-block:: python
@@ -333,7 +333,7 @@ This is useful measuring the final performance of an agent.
 You can also pass optional parameters to ``run_experiment`` to change its behavior.
 You can set ``render=True`` to watch the agent during training (generally not recommended: it slows the agent considerably!).
 You can set ``quiet=True`` to silence command line output.
-Lastly, you can set ``write_loss=False`` to disable writing loss and debugging information to ``tensorboard``.
+Lastly, you can set ``verbose=False`` to disable writing loss and debugging information to ``tensorboard``.
 These files can become large, so this is recommended if you have limited storage!
 
 Finally, ``run_experiment`` relies on an underlying ``Experiment`` API.

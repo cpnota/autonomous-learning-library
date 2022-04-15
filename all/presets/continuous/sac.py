@@ -4,7 +4,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import SAC, SACTestAgent
 from all.approximation import QContinuous, PolyakTarget, VNetwork
 from all.bodies import TimeFeature
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.policies.soft_deterministic import SoftDeterministicPolicy
 from all.memory import ExperienceReplayBuffer
 from all.presets.builder import PresetBuilder
@@ -73,7 +73,7 @@ class SACContinuousPreset(Preset):
         self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
         self.action_space = env.action_space
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         n_updates = (train_steps - self.hyperparameters["replay_start_size"]) / self.hyperparameters["update_frequency"]
 
         q_1_optimizer = Adam(self.q_1_model.parameters(), lr=self.hyperparameters["lr_q"])
@@ -84,7 +84,7 @@ class SACContinuousPreset(Preset):
                 q_1_optimizer,
                 n_updates
             ),
-            writer=writer,
+            logger=logger,
             name='q_1'
         )
 
@@ -96,7 +96,7 @@ class SACContinuousPreset(Preset):
                 q_2_optimizer,
                 n_updates
             ),
-            writer=writer,
+            logger=logger,
             name='q_2'
         )
 
@@ -109,7 +109,7 @@ class SACContinuousPreset(Preset):
                 n_updates
             ),
             target=PolyakTarget(self.hyperparameters["polyak_rate"]),
-            writer=writer,
+            logger=logger,
             name='v',
         )
 
@@ -122,7 +122,7 @@ class SACContinuousPreset(Preset):
                 policy_optimizer,
                 n_updates
             ),
-            writer=writer
+            logger=logger
         )
 
         replay_buffer = ExperienceReplayBuffer(
@@ -143,7 +143,7 @@ class SACContinuousPreset(Preset):
             discount_factor=self.hyperparameters["discount_factor"],
             update_frequency=self.hyperparameters["update_frequency"],
             minibatch_size=self.hyperparameters["minibatch_size"],
-            writer=writer
+            logger=logger
         ))
 
     def test_agent(self):

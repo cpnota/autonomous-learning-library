@@ -1,4 +1,4 @@
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 
 
 class Schedulable:
@@ -23,7 +23,7 @@ class LinearScheduler(Scheduler):
             decay_start,
             decay_end,
             name='variable',
-            writer=DummyWriter(),
+            logger=DummyLogger(),
     ):
         self._initial_value = initial_value
         self._final_value = final_value
@@ -31,11 +31,11 @@ class LinearScheduler(Scheduler):
         self._decay_end = decay_end
         self._i = -1
         self._name = name
-        self._writer = writer
+        self._logger = logger
 
     def __get__(self, instance, owner=None):
         result = self._get_value()
-        self._writer.add_schedule(self._name, result)
+        self._logger.add_schedule(self._name, result)
         return result
 
     def _get_value(self):

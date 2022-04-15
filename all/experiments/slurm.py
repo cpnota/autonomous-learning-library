@@ -19,7 +19,7 @@ class SlurmExperiment:
             envs,
             frames,
             test_episodes=100,
-            write_loss=False,
+            verbose=False,
             job_name='autonomous-learning-library',
             script_name='experiment.sh',
             outdir='out',
@@ -36,7 +36,7 @@ class SlurmExperiment:
         self.envs = envs
         self.frames = frames
         self.test_episodes = test_episodes
-        self.write_loss = write_loss
+        self.verbose = verbose
         self.job_name = job_name
         self.script_name = script_name
         self.outdir = outdir
@@ -73,7 +73,7 @@ class SlurmExperiment:
             self.frames,
             test_episodes=self.test_episodes,
             logdir=self.logdir,
-            write_loss=self.write_loss
+            verbose=self.verbose
         )
 
     def queue_jobs(self):

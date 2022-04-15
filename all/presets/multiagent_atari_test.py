@@ -2,7 +2,7 @@ import os
 import unittest
 import torch
 from all.environments import MultiagentAtariEnv
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.presets.atari import dqn
 from all.presets import IndependentMultiagentPreset
 
@@ -26,7 +26,7 @@ class TestMultiagentAtariPresets(unittest.TestCase):
 
     def validate_preset(self, preset, env):
         # normal agent
-        agent = preset.agent(writer=DummyWriter(), train_steps=100000)
+        agent = preset.agent(logger=DummyLogger(), train_steps=100000)
         agent.act(self.env.last())
         # test agent
         test_agent = preset.test_agent()
