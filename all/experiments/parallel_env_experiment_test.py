@@ -8,8 +8,8 @@ from all.experiments.single_env_experiment_test import MockLogger
 
 
 class MockExperiment(ParallelEnvExperiment):
-    def _make_logger(self, logdir, agent_name, env_name, write_loss, logger):
-        self._logger = MockLogger(self, agent_name + '_' + env_name, write_loss)
+    def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
+        self._logger = MockLogger(self, agent_name + '_' + env_name, verbose)
         return self._logger
 
 
@@ -55,10 +55,10 @@ class TestParallelEnvExperiment(unittest.TestCase):
         )
 
     def test_writes_loss(self):
-        experiment = MockExperiment(self.make_agent(), self.env, quiet=True, write_loss=True)
-        self.assertTrue(experiment._logger.write_loss)
-        experiment = MockExperiment(self.make_agent(), self.env, quiet=True, write_loss=False)
-        self.assertFalse(experiment._logger.write_loss)
+        experiment = MockExperiment(self.make_agent(), self.env, quiet=True, verbose=True)
+        self.assertTrue(experiment._logger.verbose)
+        experiment = MockExperiment(self.make_agent(), self.env, quiet=True, verbose=False)
+        self.assertFalse(experiment._logger.verbose)
 
     def make_agent(self):
         return a2c.device('cpu').env(self.env).build()

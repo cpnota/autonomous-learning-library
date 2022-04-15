@@ -17,11 +17,11 @@ class SingleEnvExperiment(Experiment):
             logdir='runs',
             quiet=False,
             render=False,
-            write_loss=True,
+            verbose=True,
             logger="tensorboard"
     ):
         self._name = name if name is not None else preset.name
-        super().__init__(self._make_logger(logdir, self._name, env.name, write_loss, logger), quiet)
+        super().__init__(self._make_logger(logdir, self._name, env.name, verbose, logger), quiet)
         self._logdir = logdir
         self._preset = preset
         self._agent = self._preset.agent(logger=self._logger, train_steps=train_steps)
@@ -103,7 +103,7 @@ class SingleEnvExperiment(Experiment):
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes
 
-    def _make_logger(self, logdir, agent_name, env_name, write_loss, logger):
+    def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
         if logger == "comet":
-            return CometLogger(self, agent_name, env_name, loss=write_loss, logdir=logdir)
-        return ExperimentLogger(self, agent_name, env_name, loss=write_loss, logdir=logdir)
+            return CometLogger(self, agent_name, env_name, verbose=verbose, logdir=logdir)
+        return ExperimentLogger(self, agent_name, env_name, verbose=verbose, logdir=logdir)

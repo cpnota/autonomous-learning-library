@@ -11,7 +11,7 @@ def run_experiment(
         quiet=False,
         render=False,
         test_episodes=100,
-        write_loss=True,
+        verbose=True,
         logger="tensorboard"
 ):
     if not isinstance(agents, list):
@@ -31,7 +31,7 @@ def run_experiment(
                 logdir=logdir,
                 quiet=quiet,
                 render=render,
-                write_loss=write_loss,
+                verbose=verbose,
                 logger=logger
             )
             experiment.train(frames=frames)

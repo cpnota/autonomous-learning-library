@@ -52,7 +52,7 @@ def main():
     experiment = MultiagentEnvExperiment(
         IndependentMultiagentPreset('Independent', args.device, presets),
         env,
-        write_loss=False,
+        verbose=False,
         render=args.render,
         logger=args.logger,
     )

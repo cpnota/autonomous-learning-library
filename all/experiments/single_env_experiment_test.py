@@ -8,10 +8,10 @@ from all.logging import Logger
 
 
 class MockLogger(Logger):
-    def __init__(self, experiment, label, write_loss):
+    def __init__(self, experiment, label, verbose):
         self.data = {}
         self.label = label
-        self.write_loss = write_loss
+        self.verbose = verbose
         self.experiment = experiment
 
     def _add_scalar(self, key, value, step="frame"):
@@ -49,8 +49,8 @@ class MockLogger(Logger):
 
 
 class MockExperiment(SingleEnvExperiment):
-    def _make_logger(self, logdir, agent_name, env_name, write_loss, logger):
-        self._logger = MockLogger(self, agent_name + '_' + env_name, write_loss)
+    def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
+        self._logger = MockLogger(self, agent_name + '_' + env_name, verbose)
         return self._logger
 
 
@@ -104,10 +104,10 @@ class TestSingleEnvExperiment(unittest.TestCase):
         )
 
     def test_writes_loss(self):
-        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=True)
-        self.assertTrue(experiment._logger.write_loss)
-        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=False)
-        self.assertFalse(experiment._logger.write_loss)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, verbose=True)
+        self.assertTrue(experiment._logger.verbose)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, verbose=False)
+        self.assertFalse(experiment._logger.verbose)
 
     def make_preset(self):
         return dqn.device('cpu').env(self.env).build()

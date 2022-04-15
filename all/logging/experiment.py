@@ -18,17 +18,17 @@ class ExperimentLogger(SummaryWriter, Logger):
         experiment (all.experiments.Experiment): The Experiment associated with the Logger object.
         agent_name (str): The name of the Agent the Experiment is being performed on
         env_name (str): The name of the environment the Experiment is being performed in
-        loss (bool, optional): Whether or not to log loss/scheduling metrics, or only evaluation and summary metrics.
+        verbose (bool, optional): Whether or not to log all data or only summary metrics.
     '''
 
-    def __init__(self, experiment, agent_name, env_name, write_loss=True, logdir='runs'):
+    def __init__(self, experiment, agent_name, env_name, verbose=True, logdir='runs'):
         self.env_name = env_name
         current_time = datetime.now().strftime('%Y-%m-%d_%H:%M:%S_%f')
         dir_name = "%s_%s_%s" % (agent_name, COMMIT_HASH, current_time)
         os.makedirs(os.path.join(logdir, dir_name, env_name))
         self.log_dir = os.path.join(logdir, dir_name)
         self._experiment = experiment
-        self._summary = not write_loss
+        self._verbose = not verbose
         super().__init__(log_dir=self.log_dir)
 
     def add_summary(self, name, mean, std, step="frame"):
@@ -51,7 +51,7 @@ class ExperimentLogger(SummaryWriter, Logger):
         self._add_scalar("schedule/" + name, value, step)
 
     def _add_scalar(self, name, value, step="frame"):
-        if not self._summary:
+        if not self._verbose:
             super().add_scalar(self.env_name + "/" + name, value, self._get_step(step))
 
     def _get_step(self, _type):
@@ -78,10 +78,10 @@ class CometLogger(Logger):
         logdir (str): The directory where run information is stored.
     '''
 
-    def __init__(self, experiment, agent_name, env_name, write_loss=True, logdir='runs'):
+    def __init__(self, experiment, agent_name, env_name, verbose=True, logdir='runs'):
         self.env_name = env_name
         self._experiment = experiment
-        self._summary = not write_loss
+        self._verbose = not verbose
 
         try:
             from comet_ml import Experiment
@@ -117,7 +117,7 @@ class CometLogger(Logger):
         self._add_scalar("schedule/" + name, value, step)
 
     def _add_scalar(self, name, value, step="frame"):
-        if not self._summary:
+        if not self._verbose:
             self._comet.log_metric(name, value, self._get_step(step))
 
     def _get_step(self, _type):

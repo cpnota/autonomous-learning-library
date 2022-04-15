@@ -16,7 +16,7 @@ class MultiagentEnvExperiment():
         render (bool, optional): Whether or not to render during training.
         save_freq (int, optional): How often to save the model to disk.
         train_steps (int, optional): The number of steps for which to train.
-        write_loss (bool, optional): Whether or not to log advanced loss information.
+        verbose (bool, optional): Whether or not to log detailed information or only summaries.
     '''
 
     def __init__(
@@ -29,11 +29,11 @@ class MultiagentEnvExperiment():
             render=False,
             save_freq=100,
             train_steps=float('inf'),
-            write_loss=True,
+            verbose=True,
             logger="tensorboard"
     ):
         self._name = name if name is not None else preset.name
-        self._logger = self._make_logger(logdir, self._name, env.name, write_loss, logger)
+        self._logger = self._make_logger(logdir, self._name, env.name, verbose, logger)
         self._agent = preset.agent(logger=self._logger, train_steps=train_steps)
         self._env = env
         self._episode = 0
@@ -179,8 +179,8 @@ class MultiagentEnvExperiment():
         if self._save_freq != float('inf') and self._episode % self._save_freq == 0:
             self.save()
 
-    def _make_logger(self, logdir, agent_name, env_name, write_loss, logger):
+    def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
         if logger == "comet":
-            return CometLogger(self, agent_name, env_name, loss=write_loss, logdir=logdir)
-        return ExperimentLogger(self, agent_name, env_name, loss=write_loss, logdir=logdir)
+            return CometLogger(self, agent_name, env_name, verbose=verbose, logdir=logdir)
+        return ExperimentLogger(self, agent_name, env_name, verbose=verbose, logdir=logdir)
 

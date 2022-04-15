@@ -9,8 +9,8 @@ from all.experiments.single_env_experiment_test import MockLogger
 
 
 class MockExperiment(MultiagentEnvExperiment):
-    def _make_logger(self, logdir, agent_name, env_name, write_loss, logger):
-        self._logger = MockLogger(self, agent_name + '_' + env_name, write_loss)
+    def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
+        self._logger = MockLogger(self, agent_name + '_' + env_name, verbose)
         return self._logger
 
 
@@ -57,10 +57,10 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
             self.assertEqual(datum['steps'][0], steps)
 
     def test_writes_loss(self):
-        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=True, save_freq=float('inf'))
-        self.assertTrue(experiment._logger.write_loss)
-        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, write_loss=False, save_freq=float('inf'))
-        self.assertFalse(experiment._logger.write_loss)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, verbose=True, save_freq=float('inf'))
+        self.assertTrue(experiment._logger.verbose)
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, verbose=False, save_freq=float('inf'))
+        self.assertFalse(experiment._logger.verbose)
 
     def make_preset(self):
         return IndependentMultiagentPreset('independent', 'cpu', {
