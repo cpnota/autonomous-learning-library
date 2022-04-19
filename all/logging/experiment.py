@@ -42,7 +42,7 @@ class ExperimentLogger(SummaryWriter, Logger):
         self._add_scalar("loss/" + name, value, step)
 
     def add_eval(self, name, value, step="frame"):
-        self._add_scalar("loss/" + name, value, step)
+        self._add_scalar("eval/" + name, value, step)
 
     def add_info(self, name, value, step="frame"):
         self._add_scalar("info/" + name, value, step)
@@ -108,7 +108,7 @@ class CometLogger(Logger):
         self._add_scalar("loss/" + name, value, step)
 
     def add_eval(self, name, value, step="frame"):
-        self._add_scalar("loss/" + name, value, step)
+        self._add_scalar("eval/" + name, value, step)
 
     def add_info(self, name, value, step="frame"):
         self._add_scalar("info/" + name, value, step)

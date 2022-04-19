@@ -9,7 +9,7 @@ from all.policies.soft_deterministic import SoftDeterministicPolicy
 from all.memory import ExperienceReplayBuffer
 from all.presets.builder import PresetBuilder
 from all.presets.preset import Preset
-from all.presets.continuous.models import fc_q, fc_v, fc_soft_policy
+from all.presets.continuous.models import fc_q, fc_soft_policy
 
 
 default_hyperparameters = {
@@ -17,7 +17,6 @@ default_hyperparameters = {
     "discount_factor": 0.98,
     # Adam optimizer settings
     "lr_q": 1e-3,
-    "lr_v": 1e-3,
     "lr_pi": 1e-4,
     # Training settings
     "minibatch_size": 100,
@@ -33,7 +32,6 @@ default_hyperparameters = {
     # Model construction
     "q1_model_constructor": fc_q,
     "q2_model_constructor": fc_q,
-    "v_model_constructor": fc_v,
     "policy_model_constructor": fc_soft_policy
 }
 
@@ -49,7 +47,6 @@ class SACContinuousPreset(Preset):
 
     Keyword Args:
         lr_q (float): Learning rate for the Q networks.
-        lr_v (float): Learning rate for the state-value networks.
         lr_pi (float): Learning rate for the policy network.
         minibatch_size (int): Number of experiences to sample in each training update.
         update_frequency (int): Number of timesteps per training update.
@@ -67,50 +64,38 @@ class SACContinuousPreset(Preset):
 
     def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
-        self.q_1_model = hyperparameters["q1_model_constructor"](env).to(device)
-        self.q_2_model = hyperparameters["q2_model_constructor"](env).to(device)
-        self.v_model = hyperparameters["v_model_constructor"](env).to(device)
+        self.q1_model = hyperparameters["q1_model_constructor"](env).to(device)
+        self.q2_model = hyperparameters["q2_model_constructor"](env).to(device)
         self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
         self.action_space = env.action_space
 
     def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         n_updates = (train_steps - self.hyperparameters["replay_start_size"]) / self.hyperparameters["update_frequency"]
 
-        q_1_optimizer = Adam(self.q_1_model.parameters(), lr=self.hyperparameters["lr_q"])
-        q_1 = QContinuous(
-            self.q_1_model,
-            q_1_optimizer,
+        q1_optimizer = Adam(self.q1_model.parameters(), lr=self.hyperparameters["lr_q"])
+        q1 = QContinuous(
+            self.q1_model,
+            q1_optimizer,
             scheduler=CosineAnnealingLR(
-                q_1_optimizer,
-                n_updates
-            ),
-            logger=logger,
-            name='q_1'
-        )
-
-        q_2_optimizer = Adam(self.q_2_model.parameters(), lr=self.hyperparameters["lr_q"])
-        q_2 = QContinuous(
-            self.q_2_model,
-            q_2_optimizer,
-            scheduler=CosineAnnealingLR(
-                q_2_optimizer,
-                n_updates
-            ),
-            logger=logger,
-            name='q_2'
-        )
-
-        v_optimizer = Adam(self.v_model.parameters(), lr=self.hyperparameters["lr_v"])
-        v = VNetwork(
-            self.v_model,
-            v_optimizer,
-            scheduler=CosineAnnealingLR(
-                v_optimizer,
+                q1_optimizer,
                 n_updates
             ),
             target=PolyakTarget(self.hyperparameters["polyak_rate"]),
             logger=logger,
-            name='v',
+            name='q1'
+        )
+
+        q2_optimizer = Adam(self.q2_model.parameters(), lr=self.hyperparameters["lr_q"])
+        q2 = QContinuous(
+            self.q2_model,
+            q2_optimizer,
+            scheduler=CosineAnnealingLR(
+                q2_optimizer,
+                n_updates
+            ),
+            target=PolyakTarget(self.hyperparameters["polyak_rate"]),
+            logger=logger,
+            name='q2'
         )
 
         policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr_pi"])
@@ -132,9 +117,8 @@ class SACContinuousPreset(Preset):
 
         return TimeFeature(SAC(
             policy,
-            q_1,
-            q_2,
-            v,
+            q1,
+            q2,
             replay_buffer,
             temperature_initial=self.hyperparameters["temperature_initial"],
             entropy_target=(-self.action_space.shape[0] * self.hyperparameters["entropy_target_scaling"]),

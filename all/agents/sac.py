@@ -20,7 +20,6 @@ class SAC(Agent):
         policy (DeterministicPolicy): An Approximation of a deterministic policy.
         q1 (QContinuous): An Approximation of the continuous action Q-function.
         q2 (QContinuous): An Approximation of the continuous action Q-function.
-        v (VNetwork): An Approximation of the state-value function.
         replay_buffer (ReplayBuffer): The experience replay buffer.
         discount_factor (float): Discount factor for future rewards.
         entropy_target (float): The desired entropy of the policy. Usually -env.action_space.shape[0]
@@ -32,9 +31,8 @@ class SAC(Agent):
 
     def __init__(self,
                  policy,
-                 q_1,
-                 q_2,
-                 v,
+                 q1,
+                 q2,
                  replay_buffer,
                  discount_factor=0.99,
                  entropy_target=-2.,
@@ -47,9 +45,8 @@ class SAC(Agent):
                  ):
         # objects
         self.policy = policy
-        self.v = v
-        self.q_1 = q_1
-        self.q_2 = q_2
+        self.q1 = q1
+        self.q2 = q2
         self.replay_buffer = replay_buffer
         self.logger = logger
         # hyperparameters
@@ -78,34 +75,37 @@ class SAC(Agent):
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
 
             # compute targets for Q and V
-            _actions, _log_probs = self.policy.no_grad(states)
-            q_targets = rewards + self.discount_factor * self.v.target(next_states)
-            v_targets = torch.min(
-                self.q_1.target(states, _actions),
-                self.q_2.target(states, _actions),
-            ) - self.temperature * _log_probs
+            next_actions, next_log_probs = self.policy.no_grad(next_states)
+            q_targets = rewards + self.discount_factor * (torch.min(
+                self.q1.target(next_states, next_actions),
+                self.q2.target(next_states, next_actions),
+            ) - self.temperature * next_log_probs)
 
             # update Q and V-functions
-            self.q_1.reinforce(mse_loss(self.q_1(states, actions), q_targets))
-            self.q_2.reinforce(mse_loss(self.q_2(states, actions), q_targets))
-            self.v.reinforce(mse_loss(self.v(states), v_targets))
+            q1_loss = mse_loss(self.q1(states, actions), q_targets)
+            self.q1.reinforce(q1_loss)
+            q2_loss = mse_loss(self.q2(states, actions), q_targets)
+            self.q2.reinforce(q2_loss)
 
             # update policy
-            _actions2, _log_probs2 = self.policy(states)
-            loss = (-self.q_1(states, _actions2) + self.temperature * _log_probs2).mean()
+            new_actions, new_log_probs = self.policy(states)
+            q_values = self.q1(states, new_actions)
+            loss = -(q_values - self.temperature * new_log_probs).mean()
             self.policy.reinforce(loss)
-            self.q_1.zero_grad()
+            self.q1.zero_grad()
 
             # adjust temperature
-            temperature_grad = (_log_probs + self.entropy_target).mean()
+            temperature_grad = (new_log_probs + self.entropy_target).mean() * self.temperature
             self.temperature = max(0, self.temperature + self.lr_temperature * temperature_grad.detach())
 
             # additional debugging info
-            self.logger.add_loss('entropy', -_log_probs.mean())
-            self.logger.add_loss('v_mean', v_targets.mean())
-            self.logger.add_loss('r_mean', rewards.mean())
-            self.logger.add_loss('temperature_grad', temperature_grad)
-            self.logger.add_loss('temperature', self.temperature)
+            self.logger.add_info('entropy', -new_log_probs.mean())
+            self.logger.add_info('q_values', q_values.mean())
+            self.logger.add_loss('rewards', rewards.mean())
+            self.logger.add_info('normalized_q1_error', q1_loss / q_targets.var())
+            self.logger.add_info('normalized_q2_error', q2_loss / q_targets.var())
+            self.logger.add_info('temperature', self.temperature)
+            self.logger.add_info('temperature_grad', temperature_grad)
 
     def _should_train(self):
         self._frames_seen += 1
