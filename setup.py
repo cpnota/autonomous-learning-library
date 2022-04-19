@@ -40,7 +40,7 @@ extras["dev"] = extras["all"] + extras["test"] + extras["docs"] + extras["comet"
 
 setup(
     name="autonomous-learning-library",
-    version="0.7.2",
+    version="0.8.0",
     description=("A library for building reinforcement learning agents in Pytorch"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",
