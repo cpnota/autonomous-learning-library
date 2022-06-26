@@ -101,7 +101,7 @@ class SAC(Agent):
             # additional debugging info
             self.logger.add_info('entropy', -new_log_probs.mean())
             self.logger.add_info('q_values', q_values.mean())
-            self.logger.add_loss('rewards', rewards.mean())
+            self.logger.add_info('rewards', rewards.mean())
             self.logger.add_info('normalized_q1_error', q1_loss / q_targets.var())
             self.logger.add_info('normalized_q2_error', q2_loss / q_targets.var())
             self.logger.add_info('temperature', self.temperature)
