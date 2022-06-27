@@ -19,7 +19,7 @@ class VAC(ParallelAgent):
         discount_factor (float): Discount factor for future rewards.
         n_envs (int): Number of parallel actors/environments
         n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
-        writer (Writer): Used for logging.
+        logger (Logger): Used for logging.
     '''
 
     def __init__(self, features, v, policy, discount_factor=1):
@@ -53,11 +53,13 @@ class VAC(ParallelAgent):
             # compute losses
             value_loss = mse_loss(values, targets)
             policy_loss = -(advantages * self._distribution.log_prob(self._action)).mean()
+            loss = value_loss + policy_loss
 
             # backward pass
-            self.v.reinforce(value_loss)
-            self.policy.reinforce(policy_loss)
-            self.features.reinforce()
+            loss.backward()
+            self.v.step(loss=value_loss)
+            self.policy.step(loss=policy_loss)
+            self.features.step()
 
 
 VACTestAgent = A2CTestAgent

@@ -15,7 +15,7 @@ def main():
     envs = [PybulletEnvironment(env, device='cuda') for env in PybulletEnvironment.short_names]
 
     SlurmExperiment(agents, envs, frames, logdir='benchmarks/pybullet', sbatch_args={
-        'partition': '1080ti-long'
+        'partition': 'gpu-long'
     })
 
 

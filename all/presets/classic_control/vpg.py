@@ -4,7 +4,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import VPG, VPGTestAgent
 from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.policies import SoftmaxPolicy
 from all.presets.builder import PresetBuilder
 from all.presets.preset import Preset
@@ -58,7 +58,7 @@ class VPGClassicControlPreset(Preset):
         self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
         self.feature_model = hyperparameters['feature_model_constructor'](env).to(device)
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
         value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr_v"], eps=self.hyperparameters["eps"])
         policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
@@ -67,7 +67,7 @@ class VPGClassicControlPreset(Preset):
             self.feature_model,
             feature_optimizer,
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         v = VNetwork(
@@ -75,14 +75,14 @@ class VPGClassicControlPreset(Preset):
             value_optimizer,
             loss_scaling=self.hyperparameters["value_loss_scaling"],
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         policy = SoftmaxPolicy(
             self.policy_model,
             policy_optimizer,
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         return VPG(features, v, policy, discount_factor=self.hyperparameters["discount_factor"], min_batch_size=self.hyperparameters["min_batch_size"])

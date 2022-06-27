@@ -4,7 +4,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import VAC, VACTestAgent
 from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.policies import SoftmaxPolicy
 from all.presets.builder import ParallelPresetBuilder
 from all.presets.preset import ParallelPreset
@@ -59,7 +59,7 @@ class VACAtariPreset(ParallelPreset):
         self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
         self.feature_model = hyperparameters['feature_model_constructor']().to(device)
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         n_updates = train_steps / self.hyperparameters["n_envs"]
 
         feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
@@ -71,7 +71,7 @@ class VACAtariPreset(ParallelPreset):
             feature_optimizer,
             scheduler=CosineAnnealingLR(feature_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         v = VNetwork(
@@ -80,7 +80,7 @@ class VACAtariPreset(ParallelPreset):
             scheduler=CosineAnnealingLR(value_optimizer, n_updates),
             loss_scaling=self.hyperparameters["value_loss_scaling"],
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         policy = SoftmaxPolicy(
@@ -88,7 +88,7 @@ class VACAtariPreset(ParallelPreset):
             policy_optimizer,
             scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         return DeepmindAtariBody(

@@ -4,7 +4,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import VPG, VPGTestAgent
 from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.policies import SoftmaxPolicy
 from all.presets.builder import PresetBuilder
 from all.presets.preset import Preset
@@ -58,7 +58,7 @@ class VPGAtariPreset(Preset):
         self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
         self.feature_model = hyperparameters['feature_model_constructor']().to(device)
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         n_updates = train_steps / self.hyperparameters["min_batch_size"]
 
         feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
@@ -70,7 +70,7 @@ class VPGAtariPreset(Preset):
             feature_optimizer,
             scheduler=CosineAnnealingLR(feature_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         v = VNetwork(
@@ -79,7 +79,7 @@ class VPGAtariPreset(Preset):
             scheduler=CosineAnnealingLR(value_optimizer, n_updates),
             loss_scaling=self.hyperparameters["value_loss_scaling"],
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         policy = SoftmaxPolicy(
@@ -87,7 +87,7 @@ class VPGAtariPreset(Preset):
             policy_optimizer,
             scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         return DeepmindAtariBody(

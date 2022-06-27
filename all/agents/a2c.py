@@ -1,6 +1,6 @@
 import torch
 from torch.nn.functional import mse_loss
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.memory import NStepAdvantageBuffer
 from ._agent import Agent
 from ._parallel_agent import ParallelAgent
@@ -24,7 +24,7 @@ class A2C(ParallelAgent):
         discount_factor (float): Discount factor for future rewards.
         n_envs (int): Number of parallel actors/environments
         n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
-        writer (Writer): Used for logging.
+        logger (Logger): Used for logging.
     """
 
     def __init__(
@@ -36,7 +36,7 @@ class A2C(ParallelAgent):
             entropy_loss_scaling=0.01,
             n_envs=None,
             n_steps=4,
-            writer=DummyWriter()
+            logger=DummyLogger()
     ):
         if n_envs is None:
             raise RuntimeError("Must specify n_envs.")
@@ -44,7 +44,7 @@ class A2C(ParallelAgent):
         self.features = features
         self.v = v
         self.policy = policy
-        self.writer = writer
+        self.logger = logger
         # hyperparameters
         self.discount_factor = discount_factor
         self.entropy_loss_scaling = entropy_loss_scaling
@@ -81,15 +81,17 @@ class A2C(ParallelAgent):
             policy_gradient_loss = -(distribution.log_prob(actions) * advantages).mean()
             entropy_loss = -distribution.entropy().mean()
             policy_loss = policy_gradient_loss + self.entropy_loss_scaling * entropy_loss
+            loss = value_loss + policy_loss
 
             # backward pass
-            self.v.reinforce(value_loss)
-            self.policy.reinforce(policy_loss)
-            self.features.reinforce()
+            loss.backward()
+            self.v.step(loss=value_loss)
+            self.policy.step(loss=policy_loss)
+            self.features.step()
 
-            # debugging
-            self.writer.add_loss('policy_gradient', policy_gradient_loss.detach())
-            self.writer.add_loss('entropy', entropy_loss.detach())
+            # record metrics
+            self.logger.add_info('entropy', -entropy_loss)
+            self.logger.add_info('normalized_value_error', value_loss / targets.var())
 
     def _make_buffer(self):
         return NStepAdvantageBuffer(

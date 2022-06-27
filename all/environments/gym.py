@@ -3,7 +3,6 @@ import torch
 from all.core import State
 from ._environment import Environment
 from .duplicate_env import DuplicateEnvironment
-import cloudpickle
 gym.logger.set_level(40)
 
 
@@ -24,15 +23,10 @@ class GymEnvironment(Environment):
         device (str, optional): the device on which tensors will be stored
     '''
 
-    def __init__(self, env, device=torch.device('cpu'), name=None):
-        if isinstance(env, str):
-            self._name = env
-            env = gym.make(env)
-        else:
-            self._name = env.__class__.__name__
-        if name:
-            self._name = name
-        self._env = env
+    def __init__(self, id, device=torch.device('cpu'), name=None):
+        self._env = gym.make(id)
+        self._id = id
+        self._name = name if name else id
         self._state = None
         self._action = None
         self._reward = None
@@ -67,7 +61,7 @@ class GymEnvironment(Environment):
         self._env.seed(seed)
 
     def duplicate(self, n):
-        return DuplicateEnvironment([GymEnvironment(cloudpickle.loads(cloudpickle.dumps(self._env)), device=self.device) for _ in range(n)])
+        return DuplicateEnvironment([GymEnvironment(self._id, device=self.device, name=self._name) for _ in range(n)])
 
     @property
     def state_space(self):

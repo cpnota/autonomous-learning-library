@@ -171,6 +171,34 @@ class StateArrayTest(unittest.TestCase):
         self.assertEqual(state.shape, (2, 3))
         self.assertEqual(state.observation.shape, (2, 3, 3, 4))
 
+    def test_batch_exec(self):
+        zeros = StateArray.array([
+            State(torch.zeros((3, 4))),
+            State(torch.zeros((3, 4))),
+            State(torch.zeros((3, 4)))
+        ])
+        ones_state = zeros.batch_execute(2, lambda x: StateArray({'observation': x.observation + 1}, x.shape, x.device))
+        ones_tensor = zeros.batch_execute(2, lambda x: x.observation + 1)
+        self.assertEqual(ones_state.shape, (3,))
+        self.assertTrue(torch.equal(ones_state.observation, torch.ones((3, 3, 4))))
+        self.assertTrue(torch.equal(ones_tensor, torch.ones((3, 3, 4))))
+
+    def test_cat(self):
+        i1 = StateArray({'observation': torch.zeros((2, 3, 4)), 'reward': torch.ones((2,))}, shape=(2,))
+        i2 = StateArray({'observation': torch.zeros((1, 3, 4)), 'reward': torch.ones((1,))}, shape=(1,))
+        cat = StateArray.cat([i1, i2])
+        self.assertEqual(cat.shape, (3,))
+        self.assertEqual(cat.observation.shape, (3, 3, 4))
+        self.assertEqual(cat.reward.shape, (3,))
+
+    def test_cat_axis1(self):
+        i1 = StateArray({'observation': torch.zeros((2, 3, 4)), 'reward': torch.ones((2, 3))}, shape=(2, 3))
+        i2 = StateArray({'observation': torch.zeros((2, 2, 4)), 'reward': torch.ones((2, 2))}, shape=(2, 2))
+        cat = StateArray.cat([i1, i2], axis=1)
+        self.assertEqual(cat.shape, (2, 5))
+        self.assertEqual(cat.observation.shape, (2, 5, 4))
+        self.assertEqual(cat.reward.shape, (2, 5))
+
     def test_key_error(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")

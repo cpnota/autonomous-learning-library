@@ -1,6 +1,6 @@
 import torch
 from torch.nn.functional import mse_loss
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.memory import GeneralizedAdvantageBuffer
 from ._agent import Agent
 from ._parallel_agent import ParallelAgent
@@ -24,9 +24,10 @@ class PPO(ParallelAgent):
         epochs (int): Number of times to reuse each sample.
         lam (float): The Generalized Advantage Estimate (GAE) decay parameter.
         minibatches (int): The number of minibatches to split each batch into.
+        compute_batch_size (int): The batch size to use for computations that do not need backpropogation.
         n_envs (int): Number of parallel actors/environments.
         n_steps (int): Number of timesteps per rollout. Updates are performed once per rollout.
-        writer (Writer): Used for logging.
+        logger (Logger): Used for logging.
     """
 
     def __init__(
@@ -40,9 +41,10 @@ class PPO(ParallelAgent):
             epsilon=0.2,
             lam=0.95,
             minibatches=4,
+            compute_batch_size=256,
             n_envs=None,
             n_steps=4,
-            writer=DummyWriter()
+            logger=DummyLogger()
     ):
         if n_envs is None:
             raise RuntimeError("Must specify n_envs.")
@@ -50,7 +52,7 @@ class PPO(ParallelAgent):
         self.features = features
         self.v = v
         self.policy = policy
-        self.writer = writer
+        self.logger = logger
         # hyperparameters
         self.discount_factor = discount_factor
         self.entropy_loss_scaling = entropy_loss_scaling
@@ -58,6 +60,7 @@ class PPO(ParallelAgent):
         self.epsilon = epsilon
         self.lam = lam
         self.minibatches = minibatches
+        self.compute_batch_size = compute_batch_size
         self.n_envs = n_envs
         self.n_steps = n_steps
         # private
@@ -82,9 +85,10 @@ class PPO(ParallelAgent):
             states, actions, advantages = self._buffer.advantages(next_states)
 
             # compute target values
-            features = self.features.no_grad(states)
-            pi_0 = self.policy.no_grad(features).log_prob(actions)
-            targets = self.v.no_grad(features) + advantages
+            features = states.batch_execute(self.compute_batch_size, self.features.no_grad)
+            features['actions'] = actions
+            pi_0 = features.batch_execute(self.compute_batch_size, lambda s: self.policy.no_grad(s).log_prob(s['actions']))
+            targets = features.batch_execute(self.compute_batch_size, self.v.no_grad) + advantages
 
             # train for several epochs
             for _ in range(self.epochs):
@@ -115,15 +119,17 @@ class PPO(ParallelAgent):
         policy_gradient_loss = self._clipped_policy_gradient_loss(pi_0, pi_i, advantages)
         entropy_loss = -distribution.entropy().mean()
         policy_loss = policy_gradient_loss + self.entropy_loss_scaling * entropy_loss
+        loss = value_loss + policy_loss
 
         # backward pass
-        self.v.reinforce(value_loss)
-        self.policy.reinforce(policy_loss)
-        self.features.reinforce()
+        loss.backward()
+        self.v.step(loss=value_loss)
+        self.policy.step(loss=policy_loss)
+        self.features.step()
 
         # debugging
-        self.writer.add_loss('policy_gradient', policy_gradient_loss.detach())
-        self.writer.add_loss('entropy', entropy_loss.detach())
+        self.logger.add_info('entropy', -entropy_loss)
+        self.logger.add_info('normalized_value_error', value_loss / targets.var())
 
     def _clipped_policy_gradient_loss(self, pi_0, pi_i, advantages):
         ratios = torch.exp(pi_i - pi_0)
@@ -139,7 +145,8 @@ class PPO(ParallelAgent):
             self.n_steps,
             self.n_envs,
             discount_factor=self.discount_factor,
-            lam=self.lam
+            lam=self.lam,
+            compute_batch_size=self.compute_batch_size
         )
 
 

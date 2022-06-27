@@ -27,7 +27,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         self._device = device
         self.agents = self._env.agents
         self.subenvs = {
-            agent: SubEnv(agent, device, self.state_spaces[agent], self.action_spaces[agent])
+            agent: SubEnv(agent, device, self.state_space(agent), self.action_space(agent))
             for agent in self.agents
         }
 
@@ -79,7 +79,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
 
     def last(self):
         observation, reward, done, info = self._env.last()
-        selected_obs_space = self._env.observation_spaces[self._env.agent_selection]
+        selected_obs_space = self._env.observation_space(self._env.agent_selection)
         return MultiagentState.from_zoo(self._env.agent_selection, (observation, reward, done, info), device=self._device, dtype=selected_obs_space.dtype)
 
     @property
@@ -94,21 +94,15 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
     def agent_selection(self):
         return self._env.agent_selection
 
-    @property
-    def state_spaces(self):
-        return self._env.observation_spaces
+    def state_space(self, agent_id):
+        return self._env.observation_space(agent_id)
 
-    @property
-    def observation_spaces(self):
-        return self._env.observation_spaces
-
-    @property
-    def action_spaces(self):
-        return self._env.action_spaces
+    def action_space(self, agent_id):
+        return self._env.action_space(agent_id)
 
     def _convert(self, action):
         agent = self._env.agent_selection
-        action_space = self._env.action_spaces[agent]
+        action_space = self.action_space(agent)
         if torch.is_tensor(action):
             if isinstance(action_space, gym.spaces.Discrete):
                 return action.item()

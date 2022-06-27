@@ -1,10 +1,11 @@
 install:
 	pip install -e .[dev]
+	AutoROM -y --quiet
 
 test: unit-test integration-test
 
 unit-test:
-	python -m unittest discover -s all -p "*test.py"
+	python -m unittest discover -s all -p "*test.py" -t .
 
 integration-test:
 	python -m unittest discover -s integration -p "*test.py"

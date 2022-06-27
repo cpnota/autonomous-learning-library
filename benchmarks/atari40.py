@@ -14,7 +14,7 @@ def main():
     ]
     envs = [AtariEnvironment(env, device='cuda') for env in ['BeamRider', 'Breakout', 'Pong', 'Qbert', 'SpaceInvaders']]
     SlurmExperiment(agents, envs, 10e6, logdir='benchmarks/atari40', sbatch_args={
-        'partition': '1080ti-long'
+        'partition': 'gpu-long'
     })
 
 

@@ -32,7 +32,7 @@ def main():
     parser.add_argument(
         "--logdir", default='runs', help="The base logging directory."
     )
-    parser.add_argument("--writer", default='tensorboard', help="The backend used for tracking experiment metrics.")
+    parser.add_argument("--logger", default='tensorboard', help="The backend used for tracking experiment metrics.")
     parser.add_argument(
         '--hyperparameters',
         default=[],
@@ -42,7 +42,7 @@ def main():
     args = parser.parse_args()
 
     if args.env in ENVS:
-        env = GymEnvironment(args.env, device=args.device)
+        env = GymEnvironment(ENVS[args.env], device=args.device)
     elif 'BulletEnv' in args.env or args.env in PybulletEnvironment.short_names:
         env = PybulletEnvironment(args.env, device=args.device)
     else:
@@ -65,7 +65,7 @@ def main():
         frames=args.frames,
         render=args.render,
         logdir=args.logdir,
-        writer=args.writer,
+        logger=args.logger,
     )
 
 

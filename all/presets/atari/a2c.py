@@ -5,7 +5,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import A2C, A2CTestAgent
 from all.bodies import DeepmindAtariBody
 from all.approximation import VNetwork, FeatureNetwork
-from all.logging import DummyWriter
+from all.logging import DummyLogger
 from all.policies import SoftmaxPolicy
 from all.presets.builder import ParallelPresetBuilder
 from all.presets.preset import ParallelPreset
@@ -62,7 +62,7 @@ class A2CAtariPreset(ParallelPreset):
         self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
         self.feature_model = hyperparameters['feature_model_constructor']().to(device)
 
-    def agent(self, writer=DummyWriter(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
         n_updates = train_steps / (self.hyperparameters['n_steps'] * self.hyperparameters['n_envs'])
 
         feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
@@ -74,7 +74,7 @@ class A2CAtariPreset(ParallelPreset):
             feature_optimizer,
             scheduler=CosineAnnealingLR(feature_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         v = VNetwork(
@@ -83,7 +83,7 @@ class A2CAtariPreset(ParallelPreset):
             scheduler=CosineAnnealingLR(value_optimizer, n_updates),
             loss_scaling=self.hyperparameters["value_loss_scaling"],
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         policy = SoftmaxPolicy(
@@ -91,7 +91,7 @@ class A2CAtariPreset(ParallelPreset):
             policy_optimizer,
             scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
-            writer=writer
+            logger=logger
         )
 
         return DeepmindAtariBody(
@@ -103,7 +103,7 @@ class A2CAtariPreset(ParallelPreset):
                 n_steps=self.hyperparameters["n_steps"],
                 discount_factor=self.hyperparameters["discount_factor"],
                 entropy_loss_scaling=self.hyperparameters["entropy_loss_scaling"],
-                writer=writer
+                logger=logger
             ),
         )
 
