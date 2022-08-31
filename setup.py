@@ -64,7 +64,7 @@ setup(
         "numpy>=1.22.3",           # math library
         "matplotlib>=3.5.1",       # plotting library
         "opencv-python~=3.4.0",    # used by atari wrappers
-        "torch~=1.11.0",            # core deep learning library
+        "torch>=1.11.0",            # core deep learning library
         "tensorboard>=2.8.0",      # logging and visualization
         "cloudpickle>=2.0.0",      # used to copy environments
     ],
