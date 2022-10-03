@@ -38,7 +38,7 @@ class TestParallelEnvExperiment(unittest.TestCase):
         )
         np.testing.assert_equal(
             self.experiment._logger.data["eval/returns/episode"]["values"],
-            np.array([10., 12., 19.]),
+            np.array([10., 11., 17.]),
         )
 
     def test_writes_test_returns(self):
