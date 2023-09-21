@@ -3,6 +3,7 @@ from ._multiagent_environment import MultiagentEnvironment
 from ._vector_environment import VectorEnvironment
 from .gym import GymEnvironment
 from .atari import AtariEnvironment
+from .qlassifier import QlassifierEnvironment
 from .multiagent_atari import MultiagentAtariEnv
 from .multiagent_pettingzoo import MultiagentPettingZooEnv
 from .duplicate_env import DuplicateEnvironment
@@ -14,6 +15,7 @@ __all__ = [
     "MultiagentEnvironment",
     "GymEnvironment",
     "AtariEnvironment",
+    "QlassifierEnvironment",
     "MultiagentAtariEnv",
     "MultiagentPettingZooEnv",
     "GymVectorEnvironment",

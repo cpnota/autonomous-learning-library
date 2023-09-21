@@ -1,5 +1,5 @@
 import argparse
-from all.environments import AtariEnvironment
+from all.environments import AtariEnvironment, QlassifierEnvironment
 from all.experiments import run_experiment
 from all.presets import atari
 
@@ -30,7 +30,10 @@ def main():
     parser.add_argument('--hyperparameters', default=[], nargs='*')
     args = parser.parse_args()
 
-    env = AtariEnvironment(args.env, device=args.device)
+    if 'classifier' in args.env:
+        env = QlassifierEnvironment(args.env, device=args.device)
+    else:
+        env = AtariEnvironment(args.env, device=args.device)
 
     agent_name = args.agent
     agent = getattr(atari, agent_name)
