@@ -77,6 +77,10 @@ class StateTest(unittest.TestCase):
         self.assertEqual(state['coolInfo'], 3.)
         self.assertEqual(state.shape, ())
 
+    def test_deprecated_gym_step(self):
+        with self.assertRaises(TypeError):
+            State.from_gym((np.array([1, 2, 3]), 2., False, {'coolInfo': 3.}))
+
     def test_as_input(self):
         observation = torch.randn(3, 4)
         state = State(observation)

@@ -37,8 +37,7 @@ class AtariEnvironment(Environment):
         self._device = device
 
     def reset(self):
-        state = self._env.reset(), 0., False, None
-        self._state = State.from_gym(state, dtype=self._env.observation_space.dtype, device=self._device)
+        self._state = State.from_gym(self._env.reset(), dtype=self._env.observation_space.dtype, device=self._device)
         return self._state
 
     def step(self, action):
