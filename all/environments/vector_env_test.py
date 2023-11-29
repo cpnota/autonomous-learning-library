@@ -1,11 +1,11 @@
 import unittest
-import gym
+import gymnasium
 import torch
 from all.environments import GymVectorEnvironment, GymEnvironment, DuplicateEnvironment
 
 
 def make_vec_env(num_envs=3):
-    env = gym.vector.SyncVectorEnv([lambda: gym.make('CartPole-v0')] * num_envs)
+    env = gymnasium.vector.SyncVectorEnv([lambda: gymnasium.make('CartPole-v0')] * num_envs)
     return env
 
 

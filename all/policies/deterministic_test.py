@@ -2,7 +2,7 @@ import unittest
 import torch
 import torch_testing as tt
 import numpy as np
-from gym.spaces import Box
+from gymnasium.spaces import Box
 from all import nn
 from all.approximation import FixedTarget, DummyCheckpointer
 from all.core import State

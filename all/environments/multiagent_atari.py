@@ -1,7 +1,7 @@
 import importlib
 import numpy as np
 import torch
-import gym
+import gymnasium
 from all.core import MultiagentState
 from ._multiagent_environment import MultiagentEnvironment
 from .multiagent_pettingzoo import MultiagentPettingZooEnv

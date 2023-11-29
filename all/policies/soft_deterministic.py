@@ -15,7 +15,7 @@ class SoftDeterministicPolicy(Approximation):
             and the second n outputs will be the logarithm of the variance.
         optimizer (torch.optim.Optimizer): A optimizer initialized with the
             model parameters, e.g. SGD, Adam, RMSprop, etc.
-        action_space (gym.spaces.Box): The Box representing the action space.
+        action_space (gymnasium.spaces.Box): The Box representing the action space.
         kwargs (optional): Any other arguments accepted by all.approximation.Approximation
     '''
 

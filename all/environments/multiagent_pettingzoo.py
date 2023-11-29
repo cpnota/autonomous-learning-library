@@ -2,7 +2,7 @@ import importlib
 import numpy as np
 import torch
 import cloudpickle
-import gym
+import gymnasium
 from all.core import MultiagentState
 from ._multiagent_environment import MultiagentEnvironment
 
@@ -104,9 +104,9 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         agent = self._env.agent_selection
         action_space = self.action_space(agent)
         if torch.is_tensor(action):
-            if isinstance(action_space, gym.spaces.Discrete):
+            if isinstance(action_space, gymnasium.spaces.Discrete):
                 return action.item()
-            if isinstance(action_space, gym.spaces.Box):
+            if isinstance(action_space, gymnasium.spaces.Box):
                 return action.cpu().detach().numpy().reshape(-1)
             raise TypeError("Unknown action space type")
         return action

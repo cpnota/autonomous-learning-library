@@ -1,5 +1,5 @@
 import unittest
-import gym
+import gymnasium
 import torch
 from all.environments import DuplicateEnvironment, GymEnvironment
 

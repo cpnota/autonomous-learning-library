@@ -1,4 +1,4 @@
-import gym
+import gymnasium
 import torch
 from all.core import State
 from .duplicate_env import DuplicateEnvironment
@@ -16,7 +16,7 @@ class AtariEnvironment(Environment):
     def __init__(self, name, device='cpu'):
 
         # construct the environment
-        env = gym.make(name + "NoFrameskip-v4")
+        env = gymnasium.make(name + "NoFrameskip-v4")
 
         # apply a subset of wrappers
         env = NoopResetEnv(env, noop_max=30)

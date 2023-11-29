@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from torch import nn
 import torch_testing as tt
-from gym.spaces import Box
+from gymnasium.spaces import Box
 from all.approximation import DummyCheckpointer
 from all.core import State
 from all.policies import GaussianPolicy

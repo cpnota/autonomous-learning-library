@@ -1,16 +1,16 @@
 from setuptools import setup, find_packages
 
 
-GYM_VERSION = "0.23.1"
-PETTINGZOO_VERSION = "1.17.0"
+GYM_VERSION = "0.29.1"
+PETTINGZOO_VERSION = "1.24.2"
 
 
 extras = {
     "atari": [
-        "gym[atari, accept-rom-license]~={}".format(GYM_VERSION),
+        "gymnasium[atari, accept-rom-license]~={}".format(GYM_VERSION),
     ],
     "box2d": [
-        "gym[box2d]~={}".format(GYM_VERSION),
+        "gymnasium[box2d]~={}".format(GYM_VERSION),
     ],
     "pybullet": [
         "pybullet>=3.2.2",
@@ -60,7 +60,7 @@ setup(
         ],
     },
     install_requires=[
-        "gym~={}".format(GYM_VERSION),             # common environment interface
+        "gymnasium~={}".format(GYM_VERSION),             # common environment interface
         "numpy>=1.22.3",           # math library
         "matplotlib>=3.5.1",       # plotting library
         "opencv-python-headless>=4.0.0",    # used by atari wrappers

@@ -1,4 +1,4 @@
-import gym
+import gymnasium
 import torch
 from all.core import StateArray
 from ._vector_environment import VectorEnvironment
