@@ -158,39 +158,39 @@ class State(dict):
         return self.__class__(x, device=self.device)
 
     @classmethod
-    def from_gym(cls, state, device='cpu', dtype=np.float32):
+    def from_gym(cls, gym_output, device='cpu', dtype=np.float32):
         """
         Constructs a State object given the return value of an OpenAI gym reset()/step(action) call.
 
         Args:
-            state (tuple): The return value of an OpenAI gym reset()/step(action) call
+            gym_output (tuple): The output value of an OpenAI gym reset()/step(action) call
             device (string): The device on which to store resulting tensors.
             dtype: The type of the observation.
 
         Returns:
             A State object.
         """
-        if not isinstance(state, tuple):
-            return State({
-                'observation': torch.from_numpy(
+        if not isinstance(gym_output, tuple) and (len(gym_output) == 2 or len(gym_output) == 5):
+            raise TypeError(f"gym_output should be a tuple, either (observation, info) or (observation, reward, terminated, truncated, info). Recieved {gym_output}.")
+
+        # extract info from timestep
+        if len(gym_output) == 5:
+            observation, reward, terminated, truncated, info = gym_output
+        if len(gym_output) == 2:
+            observation, info = gym_output
+            reward = 0.
+            terminated = False
+            truncated = False
+        x = {
+            'observation': torch.from_numpy(
                     np.array(
-                        state,
+                        observation,
                         dtype=dtype
                     ),
-                ).to(device)
-            }, device=device)
-
-        observation, reward, done, info = state
-        observation = torch.from_numpy(
-            np.array(
-                observation,
-                dtype=dtype
-            ),
-        ).to(device)
-        x = {
-            'observation': observation,
+                ).to(device),
             'reward': float(reward),
-            'done': done,
+            'done': terminated or truncated,
+            'mask': 1. - terminated
         }
         info = info if info else {}
         for key in info:

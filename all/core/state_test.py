@@ -49,18 +49,29 @@ class StateTest(unittest.TestCase):
 
     def test_from_gym_reset(self):
         observation = np.array([1, 2, 3])
-        state = State.from_gym(observation)
+        state = State.from_gym((observation, {'coolInfo': 3}))
         tt.assert_equal(state.observation, torch.from_numpy(observation))
         self.assertEqual(state.mask, 1.)
         self.assertEqual(state.done, False)
         self.assertEqual(state.reward, 0.)
         self.assertEqual(state.shape, ())
+        self.assertEqual(state['coolInfo'], 3.)
 
     def test_from_gym_step(self):
         observation = np.array([1, 2, 3])
-        state = State.from_gym((observation, 2., True, {'coolInfo': 3.}))
+        state = State.from_gym((observation, 2., True, False, {'coolInfo': 3.}))
         tt.assert_equal(state.observation, torch.from_numpy(observation))
         self.assertEqual(state.mask, 0.)
+        self.assertEqual(state.done, True)
+        self.assertEqual(state.reward, 2.)
+        self.assertEqual(state['coolInfo'], 3.)
+        self.assertEqual(state.shape, ())
+
+    def test_from_truncated_gym_step(self):
+        observation = np.array([1, 2, 3])
+        state = State.from_gym((observation, 2., False, True, {'coolInfo': 3.}))
+        tt.assert_equal(state.observation, torch.from_numpy(observation))
+        self.assertEqual(state.mask, 1.)
         self.assertEqual(state.done, True)
         self.assertEqual(state.reward, 2.)
         self.assertEqual(state['coolInfo'], 3.)
@@ -79,7 +90,7 @@ class StateTest(unittest.TestCase):
 
     def test_apply_mask(self):
         observation = torch.randn(3, 4)
-        state = State.from_gym((observation, 0., True, {}))
+        state = State.from_gym((observation, 0., True, False, {}))
         tt.assert_equal(state.apply_mask(observation), torch.zeros(3, 4))
 
     def test_apply(self):
@@ -92,7 +103,7 @@ class StateTest(unittest.TestCase):
 
     def test_apply_done(self):
         observation = torch.randn(3, 4)
-        state = State.from_gym((observation, 0., True, {}))
+        state = State.from_gym((observation, 0., True, False, {}))
         model = torch.nn.Conv1d(3, 5, 2)
         output = state.apply(model, 'observation')
         self.assertEqual(output.shape, (5, 3))
