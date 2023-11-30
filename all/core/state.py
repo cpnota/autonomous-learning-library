@@ -480,26 +480,15 @@ class MultiagentState(State):
         Returns:
             A State object.
         """
-        if not isinstance(state, tuple):
-            return MultiagentState(
-                {
-                    "agent": agent,
-                    "observation": torch.from_numpy(
-                        np.array(state, dtype=dtype),
-                    ).to(device),
-                },
-                device=device,
-            )
-
-        observation, reward, done, info = state
-        observation = torch.from_numpy(
-            np.array(observation, dtype=dtype),
-        ).to(device)
+        observation, reward, terminated, truncated, info = state
         x = {
             "agent": agent,
-            "observation": observation,
+            "observation": torch.from_numpy(
+                np.array(observation, dtype=dtype),
+            ).to(device),
             "reward": float(reward),
-            "done": done,
+            "done": terminated or truncated,
+            "mask": 1.0 - terminated,
         }
         info = info if info else {}
         for key in info:

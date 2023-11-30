@@ -72,15 +72,15 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         return self._env.agent_iter()
 
     def is_done(self, agent):
-        return self._env.dones[agent]
+        return self._env.terminations[agent]
 
     def duplicate(self, n):
         return [MultiagentPettingZooEnv(cloudpickle.loads(cloudpickle.dumps(self._env)), self._name, device=self.device) for _ in range(n)]
 
     def last(self):
-        observation, reward, done, info = self._env.last()
+        observation, reward, terminated, truncated, info = self._env.last()
         selected_obs_space = self._env.observation_space(self._env.agent_selection)
-        return MultiagentState.from_zoo(self._env.agent_selection, (observation, reward, done, info), device=self._device, dtype=selected_obs_space.dtype)
+        return MultiagentState.from_zoo(self._env.agent_selection, (observation, reward, terminated, truncated, info), device=self._device, dtype=selected_obs_space.dtype)
 
     @property
     def name(self):
