@@ -32,8 +32,11 @@ class DuplicateEnvironment(VectorEnvironment):
     def name(self):
         return self._name
 
-    def reset(self):
-        self._state = State.array([sub_env.reset() for sub_env in self._envs])
+    def reset(self, seed=None, **kwargs):
+        if seed is not None:
+            self._state = State.array([sub_env.reset(seed=(seed+i), **kwargs) for i, sub_env in enumerate(self._envs)])
+        else:
+            self._state = State.array([sub_env.reset(**kwargs) for sub_env in self._envs])
         return self._state
 
     def step(self, actions):
@@ -47,10 +50,6 @@ class DuplicateEnvironment(VectorEnvironment):
 
     def close(self):
         return self._env.close()
-
-    def seed(self, seed):
-        for i, env in enumerate(self._envs):
-            env.seed(seed + i)
 
     @property
     def state_space(self):
