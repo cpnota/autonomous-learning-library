@@ -14,4 +14,4 @@ class PybulletEnvironment(GymEnvironment):
         import pybullet_envs
         if name in self.short_names:
             name = self.short_names[name]
-        super().__init__(name, **kwargs)
+        super().__init__(name, legacy_gym=True, **kwargs)

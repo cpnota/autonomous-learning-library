@@ -190,16 +190,26 @@ class State(dict):
         """
         # extract info from timestep
         if isinstance(gym_output, tuple) and len(gym_output) == 5:
+            # gymanisum step()
             observation, reward, terminated, truncated, info = gym_output
+        elif isinstance(gym_output, tuple) and len(gym_output) == 4:
+            # legacy gym step()
+            observation, reward, done, info = gym_output
+            terminated = done
+            truncated = False
         elif isinstance(gym_output, tuple) and len(gym_output) == 2:
+            # gymnasium reset()
             observation, info = gym_output
             reward = 0.0
             terminated = False
             truncated = False
         else:
-            raise TypeError(
-                f"gym_output should be a tuple, either (observation, info) or (observation, reward, terminated, truncated, info). Recieved {gym_output}."
-            )
+            # legacy gym reset()
+            observation = gym_output
+            reward = 0.0
+            terminated = False
+            truncated = False
+            info = {}
         x = {
             "observation": torch.from_numpy(
                 np.array(observation, dtype=dtype),
