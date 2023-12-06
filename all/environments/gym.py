@@ -1,5 +1,4 @@
 import gymnasium
-import gym
 import torch
 from all.core import State
 from ._environment import Environment
@@ -22,14 +21,10 @@ class GymEnvironment(Environment):
         env: Either a string or an OpenAI gym environment
         name (str, optional): the name of the environment
         device (str, optional): the device on which tensors will be stored
-        legacy_gym (str, optional): If true, calls gym.make() instead of gymnasium.make()
     '''
 
-    def __init__(self, id, device=torch.device('cpu'), name=None, legacy_gym=False):
-        if legacy_gym:
-            self._env = gym.make(id)
-        else:
-            self._env = gymnasium.make(id)
+    def __init__(self, id, device=torch.device('cpu'), name=None):
+        self._env = gymnasium.make(id)
         self._id = id
         self._name = name if name else id
         self._state = None
