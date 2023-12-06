@@ -14,6 +14,7 @@ extras = {
     ],
     "pybullet": [
         "pybullet>=3.2.2",
+        "gym>=0.10.0,<0.26.0",
     ],
     "ma-atari": [
         "PettingZoo[atari, accept-rom-license]~={}".format(PETTINGZOO_VERSION),
@@ -73,7 +74,6 @@ setup(
         "torch>=1.11.0",                        # core deep learning library
         "tensorboard>=2.8.0",                   # logging and visualization
         "cloudpickle>=2.0.0",                   # used to copy environments
-        "gym~=0.26.2",                          # legacy gym interface
     ],
     extras_require=extras,
 )

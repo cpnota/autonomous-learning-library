@@ -1,5 +1,4 @@
 import gymnasium
-import gym
 import torch
 from all.core import State
 from ._environment import Environment
@@ -27,6 +26,7 @@ class GymEnvironment(Environment):
 
     def __init__(self, id, device=torch.device('cpu'), name=None, legacy_gym=False):
         if legacy_gym:
+            import gym
             self._env = gym.make(id)
         else:
             self._env = gymnasium.make(id)
