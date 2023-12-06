@@ -34,7 +34,7 @@ class DuplicateEnvironment(VectorEnvironment):
 
     def reset(self, seed=None, **kwargs):
         if seed is not None:
-            self._state = State.array([sub_env.reset(seed=(seed+i), **kwargs) for i, sub_env in enumerate(self._envs)])
+            self._state = State.array([sub_env.reset(seed=(seed + i), **kwargs) for i, sub_env in enumerate(self._envs)])
         else:
             self._state = State.array([sub_env.reset(**kwargs) for sub_env in self._envs])
         return self._state
