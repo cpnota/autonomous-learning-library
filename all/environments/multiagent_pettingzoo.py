@@ -38,8 +38,8 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         An initial MultiagentState object.
     '''
 
-    def reset(self):
-        self._env.reset()
+    def reset(self, **kwargs):
+        self._env.reset(**kwargs)
         return self.last()
 
     '''

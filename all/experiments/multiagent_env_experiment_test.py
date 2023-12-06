@@ -18,24 +18,25 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
         torch.manual_seed(0)
-        self.env = MultiagentAtariEnv('space_invaders_v1', device='cpu')
-        self.env.seed(0)
+        self.env = MultiagentAtariEnv('space_invaders_v2', device='cpu')
+        self.env.reset(seed=0)
         self.experiment = None
 
     def test_adds_default_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
-        self.assertEqual(experiment._logger.label, "independent_space_invaders_v1")
+        self.assertEqual(experiment._logger.label, "independent_space_invaders_v2")
 
     def test_adds_custom_name(self):
         experiment = MockExperiment(self.make_preset(), self.env, name='custom', quiet=True, save_freq=float('inf'))
-        self.assertEqual(experiment._logger.label, "custom_space_invaders_v1")
+        self.assertEqual(experiment._logger.label, "custom_space_invaders_v2")
 
     def test_writes_training_returns(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True, save_freq=float('inf'))
         experiment.train(episodes=3)
+        self.maxDiff = None
         self.assertEqual(experiment._logger.data, {
-            'eval/first_0/returns/frame': {'values': [465.0, 235.0, 735.0, 415.0], 'steps': [766, 1524, 2440, 3038]},
-            'eval/second_0/returns/frame': {'values': [235.0, 465.0, 170.0, 295.0], 'steps': [766, 1524, 2440, 3038]}
+            'eval/first_0/returns/frame': {'values': [705.0, 490.0, 230.0, 435.0], 'steps': [808, 1580, 2120, 3300]},
+            'eval/second_0/returns/frame': {'values': [115.0, 525.0, 415.0, 665.0], 'steps': [808, 1580, 2120, 3300]}
         })
 
     def test_writes_test_returns(self):
