@@ -16,8 +16,8 @@ extras = {
         "pybullet>=3.2.2",
     ],
     "ma-atari": [
-        "PettingZoo[atari]~={}".format(PETTINGZOO_VERSION),
-        "supersuit~=3.3.5",
+        "PettingZoo[atari, accept-rom-license]~={}".format(PETTINGZOO_VERSION),
+        "supersuit~=3.9.1",
     ],
     "test": [
         "flake8>=3.8",                 # linter for pep8 compliance
