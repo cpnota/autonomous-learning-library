@@ -2,7 +2,7 @@ import importlib
 import numpy as np
 import torch
 import cloudpickle
-import gym
+import gymnasium
 from all.core import MultiagentState
 from ._multiagent_environment import MultiagentEnvironment
 
@@ -38,8 +38,8 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         An initial MultiagentState object.
     '''
 
-    def reset(self):
-        self._env.reset()
+    def reset(self, **kwargs):
+        self._env.reset(**kwargs)
         return self.last()
 
     '''
@@ -72,15 +72,15 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         return self._env.agent_iter()
 
     def is_done(self, agent):
-        return self._env.dones[agent]
+        return self._env.terminations[agent]
 
     def duplicate(self, n):
         return [MultiagentPettingZooEnv(cloudpickle.loads(cloudpickle.dumps(self._env)), self._name, device=self.device) for _ in range(n)]
 
     def last(self):
-        observation, reward, done, info = self._env.last()
+        observation, reward, terminated, truncated, info = self._env.last()
         selected_obs_space = self._env.observation_space(self._env.agent_selection)
-        return MultiagentState.from_zoo(self._env.agent_selection, (observation, reward, done, info), device=self._device, dtype=selected_obs_space.dtype)
+        return MultiagentState.from_zoo(self._env.agent_selection, (observation, reward, terminated, truncated, info), device=self._device, dtype=selected_obs_space.dtype)
 
     @property
     def name(self):
@@ -104,9 +104,9 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         agent = self._env.agent_selection
         action_space = self.action_space(agent)
         if torch.is_tensor(action):
-            if isinstance(action_space, gym.spaces.Discrete):
+            if isinstance(action_space, gymnasium.spaces.Discrete):
                 return action.item()
-            if isinstance(action_space, gym.spaces.Box):
+            if isinstance(action_space, gymnasium.spaces.Box):
                 return action.cpu().detach().numpy().reshape(-1)
             raise TypeError("Unknown action space type")
         return action

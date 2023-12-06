@@ -20,7 +20,7 @@ class DDPG(Agent):
         q (QContinuous): An Approximation of the continuous action Q-function.
         policy (DeterministicPolicy): An Approximation of a deterministic policy.
         replay_buffer (ReplayBuffer): The experience replay buffer.
-        action_space (gym.spaces.Box): Description of the action space.
+        action_space (gymnasium.spaces.Box): Description of the action space.
         discount_factor (float): Discount factor for future rewards.
         minibatch_size (int): The number of experiences to sample in each training update.
         noise (float): the amount of noise to add to each action (before scaling).

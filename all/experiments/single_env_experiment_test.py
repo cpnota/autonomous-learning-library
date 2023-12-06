@@ -58,7 +58,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         np.random.seed(0)
         torch.manual_seed(0)
         self.env = GymEnvironment('CartPole-v0')
-        self.env.seed(0)
+        self.env.reset(seed=0)
         self.experiment = None
 
     def test_adds_default_name(self):
@@ -74,7 +74,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         experiment.train(episodes=3)
         np.testing.assert_equal(
             experiment._logger.data["eval/returns/episode"]["values"],
-            np.array([18., 23., 27.]),
+            np.array([22., 17., 28.]),
         )
         np.testing.assert_equal(
             experiment._logger.data["eval/returns/episode"]["steps"],
@@ -85,8 +85,8 @@ class TestSingleEnvExperiment(unittest.TestCase):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
         experiment.train(episodes=5)
         returns = experiment.test(episodes=4)
-        expected_mean = 8.75
-        expected_std = 0.433013
+        expected_mean = 8.5
+        expected_std = 0.5
         np.testing.assert_equal(np.mean(returns), expected_mean)
         np.testing.assert_equal(
             experiment._logger.data["summary/returns-test/mean"]["values"],
@@ -99,7 +99,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         )
         np.testing.assert_equal(
             experiment._logger.data["summary/returns-test/mean"]["steps"],
-            np.array([94]),
+            np.array([93]),
         )
 
     def test_writes_loss(self):

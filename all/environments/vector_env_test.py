@@ -1,11 +1,11 @@
 import unittest
-import gym
+import gymnasium
 import torch
 from all.environments import GymVectorEnvironment, GymEnvironment, DuplicateEnvironment
 
 
 def make_vec_env(num_envs=3):
-    env = gym.vector.SyncVectorEnv([lambda: gym.make('CartPole-v0')] * num_envs)
+    env = gymnasium.vector.SyncVectorEnv([lambda: gymnasium.make('CartPole-v0')] * num_envs)
     return env
 
 
@@ -42,8 +42,7 @@ class GymVectorEnvironmentTest(unittest.TestCase):
     def test_step_until_done(self):
         num_envs = 3
         env = GymVectorEnvironment(make_vec_env(num_envs), "CartPole")
-        env.seed(5)
-        env.reset()
+        env.reset(seed=5)
         for _ in range(100):
             state = env.step(torch.ones(num_envs, dtype=torch.int32))
             if state.done[0]:
@@ -60,10 +59,8 @@ class GymVectorEnvironmentTest(unittest.TestCase):
         torch.manual_seed(42)
         env1 = DuplicateEnvironment([GymEnvironment('CartPole-v0') for i in range(n_envs)])
         env2 = GymVectorEnvironment(make_vec_env(n_envs), "CartPole-v0")
-        env1.seed(42)
-        env2.seed(42)
-        state1 = env1.reset()
-        state2 = env2.reset()
+        state1 = env1.reset(seed=42)
+        state2 = env2.reset(seed=42)
         self.assertEqual(env1.name, env2.name)
         self.assertEqual(env1.action_space.n, env2.action_space.n)
         self.assertEqual(env1.observation_space.shape, env2.observation_space.shape)

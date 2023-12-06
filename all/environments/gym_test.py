@@ -1,5 +1,5 @@
 import unittest
-import gym
+import gymnasium
 from all.environments import GymEnvironment
 
 

@@ -1,5 +1,5 @@
 import unittest
-import gym
+import gymnasium
 import torch
 from all.environments import DuplicateEnvironment, GymEnvironment
 
@@ -42,7 +42,6 @@ class DuplicateEnvironmentTest(unittest.TestCase):
     def test_step_until_done(self):
         num_envs = 3
         env = DuplicateEnvironment(make_vec_env(num_envs))
-        env.seed(5)
         env.reset()
         for _ in range(100):
             state = env.step(torch.ones(num_envs, dtype=torch.int32))

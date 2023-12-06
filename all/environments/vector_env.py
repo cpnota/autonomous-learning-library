@@ -1,4 +1,4 @@
-import gym
+import gymnasium
 import torch
 from all.core import StateArray
 from ._vector_environment import VectorEnvironment
@@ -35,16 +35,16 @@ class GymVectorEnvironment(VectorEnvironment):
     def name(self):
         return self._name
 
-    def reset(self):
-        state_tuple = self._env.reset(), np.zeros(self._env.num_envs), np.zeros(self._env.num_envs), None
-        self._state = self._to_state(*state_tuple)
+    def reset(self, **kwargs):
+        obs, info = self._env.reset(**kwargs)
+        self._state = self._to_state(obs, np.zeros(self._env.num_envs), np.zeros(self._env.num_envs), np.zeros(self._env.num_envs), info)
         return self._state
 
-    def _to_state(self, obs, rew, done, info):
+    def _to_state(self, obs, rew, terminated, truncated, info):
         obs = obs.astype(self.observation_space.dtype)
         rew = rew.astype("float32")
-        done = done.astype("bool")
-        mask = (1 - done).astype("float32")
+        done = (terminated + truncated).astype("bool")
+        mask = (1 - terminated).astype("float32")
         return StateArray({
             "observation": torch.tensor(obs, device=self._device),
             "reward": torch.tensor(rew, device=self._device),
@@ -59,9 +59,6 @@ class GymVectorEnvironment(VectorEnvironment):
 
     def close(self):
         return self._env.close()
-
-    def seed(self, seed):
-        self._env.seed(seed)
 
     @property
     def state_space(self):

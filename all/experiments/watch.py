@@ -1,7 +1,7 @@
 import os
 import time
 import torch
-import gym
+import gymnasium
 from all.agents import Agent
 
 
