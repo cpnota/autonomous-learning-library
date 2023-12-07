@@ -21,10 +21,15 @@ class GymEnvironment(Environment):
         env: Either a string or an OpenAI gym environment
         name (str, optional): the name of the environment
         device (str, optional): the device on which tensors will be stored
+        legacy_gym (str, optional): If true, calls gym.make() instead of gymnasium.make()
     '''
 
-    def __init__(self, id, device=torch.device('cpu'), name=None):
-        self._env = gymnasium.make(id)
+    def __init__(self, id, device=torch.device('cpu'), name=None, legacy_gym=False):
+        if legacy_gym:
+            import gym
+            self._env = gym.make(id)
+        else:
+            self._env = gymnasium.make(id)
         self._id = id
         self._name = name if name else id
         self._state = None
@@ -38,9 +43,8 @@ class GymEnvironment(Environment):
     def name(self):
         return self._name
 
-    def reset(self):
-        state = self._env.reset(), 0., False, None
-        self._state = State.from_gym(state, dtype=self._env.observation_space.dtype, device=self._device)
+    def reset(self, **kwargs):
+        self._state = State.from_gym(self._env.reset(**kwargs), dtype=self._env.observation_space.dtype, device=self._device)
         return self._state
 
     def step(self, action):

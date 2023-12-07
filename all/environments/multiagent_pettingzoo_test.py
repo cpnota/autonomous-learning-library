@@ -1,7 +1,7 @@
 import unittest
 import torch
 from all.environments import MultiagentPettingZooEnv
-from pettingzoo.mpe import simple_world_comm_v2
+from pettingzoo.mpe import simple_world_comm_v3
 
 
 class MultiagentPettingZooEnvTest(unittest.TestCase):
@@ -39,7 +39,7 @@ class MultiagentPettingZooEnvTest(unittest.TestCase):
 
     def test_name(self):
         env = self._make_env()
-        self.assertEqual(env.name, 'simple_world_comm_v2')
+        self.assertEqual(env.name, 'simple_world_comm_v3')
 
     def test_agent_iter(self):
         env = self._make_env()
@@ -61,7 +61,7 @@ class MultiagentPettingZooEnvTest(unittest.TestCase):
         env = self._make_env()
         self.assertEqual(env.agents, ['leadadversary_0', 'adversary_0', 'adversary_1', 'adversary_2', 'agent_0', 'agent_1'])
 
-    def test_is_done(self):
+    def test_terminated(self):
         env = self._make_env()
         env.reset()
         self.assertFalse(env.is_done('leadadversary_0'))
@@ -78,7 +78,7 @@ class MultiagentPettingZooEnvTest(unittest.TestCase):
         self.assertEqual(state['agent'], 'leadadversary_0')
 
     def test_variable_spaces(self):
-        env = MultiagentPettingZooEnv(simple_world_comm_v2.env(), name="simple_world_comm_v2", device='cpu')
+        env = MultiagentPettingZooEnv(simple_world_comm_v3.env(), name="simple_world_comm_v2", device='cpu')
         state = env.reset()
         # tests that action spaces work
         for agent in env.agents:
@@ -87,7 +87,7 @@ class MultiagentPettingZooEnvTest(unittest.TestCase):
             env.step(env.action_space(env.agent_selection).sample())
 
     def _make_env(self):
-        return MultiagentPettingZooEnv(simple_world_comm_v2.env(), name="simple_world_comm_v2", device='cpu')
+        return MultiagentPettingZooEnv(simple_world_comm_v3.env(), name="simple_world_comm_v3", device='cpu')
 
 
 if __name__ == "__main__":

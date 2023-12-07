@@ -9,7 +9,7 @@ from all.presets import IndependentMultiagentPreset
 
 class TestMultiagentAtariPresets(unittest.TestCase):
     def setUp(self):
-        self.env = MultiagentAtariEnv('pong_v2', device='cpu')
+        self.env = MultiagentAtariEnv('pong_v3', device='cpu')
         self.env.reset()
 
     def tearDown(self):
@@ -17,12 +17,11 @@ class TestMultiagentAtariPresets(unittest.TestCase):
             os.remove('test_preset.pt')
 
     def test_independent(self):
-        env = MultiagentAtariEnv('pong_v2', device='cpu')
         presets = {
-            agent_id: dqn.device('cpu').env(env.subenvs[agent_id]).build()
-            for agent_id in env.agents
+            agent_id: dqn.device('cpu').env(self.env.subenvs[agent_id]).build()
+            for agent_id in self.env.agents
         }
-        self.validate_preset(IndependentMultiagentPreset('independent', 'cpu', presets), env)
+        self.validate_preset(IndependentMultiagentPreset('independent', 'cpu', presets), self.env)
 
     def validate_preset(self, preset, env):
         # normal agent

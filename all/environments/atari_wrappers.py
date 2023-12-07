@@ -34,8 +34,8 @@ class NoopResetEnv(gymnasium.Wrapper):
         assert noops > 0
         obs = None
         for _ in range(noops):
-            obs, _, done, _ = self.env.step(self.noop_action)
-            if done:
+            obs, _, terminated, truncated, _ = self.env.step(self.noop_action)
+            if terminated or truncated:
                 obs = self.env.reset(**kwargs)
         return obs
 
@@ -58,26 +58,25 @@ class FireResetEnv(gymnasium.Wrapper):
 
     def reset(self, **kwargs):
         self.env.reset(**kwargs)
-        obs, _ = self.fire()
+        obs, info = self.fire()
         self.lives = self.env.unwrapped.ale.lives()
-        return obs
+        return obs, info
 
     def step(self, action):
-        obs, reward, done, info = self.env.step(action)
+        obs, reward, terminated, truncated, info = self.env.step(action)
         if self.lost_life():
-            obs, done = self.fire()
+            obs, info = self.fire()
         self.lives = self.env.unwrapped.ale.lives()
-        return obs, reward, done, info
+        return obs, reward, terminated, truncated, info
 
     def fire(self):
-        obs, _, done, _ = self.env.step(1)
-        if done:
+        obs, _, terminated, truncated, info = self.env.step(1)
+        if terminated or truncated:
             self.env.reset()
-        obs, _, done, _ = self.env.step(2)
-        if done:
-            obs = self.env.reset()
-            done = False
-        return obs, done
+        obs, _, terminated, truncated, info = self.env.step(2)
+        if terminated or truncated:
+            obs, info = self.env.reset()
+        return obs, info
 
     def lost_life(self):
         lives = self.env.unwrapped.ale.lives()
@@ -95,21 +94,20 @@ class MaxAndSkipEnv(gymnasium.Wrapper):
     def step(self, action):
         '''Repeat action, sum reward, and max over last observations.'''
         total_reward = 0.0
-        done = None
         for i in range(self._skip):
-            obs, reward, done, info = self.env.step(action)
+            obs, reward, terminated, truncated, info = self.env.step(action)
             if i == self._skip - 2:
                 self._obs_buffer[0] = obs
             if i == self._skip - 1:
                 self._obs_buffer[1] = obs
             total_reward += reward
-            if done:
+            if terminated or truncated:
                 break
         # Note that the observation on the done=True frame
         # doesn't matter
         max_frame = self._obs_buffer.max(axis=0)
 
-        return max_frame, total_reward, done, info
+        return max_frame, total_reward, terminated, truncated, info
 
     def reset(self, **kwargs):
         return self.env.reset(**kwargs)
@@ -183,9 +181,9 @@ class LifeLostEnv(gymnasium.Wrapper):
         return self.env.reset()
 
     def step(self, action):
-        obs, reward, done, _ = self.env.step(action)
+        obs, reward, terminated, truncated, _ = self.env.step(action)
         lives = self.env.unwrapped.ale.lives()
         life_lost = (lives < self.lives and lives > 0)
         self.lives = lives
         info = {'life_lost': life_lost}
-        return obs, reward, done, info
+        return obs, reward, terminated, truncated, info

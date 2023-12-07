@@ -77,6 +77,26 @@ class StateTest(unittest.TestCase):
         self.assertEqual(state['coolInfo'], 3.)
         self.assertEqual(state.shape, ())
 
+    def test_legacy_gym_step(self):
+        observation = np.array([1, 2, 3])
+        state = State.from_gym((observation, 2., True, {'coolInfo': 3.}))
+        tt.assert_equal(state.observation, torch.from_numpy(observation))
+        self.assertEqual(state.mask, 0.)
+        self.assertEqual(state.done, True)
+        self.assertEqual(state.reward, 2.)
+        self.assertEqual(state['coolInfo'], 3.)
+        self.assertEqual(state.shape, ())
+
+    def test_from_truncated_gym_step(self):
+        observation = np.array([1, 2, 3])
+        state = State.from_gym((observation, 2., False, True, {'coolInfo': 3.}))
+        tt.assert_equal(state.observation, torch.from_numpy(observation))
+        self.assertEqual(state.mask, 1.)
+        self.assertEqual(state.done, True)
+        self.assertEqual(state.reward, 2.)
+        self.assertEqual(state['coolInfo'], 3.)
+        self.assertEqual(state.shape, ())
+
     def test_as_input(self):
         observation = torch.randn(3, 4)
         state = State(observation)
