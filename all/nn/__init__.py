@@ -205,6 +205,9 @@ class TanhActionBound(nn.Module):
     def forward(self, x):
         return torch.tanh(x) * self.weight + self.bias
 
+class Float(nn.Module):
+    def forward(self, x):
+        return x.float()
 
 def td_loss(loss):
     def _loss(estimates, errors):
