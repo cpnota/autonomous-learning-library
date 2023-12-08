@@ -11,6 +11,7 @@ from all import nn
 
 def fc_q(env, hidden1=400, hidden2=300):
     return nn.Sequential(
+        nn.Float(),
         nn.Linear(env.state_space.shape[0] + env.action_space.shape[0] + 1, hidden1),
         nn.ReLU(),
         nn.Linear(hidden1, hidden2),
@@ -21,6 +22,7 @@ def fc_q(env, hidden1=400, hidden2=300):
 
 def fc_v(env, hidden1=400, hidden2=300):
     return nn.Sequential(
+        nn.Float(),
         nn.Linear(env.state_space.shape[0] + 1, hidden1),
         nn.ReLU(),
         nn.Linear(hidden1, hidden2),
@@ -31,6 +33,7 @@ def fc_v(env, hidden1=400, hidden2=300):
 
 def fc_deterministic_policy(env, hidden1=400, hidden2=300):
     return nn.Sequential(
+        nn.Float(),
         nn.Linear(env.state_space.shape[0] + 1, hidden1),
         nn.ReLU(),
         nn.Linear(hidden1, hidden2),
@@ -41,6 +44,7 @@ def fc_deterministic_policy(env, hidden1=400, hidden2=300):
 
 def fc_soft_policy(env, hidden1=400, hidden2=300):
     return nn.Sequential(
+        nn.Float(),
         nn.Linear(env.state_space.shape[0] + 1, hidden1),
         nn.ReLU(),
         nn.Linear(hidden1, hidden2),
@@ -53,6 +57,7 @@ class fc_policy(nn.Module):
     def __init__(self, env, hidden1=400, hidden2=300):
         super().__init__()
         self.model = nn.Sequential(
+            nn.Float(),
             nn.Linear(env.state_space.shape[0] + 1, hidden1),
             nn.Tanh(),
             nn.Linear(hidden1, hidden2),

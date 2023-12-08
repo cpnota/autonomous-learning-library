@@ -16,6 +16,9 @@ extras = {
         "pybullet>=3.2.2",
         "gym>=0.10.0,<0.26.0",
     ],
+    "mujoco": [
+        "gymnasium[mujoco]~={}".format(GYM_VERSION),
+    ],
     "ma-atari": [
         "PettingZoo[atari, accept-rom-license]~={}".format(PETTINGZOO_VERSION),
         "supersuit~=3.9.1",
@@ -39,15 +42,16 @@ extras = {
 extras["all"] = (
     extras["atari"]
     + extras["box2d"]
+    + extras["mujoco"]
     + extras["pybullet"]
     + extras["ma-atari"]
     + extras["comet"]
 )
-extras["dev"] = extras["all"] + extras["test"] + extras["docs"] + extras["comet"]
+extras["dev"] = extras["all"] + extras["test"] + extras["docs"]
 
 setup(
     name="autonomous-learning-library",
-    version="0.8.2",
+    version="0.9.0",
     description=("A library for building reinforcement learning agents in Pytorch"),
     packages=find_packages(),
     url="https://github.com/cpnota/autonomous-learning-library.git",

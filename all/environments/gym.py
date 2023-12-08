@@ -27,9 +27,10 @@ class GymEnvironment(Environment):
     def __init__(self, id, device=torch.device('cpu'), name=None, legacy_gym=False):
         if legacy_gym:
             import gym
-            self._env = gym.make(id)
+            self._gym = gym
         else:
-            self._env = gymnasium.make(id)
+            self._gym = gymnasium
+        self._env = self._gym.make(id)
         self._id = id
         self._name = name if name else id
         self._state = None
@@ -89,9 +90,9 @@ class GymEnvironment(Environment):
 
     def _convert(self, action):
         if torch.is_tensor(action):
-            if isinstance(self.action_space, gymnasium.spaces.Discrete):
+            if isinstance(self.action_space, self._gym.spaces.Discrete):
                 return action.item()
-            if isinstance(self.action_space, gymnasium.spaces.Box):
+            if isinstance(self.action_space, self._gym.spaces.Box):
                 return action.cpu().detach().numpy().reshape(-1)
             raise TypeError("Unknown action space type")
         return action
