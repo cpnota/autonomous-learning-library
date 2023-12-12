@@ -18,7 +18,7 @@ def main():
         help="Playback speed",
     )
     args = parser.parse_args()
-    env = GymEnvironment(args.env, device=args.device)
+    env = GymEnvironment(args.env, device=args.device, render_mode="human")
     load_and_watch(args.filename, env, fps=args.fps)
 
 

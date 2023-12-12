@@ -34,6 +34,7 @@ def run_experiment(
                 verbose=verbose,
                 logger=logger
             )
+            experiment.save()
             experiment.train(frames=frames)
             experiment.save()
             experiment.test(episodes=test_episodes)

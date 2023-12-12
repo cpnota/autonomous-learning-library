@@ -23,11 +23,11 @@ def main():
     args = parser.parse_args()
 
     if args.env in ENVS:
-        env = GymEnvironment(args.env, device=args.device)
+        env = GymEnvironment(args.env, device=args.device, render_mode="human")
     elif 'BulletEnv' in args.env or args.env in PybulletEnvironment.short_names:
-        env = PybulletEnvironment(args.env, device=args.device)
+        env = PybulletEnvironment(args.env, device=args.device, render_mode="human")
     else:
-        env = GymEnvironment(args.env, device=args.device)
+        env = GymEnvironment(args.env, device=args.device, render_mode="human")
 
     load_and_watch(args.filename, env, fps=args.fps)
 
