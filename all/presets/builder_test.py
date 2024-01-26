@@ -10,6 +10,7 @@ class TestPresetBuilder(unittest.TestCase):
             "lr": 1e-4,
             "gamma": 0.99
         }
+
         class MockPreset():
             def __init__(self, env, name, device, **hyperparameters):
                 self.env = env
@@ -48,7 +49,7 @@ class TestPresetBuilder(unittest.TestCase):
 
     def test_no_side_effects(self):
         self.builder.device('cpu').hyperparameters(lr=0.01).device('cpu').env(Mock).build()
-        my_env = Mock 
+        my_env = Mock
         agent = self.builder.env(Mock).build()
         self.assertEqual(agent.name, self.name)
         self.assertEqual(agent.hyperparameters, self.default_hyperparameters)
@@ -60,6 +61,7 @@ class TestPresetBuilder(unittest.TestCase):
         self.assertEqual(agent.name, "cool_name")
         self.assertEqual(agent.hyperparameters, {**self.default_hyperparameters, "lr": 0.01})
         self.assertEqual(agent.device, 'cpu')
+
 
 if __name__ == "__main__":
     unittest.main()
