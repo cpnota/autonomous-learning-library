@@ -52,7 +52,7 @@ def main():
         action="store_true", default=False, help="Reload the model from disk after every episode"
     )
     args = parser.parse_args()
-    env = MultiagentAtariEnv(args.env, device=args.device)
+    env = MultiagentAtariEnv(args.env, device=args.device, render_mode="human")
     watch(env, args.filename, args.fps, args.reload)
 
 

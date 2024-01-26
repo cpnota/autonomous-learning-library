@@ -62,10 +62,12 @@ setup(
             "all-atari=all.scripts.atari:main",
             "all-classic=all.scripts.classic:main",
             "all-continuous=all.scripts.continuous:main",
+            "all-multiagent-atari=all.scripts.multiagent_atari:main",
             "all-plot=all.scripts.plot:main",
             "all-watch-atari=all.scripts.watch_atari:main",
             "all-watch-classic=all.scripts.watch_classic:main",
             "all-watch-continuous=all.scripts.watch_continuous:main",
+            "all-watch-multiagent-atari=all.scripts.watch_multiagent_atari:main",
         ],
     },
     install_requires=[

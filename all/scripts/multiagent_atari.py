@@ -40,6 +40,8 @@ def main():
 
     env = MultiagentAtariEnv(args.env, device=args.device)
 
+    assert len(env.agents) == len(args.agents), f"Must specify {len(env.agents)} agents for this environment."
+
     presets = {
         agent_id: getattr(atari, agent_type)
         .hyperparameters(replay_buffer_size=args.replay_buffer_size)

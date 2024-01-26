@@ -171,7 +171,7 @@ class MultiagentEnvExperiment():
         for agent, agent_returns in returns.items():
             if not self._quiet:
                 mean = np.mean(agent_returns)
-                sem = np.variance(agent_returns) / np.sqrt(len(agent_returns))
+                sem = np.std(agent_returns) / np.sqrt(len(agent_returns))
                 print('{} test returns (mean ± sem): {} ± {}'.format(agent, mean, sem))
             self._logger.add_summary('{}/returns-test'.format(agent), np.mean(agent_returns), np.std(agent_returns))
 

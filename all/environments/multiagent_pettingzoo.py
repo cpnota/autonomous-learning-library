@@ -62,8 +62,8 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
     def seed(self, seed):
         self._env.seed(seed)
 
-    def render(self, mode='human'):
-        return self._env.render(mode=mode)
+    def render(self, **kwargs):
+        return self._env.render(**kwargs)
 
     def close(self):
         self._env.close()
