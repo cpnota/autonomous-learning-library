@@ -49,7 +49,7 @@ class MockLogger(Logger):
 
 class MockExperiment(SingleEnvExperiment):
     def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
-        self._logger = MockLogger(self, agent_name + '_' + env_name, verbose)
+        self._logger = MockLogger(self, agent_name + "_" + env_name, verbose)
         return self._logger
 
 
@@ -57,7 +57,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
     def setUp(self):
         np.random.seed(0)
         torch.manual_seed(0)
-        self.env = GymEnvironment('CartPole-v0')
+        self.env = GymEnvironment("CartPole-v0")
         self.env.reset(seed=0)
         self.experiment = None
 
@@ -66,7 +66,9 @@ class TestSingleEnvExperiment(unittest.TestCase):
         self.assertEqual(experiment._logger.label, "dqn_CartPole-v0")
 
     def test_adds_custom_name(self):
-        experiment = MockExperiment(self.make_preset(), self.env, name='dqn', quiet=True)
+        experiment = MockExperiment(
+            self.make_preset(), self.env, name="dqn", quiet=True
+        )
         self.assertEqual(experiment._logger.label, "dqn_CartPole-v0")
 
     def test_writes_training_returns_eps(self):
@@ -74,7 +76,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         experiment.train(episodes=3)
         np.testing.assert_equal(
             experiment._logger.data["eval/returns/episode"]["values"],
-            np.array([22., 17., 28.]),
+            np.array([22.0, 17.0, 28.0]),
         )
         np.testing.assert_equal(
             experiment._logger.data["eval/returns/episode"]["steps"],
@@ -95,7 +97,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         np.testing.assert_approx_equal(
             np.array(experiment._logger.data["summary/returns-test/std"]["values"]),
             np.array([expected_std]),
-            significant=4
+            significant=4,
         )
         np.testing.assert_equal(
             experiment._logger.data["summary/returns-test/mean"]["steps"],
@@ -103,13 +105,17 @@ class TestSingleEnvExperiment(unittest.TestCase):
         )
 
     def test_writes_loss(self):
-        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, verbose=True)
+        experiment = MockExperiment(
+            self.make_preset(), self.env, quiet=True, verbose=True
+        )
         self.assertTrue(experiment._logger.verbose)
-        experiment = MockExperiment(self.make_preset(), self.env, quiet=True, verbose=False)
+        experiment = MockExperiment(
+            self.make_preset(), self.env, quiet=True, verbose=False
+        )
         self.assertFalse(experiment._logger.verbose)
 
     def make_preset(self):
-        return dqn.device('cpu').env(self.env).build()
+        return dqn.device("cpu").env(self.env).build()
 
 
 if __name__ == "__main__":

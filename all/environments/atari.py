@@ -13,10 +13,10 @@ from ._environment import Environment
 
 
 class AtariEnvironment(Environment):
-    def __init__(self, name, device='cpu'):
+    def __init__(self, name, device='cpu', **gym_make_kwargs):
 
         # construct the environment
-        env = gymnasium.make(name + "NoFrameskip-v4")
+        env = gymnasium.make(name + "NoFrameskip-v4", **gym_make_kwargs)
 
         # apply a subset of wrappers
         env = NoopResetEnv(env, noop_max=30)

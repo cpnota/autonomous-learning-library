@@ -22,15 +22,16 @@ class GymEnvironment(Environment):
         name (str, optional): the name of the environment
         device (str, optional): the device on which tensors will be stored
         legacy_gym (str, optional): If true, calls gym.make() instead of gymnasium.make()
+        **gym_make_kwargs: kwargs passed to gymnasium.make(id, **gym_make_kwargs)
     '''
 
-    def __init__(self, id, device=torch.device('cpu'), name=None, legacy_gym=False):
+    def __init__(self, id, device=torch.device('cpu'), name=None, legacy_gym=False, **gym_make_kwargs):
         if legacy_gym:
             import gym
             self._gym = gym
         else:
             self._gym = gymnasium
-        self._env = self._gym.make(id)
+        self._env = self._gym.make(id, **gym_make_kwargs)
         self._id = id
         self._name = name if name else id
         self._state = None

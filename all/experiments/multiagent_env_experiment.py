@@ -36,8 +36,8 @@ class MultiagentEnvExperiment():
         self._logger = self._make_logger(logdir, self._name, env.name, verbose, logger)
         self._agent = preset.agent(logger=self._logger, train_steps=train_steps)
         self._env = env
-        self._episode = 0
-        self._frame = 0
+        self._episode = 1
+        self._frame = 1
         self._logdir = logdir
         self._preset = preset
         self._quiet = quiet
@@ -171,7 +171,7 @@ class MultiagentEnvExperiment():
         for agent, agent_returns in returns.items():
             if not self._quiet:
                 mean = np.mean(agent_returns)
-                sem = np.variance(agent_returns) / np.sqrt(len(agent_returns))
+                sem = np.std(agent_returns) / np.sqrt(len(agent_returns))
                 print('{} test returns (mean ± sem): {} ± {}'.format(agent, mean, sem))
             self._logger.add_summary('{}/returns-test'.format(agent), np.mean(agent_returns), np.std(agent_returns))
 
