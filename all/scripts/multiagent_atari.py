@@ -42,10 +42,10 @@ def main():
 
     presets = {
         agent_id: getattr(atari, agent_type)
-            .hyperparameters(replay_buffer_size=args.replay_buffer_size)
-            .device(args.device)
-            .env(env.subenvs[agent_id])
-            .build()
+        .hyperparameters(replay_buffer_size=args.replay_buffer_size)
+        .device(args.device)
+        .env(env.subenvs[agent_id])
+        .build()
         for agent_id, agent_type in zip(env.agents, args.agents)
     }
 

@@ -9,7 +9,7 @@ def watch(agent, env, fps=60, n_episodes=sys.maxsize):
     env.reset()
 
     for _ in range(n_episodes):
-        env.render() 
+        env.render()
         action = agent.act(env.state)
         env.step(action)
         returns += env.state.reward

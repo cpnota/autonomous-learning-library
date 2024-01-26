@@ -10,6 +10,7 @@ class MockAgent():
         # sample from cartpole action space
         return torch.randint(0, 2, [])
 
+
 class MockPreset():
     def __init__(self, filename):
         self.filename = filename
