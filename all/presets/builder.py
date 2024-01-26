@@ -20,6 +20,9 @@ class PresetBuilder():
         self._hyperparameters = self._merge_hyperparameters(default_hyperparameters, hyperparameters)
         self._name = name or default_name
 
+    def __call__(self, **kwargs):
+        return self._preset_builder(**kwargs)
+
     def device(self, device):
         return self._preset_builder(device=device)
 
