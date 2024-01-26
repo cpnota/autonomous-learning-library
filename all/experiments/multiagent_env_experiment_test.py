@@ -20,7 +20,7 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         random.seed(0)
         np.random.seed(0)
         torch.manual_seed(0)
-        self.env = MultiagentAtariEnv('space_invaders_v2', device='cpu')
+        self.env = MultiagentAtariEnv('space_invaders_v2', device='cpu', seed=0)
         self.env.reset(seed=0)
         self.experiment = None
 
