@@ -1,3 +1,4 @@
+import random
 import unittest
 import numpy as np
 import torch
@@ -16,6 +17,7 @@ class MockExperiment(MultiagentEnvExperiment):
 
 class TestMultiagentEnvExperiment(unittest.TestCase):
     def setUp(self):
+        random.seed(0)
         np.random.seed(0)
         torch.manual_seed(0)
         self.env = MultiagentAtariEnv('space_invaders_v2', device='cpu')
