@@ -75,7 +75,7 @@ class Experiment(ABC):
     def _log_test(self, returns):
         if not self._quiet:
             mean = np.mean(returns)
-            sem = np.var(returns) / np.sqrt(len(returns))
+            sem = np.std(returns) / np.sqrt(len(returns))
             print('test returns (mean ± sem): {} ± {}'.format(mean, sem))
         self._logger.add_summary('returns-test', np.mean(returns), np.std(returns))
 
