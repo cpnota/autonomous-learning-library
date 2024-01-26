@@ -36,8 +36,8 @@ class MultiagentEnvExperiment():
         self._logger = self._make_logger(logdir, self._name, env.name, verbose, logger)
         self._agent = preset.agent(logger=self._logger, train_steps=train_steps)
         self._env = env
-        self._episode = 0
-        self._frame = 0
+        self._episode = 1
+        self._frame = 1
         self._logdir = logdir
         self._preset = preset
         self._quiet = quiet
