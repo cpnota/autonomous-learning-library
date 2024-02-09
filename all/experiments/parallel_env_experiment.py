@@ -62,6 +62,7 @@ class ParallelEnvExperiment(Experiment):
     def train(self, frames=np.inf, episodes=np.inf):
         num_envs = int(self._env.num_envs)
         returns = np.zeros(num_envs)
+        episode_lengths = np.zeros(num_envs)
         state_array = self._env.reset()
         start_time = time.time()
         completed_frames = 0
@@ -72,6 +73,7 @@ class ParallelEnvExperiment(Experiment):
             episodes_completed = state_array.done.type(torch.IntTensor).sum().item()
             completed_frames += num_envs
             returns += state_array.reward.cpu().detach().numpy()
+            episode_lengths += 1
             if episodes_completed > 0:
                 dones = state_array.done.cpu().detach().numpy()
                 cur_time = time.time()
@@ -80,8 +82,9 @@ class ParallelEnvExperiment(Experiment):
                 start_time = cur_time
                 for i in range(num_envs):
                     if dones[i]:
-                        self._log_training_episode(returns[i], fps)
+                        self._log_training_episode(returns[i], episode_lengths[i], fps)
                         returns[i] = 0
+                        episode_lengths[i] = 0
             self._episode += episodes_completed
 
     def test(self, episodes=100):

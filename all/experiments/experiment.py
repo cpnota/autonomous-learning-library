@@ -52,7 +52,7 @@ class Experiment(ABC):
     def episode(self):
         '''The index of the current training episode'''
 
-    def _log_training_episode(self, returns, fps):
+    def _log_training_episode(self, returns, episode_length, fps):
         if not self._quiet:
             print('episode: {}, frame: {}, fps: {}, returns: {}'.format(self.episode, self.frame, int(fps), returns))
         if returns > self._best_returns:
@@ -66,6 +66,7 @@ class Experiment(ABC):
         self._logger.add_eval('returns/episode', returns, step="episode")
         self._logger.add_eval('returns/frame', returns, step="frame")
         self._logger.add_eval("returns/max", self._best_returns, step="frame")
+        self._logger.add_eval("episode_length", episode_length)
         self._logger.add_eval('fps', fps, step="frame")
 
     def _log_test_episode(self, episode, returns):

@@ -30,7 +30,7 @@ class TestParallelEnvExperiment(unittest.TestCase):
         experiment = MockExperiment(self.make_agent(), env, name="a2c", quiet=True)
         self.assertEqual(experiment._logger.label, "a2c_CartPole-v0")
 
-    def test_writes_training_returns_eps(self):
+    def test_writes_training_returnss(self):
         self.experiment.train(episodes=4)
         np.testing.assert_equal(
             self.experiment._logger.data["eval/returns/episode"]["steps"],
@@ -38,6 +38,13 @@ class TestParallelEnvExperiment(unittest.TestCase):
         )
         np.testing.assert_equal(
             self.experiment._logger.data["eval/returns/episode"]["values"],
+            np.array([12.0, 13.0, 16.0, 16.0]),
+        )
+
+    def test_writes_training(self):
+        self.experiment.train(episodes=4)
+        np.testing.assert_equal(
+            self.experiment._logger.data["eval/episode_length"]["values"],
             np.array([12.0, 13.0, 16.0, 16.0]),
         )
 
