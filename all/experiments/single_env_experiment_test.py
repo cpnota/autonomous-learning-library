@@ -71,7 +71,19 @@ class TestSingleEnvExperiment(unittest.TestCase):
         )
         self.assertEqual(experiment._logger.label, "dqn_CartPole-v0")
 
-    def test_writes_training_returns(self):
+    def test_writes_training_returns_frame(self):
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
+        experiment.train(episodes=3)
+        np.testing.assert_equal(
+            experiment._logger.data["eval/returns/frame"]["values"],
+            np.array([22., 17., 28.]),
+        )
+        np.testing.assert_equal(
+            experiment._logger.data["eval/returns/frame"]["steps"],
+            np.array([23, 40, 68]),
+        )
+
+    def test_writes_training_returns_episode(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
         experiment.train(episodes=3)
         np.testing.assert_equal(
@@ -90,6 +102,10 @@ class TestSingleEnvExperiment(unittest.TestCase):
         np.testing.assert_equal(
             experiment._logger.data["eval/episode_length"]["values"],
             np.array([22, 17, 28]),
+        )
+        np.testing.assert_equal(
+            experiment._logger.data["eval/episode_length"]["steps"],
+            np.array([23, 40, 68]),
         )
 
 
