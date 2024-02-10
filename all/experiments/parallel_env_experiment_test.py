@@ -68,11 +68,11 @@ class TestParallelEnvExperiment(unittest.TestCase):
         returns = self.experiment.test(episodes=4)
         self.assertEqual(len(returns), 4)
         np.testing.assert_equal(
-            self.experiment._logger.data["summary/returns-test/mean"]["values"],
+            self.experiment._logger.data["summary/test_returns/mean"]["values"],
             np.array([np.mean(returns)]),
         )
         np.testing.assert_equal(
-            self.experiment._logger.data["summary/returns-test/std"]["values"],
+            self.experiment._logger.data["summary/test_returns/std"]["values"],
             np.array([np.std(returns)]),
         )
 

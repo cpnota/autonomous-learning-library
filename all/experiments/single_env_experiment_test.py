@@ -117,16 +117,37 @@ class TestSingleEnvExperiment(unittest.TestCase):
         expected_std = 0.5
         np.testing.assert_equal(np.mean(returns), expected_mean)
         np.testing.assert_equal(
-            experiment._logger.data["summary/returns-test/mean"]["values"],
+            experiment._logger.data["summary/test_returns/mean"]["values"],
             np.array([expected_mean]),
         )
         np.testing.assert_approx_equal(
-            np.array(experiment._logger.data["summary/returns-test/std"]["values"]),
+            np.array(experiment._logger.data["summary/test_returns/std"]["values"]),
             np.array([expected_std]),
             significant=4,
         )
         np.testing.assert_equal(
-            experiment._logger.data["summary/returns-test/mean"]["steps"],
+            experiment._logger.data["summary/test_returns/mean"]["steps"],
+            np.array([93]),
+        )
+
+    def test_writes_test_episode_length(self):
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
+        experiment.train(episodes=5)
+        returns = experiment.test(episodes=4)
+        expected_mean = 8.5
+        expected_std = 0.5
+        np.testing.assert_equal(np.mean(returns), expected_mean)
+        np.testing.assert_equal(
+            experiment._logger.data["summary/test_returns/mean"]["values"],
+            np.array([expected_mean]),
+        )
+        np.testing.assert_approx_equal(
+            np.array(experiment._logger.data["summary/test_returns/std"]["values"]),
+            np.array([expected_std]),
+            significant=4,
+        )
+        np.testing.assert_equal(
+            experiment._logger.data["summary/test_returns/mean"]["steps"],
             np.array([93]),
         )
 
