@@ -38,6 +38,7 @@ class SAC(Agent):
         q2,
         replay_buffer,
         discount_factor=0.99,
+        entropy_backups=True,
         entropy_target=-2.0,
         lr_temperature=1e-4,
         minibatch_size=32,
@@ -54,6 +55,7 @@ class SAC(Agent):
         self.logger = logger
         # hyperparameters
         self.discount_factor = discount_factor
+        self.entropy_backups = entropy_backups
         self.entropy_target = entropy_target
         self.lr_temperature = lr_temperature
         self.minibatch_size = minibatch_size
@@ -78,16 +80,16 @@ class SAC(Agent):
             (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
                 self.minibatch_size
             )
+            discount_factor = self.discount_factor
 
             # compute targets for Q and V
             next_actions, next_log_probs = self.policy.no_grad(next_states)
-            q_targets = rewards + self.discount_factor * (
-                torch.min(
-                    self.q1.target(next_states, next_actions),
-                    self.q2.target(next_states, next_actions),
-                )
-                - self.temperature * next_log_probs
+            q_targets = rewards + discount_factor * torch.min(
+                self.q1.target(next_states, next_actions),
+                self.q2.target(next_states, next_actions),
             )
+            if self.entropy_backups:
+                q_targets -= discount_factor * self.temperature * next_log_probs
 
             # update Q and V-functions
             q1_loss = mse_loss(self.q1(states, actions), q_targets)
