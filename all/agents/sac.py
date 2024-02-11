@@ -35,7 +35,7 @@ class SAC(Agent):
                  q2,
                  replay_buffer,
                  discount_factor=0.99,
-                 entropy_backups = True,
+                 entropy_backups=True,
                  entropy_target=-2.,
                  lr_temperature=1e-4,
                  minibatch_size=32,
