@@ -48,11 +48,13 @@ class SingleEnvExperiment(Experiment):
     def test(self, episodes=100):
         test_agent = self._preset.test_agent()
         returns = []
+        episode_lengths = []
         for episode in range(episodes):
-            episode_return = self._run_test_episode(test_agent)
+            episode_return, episode_length = self._run_test_episode(test_agent)
             returns.append(episode_return)
-            self._log_test_episode(episode, episode_return)
-        self._log_test(returns)
+            episode_lengths.append(episode_length)
+            self._log_test_episode(episode, episode_return, episode_length)
+        self._log_test(returns, episode_lengths)
         return returns
 
     def _run_training_episode(self):
@@ -64,6 +66,7 @@ class SingleEnvExperiment(Experiment):
         state = self._env.reset()
         action = self._agent.act(state)
         returns = 0
+        episode_length = 0
 
         # loop until the episode is finished
         while not state.done:
@@ -72,6 +75,7 @@ class SingleEnvExperiment(Experiment):
             state = self._env.step(action)
             action = self._agent.act(state)
             returns += state.reward
+            episode_length += 1
             self._frame += 1
 
         # stop the timer
@@ -79,7 +83,7 @@ class SingleEnvExperiment(Experiment):
         fps = (self._frame - start_frame) / (end_time - start_time)
 
         # log the results
-        self._log_training_episode(returns, fps)
+        self._log_training_episode(returns, episode_length, fps)
 
         # update experiment state
         self._episode += 1
@@ -89,6 +93,7 @@ class SingleEnvExperiment(Experiment):
         state = self._env.reset()
         action = test_agent.act(state)
         returns = 0
+        episode_length = 0
 
         # loop until the episode is finished
         while not state.done:
@@ -97,8 +102,9 @@ class SingleEnvExperiment(Experiment):
             state = self._env.step(action)
             action = test_agent.act(state)
             returns += state.reward
+            episode_length += 1
 
-        return returns
+        return returns, episode_length
 
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes

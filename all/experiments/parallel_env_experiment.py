@@ -62,6 +62,7 @@ class ParallelEnvExperiment(Experiment):
     def train(self, frames=np.inf, episodes=np.inf):
         num_envs = int(self._env.num_envs)
         returns = np.zeros(num_envs)
+        episode_lengths = np.zeros(num_envs)
         state_array = self._env.reset()
         start_time = time.time()
         completed_frames = 0
@@ -72,6 +73,7 @@ class ParallelEnvExperiment(Experiment):
             episodes_completed = state_array.done.type(torch.IntTensor).sum().item()
             completed_frames += num_envs
             returns += state_array.reward.cpu().detach().numpy()
+            episode_lengths += 1
             if episodes_completed > 0:
                 dones = state_array.done.cpu().detach().numpy()
                 cur_time = time.time()
@@ -80,8 +82,9 @@ class ParallelEnvExperiment(Experiment):
                 start_time = cur_time
                 for i in range(num_envs):
                     if dones[i]:
-                        self._log_training_episode(returns[i], fps)
+                        self._log_training_episode(returns[i], episode_lengths[i], fps)
                         returns[i] = 0
+                        episode_lengths[i] = 0
             self._episode += episodes_completed
 
     def test(self, episodes=100):
@@ -90,32 +93,38 @@ class ParallelEnvExperiment(Experiment):
         # Note that we need to record the first N episodes that are STARTED,
         # not the first N that are completed, or we introduce bias.
         test_returns = []
+        test_episode_lengths = []
         episodes_started = self._n_envs
         should_record = [True] * self._n_envs
 
         # initialize state
         states = self._env.reset()
         returns = states.reward.clone()
+        episode_lengths = np.zeros(self._n_envs)
 
         while len(test_returns) < episodes:
             # step the agent and environments
             actions = test_agent.act(states)
             states = self._env.step(actions)
             returns += states.reward
+            episode_lengths += 1
 
             # record any episodes that have finished
             for i, done in enumerate(states.done):
                 if done:
                     if should_record[i] and len(test_returns) < episodes:
                         episode_return = returns[i].item()
+                        episode_length = episode_lengths[i]
                         test_returns.append(episode_return)
-                        self._log_test_episode(len(test_returns), episode_return)
+                        test_episode_lengths.append(episode_length)
+                        self._log_test_episode(len(test_returns), episode_return, episode_length)
                     returns[i] = 0.
+                    episode_lengths[i] = -1
                     episodes_started += 1
                     if episodes_started > episodes:
                         should_record[i] = False
 
-        self._log_test(test_returns)
+        self._log_test(test_returns, test_episode_lengths)
         return test_returns
 
     def _done(self, frames, episodes):

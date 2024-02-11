@@ -71,7 +71,19 @@ class TestSingleEnvExperiment(unittest.TestCase):
         )
         self.assertEqual(experiment._logger.label, "dqn_CartPole-v0")
 
-    def test_writes_training_returns_eps(self):
+    def test_writes_training_returns_frame(self):
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
+        experiment.train(episodes=3)
+        np.testing.assert_equal(
+            experiment._logger.data["eval/returns/frame"]["values"],
+            np.array([22., 17., 28.]),
+        )
+        np.testing.assert_equal(
+            experiment._logger.data["eval/returns/frame"]["steps"],
+            np.array([23, 40, 68]),
+        )
+
+    def test_writes_training_returns_episode(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
         experiment.train(episodes=3)
         np.testing.assert_equal(
@@ -83,6 +95,18 @@ class TestSingleEnvExperiment(unittest.TestCase):
             np.array([1, 2, 3]),
         )
 
+    def test_writes_training_episode_length(self):
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
+        experiment.train(episodes=3)
+        np.testing.assert_equal(
+            experiment._logger.data["eval/episode_length"]["values"],
+            np.array([22, 17, 28]),
+        )
+        np.testing.assert_equal(
+            experiment._logger.data["eval/episode_length"]["steps"],
+            np.array([23, 40, 68]),
+        )
+
     def test_writes_test_returns(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
         experiment.train(episodes=5)
@@ -91,16 +115,37 @@ class TestSingleEnvExperiment(unittest.TestCase):
         expected_std = 0.5
         np.testing.assert_equal(np.mean(returns), expected_mean)
         np.testing.assert_equal(
-            experiment._logger.data["summary/returns-test/mean"]["values"],
+            experiment._logger.data["summary/test_returns/mean"]["values"],
             np.array([expected_mean]),
         )
         np.testing.assert_approx_equal(
-            np.array(experiment._logger.data["summary/returns-test/std"]["values"]),
+            np.array(experiment._logger.data["summary/test_returns/std"]["values"]),
             np.array([expected_std]),
             significant=4,
         )
         np.testing.assert_equal(
-            experiment._logger.data["summary/returns-test/mean"]["steps"],
+            experiment._logger.data["summary/test_returns/mean"]["steps"],
+            np.array([93]),
+        )
+
+    def test_writes_test_episode_length(self):
+        experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
+        experiment.train(episodes=5)
+        returns = experiment.test(episodes=4)
+        expected_mean = 8.5
+        expected_std = 0.5
+        np.testing.assert_equal(np.mean(returns), expected_mean)
+        np.testing.assert_equal(
+            experiment._logger.data["summary/test_returns/mean"]["values"],
+            np.array([expected_mean]),
+        )
+        np.testing.assert_approx_equal(
+            np.array(experiment._logger.data["summary/test_returns/std"]["values"]),
+            np.array([expected_std]),
+            significant=4,
+        )
+        np.testing.assert_equal(
+            experiment._logger.data["summary/test_returns/mean"]["steps"],
             np.array([93]),
         )
 

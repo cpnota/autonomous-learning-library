@@ -30,7 +30,7 @@ class TestParallelEnvExperiment(unittest.TestCase):
         experiment = MockExperiment(self.make_agent(), env, name="a2c", quiet=True)
         self.assertEqual(experiment._logger.label, "a2c_CartPole-v0")
 
-    def test_writes_training_returns_eps(self):
+    def test_writes_training_returns_episode(self):
         self.experiment.train(episodes=4)
         np.testing.assert_equal(
             self.experiment._logger.data["eval/returns/episode"]["steps"],
@@ -41,16 +41,51 @@ class TestParallelEnvExperiment(unittest.TestCase):
             np.array([12.0, 13.0, 16.0, 16.0]),
         )
 
+    def test_writes_training_returns_frame(self):
+        self.experiment.train(episodes=4)
+        np.testing.assert_equal(
+            self.experiment._logger.data["eval/returns/frame"]["steps"],
+            np.array([49, 53, 65, 65]),
+        )
+        np.testing.assert_equal(
+            self.experiment._logger.data["eval/returns/frame"]["values"],
+            np.array([12.0, 13.0, 16.0, 16.0]),
+        )
+
+    def test_writes_training_episode_length(self):
+        self.experiment.train(episodes=4)
+        np.testing.assert_equal(
+            self.experiment._logger.data["eval/episode_length"]["steps"],
+            np.array([49, 53, 65, 65]),
+        )
+        np.testing.assert_equal(
+            self.experiment._logger.data["eval/episode_length"]["values"],
+            np.array([12.0, 13.0, 16.0, 16.0]),
+        )
+
     def test_writes_test_returns(self):
         self.experiment.train(episodes=5)
         returns = self.experiment.test(episodes=4)
         self.assertEqual(len(returns), 4)
         np.testing.assert_equal(
-            self.experiment._logger.data["summary/returns-test/mean"]["values"],
+            self.experiment._logger.data["summary/test_returns/mean"]["values"],
             np.array([np.mean(returns)]),
         )
         np.testing.assert_equal(
-            self.experiment._logger.data["summary/returns-test/std"]["values"],
+            self.experiment._logger.data["summary/test_returns/std"]["values"],
+            np.array([np.std(returns)]),
+        )
+
+    def test_writes_test_episode_length(self):
+        self.experiment.train(episodes=5)
+        returns = self.experiment.test(episodes=4)
+        self.assertEqual(len(returns), 4)
+        np.testing.assert_equal(
+            self.experiment._logger.data["summary/test_episode_length/mean"]["values"],
+            np.array([np.mean(returns)]),
+        )
+        np.testing.assert_equal(
+            self.experiment._logger.data["summary/test_episode_length/std"]["values"],
             np.array([np.std(returns)]),
         )
 

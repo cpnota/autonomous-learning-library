@@ -52,9 +52,15 @@ class Experiment(ABC):
     def episode(self):
         '''The index of the current training episode'''
 
-    def _log_training_episode(self, returns, fps):
+    def _log_training_episode(self, returns, episode_length, fps):
         if not self._quiet:
-            print('episode: {}, frame: {}, fps: {}, returns: {}'.format(self.episode, self.frame, int(fps), returns))
+            print('episode: {}, frame: {}, fps: {}, episode_length: {}, returns: {}'.format(
+                self.episode,
+                self.frame,
+                int(fps),
+                episode_length,
+                returns
+            ))
         if returns > self._best_returns:
             self._best_returns = returns
         self._returns100.append(returns)
@@ -66,18 +72,23 @@ class Experiment(ABC):
         self._logger.add_eval('returns/episode', returns, step="episode")
         self._logger.add_eval('returns/frame', returns, step="frame")
         self._logger.add_eval("returns/max", self._best_returns, step="frame")
+        self._logger.add_eval("episode_length", episode_length)
         self._logger.add_eval('fps', fps, step="frame")
 
-    def _log_test_episode(self, episode, returns):
+    def _log_test_episode(self, episode, returns, episode_length):
         if not self._quiet:
-            print('test episode: {}, returns: {}'.format(episode, returns))
+            print('test episode: {}, episode_length: {}, returns: {}'.format(episode, episode_length, returns))
 
-    def _log_test(self, returns):
+    def _log_test(self, returns, episode_lengths):
         if not self._quiet:
-            mean = np.mean(returns)
-            sem = np.std(returns) / np.sqrt(len(returns))
-            print('test returns (mean ± sem): {} ± {}'.format(mean, sem))
-        self._logger.add_summary('returns-test', np.mean(returns), np.std(returns))
+            returns_mean = np.mean(returns)
+            returns_sem = np.std(returns) / np.sqrt(len(returns))
+            print('test returns (mean ± sem): {} ± {}'.format(returns_mean, returns_sem))
+            episode_length_mean = np.mean(episode_lengths)
+            episode_length_sem = np.std(episode_lengths) / np.sqrt(len(episode_lengths))
+            print('test episode length (mean ± sem): {} ± {}'.format(episode_length_mean, episode_length_sem))
+        self._logger.add_summary('test_returns', np.mean(returns), np.std(returns))
+        self._logger.add_summary('test_episode_length', np.mean(episode_lengths), np.std(episode_lengths))
 
     def save(self):
         return self._preset.save('{}/preset.pt'.format(self._logger.log_dir))
