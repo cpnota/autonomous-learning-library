@@ -1,13 +1,13 @@
-from .a2c import A2CAtariPreset, a2c
-from .c51 import C51AtariPreset, c51
-from .ddqn import DDQNAtariPreset, ddqn
-from .dqn import DQNAtariPreset, dqn
-from .ppo import PPOAtariPreset, ppo
-from .rainbow import RainbowAtariPreset, rainbow
-from .vac import VACAtariPreset, vac
-from .vpg import VPGAtariPreset, vpg
-from .vqn import VQNAtariPreset, vqn
-from .vsarsa import VSarsaAtariPreset, vsarsa
+from .a2c import a2c
+from .c51 import c51
+from .ddqn import ddqn
+from .dqn import dqn
+from .ppo import ppo
+from .rainbow import rainbow
+from .vac import vac
+from .vpg import vpg
+from .vqn import vqn
+from .vsarsa import vsarsa
 
 __all__ = [
     "a2c",

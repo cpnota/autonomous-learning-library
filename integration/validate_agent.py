@@ -6,7 +6,7 @@ from all.experiments import (
     SingleEnvExperiment,
 )
 from all.logging import DummyLogger
-from all.presets import ParallelPreset, Preset
+from all.presets import ParallelPreset
 
 
 class TestSingleEnvExperiment(SingleEnvExperiment):

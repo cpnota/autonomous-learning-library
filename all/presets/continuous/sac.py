@@ -4,7 +4,7 @@ from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from all.agents import SAC, SACTestAgent
-from all.approximation import PolyakTarget, QContinuous, VNetwork
+from all.approximation import PolyakTarget, QContinuous
 from all.bodies import TimeFeature
 from all.logging import DummyLogger
 from all.memory import ExperienceReplayBuffer

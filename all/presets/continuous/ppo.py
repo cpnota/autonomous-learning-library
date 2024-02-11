@@ -4,7 +4,7 @@ from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from all.agents import PPO, PPOTestAgent
-from all.approximation import FeatureNetwork, Identity, VNetwork
+from all.approximation import Identity, VNetwork
 from all.bodies import TimeFeature
 from all.logging import DummyLogger
 from all.optim import LinearScheduler

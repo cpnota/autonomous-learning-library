@@ -1,6 +1,6 @@
 # from .actor_critic import actor_critic
-from .ddpg import DDPGContinuousPreset, ddpg
-from .ppo import PPOContinuousPreset, ppo
+from .ddpg import ddpg
+from .ppo import ppo
 from .sac import sac
 
 __all__ = [

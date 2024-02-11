@@ -5,7 +5,6 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from all.agents import VSarsa, VSarsaTestAgent
 from all.approximation import QNetwork
-from all.bodies import DeepmindAtariBody
 from all.logging import DummyLogger
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy, ParallelGreedyPolicy

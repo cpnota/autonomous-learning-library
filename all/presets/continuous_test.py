@@ -3,10 +3,9 @@ import unittest
 
 import torch
 
-from all.core import State
 from all.environments import DuplicateEnvironment, GymEnvironment
 from all.logging import DummyLogger
-from all.presets import ParallelPreset, Preset
+from all.presets import ParallelPreset
 from all.presets.continuous import ddpg, ppo, sac
 
 

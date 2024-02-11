@@ -4,8 +4,6 @@ from torch import nn
 from torch.nn import *  # noqa
 from torch.nn import functional as F
 
-from all.core import State
-
 """"A Pytorch Module"""
 Module = nn.Module
 

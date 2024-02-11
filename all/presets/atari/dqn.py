@@ -1,13 +1,10 @@
 import copy
 
-import numpy as np
-import torch
 from torch.nn.functional import smooth_l1_loss
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
-from all import nn
-from all.agents import DQN, Agent, DQNTestAgent
+from all.agents import DQN, DQNTestAgent
 from all.approximation import FixedTarget, QNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyLogger

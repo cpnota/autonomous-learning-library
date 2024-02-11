@@ -13,6 +13,7 @@ integration-test:
 lint:
 	black --check all benchmarks examples integration setup.py
 	isort --profile black --check all benchmarks examples integration setup.py
+	flake8 --select "F401" all benchmarks examples integration setup.py
 
 format:
 	black all benchmarks examples integration setup.py

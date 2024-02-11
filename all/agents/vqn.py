@@ -3,7 +3,6 @@ from torch.nn.functional import mse_loss
 
 from ._agent import Agent
 from ._parallel_agent import ParallelAgent
-from .dqn import DQNTestAgent
 
 
 class VQN(ParallelAgent):

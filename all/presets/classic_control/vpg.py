@@ -1,11 +1,9 @@
 import copy
 
 from torch.optim import Adam
-from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from all.agents import VPG, VPGTestAgent
 from all.approximation import FeatureNetwork, VNetwork
-from all.bodies import DeepmindAtariBody
 from all.logging import DummyLogger
 from all.policies import SoftmaxPolicy
 from all.presets.builder import PresetBuilder

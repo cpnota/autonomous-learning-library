@@ -1,7 +1,6 @@
 from all.agents import IndependentMultiagent
 from all.logging import DummyLogger
 
-from .builder import PresetBuilder
 from .preset import Preset
 
 

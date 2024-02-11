@@ -21,4 +21,5 @@ __all__ = [
     "MultiagentPettingZooEnv",
     "MujocoEnvironment",
     "PybulletEnvironment",
+    "VectorEnvironment",
 ]

@@ -24,7 +24,7 @@ extras = {
     ],
     "test": [
         "black>=24.1.1",  # linting/formatting
-        "isort>=5.13.2",  # sort imports
+        "flake8>=7.0.0",  # more linting
         "torch-testing>=0.0.2",  # pytorch assertion library
     ],
     "docs": [

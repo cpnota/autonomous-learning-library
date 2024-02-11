@@ -9,11 +9,9 @@ import os
 import numpy as np
 
 os.environ.setdefault("PATH", "")
-from collections import deque
 
 import cv2
 import gymnasium
-from gymnasium import spaces
 
 cv2.ocl.setUseOpenCL(False)
 

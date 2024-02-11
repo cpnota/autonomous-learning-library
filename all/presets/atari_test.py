@@ -5,7 +5,7 @@ import torch
 
 from all.environments import AtariEnvironment, DuplicateEnvironment
 from all.logging import DummyLogger
-from all.presets import ParallelPreset, Preset
+from all.presets import ParallelPreset
 from all.presets.atari import a2c, c51, ddqn, dqn, ppo, rainbow, vac, vpg, vqn, vsarsa
 
 

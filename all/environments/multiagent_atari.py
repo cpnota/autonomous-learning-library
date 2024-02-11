@@ -1,12 +1,5 @@
 import importlib
 
-import gymnasium
-import numpy as np
-import torch
-
-from all.core import MultiagentState
-
-from ._multiagent_environment import MultiagentEnvironment
 from .multiagent_pettingzoo import MultiagentPettingZooEnv
 
 
@@ -27,7 +20,6 @@ class MultiagentAtariEnv(MultiagentPettingZooEnv):
         super().__init__(env, name=env_name, device=device)
 
     def _load_env(self, env_name, pettingzoo_params):
-        from pettingzoo import atari
         from supersuit import frame_skip_v0, max_observation_v0, reshape_v0, resize_v1
 
         env = importlib.import_module("pettingzoo.atari.{}".format(env_name)).env(

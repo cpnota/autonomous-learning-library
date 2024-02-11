@@ -1,5 +1,4 @@
 import copy
-import math
 
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR

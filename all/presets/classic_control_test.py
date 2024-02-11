@@ -5,7 +5,7 @@ import torch
 
 from all.environments import DuplicateEnvironment, GymEnvironment
 from all.logging import DummyLogger
-from all.presets import ParallelPreset, Preset
+from all.presets import ParallelPreset
 from all.presets.classic_control import (
     a2c,
     c51,
