@@ -98,7 +98,6 @@ class TestSingleEnvExperiment(unittest.TestCase):
     def test_writes_training_episode_length(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
         experiment.train(episodes=3)
-        print(experiment._logger.data)
         np.testing.assert_equal(
             experiment._logger.data["eval/episode_length"]["values"],
             np.array([22, 17, 28]),

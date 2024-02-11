@@ -93,32 +93,38 @@ class ParallelEnvExperiment(Experiment):
         # Note that we need to record the first N episodes that are STARTED,
         # not the first N that are completed, or we introduce bias.
         test_returns = []
+        test_episode_lengths = []
         episodes_started = self._n_envs
         should_record = [True] * self._n_envs
 
         # initialize state
         states = self._env.reset()
         returns = states.reward.clone()
+        episode_lengths = np.zeros(self._n_envs)
 
         while len(test_returns) < episodes:
             # step the agent and environments
             actions = test_agent.act(states)
             states = self._env.step(actions)
             returns += states.reward
+            episode_lengths += 1
 
             # record any episodes that have finished
             for i, done in enumerate(states.done):
                 if done:
                     if should_record[i] and len(test_returns) < episodes:
                         episode_return = returns[i].item()
+                        episode_length = episode_lengths[i]
                         test_returns.append(episode_return)
-                        self._log_test_episode(len(test_returns), episode_return)
+                        test_episode_lengths.append(episode_length)
+                        self._log_test_episode(len(test_returns), episode_return, episode_length)
                     returns[i] = 0.
+                    episode_lengths[i] = -1
                     episodes_started += 1
                     if episodes_started > episodes:
                         should_record[i] = False
 
-        self._log_test(test_returns)
+        self._log_test(test_returns, test_episode_lengths)
         return test_returns
 
     def _done(self, frames, episodes):

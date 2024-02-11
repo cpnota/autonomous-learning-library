@@ -76,6 +76,19 @@ class TestParallelEnvExperiment(unittest.TestCase):
             np.array([np.std(returns)]),
         )
 
+    def test_writes_test_episode_length(self):
+        self.experiment.train(episodes=5)
+        returns = self.experiment.test(episodes=4)
+        self.assertEqual(len(returns), 4)
+        np.testing.assert_equal(
+            self.experiment._logger.data["summary/test_episode_length/mean"]["values"],
+            np.array([np.mean(returns)]),
+        )
+        np.testing.assert_equal(
+            self.experiment._logger.data["summary/test_episode_length/std"]["values"],
+            np.array([np.std(returns)]),
+        )
+
     def test_writes_loss(self):
         experiment = MockExperiment(
             self.make_agent(), self.env, quiet=True, verbose=True
