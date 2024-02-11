@@ -49,7 +49,7 @@ class TestParallelEnvExperiment(unittest.TestCase):
         )
         np.testing.assert_equal(
             self.experiment._logger.data["eval/returns/frame"]["values"],
-            np.array([12.0, 13.0, 16.0, 16.0]), 
+            np.array([12.0, 13.0, 16.0, 16.0]),
         )
 
     def test_writes_training_episode_length(self):
@@ -60,7 +60,7 @@ class TestParallelEnvExperiment(unittest.TestCase):
         )
         np.testing.assert_equal(
             self.experiment._logger.data["eval/episode_length"]["values"],
-            np.array([12.0, 13.0, 16.0, 16.0]), 
+            np.array([12.0, 13.0, 16.0, 16.0]),
         )
 
     def test_writes_test_returns(self):

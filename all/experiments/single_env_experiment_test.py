@@ -107,7 +107,6 @@ class TestSingleEnvExperiment(unittest.TestCase):
             np.array([23, 40, 68]),
         )
 
-
     def test_writes_test_returns(self):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
         experiment.train(episodes=5)
