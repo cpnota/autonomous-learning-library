@@ -1,9 +1,11 @@
 import unittest
+
 import torch
-from torch import nn
 import torch_testing as tt
-from all.core import StateArray
+from torch import nn
+
 from all.approximation import QDist
+from all.core import StateArray
 
 STATE_DIM = 1
 ACTIONS = 2

@@ -1,16 +1,17 @@
 import copy
+
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
+
 from all.agents import PPO, PPOTestAgent
-from all.approximation import VNetwork, FeatureNetwork, Identity
+from all.approximation import FeatureNetwork, Identity, VNetwork
 from all.bodies import TimeFeature
 from all.logging import DummyLogger
 from all.optim import LinearScheduler
 from all.policies import GaussianPolicy
 from all.presets.builder import ParallelPresetBuilder
-from all.presets.preset import ParallelPreset
 from all.presets.continuous.models import fc_policy, fc_v
-
+from all.presets.preset import ParallelPreset
 
 default_hyperparameters = {
     # Common settings

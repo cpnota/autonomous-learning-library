@@ -1,4 +1,5 @@
 import torch
+
 from .abstract import TargetNetwork
 
 

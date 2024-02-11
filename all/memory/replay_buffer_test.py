@@ -1,13 +1,15 @@
-import unittest
 import random
-import torch
+import unittest
+
 import numpy as np
+import torch
 import torch_testing as tt
+
 from all.core import State, StateArray
 from all.memory import (
     ExperienceReplayBuffer,
-    PrioritizedReplayBuffer,
     NStepReplayBuffer,
+    PrioritizedReplayBuffer,
 )
 
 

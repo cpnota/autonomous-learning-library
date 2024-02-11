@@ -1,10 +1,12 @@
 import unittest
+
+import numpy as np
 import torch
 import torch_testing as tt
-import numpy as np
 from gymnasium.spaces import Box
+
 from all import nn
-from all.approximation import FixedTarget, DummyCheckpointer
+from all.approximation import DummyCheckpointer, FixedTarget
 from all.core import State
 from all.policies import DeterministicPolicy
 

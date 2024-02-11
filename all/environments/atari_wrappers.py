@@ -4,14 +4,16 @@ https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.
 Other behaviors were implemented as Bodies.
 """
 
-import numpy as np
 import os
+
+import numpy as np
 
 os.environ.setdefault("PATH", "")
 from collections import deque
+
+import cv2
 import gymnasium
 from gymnasium import spaces
-import cv2
 
 cv2.ocl.setUseOpenCL(False)
 

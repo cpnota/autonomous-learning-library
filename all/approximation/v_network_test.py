@@ -1,7 +1,9 @@
 import unittest
+
 import torch
-from torch import nn
 import torch_testing as tt
+from torch import nn
+
 from all.approximation.v_network import VNetwork
 from all.core import StateArray
 

@@ -1,12 +1,14 @@
 import random
 import unittest
+
 import numpy as np
 import torch
-from all.presets.atari import dqn
-from all.presets import IndependentMultiagentPreset
+
 from all.environments import MultiagentAtariEnv
 from all.experiments import MultiagentEnvExperiment
 from all.experiments.single_env_experiment_test import MockLogger
+from all.presets import IndependentMultiagentPreset
+from all.presets.atari import dqn
 
 
 class MockExperiment(MultiagentEnvExperiment):

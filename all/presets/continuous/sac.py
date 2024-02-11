@@ -1,16 +1,17 @@
 import copy
+
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
+
 from all.agents import SAC, SACTestAgent
-from all.approximation import QContinuous, PolyakTarget, VNetwork
+from all.approximation import PolyakTarget, QContinuous, VNetwork
 from all.bodies import TimeFeature
 from all.logging import DummyLogger
-from all.policies.soft_deterministic import SoftDeterministicPolicy
 from all.memory import ExperienceReplayBuffer
+from all.policies.soft_deterministic import SoftDeterministicPolicy
 from all.presets.builder import PresetBuilder
-from all.presets.preset import Preset
 from all.presets.continuous.models import fc_q, fc_soft_policy
-
+from all.presets.preset import Preset
 
 default_hyperparameters = {
     # Common settings

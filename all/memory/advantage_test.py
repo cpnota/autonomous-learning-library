@@ -1,9 +1,11 @@
 import unittest
+
 import torch
 import torch_testing as tt
+
 from all import nn
+from all.approximation import FeatureNetwork, VNetwork
 from all.core import StateArray
-from all.approximation import VNetwork, FeatureNetwork
 from all.memory import NStepAdvantageBuffer
 
 

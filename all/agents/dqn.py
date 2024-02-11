@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from torch.nn.functional import mse_loss
+
 from ._agent import Agent
 
 

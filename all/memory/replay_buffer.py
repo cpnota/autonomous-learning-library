@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
+
 import numpy as np
 import torch
+
 from all.core import State
 from all.optim import Schedulable
-from .segment_tree import SumSegmentTree, MinSegmentTree
+
+from .segment_tree import MinSegmentTree, SumSegmentTree
 
 
 class ReplayBuffer(ABC):

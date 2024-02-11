@@ -1,5 +1,6 @@
 import unittest
-from all.environments import MujocoEnvironment, GymEnvironment
+
+from all.environments import GymEnvironment, MujocoEnvironment
 
 
 class MujocoEnvironmentTest(unittest.TestCase):

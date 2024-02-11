@@ -1,8 +1,11 @@
 import importlib
+
+import gymnasium
 import numpy as np
 import torch
-import gymnasium
+
 from all.core import MultiagentState
+
 from ._multiagent_environment import MultiagentEnvironment
 from .multiagent_pettingzoo import MultiagentPettingZooEnv
 
@@ -25,7 +28,7 @@ class MultiagentAtariEnv(MultiagentPettingZooEnv):
 
     def _load_env(self, env_name, pettingzoo_params):
         from pettingzoo import atari
-        from supersuit import resize_v1, frame_skip_v0, reshape_v0, max_observation_v0
+        from supersuit import frame_skip_v0, max_observation_v0, reshape_v0, resize_v1
 
         env = importlib.import_module("pettingzoo.atari.{}".format(env_name)).env(
             obs_type="grayscale_image", **pettingzoo_params

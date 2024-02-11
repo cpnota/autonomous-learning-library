@@ -1,17 +1,18 @@
 import copy
+
 from torch.optim import Adam
+
 from all.agents import A2C, A2CTestAgent
-from all.approximation import VNetwork, FeatureNetwork
+from all.approximation import FeatureNetwork, VNetwork
 from all.logging import DummyLogger
 from all.policies import SoftmaxPolicy
 from all.presets.builder import ParallelPresetBuilder
-from all.presets.preset import ParallelPreset
 from all.presets.classic_control.models import (
-    fc_relu_features,
     fc_policy_head,
+    fc_relu_features,
     fc_value_head,
 )
-
+from all.presets.preset import ParallelPreset
 
 default_hyperparameters = {
     # Common settings

@@ -1,10 +1,12 @@
 import unittest
+
 import numpy as np
 import torch
-from all.presets.classic_control import a2c
+
 from all.environments import GymEnvironment
 from all.experiments import ParallelEnvExperiment
 from all.experiments.single_env_experiment_test import MockLogger
+from all.presets.classic_control import a2c
 
 
 class MockExperiment(ParallelEnvExperiment):

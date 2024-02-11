@@ -1,8 +1,10 @@
 import unittest
+
 import torch
 import torch_testing as tt
-from all.core import State, StateArray
+
 from all.bodies import TimeFeature
+from all.core import State, StateArray
 
 
 class TestAgent:

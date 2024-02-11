@@ -1,6 +1,8 @@
 import unittest
 from unittest import mock
+
 import torch
+
 from all.environments import GymEnvironment
 from all.experiments.watch import load_and_watch
 

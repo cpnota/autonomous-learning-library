@@ -1,15 +1,17 @@
 import gymnasium
 import torch
+
 from all.core import State
-from .duplicate_env import DuplicateEnvironment
-from .atari_wrappers import (
-    NoopResetEnv,
-    MaxAndSkipEnv,
-    FireResetEnv,
-    WarpFrame,
-    LifeLostEnv,
-)
+
 from ._environment import Environment
+from .atari_wrappers import (
+    FireResetEnv,
+    LifeLostEnv,
+    MaxAndSkipEnv,
+    NoopResetEnv,
+    WarpFrame,
+)
+from .duplicate_env import DuplicateEnvironment
 
 
 class AtariEnvironment(Environment):

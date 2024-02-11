@@ -1,5 +1,7 @@
 import torch
+
 from all.nn import weighted_mse_loss
+
 from ._agent import Agent
 from .dqn import DQNTestAgent
 

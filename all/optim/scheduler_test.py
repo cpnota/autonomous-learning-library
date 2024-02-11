@@ -1,6 +1,8 @@
 import unittest
+
 import numpy as np
-from all.optim import Schedulable, LinearScheduler
+
+from all.optim import LinearScheduler, Schedulable
 
 
 class Obj(Schedulable):

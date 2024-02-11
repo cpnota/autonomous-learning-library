@@ -1,16 +1,17 @@
 import copy
+
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
+
 from all.agents import DDPG, DDPGTestAgent
-from all.approximation import QContinuous, PolyakTarget
+from all.approximation import PolyakTarget, QContinuous
 from all.bodies import TimeFeature
 from all.logging import DummyLogger
-from all.policies import DeterministicPolicy
 from all.memory import ExperienceReplayBuffer
+from all.policies import DeterministicPolicy
 from all.presets.builder import PresetBuilder
+from all.presets.continuous.models import fc_deterministic_policy, fc_q
 from all.presets.preset import Preset
-from all.presets.continuous.models import fc_q, fc_deterministic_policy
-
 
 default_hyperparameters = {
     # Common settings

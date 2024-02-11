@@ -1,8 +1,10 @@
-import os
 import csv
+import os
 import subprocess
 from datetime import datetime
+
 from torch.utils.tensorboard import SummaryWriter
+
 from ._logger import Logger
 
 

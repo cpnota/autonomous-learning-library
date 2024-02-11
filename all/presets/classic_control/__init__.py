@@ -1,13 +1,13 @@
-from .a2c import a2c, A2CClassicControlPreset
-from .c51 import c51, C51ClassicControlPreset
-from .ddqn import ddqn, DDQNClassicControlPreset
-from .dqn import dqn, DQNClassicControlPreset
-from .ppo import ppo, PPOClassicControlPreset
-from .rainbow import rainbow, RainbowClassicControlPreset
-from .vac import vac, VACClassicControlPreset
-from .vpg import vpg, VPGClassicControlPreset
-from .vqn import vqn, VQNClassicControlPreset
-from .vsarsa import vsarsa, VSarsaClassicControlPreset
+from .a2c import A2CClassicControlPreset, a2c
+from .c51 import C51ClassicControlPreset, c51
+from .ddqn import DDQNClassicControlPreset, ddqn
+from .dqn import DQNClassicControlPreset, dqn
+from .ppo import PPOClassicControlPreset, ppo
+from .rainbow import RainbowClassicControlPreset, rainbow
+from .vac import VACClassicControlPreset, vac
+from .vpg import VPGClassicControlPreset, vpg
+from .vqn import VQNClassicControlPreset, vqn
+from .vsarsa import VSarsaClassicControlPreset, vsarsa
 
 __all__ = [
     "a2c",

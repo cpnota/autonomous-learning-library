@@ -1,10 +1,10 @@
+import numpy as np
 import torch
 from torch import nn
 from torch.nn import *  # noqa
 from torch.nn import functional as F
-import numpy as np
-from all.core import State
 
+from all.core import State
 
 """"A Pytorch Module"""
 Module = nn.Module

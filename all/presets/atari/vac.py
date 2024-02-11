@@ -1,19 +1,20 @@
 import copy
+
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
+
 from all.agents import VAC, VACTestAgent
-from all.approximation import VNetwork, FeatureNetwork
+from all.approximation import FeatureNetwork, VNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyLogger
 from all.policies import SoftmaxPolicy
-from all.presets.builder import ParallelPresetBuilder
-from all.presets.preset import ParallelPreset
 from all.presets.atari.models import (
     nature_features,
-    nature_value_head,
     nature_policy_head,
+    nature_value_head,
 )
-
+from all.presets.builder import ParallelPresetBuilder
+from all.presets.preset import ParallelPreset
 
 default_hyperparameters = {
     # Common settings

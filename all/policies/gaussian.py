@@ -1,6 +1,7 @@
 import torch
 from torch.distributions.independent import Independent
 from torch.distributions.normal import Normal
+
 from all.approximation import Approximation
 from all.nn import RLNetwork
 

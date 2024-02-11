@@ -1,15 +1,13 @@
 import os
 import unittest
+
 import torch
+
 from all.core import State
-from all.environments import GymEnvironment, DuplicateEnvironment
+from all.environments import DuplicateEnvironment, GymEnvironment
 from all.logging import DummyLogger
-from all.presets import Preset, ParallelPreset
-from all.presets.continuous import (
-    ddpg,
-    ppo,
-    sac,
-)
+from all.presets import ParallelPreset, Preset
+from all.presets.continuous import ddpg, ppo, sac
 
 
 class TestContinuousPresets(unittest.TestCase):

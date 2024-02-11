@@ -1,8 +1,8 @@
 import argparse
+
 from all.environments import MultiagentAtariEnv
 from all.experiments.multiagent_env_experiment import MultiagentEnvExperiment
-from all.presets import atari
-from all.presets import IndependentMultiagentPreset
+from all.presets import IndependentMultiagentPreset, atari
 
 
 class DummyEnv:

@@ -11,10 +11,12 @@ integration-test:
 	python -m unittest discover -s integration -p "*test.py"
 
 lint:
-	flake8 --ignore "E501,E731,E74,E402,F401,W503,E128" all
+	black --check all benchmarks examples integration setup.py
+	isort --profile black --check all benchmarks examples integration setup.py
 
 format:
 	black all benchmarks examples integration setup.py
+	isort --profile black all benchmarks examples integration setup.py
 
 tensorboard:
 	tensorboard --logdir runs

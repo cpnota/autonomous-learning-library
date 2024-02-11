@@ -1,9 +1,9 @@
 # pylint: disable=unused-import
 import argparse
+
 from all.environments import GymEnvironment, PybulletEnvironment
 from all.experiments import run_experiment
 from all.presets import continuous
-
 
 # see also: PybulletEnvironment.short_names
 ENVS = {

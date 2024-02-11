@@ -1,5 +1,4 @@
-from setuptools import setup, find_packages
-
+from setuptools import find_packages, setup
 
 GYM_VERSION = "0.29.1"
 PETTINGZOO_VERSION = "1.24.2"
@@ -24,8 +23,8 @@ extras = {
         "supersuit~=3.9.1",
     ],
     "test": [
-        "flake8>=3.8",  # linter for pep8 compliance
-        "black>=24.1.1",  # automatically fixes some pep8 errors
+        "black>=24.1.1",  # linting/formatting
+        "isort>=5.13.2",  # sort imports
         "torch-testing>=0.0.2",  # pytorch assertion library
     ],
     "docs": [

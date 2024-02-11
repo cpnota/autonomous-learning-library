@@ -1,10 +1,12 @@
 import os
 import unittest
+
 import torch
+
 from all.environments import AtariEnvironment, DuplicateEnvironment
 from all.logging import DummyLogger
-from all.presets import Preset, ParallelPreset
-from all.presets.atari import a2c, c51, ddqn, dqn, ppo, rainbow, vac, vpg, vsarsa, vqn
+from all.presets import ParallelPreset, Preset
+from all.presets.atari import a2c, c51, ddqn, dqn, ppo, rainbow, vac, vpg, vqn, vsarsa
 
 
 class TestAtariPresets(unittest.TestCase):

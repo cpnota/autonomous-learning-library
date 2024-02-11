@@ -1,9 +1,12 @@
 import os
+
 import torch
 from torch.nn import utils
+
 from all.logging import DummyLogger
-from .target import TrivialTarget
+
 from .checkpointer import DummyCheckpointer
+from .target import TrivialTarget
 
 DEFAULT_CHECKPOINT_FREQUENCY = 200
 

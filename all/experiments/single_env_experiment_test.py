@@ -1,10 +1,12 @@
 import unittest
+
 import numpy as np
 import torch
-from all.presets.classic_control import dqn
+
 from all.environments import GymEnvironment
 from all.experiments import SingleEnvExperiment
 from all.logging import Logger
+from all.presets.classic_control import dqn
 
 
 class MockLogger(Logger):

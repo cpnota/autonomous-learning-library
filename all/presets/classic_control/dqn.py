@@ -1,15 +1,16 @@
 import copy
+
 from torch.optim import Adam
+
 from all.agents import DQN, DQNTestAgent
-from all.approximation import QNetwork, FixedTarget
+from all.approximation import FixedTarget, QNetwork
 from all.logging import DummyLogger
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
 from all.presets.builder import PresetBuilder
-from all.presets.preset import Preset
 from all.presets.classic_control.models import fc_relu_q
-
+from all.presets.preset import Preset
 
 default_hyperparameters = {
     # Common settings

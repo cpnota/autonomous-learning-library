@@ -1,4 +1,5 @@
 from torch.nn.functional import mse_loss
+
 from ._parallel_agent import ParallelAgent
 from .vqn import VQNTestAgent
 

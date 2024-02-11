@@ -1,7 +1,9 @@
 import unittest
+
 import torch
-from torch import nn
 import torch_testing as tt
+from torch import nn
+
 from all.core import State
 from all.policies import SoftmaxPolicy
 

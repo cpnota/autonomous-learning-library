@@ -1,5 +1,6 @@
 import unittest
-from all.environments import PybulletEnvironment, GymEnvironment
+
+from all.environments import GymEnvironment, PybulletEnvironment
 
 
 class PybulletEnvironmentTest(unittest.TestCase):

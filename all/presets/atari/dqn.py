@@ -1,21 +1,22 @@
 import copy
-import torch
+
 import numpy as np
+import torch
+from torch.nn.functional import smooth_l1_loss
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from torch.nn.functional import smooth_l1_loss
+
 from all import nn
-from all.approximation import QNetwork, FixedTarget
-from all.agents import Agent, DQN, DQNTestAgent
+from all.agents import DQN, Agent, DQNTestAgent
+from all.approximation import FixedTarget, QNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyLogger
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
+from all.presets.atari.models import nature_dqn
 from all.presets.builder import PresetBuilder
 from all.presets.preset import Preset
-from all.presets.atari.models import nature_dqn
-
 
 default_hyperparameters = {
     # Common settings

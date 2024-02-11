@@ -1,6 +1,6 @@
+from all.environments import AtariEnvironment
 from all.experiments import SlurmExperiment
 from all.presets import atari
-from all.environments import AtariEnvironment
 
 
 def main():

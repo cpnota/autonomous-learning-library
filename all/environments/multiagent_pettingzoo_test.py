@@ -1,7 +1,9 @@
 import unittest
+
 import torch
-from all.environments import MultiagentPettingZooEnv
 from pettingzoo.mpe import simple_world_comm_v3
+
+from all.environments import MultiagentPettingZooEnv
 
 
 class MultiagentPettingZooEnvTest(unittest.TestCase):

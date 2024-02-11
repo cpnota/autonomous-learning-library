@@ -1,6 +1,7 @@
-from .single_env_experiment import SingleEnvExperiment
-from .parallel_env_experiment import ParallelEnvExperiment
 from all.presets import ParallelPreset
+
+from .parallel_env_experiment import ParallelEnvExperiment
+from .single_env_experiment import SingleEnvExperiment
 
 
 def run_experiment(

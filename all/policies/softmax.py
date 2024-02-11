@@ -1,7 +1,8 @@
 import torch
 from torch.nn import functional
-from all.nn import RLNetwork
+
 from all.approximation import Approximation
+from all.nn import RLNetwork
 
 
 class SoftmaxPolicy(Approximation):

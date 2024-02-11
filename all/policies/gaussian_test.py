@@ -1,9 +1,11 @@
 import unittest
+
 import numpy as np
 import torch
-from torch import nn
 import torch_testing as tt
 from gymnasium.spaces import Box
+from torch import nn
+
 from all.approximation import DummyCheckpointer
 from all.core import State
 from all.policies import GaussianPolicy

@@ -1,6 +1,8 @@
 import torch
 from torch.nn.functional import mse_loss
+
 from all.core import State
+
 from ._agent import Agent
 from .a2c import A2CTestAgent
 

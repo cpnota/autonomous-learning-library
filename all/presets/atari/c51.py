@@ -1,16 +1,17 @@
 import copy
+
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from all.approximation import QDist, FixedTarget
+
 from all.agents import C51, C51TestAgent
+from all.approximation import FixedTarget, QDist
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyLogger
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
+from all.presets.atari.models import nature_c51
 from all.presets.builder import PresetBuilder
 from all.presets.preset import Preset
-from all.presets.atari.models import nature_c51
-
 
 default_hyperparameters = {
     "discount_factor": 0.99,

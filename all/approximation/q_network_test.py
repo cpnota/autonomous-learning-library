@@ -1,11 +1,13 @@
 import unittest
+
+import numpy as np
 import torch
+import torch_testing as tt
 from torch import nn
 from torch.nn.functional import smooth_l1_loss
-import torch_testing as tt
-import numpy as np
+
+from all.approximation import FixedTarget, QNetwork
 from all.core import State, StateArray
-from all.approximation import QNetwork, FixedTarget
 
 STATE_DIM = 2
 ACTIONS = 3

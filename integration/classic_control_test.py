@@ -1,4 +1,7 @@
 import unittest
+
+from validate_agent import validate_agent
+
 from all.environments import GymEnvironment
 from all.presets.classic_control import (
     a2c,
@@ -12,7 +15,6 @@ from all.presets.classic_control import (
     vqn,
     vsarsa,
 )
-from validate_agent import validate_agent
 
 
 class TestClassicControlPresets(unittest.TestCase):

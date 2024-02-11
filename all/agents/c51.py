@@ -1,6 +1,8 @@
-import torch
 import numpy as np
+import torch
+
 from all.logging import DummyLogger
+
 from ._agent import Agent
 
 

@@ -1,7 +1,9 @@
 import unittest
+
 import gymnasium
 import torch
-from all.environments import GymVectorEnvironment, GymEnvironment, DuplicateEnvironment
+
+from all.environments import DuplicateEnvironment, GymEnvironment, GymVectorEnvironment
 
 
 def make_vec_env(num_envs=3):

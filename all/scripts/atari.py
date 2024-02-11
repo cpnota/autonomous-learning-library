@@ -1,4 +1,5 @@
 import argparse
+
 from all.environments import AtariEnvironment
 from all.experiments import run_experiment
 from all.presets import atari

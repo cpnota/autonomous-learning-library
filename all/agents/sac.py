@@ -1,6 +1,8 @@
 import torch
 from torch.nn.functional import mse_loss
+
 from all.logging import DummyLogger
+
 from ._agent import Agent
 
 

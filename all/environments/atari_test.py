@@ -1,4 +1,5 @@
 import unittest
+
 from all.environments import AtariEnvironment
 
 

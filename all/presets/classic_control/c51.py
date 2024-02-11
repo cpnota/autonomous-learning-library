@@ -1,14 +1,15 @@
 import copy
+
 from torch.optim import Adam
+
 from all.agents import C51, C51TestAgent
-from all.approximation import QDist, FixedTarget
+from all.approximation import FixedTarget, QDist
 from all.logging import DummyLogger
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from all.presets.builder import PresetBuilder
-from all.presets.preset import Preset
 from all.presets.classic_control.models import fc_relu_dist_q
-
+from all.presets.preset import Preset
 
 default_hyperparameters = {
     "discount_factor": 0.99,

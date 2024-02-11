@@ -1,9 +1,11 @@
 import os
 import unittest
+
 import torch
-from all.environments import GymEnvironment, DuplicateEnvironment
+
+from all.environments import DuplicateEnvironment, GymEnvironment
 from all.logging import DummyLogger
-from all.presets import Preset, ParallelPreset
+from all.presets import ParallelPreset, Preset
 from all.presets.classic_control import (
     a2c,
     c51,

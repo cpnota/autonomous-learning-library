@@ -2,8 +2,8 @@ import argparse
 import os
 import subprocess
 import sys
-from .run_experiment import run_experiment
 
+from .run_experiment import run_experiment
 
 # track the number of experiments created
 # in the current process

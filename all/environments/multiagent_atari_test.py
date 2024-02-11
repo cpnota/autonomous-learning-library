@@ -1,5 +1,7 @@
 import unittest
+
 import torch
+
 from all.environments import MultiagentAtariEnv
 
 

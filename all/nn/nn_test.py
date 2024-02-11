@@ -1,8 +1,10 @@
 import unittest
+
+import gymnasium
 import numpy as np
 import torch
 import torch_testing as tt
-import gymnasium
+
 from all import nn
 from all.core import StateArray
 

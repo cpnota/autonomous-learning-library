@@ -1,10 +1,11 @@
 import unittest
-import torch
-from torch import nn
-import torch_testing as tt
-from all.core import State
-from all.approximation.feature_network import FeatureNetwork
 
+import torch
+import torch_testing as tt
+from torch import nn
+
+from all.approximation.feature_network import FeatureNetwork
+from all.core import State
 
 STATE_DIM = 2
 

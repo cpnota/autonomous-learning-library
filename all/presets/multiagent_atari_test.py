@@ -1,10 +1,12 @@
 import os
 import unittest
+
 import torch
+
 from all.environments import MultiagentAtariEnv
 from all.logging import DummyLogger
-from all.presets.atari import dqn
 from all.presets import IndependentMultiagentPreset
+from all.presets.atari import dqn
 
 
 class TestMultiagentAtariPresets(unittest.TestCase):

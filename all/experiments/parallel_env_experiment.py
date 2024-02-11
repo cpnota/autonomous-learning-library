@@ -1,9 +1,12 @@
-import torch
 import time
+
 import numpy as np
-from all.logging import ExperimentLogger, CometLogger
-from .experiment import Experiment
+import torch
+
 from all.environments import VectorEnvironment
+from all.logging import CometLogger, ExperimentLogger
+
+from .experiment import Experiment
 
 
 class ParallelEnvExperiment(Experiment):

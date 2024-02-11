@@ -1,10 +1,11 @@
 import unittest
+
 import torch
+from validate_agent import validate_multiagent
+
 from all.environments import MultiagentAtariEnv
 from all.presets import IndependentMultiagentPreset
 from all.presets.atari import dqn
-from validate_agent import validate_multiagent
-
 
 CPU = torch.device("cpu")
 if torch.cuda.is_available():

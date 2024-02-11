@@ -1,6 +1,8 @@
 import argparse
 import time
+
 import torch
+
 from all.bodies import DeepmindAtariBody
 from all.environments import MultiagentAtariEnv
 from all.experiments import load_and_watch

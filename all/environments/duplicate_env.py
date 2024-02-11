@@ -1,8 +1,10 @@
 import gymnasium
-import torch
-from all.core import State
-from ._vector_environment import VectorEnvironment
 import numpy as np
+import torch
+
+from all.core import State
+
+from ._vector_environment import VectorEnvironment
 
 
 class DuplicateEnvironment(VectorEnvironment):

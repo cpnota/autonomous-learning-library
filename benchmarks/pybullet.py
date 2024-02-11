@@ -1,6 +1,6 @@
+from all.environments import PybulletEnvironment
 from all.experiments import SlurmExperiment
 from all.presets.continuous import ddpg, ppo, sac
-from all.environments import PybulletEnvironment
 
 
 def main():

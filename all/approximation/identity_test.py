@@ -1,8 +1,10 @@
 import unittest
+
 import torch
 import torch_testing as tt
+
+from all.approximation import FixedTarget, Identity
 from all.core import State
-from all.approximation import Identity, FixedTarget
 
 
 class TestIdentityNetwork(unittest.TestCase):

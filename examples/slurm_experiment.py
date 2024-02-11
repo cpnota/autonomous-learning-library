@@ -4,9 +4,9 @@ Note that it only runs for 1 million frames.
 For real experiments, you will surely need a modified version of this script.
 """
 
+from all.environments import AtariEnvironment
 from all.experiments import SlurmExperiment
 from all.presets.atari import a2c, dqn
-from all.environments import AtariEnvironment
 
 
 def main():

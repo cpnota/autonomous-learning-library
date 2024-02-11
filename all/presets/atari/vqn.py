@@ -1,16 +1,17 @@
 import copy
+
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from all.approximation import QNetwork
+
 from all.agents import VQN, VQNTestAgent
+from all.approximation import QNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyLogger
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy, ParallelGreedyPolicy
+from all.presets.atari.models import nature_ddqn
 from all.presets.builder import ParallelPresetBuilder
 from all.presets.preset import ParallelPreset
-from all.presets.atari.models import nature_ddqn
-
 
 default_hyperparameters = {
     # Common settings
