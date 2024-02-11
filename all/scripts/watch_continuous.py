@@ -24,7 +24,7 @@ def main():
 
     if args.env in ENVS:
         env = GymEnvironment(args.env, device=args.device, render_mode="human")
-    elif 'BulletEnv' in args.env or args.env in PybulletEnvironment.short_names:
+    elif "BulletEnv" in args.env or args.env in PybulletEnvironment.short_names:
         env = PybulletEnvironment(args.env, device=args.device, render_mode="human")
     else:
         env = GymEnvironment(args.env, device=args.device, render_mode="human")

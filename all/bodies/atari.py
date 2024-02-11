@@ -5,7 +5,14 @@ from .vision import FrameStack
 
 
 class DeepmindAtariBody(Body):
-    def __init__(self, agent, lazy_frames=False, episodic_lives=True, frame_stack=4, clip_rewards=True):
+    def __init__(
+        self,
+        agent,
+        lazy_frames=False,
+        episodic_lives=True,
+        frame_stack=4,
+        clip_rewards=True,
+    ):
         if frame_stack > 1:
             agent = FrameStack(agent, lazy=lazy_frames, size=frame_stack)
         if clip_rewards:
@@ -17,19 +24,19 @@ class DeepmindAtariBody(Body):
 
 class EpisodicLives(Body):
     def process_state(self, state):
-        if 'life_lost' not in state:
+        if "life_lost" not in state:
             return state
 
         if len(state.shape) == 0:
-            if state['life_lost']:
-                return state.update('mask', 0.)
+            if state["life_lost"]:
+                return state.update("mask", 0.0)
             return state
 
         masks = [None] * len(state)
-        life_lost = state['life_lost']
+        life_lost = state["life_lost"]
         for i, old_mask in enumerate(state.mask):
             if life_lost[i]:
-                masks[i] = 0.
+                masks[i] = 0.0
             else:
                 masks[i] = old_mask
-        return state.update('mask', torch.tensor(masks, device=state.device))
+        return state.update("mask", torch.tensor(masks, device=state.device))

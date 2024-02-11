@@ -13,5 +13,5 @@ __all__ = [
     "atari",
     "classic_control",
     "continuous",
-    "IndependentMultiagentPreset"
+    "IndependentMultiagentPreset",
 ]

@@ -4,7 +4,7 @@ from .vqn import VQNTestAgent
 
 
 class VSarsa(ParallelAgent):
-    '''
+    """
     Vanilla SARSA (VSarsa).
     SARSA (State-Action-Reward-State-Action) is an on-policy alternative to Q-learning. Unlike Q-learning,
     SARSA attempts to learn the Q-function for the current policy rather than the optimal policy. This
@@ -15,7 +15,7 @@ class VSarsa(ParallelAgent):
         q (QNetwork): An Approximation of the Q function.
         policy (GreedyPolicy): A policy derived from the Q-function.
         discount_factor (float): Discount factor for future rewards.
-    '''
+    """
 
     def __init__(self, q, policy, discount_factor=0.99):
         self.q = q
@@ -39,7 +39,9 @@ class VSarsa(ParallelAgent):
             # forward pass
             value = self.q(self._state, self._action)
             # compute target
-            target = reward + self.discount_factor * self.q.target(next_state, next_action)
+            target = reward + self.discount_factor * self.q.target(
+                next_state, next_action
+            )
             # compute loss
             loss = mse_loss(value, target)
             # backward pass

@@ -9,7 +9,11 @@ from all.optim import LinearScheduler
 from all.policies import SoftmaxPolicy
 from all.presets.builder import ParallelPresetBuilder
 from all.presets.preset import ParallelPreset
-from all.presets.atari.models import nature_features, nature_value_head, nature_policy_head
+from all.presets.atari.models import (
+    nature_features,
+    nature_value_head,
+    nature_policy_head,
+)
 
 
 default_hyperparameters = {
@@ -34,7 +38,7 @@ default_hyperparameters = {
     # Model construction
     "feature_model_constructor": nature_features,
     "value_model_constructor": nature_value_head,
-    "policy_model_constructor": nature_policy_head
+    "policy_model_constructor": nature_policy_head,
 }
 
 
@@ -69,23 +73,40 @@ class PPOAtariPreset(ParallelPreset):
 
     def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
-        self.value_model = hyperparameters['value_model_constructor']().to(device)
-        self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
-        self.feature_model = hyperparameters['feature_model_constructor']().to(device)
+        self.value_model = hyperparameters["value_model_constructor"]().to(device)
+        self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
+        self.feature_model = hyperparameters["feature_model_constructor"]().to(device)
 
-    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
-        n_updates = train_steps * self.hyperparameters['epochs'] * self.hyperparameters['minibatches'] / (self.hyperparameters['n_steps'] * self.hyperparameters['n_envs'])
+    def agent(self, logger=DummyLogger(), train_steps=float("inf")):
+        n_updates = (
+            train_steps
+            * self.hyperparameters["epochs"]
+            * self.hyperparameters["minibatches"]
+            / (self.hyperparameters["n_steps"] * self.hyperparameters["n_envs"])
+        )
 
-        feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
-        value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
-        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr"], eps=self.hyperparameters["eps"])
+        feature_optimizer = Adam(
+            self.feature_model.parameters(),
+            lr=self.hyperparameters["lr"],
+            eps=self.hyperparameters["eps"],
+        )
+        value_optimizer = Adam(
+            self.value_model.parameters(),
+            lr=self.hyperparameters["lr"],
+            eps=self.hyperparameters["eps"],
+        )
+        policy_optimizer = Adam(
+            self.policy_model.parameters(),
+            lr=self.hyperparameters["lr"],
+            eps=self.hyperparameters["eps"],
+        )
 
         features = FeatureNetwork(
             self.feature_model,
             feature_optimizer,
             scheduler=CosineAnnealingLR(feature_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
-            logger=logger
+            logger=logger,
         )
 
         v = VNetwork(
@@ -94,7 +115,7 @@ class PPOAtariPreset(ParallelPreset):
             scheduler=CosineAnnealingLR(value_optimizer, n_updates),
             loss_scaling=self.hyperparameters["value_loss_scaling"],
             clip_grad=self.hyperparameters["clip_grad"],
-            logger=logger
+            logger=logger,
         )
 
         policy = SoftmaxPolicy(
@@ -102,7 +123,7 @@ class PPOAtariPreset(ParallelPreset):
             policy_optimizer,
             scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
-            logger=logger
+            logger=logger,
         )
 
         return DeepmindAtariBody(
@@ -115,8 +136,8 @@ class PPOAtariPreset(ParallelPreset):
                     self.hyperparameters["clip_final"],
                     0,
                     n_updates,
-                    name='clip',
-                    logger=logger
+                    name="clip",
+                    logger=logger,
                 ),
                 epochs=self.hyperparameters["epochs"],
                 minibatches=self.hyperparameters["minibatches"],
@@ -138,4 +159,4 @@ class PPOAtariPreset(ParallelPreset):
         return self.test_agent()
 
 
-ppo = ParallelPresetBuilder('ppo', default_hyperparameters, PPOAtariPreset)
+ppo = ParallelPresetBuilder("ppo", default_hyperparameters, PPOAtariPreset)

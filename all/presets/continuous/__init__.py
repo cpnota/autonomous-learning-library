@@ -4,7 +4,7 @@ from .ppo import ppo, PPOContinuousPreset
 from .sac import sac
 
 __all__ = [
-    'ddpg',
-    'ppo',
-    'sac',
+    "ddpg",
+    "ppo",
+    "sac",
 ]

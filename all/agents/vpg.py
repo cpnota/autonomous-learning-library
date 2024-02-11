@@ -6,7 +6,7 @@ from .a2c import A2CTestAgent
 
 
 class VPG(Agent):
-    '''
+    """
     Vanilla Policy Gradient (VPG/REINFORCE).
     VPG (also known as REINFORCE) is the least biased implementation of the policy gradient theorem.
     It uses complete episode rollouts as unbiased estimates of the Q-function, rather than the n-step
@@ -25,16 +25,9 @@ class VPG(Agent):
         min_batch_size (int): Updates will occurs when an episode ends after at least
             this many state-action pairs are seen. Set this to a large value in order
             to train on multiple episodes at once.
-    '''
+    """
 
-    def __init__(
-            self,
-            features,
-            v,
-            policy,
-            discount_factor=0.99,
-            min_batch_size=1
-    ):
+    def __init__(self, features, v, policy, discount_factor=0.99, min_batch_size=1):
         self.features = features
         self.v = v
         self.policy = policy
@@ -92,21 +85,20 @@ class VPG(Agent):
 
     def _train(self):
         # forward pass
-        values = torch.cat([
-            self.v(features)
-            for (features, _, _)
-            in self._trajectories
-        ])
+        values = torch.cat(
+            [self.v(features) for (features, _, _) in self._trajectories]
+        )
 
         # forward passes for log_pis were stored during execution
         log_pis = torch.cat([log_pis for (_, _, log_pis) in self._trajectories])
 
         # compute targets
-        targets = torch.cat([
-            self._compute_discounted_returns(rewards)
-            for (_, rewards, _)
-            in self._trajectories
-        ])
+        targets = torch.cat(
+            [
+                self._compute_discounted_returns(rewards)
+                for (_, rewards, _) in self._trajectories
+            ]
+        )
         advantages = targets - values.detach()
 
         # compute losses

@@ -40,32 +40,22 @@ class NStepAdvantageBuffer:
         advantages = self._compute_advantages(states, rewards, next_states, lengths)
         self._clear_buffers()
 
-        return (
-            states,
-            actions,
-            advantages
-        )
+        return (states, actions, advantages)
 
     def _compute_returns(self):
         sample_returns = torch.zeros(
-            (self.n_steps, self.n_envs),
-            device=self._rewards[0].device
+            (self.n_steps, self.n_envs), device=self._rewards[0].device
         )
         sample_lengths = torch.zeros(
-            (self.n_steps, self.n_envs),
-            device=self._rewards[0].device
+            (self.n_steps, self.n_envs), device=self._rewards[0].device
         )
         current_returns = self._rewards[0] * 0
         current_lengths = current_returns.clone()
         for i in range(self.n_steps):
             t = self.n_steps - 1 - i
             mask = self._states[t + 1].mask.float()
-            current_returns = (
-                self._rewards[t] + self.gamma * current_returns * mask
-            )
-            current_lengths = (
-                1 + current_lengths * mask
-            )
+            current_returns = self._rewards[t] + self.gamma * current_returns * mask
+            current_lengths = 1 + current_lengths * mask
             sample_returns[t] = current_returns
             sample_lengths[t] = current_lengths
 
@@ -95,7 +85,7 @@ class NStepAdvantageBuffer:
         return (
             State.array(sample_states),
             torch.stack(sample_actions),
-            State.array(sample_next_states)
+            State.array(sample_next_states),
         )
 
     def _compute_advantages(self, states, rewards, next_states, lengths):

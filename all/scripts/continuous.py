@@ -29,21 +29,23 @@ def main():
     parser.add_argument(
         "--render", action="store_true", default=False, help="Render the environment."
     )
+    parser.add_argument("--logdir", default="runs", help="The base logging directory.")
     parser.add_argument(
-        "--logdir", default='runs', help="The base logging directory."
+        "--logger",
+        default="tensorboard",
+        help="The backend used for tracking experiment metrics.",
     )
-    parser.add_argument("--logger", default='tensorboard', help="The backend used for tracking experiment metrics.")
     parser.add_argument(
-        '--hyperparameters',
+        "--hyperparameters",
         default=[],
-        nargs='*',
-        help="Custom hyperparameters, in the format hyperparameter1=value1 hyperparameter2=value2 etc."
+        nargs="*",
+        help="Custom hyperparameters, in the format hyperparameter1=value1 hyperparameter2=value2 etc.",
     )
     args = parser.parse_args()
 
     if args.env in ENVS:
         env = GymEnvironment(ENVS[args.env], device=args.device)
-    elif 'BulletEnv' in args.env or args.env in PybulletEnvironment.short_names:
+    elif "BulletEnv" in args.env or args.env in PybulletEnvironment.short_names:
         env = PybulletEnvironment(args.env, device=args.device)
     else:
         env = GymEnvironment(args.env, device=args.device)
@@ -55,7 +57,7 @@ def main():
     # parse hyperparameters
     hyperparameters = {}
     for hp in args.hyperparameters:
-        key, value = hp.split('=')
+        key, value = hp.split("=")
         hyperparameters[key] = type(agent.default_hyperparameters[key])(value)
     agent = agent.hyperparameters(**hyperparameters)
 

@@ -4,30 +4,21 @@ import torch
 from all.environments import AtariEnvironment, DuplicateEnvironment
 from all.logging import DummyLogger
 from all.presets import Preset, ParallelPreset
-from all.presets.atari import (
-    a2c,
-    c51,
-    ddqn,
-    dqn,
-    ppo,
-    rainbow,
-    vac,
-    vpg,
-    vsarsa,
-    vqn
-)
+from all.presets.atari import a2c, c51, ddqn, dqn, ppo, rainbow, vac, vpg, vsarsa, vqn
 
 
 class TestAtariPresets(unittest.TestCase):
     def setUp(self):
-        self.env = AtariEnvironment('Breakout')
+        self.env = AtariEnvironment("Breakout")
         self.env.reset()
-        self.parallel_env = DuplicateEnvironment([AtariEnvironment('Breakout'), AtariEnvironment('Breakout')])
+        self.parallel_env = DuplicateEnvironment(
+            [AtariEnvironment("Breakout"), AtariEnvironment("Breakout")]
+        )
         self.parallel_env.reset()
 
     def tearDown(self):
-        if os.path.exists('test_preset.pt'):
-            os.remove('test_preset.pt')
+        if os.path.exists("test_preset.pt"):
+            os.remove("test_preset.pt")
 
     def test_a2c(self):
         self.validate_preset(a2c)
@@ -60,7 +51,7 @@ class TestAtariPresets(unittest.TestCase):
         self.validate_preset(vqn)
 
     def validate_preset(self, builder):
-        preset = builder.device('cpu').env(self.env).build()
+        preset = builder.device("cpu").env(self.env).build()
         if isinstance(preset, ParallelPreset):
             return self.validate_parallel_preset(preset)
         return self.validate_standard_preset(preset)
@@ -73,8 +64,8 @@ class TestAtariPresets(unittest.TestCase):
         test_agent = preset.test_agent()
         test_agent.act(self.env.state)
         # test save/load
-        preset.save('test_preset.pt')
-        preset = torch.load('test_preset.pt')
+        preset.save("test_preset.pt")
+        preset = torch.load("test_preset.pt")
         test_agent = preset.test_agent()
         test_agent.act(self.env.state)
 
@@ -89,8 +80,8 @@ class TestAtariPresets(unittest.TestCase):
         parallel_test_agent = preset.test_agent()
         parallel_test_agent.act(self.parallel_env.state_array)
         # test save/load
-        preset.save('test_preset.pt')
-        preset = torch.load('test_preset.pt')
+        preset.save("test_preset.pt")
+        preset = torch.load("test_preset.pt")
         test_agent = preset.test_agent()
         test_agent.act(self.env.state)
 

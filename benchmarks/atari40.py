@@ -12,10 +12,17 @@ def main():
         atari.ppo,
         atari.rainbow,
     ]
-    envs = [AtariEnvironment(env, device='cuda') for env in ['BeamRider', 'Breakout', 'Pong', 'Qbert', 'SpaceInvaders']]
-    SlurmExperiment(agents, envs, 10e6, logdir='benchmarks/atari40', sbatch_args={
-        'partition': 'gpu-long'
-    })
+    envs = [
+        AtariEnvironment(env, device="cuda")
+        for env in ["BeamRider", "Breakout", "Pong", "Qbert", "SpaceInvaders"]
+    ]
+    SlurmExperiment(
+        agents,
+        envs,
+        10e6,
+        logdir="benchmarks/atari40",
+        sbatch_args={"partition": "gpu-long"},
+    )
 
 
 if __name__ == "__main__":

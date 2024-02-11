@@ -2,7 +2,7 @@ from ._logger import Logger
 
 
 class DummyLogger(Logger):
-    '''A default Logger object that performs no logging and has no side effects.'''
+    """A default Logger object that performs no logging and has no side effects."""
 
     def add_summary(self, name, mean, std, step="frame"):
         pass

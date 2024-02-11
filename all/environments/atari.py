@@ -13,7 +13,7 @@ from ._environment import Environment
 
 
 class AtariEnvironment(Environment):
-    def __init__(self, name, device='cpu', **gym_make_kwargs):
+    def __init__(self, name, device="cpu", **gym_make_kwargs):
 
         # construct the environment
         env = gymnasium.make(name + "NoFrameskip-v4", **gym_make_kwargs)
@@ -37,14 +37,18 @@ class AtariEnvironment(Environment):
         self._device = device
 
     def reset(self):
-        self._state = State.from_gym(self._env.reset(), dtype=self._env.observation_space.dtype, device=self._device)
+        self._state = State.from_gym(
+            self._env.reset(),
+            dtype=self._env.observation_space.dtype,
+            device=self._device,
+        )
         return self._state
 
     def step(self, action):
         self._state = State.from_gym(
             self._env.step(self._convert(action)),
             dtype=self._env.observation_space.dtype,
-            device=self._device
+            device=self._device,
         )
         return self._state
 
@@ -58,7 +62,9 @@ class AtariEnvironment(Environment):
         self._env.seed(seed)
 
     def duplicate(self, n):
-        return DuplicateEnvironment([AtariEnvironment(self._name, device=self._device) for _ in range(n)])
+        return DuplicateEnvironment(
+            [AtariEnvironment(self._name, device=self._device) for _ in range(n)]
+        )
 
     @property
     def name(self):

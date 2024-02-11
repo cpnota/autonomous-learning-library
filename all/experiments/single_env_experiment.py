@@ -6,22 +6,24 @@ from .experiment import Experiment
 
 
 class SingleEnvExperiment(Experiment):
-    '''An Experiment object for training and testing agents that interact with one environment at a time.'''
+    """An Experiment object for training and testing agents that interact with one environment at a time."""
 
     def __init__(
-            self,
-            preset,
-            env,
-            name=None,
-            train_steps=float('inf'),
-            logdir='runs',
-            quiet=False,
-            render=False,
-            verbose=True,
-            logger="tensorboard"
+        self,
+        preset,
+        env,
+        name=None,
+        train_steps=float("inf"),
+        logdir="runs",
+        quiet=False,
+        render=False,
+        verbose=True,
+        logger="tensorboard",
     ):
         self._name = name if name is not None else preset.name
-        super().__init__(self._make_logger(logdir, self._name, env.name, verbose, logger), quiet)
+        super().__init__(
+            self._make_logger(logdir, self._name, env.name, verbose, logger), quiet
+        )
         self._logdir = logdir
         self._preset = preset
         self._agent = self._preset.agent(logger=self._logger, train_steps=train_steps)
@@ -111,5 +113,9 @@ class SingleEnvExperiment(Experiment):
 
     def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
         if logger == "comet":
-            return CometLogger(self, agent_name, env_name, verbose=verbose, logdir=logdir)
-        return ExperimentLogger(self, agent_name, env_name, verbose=verbose, logdir=logdir)
+            return CometLogger(
+                self, agent_name, env_name, verbose=verbose, logdir=logdir
+            )
+        return ExperimentLogger(
+            self, agent_name, env_name, verbose=verbose, logdir=logdir
+        )

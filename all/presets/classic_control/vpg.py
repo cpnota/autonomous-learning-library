@@ -8,7 +8,11 @@ from all.logging import DummyLogger
 from all.policies import SoftmaxPolicy
 from all.presets.builder import PresetBuilder
 from all.presets.preset import Preset
-from all.presets.classic_control.models import fc_relu_features, fc_policy_head, fc_value_head
+from all.presets.classic_control.models import (
+    fc_relu_features,
+    fc_policy_head,
+    fc_value_head,
+)
 
 
 default_hyperparameters = {
@@ -25,7 +29,7 @@ default_hyperparameters = {
     # Model construction
     "feature_model_constructor": fc_relu_features,
     "value_model_constructor": fc_value_head,
-    "policy_model_constructor": fc_policy_head
+    "policy_model_constructor": fc_policy_head,
 }
 
 
@@ -54,20 +58,34 @@ class VPGClassicControlPreset(Preset):
 
     def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
-        self.value_model = hyperparameters['value_model_constructor']().to(device)
-        self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
-        self.feature_model = hyperparameters['feature_model_constructor'](env).to(device)
+        self.value_model = hyperparameters["value_model_constructor"]().to(device)
+        self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
+        self.feature_model = hyperparameters["feature_model_constructor"](env).to(
+            device
+        )
 
-    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
-        feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
-        value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr_v"], eps=self.hyperparameters["eps"])
-        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
+    def agent(self, logger=DummyLogger(), train_steps=float("inf")):
+        feature_optimizer = Adam(
+            self.feature_model.parameters(),
+            lr=self.hyperparameters["lr_pi"],
+            eps=self.hyperparameters["eps"],
+        )
+        value_optimizer = Adam(
+            self.value_model.parameters(),
+            lr=self.hyperparameters["lr_v"],
+            eps=self.hyperparameters["eps"],
+        )
+        policy_optimizer = Adam(
+            self.policy_model.parameters(),
+            lr=self.hyperparameters["lr_pi"],
+            eps=self.hyperparameters["eps"],
+        )
 
         features = FeatureNetwork(
             self.feature_model,
             feature_optimizer,
             clip_grad=self.hyperparameters["clip_grad"],
-            logger=logger
+            logger=logger,
         )
 
         v = VNetwork(
@@ -75,17 +93,23 @@ class VPGClassicControlPreset(Preset):
             value_optimizer,
             loss_scaling=self.hyperparameters["value_loss_scaling"],
             clip_grad=self.hyperparameters["clip_grad"],
-            logger=logger
+            logger=logger,
         )
 
         policy = SoftmaxPolicy(
             self.policy_model,
             policy_optimizer,
             clip_grad=self.hyperparameters["clip_grad"],
-            logger=logger
+            logger=logger,
         )
 
-        return VPG(features, v, policy, discount_factor=self.hyperparameters["discount_factor"], min_batch_size=self.hyperparameters["min_batch_size"])
+        return VPG(
+            features,
+            v,
+            policy,
+            discount_factor=self.hyperparameters["discount_factor"],
+            min_batch_size=self.hyperparameters["min_batch_size"],
+        )
 
     def test_agent(self):
         features = FeatureNetwork(copy.deepcopy(self.feature_model))
@@ -96,4 +120,4 @@ class VPGClassicControlPreset(Preset):
         return self.test_agent()
 
 
-vpg = PresetBuilder('vpg', default_hyperparameters, VPGClassicControlPreset)
+vpg = PresetBuilder("vpg", default_hyperparameters, VPGClassicControlPreset)

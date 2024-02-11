@@ -4,15 +4,15 @@ from all.presets import ParallelPreset
 
 
 def run_experiment(
-        agents,
-        envs,
-        frames,
-        logdir='runs',
-        quiet=False,
-        render=False,
-        test_episodes=100,
-        verbose=True,
-        logger="tensorboard"
+    agents,
+    envs,
+    frames,
+    logdir="runs",
+    quiet=False,
+    render=False,
+    test_episodes=100,
+    verbose=True,
+    logger="tensorboard",
 ):
     if not isinstance(agents, list):
         agents = [agents]
@@ -32,7 +32,7 @@ def run_experiment(
                 quiet=quiet,
                 render=render,
                 verbose=verbose,
-                logger=logger
+                logger=logger,
             )
             experiment.save()
             experiment.train(frames=frames)

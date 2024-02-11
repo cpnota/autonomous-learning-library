@@ -52,17 +52,21 @@ class TestExperienceReplayBuffer(unittest.TestCase):
 
     def test_store_device(self):
         if torch.cuda.is_available():
-            self.replay_buffer = ExperienceReplayBuffer(5, device='cuda', store_device='cpu')
+            self.replay_buffer = ExperienceReplayBuffer(
+                5, device="cuda", store_device="cpu"
+            )
 
-            states = torch.arange(0, 20).to('cuda')
-            actions = torch.arange(0, 20).view((-1, 1)).to('cuda')
-            rewards = torch.arange(0, 20).to('cuda')
+            states = torch.arange(0, 20).to("cuda")
+            actions = torch.arange(0, 20).view((-1, 1)).to("cuda")
+            rewards = torch.arange(0, 20).to("cuda")
             state = State(states[0])
             next_state = State(states[1], reward=rewards[1])
             self.replay_buffer.store(state, actions[0], next_state)
             sample = self.replay_buffer.sample(3)
-            self.assertEqual(sample[0].device, torch.device('cuda'))
-            self.assertEqual(self.replay_buffer.buffer[0][0].device, torch.device('cpu'))
+            self.assertEqual(sample[0].device, torch.device("cuda"))
+            self.assertEqual(
+                self.replay_buffer.buffer[0][0].device, torch.device("cpu")
+            )
 
 
 class TestPrioritizedReplayBuffer(unittest.TestCase):
@@ -73,7 +77,9 @@ class TestPrioritizedReplayBuffer(unittest.TestCase):
         self.replay_buffer = PrioritizedReplayBuffer(5, 0.6)
 
     def test_run(self):
-        states = StateArray(torch.arange(0, 20), (20,), reward=torch.arange(-1, 19).float())
+        states = StateArray(
+            torch.arange(0, 20), (20,), reward=torch.arange(-1, 19).float()
+        )
         actions = torch.arange(0, 20).view((-1, 1))
         expected_samples = State(
             torch.tensor(
@@ -127,7 +133,9 @@ class TestNStepReplayBuffer(unittest.TestCase):
         self.replay_buffer = NStepReplayBuffer(4, 0.5, ExperienceReplayBuffer(100))
 
     def test_run(self):
-        states = StateArray(torch.arange(0, 20), (20,), reward=torch.arange(-1, 19).float())
+        states = StateArray(
+            torch.arange(0, 20), (20,), reward=torch.arange(-1, 19).float()
+        )
         actions = torch.arange(0, 20)
 
         for i in range(3):
@@ -141,22 +149,24 @@ class TestNStepReplayBuffer(unittest.TestCase):
         sample = self.replay_buffer.buffer.buffer[0]
         self.assert_states_equal(sample[0], states[0])
         tt.assert_equal(sample[1], actions[0])
-        tt.assert_equal(sample[2].reward, torch.tensor(0 + 1 * 0.5 + 2 * 0.25 + 3 * 0.125))
+        tt.assert_equal(
+            sample[2].reward, torch.tensor(0 + 1 * 0.5 + 2 * 0.25 + 3 * 0.125)
+        )
         tt.assert_equal(
             self.replay_buffer.buffer.buffer[1][2].reward,
             torch.tensor(1 + 2 * 0.5 + 3 * 0.25 + 4 * 0.125),
         )
 
     def test_done(self):
-        state = State(torch.tensor(1), reward=1.)
+        state = State(torch.tensor(1), reward=1.0)
         action = torch.tensor(0)
-        done_state = State(torch.tensor(1), reward=1., done=True)
+        done_state = State(torch.tensor(1), reward=1.0, done=True)
 
         self.replay_buffer.store(state, action, done_state)
         self.assertEqual(len(self.replay_buffer), 1)
         sample = self.replay_buffer.buffer.buffer[0]
         self.assert_states_equal(state, sample[0])
-        self.assertEqual(sample[2].reward, 1.)
+        self.assertEqual(sample[2].reward, 1.0)
 
         self.replay_buffer.store(state, action, state)
         self.replay_buffer.store(state, action, state)

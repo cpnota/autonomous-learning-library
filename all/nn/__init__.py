@@ -21,7 +21,7 @@ class RLNetwork(nn.Module):
         self.device = next(model.parameters()).device
 
     def forward(self, state):
-        return state.apply(self.model, 'observation')
+        return state.apply(self.model, "observation")
 
 
 class Aggregation(nn.Module):
@@ -139,7 +139,9 @@ class NoisyFactorizedLinear(nn.Linear):
     N.B. nn.Linear already initializes weight and bias to
     """
 
-    def __init__(self, in_features, out_features, sigma_init=0.4, init_scale=3, bias=True):
+    def __init__(
+        self, in_features, out_features, sigma_init=0.4, init_scale=3, bias=True
+    ):
         self.init_scale = init_scale
         super().__init__(in_features, out_features, bias=bias)
         sigma_init = sigma_init / np.sqrt(in_features)
@@ -149,9 +151,7 @@ class NoisyFactorizedLinear(nn.Linear):
         self.register_buffer("epsilon_input", torch.zeros(1, in_features))
         self.register_buffer("epsilon_output", torch.zeros(out_features, 1))
         if bias:
-            self.sigma_bias = nn.Parameter(
-                torch.Tensor(out_features).fill_(sigma_init)
-            )
+            self.sigma_bias = nn.Parameter(torch.Tensor(out_features).fill_(sigma_init))
 
     def reset_parameters(self):
         std = np.sqrt(self.init_scale / self.in_features)
@@ -218,13 +218,13 @@ def td_loss(loss):
     return _loss
 
 
-def weighted_mse_loss(input, target, weight, reduction='mean'):
-    loss = (weight * ((target - input) ** 2))
-    return torch.mean(loss) if reduction == 'mean' else torch.sum(loss)
+def weighted_mse_loss(input, target, weight, reduction="mean"):
+    loss = weight * ((target - input) ** 2)
+    return torch.mean(loss) if reduction == "mean" else torch.sum(loss)
 
 
-def weighted_smooth_l1_loss(input, target, weight, reduction='mean'):
+def weighted_smooth_l1_loss(input, target, weight, reduction="mean"):
     t = torch.abs(input - target)
-    loss = torch.where(t < 1, 0.5 * t ** 2, t - 0.5)
+    loss = torch.where(t < 1, 0.5 * t**2, t - 0.5)
     loss = weight * loss
-    return torch.mean(loss) if reduction == 'mean' else torch.sum(loss)
+    return torch.mean(loss) if reduction == "mean" else torch.sum(loss)

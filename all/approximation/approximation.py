@@ -8,8 +8,8 @@ from .checkpointer import DummyCheckpointer
 DEFAULT_CHECKPOINT_FREQUENCY = 200
 
 
-class Approximation():
-    '''
+class Approximation:
+    """
     Base function approximation object.
 
     This defines a Pytorch-based function approximation object that
@@ -48,20 +48,20 @@ class Approximation():
             logger (all.logging.Logger:, optional): A Logger object used for logging.
                 The standard object logs to tensorboard, however, other types of Logger objects
                 may be implemented by the user.
-    '''
+    """
 
     def __init__(
-            self,
-            model,
-            optimizer=None,
-            checkpointer=None,
-            clip_grad=0,
-            device=None,
-            loss_scaling=1,
-            name='approximation',
-            scheduler=None,
-            target=None,
-            logger=DummyLogger(),
+        self,
+        model,
+        optimizer=None,
+        checkpointer=None,
+        clip_grad=0,
+        device=None,
+        loss_scaling=1,
+        name="approximation",
+        scheduler=None,
+        target=None,
+        logger=DummyLogger(),
     ):
         self.model = model
         self.device = device if device else next(model.parameters()).device
@@ -79,27 +79,24 @@ class Approximation():
         if checkpointer is None:
             checkpointer = DummyCheckpointer()
         self._checkpointer = checkpointer
-        self._checkpointer.init(
-            self.model,
-            os.path.join(logger.log_dir, name + '.pt')
-        )
+        self._checkpointer.init(self.model, os.path.join(logger.log_dir, name + ".pt"))
 
     def __call__(self, *inputs):
-        '''
+        """
         Run a forward pass of the model.
-        '''
+        """
         return self.model(*inputs)
 
     def no_grad(self, *inputs):
-        '''Run a forward pass of the model in no_grad mode.'''
+        """Run a forward pass of the model in no_grad mode."""
         with torch.no_grad():
             return self.model(*inputs)
 
     def eval(self, *inputs):
-        '''
+        """
         Run a forward pass of the model in eval mode with no_grad.
         The model is returned to its previous mode afer the forward pass is made.
-        '''
+        """
         with torch.no_grad():
             # check current mode
             mode = self.model.training
@@ -112,11 +109,11 @@ class Approximation():
             return result
 
     def target(self, *inputs):
-        '''Run a forward pass of the target network.'''
+        """Run a forward pass of the target network."""
         return self._target(*inputs)
 
     def reinforce(self, loss):
-        '''
+        """
         Backpropagate the loss through the model and make an update step.
         Internally, this will perform most of the activities associated with a control loop
         in standard machine learning environments, depending on the configuration of the object:
@@ -127,14 +124,14 @@ class Approximation():
 
         Returns:
             self: The current Approximation object
-        '''
+        """
         loss = self._loss_scaling * loss
         loss.backward()
         self.step(loss=loss)
         return self
 
     def step(self, loss=None):
-        '''
+        """
         Given that a backward pass has been made, run an optimization step.
         Internally, this will perform most of the activities associated with a control loop
         in standard machine learning environments, depending on the configuration of the object:
@@ -145,7 +142,7 @@ class Approximation():
 
         Returns:
             self: The current Approximation object
-        '''
+        """
         if loss is not None:
             self._logger.add_loss(self._name, loss.detach())
         self._clip_grad_norm()
@@ -157,22 +154,26 @@ class Approximation():
         return self
 
     def zero_grad(self):
-        '''
+        """
         Clears the gradients of all optimized tensors
 
         Returns:
             self: The current Approximation object
-        '''
+        """
         self._optimizer.zero_grad()
         return self
 
     def _clip_grad_norm(self):
-        '''Clip the gradient norm if set. Raises RuntimeError if norm is non-finite.'''
+        """Clip the gradient norm if set. Raises RuntimeError if norm is non-finite."""
         if self._clip_grad != 0:
-            utils.clip_grad_norm_(self.model.parameters(), self._clip_grad, error_if_nonfinite=True)
+            utils.clip_grad_norm_(
+                self.model.parameters(), self._clip_grad, error_if_nonfinite=True
+            )
 
     def _step_lr_scheduler(self):
-        '''Step the . Raises RuntimeError if norm is non-finite.'''
+        """Step the . Raises RuntimeError if norm is non-finite."""
         if self._scheduler:
-            self._logger.add_schedule(self._name + '/lr', self._optimizer.param_groups[0]['lr'])
+            self._logger.add_schedule(
+                self._name + "/lr", self._optimizer.param_groups[0]["lr"]
+            )
             self._scheduler.step()

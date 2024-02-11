@@ -15,16 +15,11 @@ ACTION_DIM = 3
 class TestDeterministic(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(2)
-        self.model = nn.Sequential(
-            nn.Linear0(STATE_DIM, ACTION_DIM)
-        )
+        self.model = nn.Sequential(nn.Linear0(STATE_DIM, ACTION_DIM))
         self.optimizer = torch.optim.RMSprop(self.model.parameters(), lr=0.01)
         self.space = Box(np.array([-1, -1, -1]), np.array([1, 1, 1]))
         self.policy = DeterministicPolicy(
-            self.model,
-            self.optimizer,
-            self.space,
-            checkpointer=DummyCheckpointer()
+            self.model, self.optimizer, self.space, checkpointer=DummyCheckpointer()
         )
 
     def test_output_shape(self):
@@ -54,10 +49,7 @@ class TestDeterministic(unittest.TestCase):
 
     def test_target(self):
         self.policy = DeterministicPolicy(
-            self.model,
-            self.optimizer,
-            self.space,
-            target=FixedTarget(3)
+            self.model, self.optimizer, self.space, target=FixedTarget(3)
         )
         state = State(torch.ones(1, STATE_DIM))
 
@@ -81,5 +73,5 @@ class TestDeterministic(unittest.TestCase):
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

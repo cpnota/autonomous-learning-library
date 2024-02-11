@@ -12,9 +12,7 @@ ACTIONS = 3
 class TestSoftmax(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(2)
-        self.model = nn.Sequential(
-            nn.Linear(STATE_DIM, ACTIONS)
-        )
+        self.model = nn.Sequential(nn.Linear(STATE_DIM, ACTIONS))
         optimizer = torch.optim.SGD(self.model.parameters(), lr=0.1)
         self.policy = SoftmaxPolicy(self.model, optimizer)
 
@@ -63,25 +61,33 @@ class TestSoftmax(unittest.TestCase):
 
         # notice the values increase with each successive reinforce
         log_probs = self.policy(states).log_prob(actions)
-        tt.assert_almost_equal(log_probs, torch.tensor([-0.84, -0.62, -0.757]), decimal=3)
+        tt.assert_almost_equal(
+            log_probs, torch.tensor([-0.84, -0.62, -0.757]), decimal=3
+        )
         self.policy.reinforce(loss(log_probs))
         log_probs = self.policy(states).log_prob(actions)
-        tt.assert_almost_equal(log_probs, torch.tensor([-0.811, -0.561, -0.701]), decimal=3)
+        tt.assert_almost_equal(
+            log_probs, torch.tensor([-0.811, -0.561, -0.701]), decimal=3
+        )
         self.policy.reinforce(loss(log_probs))
         log_probs = self.policy(states).log_prob(actions)
-        tt.assert_almost_equal(log_probs, torch.tensor([-0.785, -0.51, -0.651]), decimal=3)
+        tt.assert_almost_equal(
+            log_probs, torch.tensor([-0.785, -0.51, -0.651]), decimal=3
+        )
 
     def test_eval(self):
         states = State(torch.randn(3, STATE_DIM), torch.tensor([1, 1, 1]))
         dist = self.policy.no_grad(states)
-        tt.assert_almost_equal(dist.probs, torch.tensor([
-            [0.352, 0.216, 0.432],
-            [0.266, 0.196, 0.538],
-            [0.469, 0.227, 0.304]
-        ]), decimal=3)
+        tt.assert_almost_equal(
+            dist.probs,
+            torch.tensor(
+                [[0.352, 0.216, 0.432], [0.266, 0.196, 0.538], [0.469, 0.227, 0.304]]
+            ),
+            decimal=3,
+        )
         best = self.policy.eval(states).sample()
         tt.assert_equal(best, torch.tensor([2, 2, 0]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -6,7 +6,7 @@ from .dqn import DQNTestAgent
 
 
 class VQN(ParallelAgent):
-    '''
+    """
     Vanilla Q-Network (VQN).
     VQN is an implementation of the Q-learning algorithm found in the Sutton and Barto (2018) textbook.
     Q-learning algorithms attempt to learning the optimal policy while executing a (generally)
@@ -19,7 +19,7 @@ class VQN(ParallelAgent):
         q (QNetwork): An Approximation of the Q function.
         policy (GreedyPolicy): A policy derived from the Q-function.
         discount_factor (float): Discount factor for future rewards.
-    '''
+    """
 
     def __init__(self, q, policy, discount_factor=0.99):
         self.q = q
@@ -43,7 +43,10 @@ class VQN(ParallelAgent):
             # forward pass
             value = self.q(self._state, self._action)
             # compute target
-            target = reward + self.discount_factor * torch.max(self.q.target(next_state), dim=1)[0]
+            target = (
+                reward
+                + self.discount_factor * torch.max(self.q.target(next_state), dim=1)[0]
+            )
             # compute loss
             loss = mse_loss(value, target)
             # backward pass

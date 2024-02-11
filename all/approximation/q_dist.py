@@ -6,15 +6,15 @@ from .approximation import Approximation
 
 class QDist(Approximation):
     def __init__(
-            self,
-            model,
-            optimizer,
-            n_actions,
-            n_atoms,
-            v_min,
-            v_max,
-            name="q_dist",
-            **kwargs
+        self,
+        model,
+        optimizer,
+        n_actions,
+        n_atoms,
+        v_min,
+        v_max,
+        name="q_dist",
+        **kwargs
     ):
         device = next(model.parameters()).device
         self.n_actions = n_actions

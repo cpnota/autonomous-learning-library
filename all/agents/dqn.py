@@ -5,7 +5,7 @@ from ._agent import Agent
 
 
 class DQN(Agent):
-    '''
+    """
     Deep Q-Network (DQN).
     DQN was one of the original deep reinforcement learning algorithms.
     It extends the ideas behind Q-learning to work well with modern convolution networks.
@@ -25,18 +25,19 @@ class DQN(Agent):
         n_actions (int): The number of available actions.
         replay_start_size (int): Number of experiences in replay buffer when training begins.
         update_frequency (int): Number of timesteps per training update.
-    '''
+    """
 
-    def __init__(self,
-                 q,
-                 policy,
-                 replay_buffer,
-                 discount_factor=0.99,
-                 loss=mse_loss,
-                 minibatch_size=32,
-                 replay_start_size=5000,
-                 update_frequency=1,
-                 ):
+    def __init__(
+        self,
+        q,
+        policy,
+        replay_buffer,
+        discount_factor=0.99,
+        loss=mse_loss,
+        minibatch_size=32,
+        replay_start_size=5000,
+        update_frequency=1,
+    ):
         # objects
         self.q = q
         self.policy = policy
@@ -65,11 +66,16 @@ class DQN(Agent):
     def _train(self):
         if self._should_train():
             # sample transitions from buffer
-            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
+            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
+                self.minibatch_size
+            )
             # forward pass
             values = self.q(states, actions)
             # compute targets
-            targets = rewards + self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0]
+            targets = (
+                rewards
+                + self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0]
+            )
             # compute loss
             loss = self.loss(values, targets)
             # backward pass
@@ -77,7 +83,10 @@ class DQN(Agent):
 
     def _should_train(self):
         self._frames_seen += 1
-        return (self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0)
+        return (
+            self._frames_seen > self.replay_start_size
+            and self._frames_seen % self.update_frequency == 0
+        )
 
 
 class DQNTestAgent(Agent):

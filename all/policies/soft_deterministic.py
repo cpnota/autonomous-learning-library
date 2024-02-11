@@ -4,7 +4,7 @@ from all.nn import RLNetwork
 
 
 class SoftDeterministicPolicy(Approximation):
-    '''
+    """
     A "soft" deterministic policy compatible with soft actor-critic (SAC).
 
     Args:
@@ -17,16 +17,9 @@ class SoftDeterministicPolicy(Approximation):
             model parameters, e.g. SGD, Adam, RMSprop, etc.
         action_space (gymnasium.spaces.Box): The Box representing the action space.
         kwargs (optional): Any other arguments accepted by all.approximation.Approximation
-    '''
+    """
 
-    def __init__(
-            self,
-            model,
-            optimizer=None,
-            space=None,
-            name="policy",
-            **kwargs
-    ):
+    def __init__(self, model, optimizer=None, space=None, name="policy", **kwargs):
         model = SoftDeterministicPolicyNetwork(model, space)
         self._inner_model = model
         super().__init__(model, optimizer, name=name, **kwargs)
@@ -48,8 +41,8 @@ class SoftDeterministicPolicyNetwork(RLNetwork):
         return self._squash(normal.loc)
 
     def _normal(self, outputs):
-        means = outputs[..., 0:self._action_dim]
-        logvars = outputs[..., self._action_dim:]
+        means = outputs[..., 0 : self._action_dim]
+        logvars = outputs[..., self._action_dim :]
         std = logvars.mul(0.5).exp_()
         return torch.distributions.normal.Normal(means, std)
 
@@ -59,7 +52,7 @@ class SoftDeterministicPolicyNetwork(RLNetwork):
         return self._squash(raw), log_prob
 
     def _log_prob(self, normal, raw):
-        '''
+        """
         Compute the log probability of a raw action after the action is squashed.
         Both inputs act on the raw underlying distribution.
         Because tanh_mean does not affect the density, we can ignore it.
@@ -72,7 +65,7 @@ class SoftDeterministicPolicyNetwork(RLNetwork):
 
         Returns:
             torch.Tensor: The probability of the raw action, accounting for the affects of tanh.
-        '''
+        """
         log_prob = normal.log_prob(raw)
         log_prob -= torch.log(1 - torch.tanh(raw).pow(2) + 1e-6)
         log_prob -= torch.log(self._tanh_scale)

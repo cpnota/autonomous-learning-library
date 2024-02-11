@@ -16,5 +16,5 @@ __all__ = [
     "SlurmExperiment",
     "watch",
     "load_and_watch",
-    "plot_returns_100"
+    "plot_returns_100",
 ]

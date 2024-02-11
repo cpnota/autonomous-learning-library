@@ -26,7 +26,7 @@ default_hyperparameters = {
     "replay_buffer_size": 1000000,
     # Explicit exploration
     "initial_exploration": 0.02,
-    "final_exploration": 0.,
+    "final_exploration": 0.0,
     "final_exploration_step": 250000,
     "test_exploration": 0.001,
     # Distributional RL
@@ -34,7 +34,7 @@ default_hyperparameters = {
     "v_min": -10,
     "v_max": 10,
     # Model construction
-    "model_constructor": nature_c51
+    "model_constructor": nature_c51,
 }
 
 
@@ -70,33 +70,36 @@ class C51AtariPreset(Preset):
 
     def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
-        self.model = hyperparameters['model_constructor'](env, atoms=hyperparameters['atoms']).to(device)
+        self.model = hyperparameters["model_constructor"](
+            env, atoms=hyperparameters["atoms"]
+        ).to(device)
         self.n_actions = env.action_space.n
 
-    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
-        n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
+    def agent(self, logger=DummyLogger(), train_steps=float("inf")):
+        n_updates = (
+            train_steps - self.hyperparameters["replay_start_size"]
+        ) / self.hyperparameters["update_frequency"]
 
         optimizer = Adam(
             self.model.parameters(),
-            lr=self.hyperparameters['lr'],
-            eps=self.hyperparameters['eps']
+            lr=self.hyperparameters["lr"],
+            eps=self.hyperparameters["eps"],
         )
 
         q = QDist(
             self.model,
             optimizer,
             self.n_actions,
-            self.hyperparameters['atoms'],
-            v_min=self.hyperparameters['v_min'],
-            v_max=self.hyperparameters['v_max'],
-            target=FixedTarget(self.hyperparameters['target_update_frequency']),
+            self.hyperparameters["atoms"],
+            v_min=self.hyperparameters["v_min"],
+            v_max=self.hyperparameters["v_max"],
+            target=FixedTarget(self.hyperparameters["target_update_frequency"]),
             scheduler=CosineAnnealingLR(optimizer, n_updates),
             logger=logger,
         )
 
         replay_buffer = ExperienceReplayBuffer(
-            self.hyperparameters['replay_buffer_size'],
-            device=self.device
+            self.hyperparameters["replay_buffer_size"], device=self.device
         )
 
         return DeepmindAtariBody(
@@ -104,10 +107,11 @@ class C51AtariPreset(Preset):
                 q,
                 replay_buffer,
                 exploration=LinearScheduler(
-                    self.hyperparameters['initial_exploration'],
-                    self.hyperparameters['final_exploration'],
+                    self.hyperparameters["initial_exploration"],
+                    self.hyperparameters["final_exploration"],
                     0,
-                    self.hyperparameters["final_exploration_step"] - self.hyperparameters["replay_start_size"],
+                    self.hyperparameters["final_exploration_step"]
+                    - self.hyperparameters["replay_start_size"],
                     name="epsilon",
                     logger=logger,
                 ),
@@ -115,10 +119,10 @@ class C51AtariPreset(Preset):
                 minibatch_size=self.hyperparameters["minibatch_size"],
                 replay_start_size=self.hyperparameters["replay_start_size"],
                 update_frequency=self.hyperparameters["update_frequency"],
-                logger=logger
+                logger=logger,
             ),
             lazy_frames=True,
-            episodic_lives=True
+            episodic_lives=True,
         )
 
     def test_agent(self):
@@ -126,11 +130,15 @@ class C51AtariPreset(Preset):
             copy.deepcopy(self.model),
             None,
             self.n_actions,
-            self.hyperparameters['atoms'],
-            v_min=self.hyperparameters['v_min'],
-            v_max=self.hyperparameters['v_max'],
+            self.hyperparameters["atoms"],
+            v_min=self.hyperparameters["v_min"],
+            v_max=self.hyperparameters["v_max"],
         )
-        return DeepmindAtariBody(C51TestAgent(q_dist, self.n_actions, self.hyperparameters["test_exploration"]))
+        return DeepmindAtariBody(
+            C51TestAgent(
+                q_dist, self.n_actions, self.hyperparameters["test_exploration"]
+            )
+        )
 
 
-c51 = PresetBuilder('c51', default_hyperparameters, C51AtariPreset)
+c51 = PresetBuilder("c51", default_hyperparameters, C51AtariPreset)

@@ -7,7 +7,7 @@ from all.approximation import Identity, FixedTarget
 
 class TestIdentityNetwork(unittest.TestCase):
     def setUp(self):
-        self.model = Identity('cpu', target=FixedTarget(10))
+        self.model = Identity("cpu", target=FixedTarget(10))
 
     def test_forward_tensor(self):
         inputs = torch.tensor([1, 2, 3])
@@ -15,9 +15,7 @@ class TestIdentityNetwork(unittest.TestCase):
         tt.assert_equal(inputs, outputs)
 
     def test_forward_state(self):
-        inputs = State({
-            'observation': torch.tensor([1, 2, 3])
-        })
+        inputs = State({"observation": torch.tensor([1, 2, 3])})
         outputs = self.model(inputs)
         self.assertEqual(inputs, outputs)
 

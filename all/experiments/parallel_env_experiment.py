@@ -1,4 +1,3 @@
-
 import torch
 import time
 import numpy as np
@@ -8,22 +7,24 @@ from all.environments import VectorEnvironment
 
 
 class ParallelEnvExperiment(Experiment):
-    '''An Experiment object for training and testing agents that use parallel training environments.'''
+    """An Experiment object for training and testing agents that use parallel training environments."""
 
     def __init__(
-            self,
-            preset,
-            env,
-            name=None,
-            train_steps=float('inf'),
-            logdir='runs',
-            quiet=False,
-            render=False,
-            verbose=True,
-            logger="tensorboard"
+        self,
+        preset,
+        env,
+        name=None,
+        train_steps=float("inf"),
+        logdir="runs",
+        quiet=False,
+        render=False,
+        verbose=True,
+        logger="tensorboard",
     ):
         self._name = name if name is not None else preset.name
-        super().__init__(self._make_logger(logdir, self._name, env.name, verbose, logger), quiet)
+        super().__init__(
+            self._make_logger(logdir, self._name, env.name, verbose, logger), quiet
+        )
         self._n_envs = preset.n_envs
         if isinstance(env, VectorEnvironment):
             assert self._n_envs == env.num_envs
@@ -117,8 +118,10 @@ class ParallelEnvExperiment(Experiment):
                         episode_length = episode_lengths[i]
                         test_returns.append(episode_return)
                         test_episode_lengths.append(episode_length)
-                        self._log_test_episode(len(test_returns), episode_return, episode_length)
-                    returns[i] = 0.
+                        self._log_test_episode(
+                            len(test_returns), episode_return, episode_length
+                        )
+                    returns[i] = 0.0
                     episode_lengths[i] = -1
                     episodes_started += 1
                     if episodes_started > episodes:
@@ -132,5 +135,9 @@ class ParallelEnvExperiment(Experiment):
 
     def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
         if logger == "comet":
-            return CometLogger(self, agent_name, env_name, verbose=verbose, logdir=logdir)
-        return ExperimentLogger(self, agent_name, env_name, verbose=verbose, logdir=logdir)
+            return CometLogger(
+                self, agent_name, env_name, verbose=verbose, logdir=logdir
+            )
+        return ExperimentLogger(
+            self, agent_name, env_name, verbose=verbose, logdir=logdir
+        )

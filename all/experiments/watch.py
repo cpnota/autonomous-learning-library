@@ -15,7 +15,7 @@ def watch(agent, env, fps=60, n_episodes=sys.maxsize):
         returns += env.state.reward
 
         if env.state.done:
-            print('returns:', returns)
+            print("returns:", returns)
             env.reset()
             returns = 0
 

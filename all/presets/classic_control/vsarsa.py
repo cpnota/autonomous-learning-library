@@ -19,14 +19,14 @@ default_hyperparameters = {
     "lr": 1e-2,
     "eps": 1.5e-4,
     # Explicit exploration
-    "initial_exploration": 1.,
-    "final_exploration": 0.,
+    "initial_exploration": 1.0,
+    "final_exploration": 0.0,
     "final_exploration_step": 10000,
     "test_exploration": 0.001,
     # Parallel actors
     "n_envs": 8,
     # Model construction
-    "model_constructor": dueling_fc_relu_q
+    "model_constructor": dueling_fc_relu_q,
 }
 
 
@@ -54,49 +54,58 @@ class VSarsaClassicControlPreset(ParallelPreset):
 
     def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
-        self.model = hyperparameters['model_constructor'](env).to(device)
+        self.model = hyperparameters["model_constructor"](env).to(device)
         self.n_actions = env.action_space.n
 
-    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
-        n_updates = train_steps / self.hyperparameters['n_envs']
+    def agent(self, logger=DummyLogger(), train_steps=float("inf")):
+        n_updates = train_steps / self.hyperparameters["n_envs"]
 
         optimizer = Adam(
             self.model.parameters(),
-            lr=self.hyperparameters['lr'],
-            eps=self.hyperparameters['eps']
+            lr=self.hyperparameters["lr"],
+            eps=self.hyperparameters["eps"],
         )
 
         q = QNetwork(
             self.model,
             optimizer,
             scheduler=CosineAnnealingLR(optimizer, n_updates),
-            logger=logger
+            logger=logger,
         )
 
         policy = ParallelGreedyPolicy(
             q,
             self.n_actions,
             epsilon=LinearScheduler(
-                self.hyperparameters['initial_exploration'],
-                self.hyperparameters['final_exploration'],
+                self.hyperparameters["initial_exploration"],
+                self.hyperparameters["final_exploration"],
                 0,
-                self.hyperparameters["final_exploration_step"] / self.hyperparameters["n_envs"],
+                self.hyperparameters["final_exploration_step"]
+                / self.hyperparameters["n_envs"],
                 name="exploration",
-                logger=logger
-            )
+                logger=logger,
+            ),
         )
 
-        return VSarsa(q, policy, discount_factor=self.hyperparameters['discount_factor'])
+        return VSarsa(
+            q, policy, discount_factor=self.hyperparameters["discount_factor"]
+        )
 
     def test_agent(self):
         q = QNetwork(copy.deepcopy(self.model))
-        policy = GreedyPolicy(q, self.n_actions, epsilon=self.hyperparameters["test_exploration"])
+        policy = GreedyPolicy(
+            q, self.n_actions, epsilon=self.hyperparameters["test_exploration"]
+        )
         return VSarsaTestAgent(policy)
 
     def parallel_test_agent(self):
         q = QNetwork(copy.deepcopy(self.model))
-        policy = ParallelGreedyPolicy(q, self.n_actions, epsilon=self.hyperparameters["test_exploration"])
+        policy = ParallelGreedyPolicy(
+            q, self.n_actions, epsilon=self.hyperparameters["test_exploration"]
+        )
         return VSarsaTestAgent(policy)
 
 
-vsarsa = ParallelPresetBuilder('vsarsa', default_hyperparameters, VSarsaClassicControlPreset)
+vsarsa = ParallelPresetBuilder(
+    "vsarsa", default_hyperparameters, VSarsaClassicControlPreset
+)

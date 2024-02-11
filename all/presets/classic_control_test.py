@@ -20,14 +20,16 @@ from all.presets.classic_control import (
 
 class TestClassicControlPresets(unittest.TestCase):
     def setUp(self):
-        self.env = GymEnvironment('CartPole-v0')
+        self.env = GymEnvironment("CartPole-v0")
         self.env.reset()
-        self.parallel_env = DuplicateEnvironment([GymEnvironment('CartPole-v0'), GymEnvironment('CartPole-v0')])
+        self.parallel_env = DuplicateEnvironment(
+            [GymEnvironment("CartPole-v0"), GymEnvironment("CartPole-v0")]
+        )
         self.parallel_env.reset()
 
     def tearDown(self):
-        if os.path.exists('test_preset.pt'):
-            os.remove('test_preset.pt')
+        if os.path.exists("test_preset.pt"):
+            os.remove("test_preset.pt")
 
     def test_a2c(self):
         self.validate(a2c)
@@ -60,7 +62,7 @@ class TestClassicControlPresets(unittest.TestCase):
         self.validate(vqn)
 
     def validate(self, builder):
-        preset = builder.device('cpu').env(self.env).build()
+        preset = builder.device("cpu").env(self.env).build()
         if isinstance(preset, ParallelPreset):
             return self.validate_parallel_preset(preset)
         return self.validate_standard_preset(preset)
@@ -73,8 +75,8 @@ class TestClassicControlPresets(unittest.TestCase):
         test_agent = preset.test_agent()
         test_agent.act(self.env.state)
         # test save/load
-        preset.save('test_preset.pt')
-        preset = torch.load('test_preset.pt')
+        preset.save("test_preset.pt")
+        preset = torch.load("test_preset.pt")
         test_agent = preset.test_agent()
         test_agent.act(self.env.state)
 
@@ -89,8 +91,8 @@ class TestClassicControlPresets(unittest.TestCase):
         parallel_test_agent = preset.test_agent()
         parallel_test_agent.act(self.parallel_env.state_array)
         # test save/load
-        preset.save('test_preset.pt')
-        preset = torch.load('test_preset.pt')
+        preset.save("test_preset.pt")
+        preset = torch.load("test_preset.pt")
         test_agent = preset.test_agent()
         test_agent.act(self.env.state)
 

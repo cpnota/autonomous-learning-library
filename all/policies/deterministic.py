@@ -4,7 +4,7 @@ from all.nn import RLNetwork
 
 
 class DeterministicPolicy(Approximation):
-    '''
+    """
     A DDPG-style deterministic policy.
 
     Args:
@@ -15,23 +15,11 @@ class DeterministicPolicy(Approximation):
             model parameters, e.g. SGD, Adam, RMSprop, etc.
         action_space (gymnasium.spaces.Box): The Box representing the action space.
         kwargs (optional): Any other arguments accepted by all.approximation.Approximation
-    '''
+    """
 
-    def __init__(
-            self,
-            model,
-            optimizer=None,
-            space=None,
-            name='policy',
-            **kwargs
-    ):
+    def __init__(self, model, optimizer=None, space=None, name="policy", **kwargs):
         model = DeterministicPolicyNetwork(model, space)
-        super().__init__(
-            model,
-            optimizer,
-            name=name,
-            **kwargs
-        )
+        super().__init__(model, optimizer, name=name, **kwargs)
 
 
 class DeterministicPolicyNetwork(RLNetwork):

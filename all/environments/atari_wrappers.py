@@ -1,31 +1,34 @@
-'''
+"""
 A subset of Atari wrappers modified from:
 https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
 Other behaviors were implemented as Bodies.
-'''
+"""
+
 import numpy as np
 import os
-os.environ.setdefault('PATH', '')
+
+os.environ.setdefault("PATH", "")
 from collections import deque
 import gymnasium
 from gymnasium import spaces
 import cv2
+
 cv2.ocl.setUseOpenCL(False)
 
 
 class NoopResetEnv(gymnasium.Wrapper):
     def __init__(self, env, noop_max=30):
-        '''Sample initial states by taking random number of no-ops on reset.
+        """Sample initial states by taking random number of no-ops on reset.
         No-op is assumed to be action 0.
-        '''
+        """
         gymnasium.Wrapper.__init__(self, env)
         self.noop_max = noop_max
         self.override_num_noops = None
         self.noop_action = 0
-        assert env.unwrapped.get_action_meanings()[0] == 'NOOP'
+        assert env.unwrapped.get_action_meanings()[0] == "NOOP"
 
     def reset(self, **kwargs):
-        ''' Do no-op action for a number of steps in [1, noop_max].'''
+        """Do no-op action for a number of steps in [1, noop_max]."""
         self.env.reset(**kwargs)
         if self.override_num_noops is not None:
             noops = self.override_num_noops
@@ -45,13 +48,13 @@ class NoopResetEnv(gymnasium.Wrapper):
 
 class FireResetEnv(gymnasium.Wrapper):
     def __init__(self, env):
-        '''
+        """
         Take action on reset for environments that are fixed until firing.
 
         Important: This was modified to also fire on lives lost.
-        '''
+        """
         gymnasium.Wrapper.__init__(self, env)
-        assert env.unwrapped.get_action_meanings()[1] == 'FIRE'
+        assert env.unwrapped.get_action_meanings()[1] == "FIRE"
         assert len(env.unwrapped.get_action_meanings()) >= 3
         self.lives = 0
         self.was_real_done = True
@@ -85,14 +88,14 @@ class FireResetEnv(gymnasium.Wrapper):
 
 class MaxAndSkipEnv(gymnasium.Wrapper):
     def __init__(self, env, skip=4):
-        '''Return only every `skip`-th frame'''
+        """Return only every `skip`-th frame"""
         gymnasium.Wrapper.__init__(self, env)
         # most recent raw observations (for max pooling across time steps)
         self._obs_buffer = np.zeros((2,) + env.observation_space.shape, dtype=np.uint8)
         self._skip = skip
 
     def step(self, action):
-        '''Repeat action, sum reward, and max over last observations.'''
+        """Repeat action, sum reward, and max over last observations."""
         total_reward = 0.0
         for i in range(self._skip):
             obs, reward, terminated, truncated, info = self.env.step(action)
@@ -115,11 +118,11 @@ class MaxAndSkipEnv(gymnasium.Wrapper):
 
 class WarpFrame(gymnasium.ObservationWrapper):
     def __init__(self, env, width=84, height=84, grayscale=True, dict_space_key=None):
-        '''
+        """
         Warp frames to 84x84 as done in the Nature paper and later work.
         If the environment uses dictionary observations, `dict_space_key` can be specified which indicates which
         observation should be warped.
-        '''
+        """
         super().__init__(env)
         self._width = width
         self._height = height
@@ -168,11 +171,11 @@ class WarpFrame(gymnasium.ObservationWrapper):
 
 class LifeLostEnv(gymnasium.Wrapper):
     def __init__(self, env):
-        '''
+        """
         Modified wrapper to add a "life_lost" key to info.
         This allows the agent Body to make the episode as done
         if it desires.
-        '''
+        """
         gymnasium.Wrapper.__init__(self, env)
         self.lives = 0
 
@@ -183,7 +186,7 @@ class LifeLostEnv(gymnasium.Wrapper):
     def step(self, action):
         obs, reward, terminated, truncated, _ = self.env.step(action)
         lives = self.env.unwrapped.ale.lives()
-        life_lost = (lives < self.lives and lives > 0)
+        life_lost = lives < self.lives and lives > 0
         self.lives = lives
-        info = {'life_lost': life_lost}
+        info = {"life_lost": life_lost}
         return obs, reward, terminated, truncated, info

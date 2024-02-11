@@ -3,8 +3,8 @@ import numpy as np
 from all.logging import ExperimentLogger, CometLogger
 
 
-class MultiagentEnvExperiment():
-    '''
+class MultiagentEnvExperiment:
+    """
     An Experiment object for training and testing Multiagents.
 
     Args:
@@ -17,20 +17,20 @@ class MultiagentEnvExperiment():
         save_freq (int, optional): How often to save the model to disk.
         train_steps (int, optional): The number of steps for which to train.
         verbose (bool, optional): Whether or not to log detailed information or only summaries.
-    '''
+    """
 
     def __init__(
-            self,
-            preset,
-            env,
-            logdir='runs',
-            name=None,
-            quiet=False,
-            render=False,
-            save_freq=100,
-            train_steps=float('inf'),
-            verbose=True,
-            logger="tensorboard"
+        self,
+        preset,
+        env,
+        logdir="runs",
+        name=None,
+        quiet=False,
+        render=False,
+        save_freq=100,
+        train_steps=float("inf"),
+        verbose=True,
+        logger="tensorboard",
     ):
         self._name = name if name is not None else preset.name
         self._logger = self._make_logger(logdir, self._name, env.name, verbose, logger)
@@ -47,7 +47,7 @@ class MultiagentEnvExperiment():
         if render:
             self._env.render()
 
-    '''
+    """
     Train the Multiagent for a certain number of frames or episodes.
     If both frames and episodes are specified, then the training loop will exit
     when either condition is satisfied.
@@ -58,14 +58,14 @@ class MultiagentEnvExperiment():
 
     Returns:
         MultiagentEnvExperiment: The experiment object.
-    '''
+    """
 
     def train(self, frames=np.inf, episodes=np.inf):
         while not self._done(frames, episodes):
             self._run_training_episode()
         return self
 
-    '''
+    """
     Test the agent in eval mode for a certain number of episodes.
 
     Args:
@@ -73,7 +73,7 @@ class MultiagentEnvExperiment():
 
     Returns:
         list(float): A list of all returns received during testing.
-    '''
+    """
 
     def test(self, episodes=100):
         test_agent = self._preset.test_agent()
@@ -90,17 +90,19 @@ class MultiagentEnvExperiment():
         return returns
 
     def save(self):
-        return self._preset.save('{}/preset.pt'.format(self._logger.log_dir))
+        return self._preset.save("{}/preset.pt".format(self._logger.log_dir))
 
     def close(self):
         self._logger.close()
 
-    '''int: The number of completed training frames'''
+    """int: The number of completed training frames"""
+
     @property
     def frame(self):
         return self._frame
 
-    '''int: The number of completed training episodes'''
+    """int: The number of completed training episodes"""
+
     @property
     def episode(self):
         return self._episode
@@ -158,28 +160,38 @@ class MultiagentEnvExperiment():
 
     def _log_training_episode(self, returns, fps):
         if not self._quiet:
-            print('returns: {}'.format(returns))
-            print('frames: {}, fps: {}'.format(self._frame, fps))
+            print("returns: {}".format(returns))
+            print("frames: {}, fps: {}".format(self._frame, fps))
         for agent in self._env.agents:
-            self._logger.add_eval('{}/returns/frame'.format(agent), returns[agent], step="frame")
+            self._logger.add_eval(
+                "{}/returns/frame".format(agent), returns[agent], step="frame"
+            )
 
     def _log_test_episode(self, episode, returns):
         if not self._quiet:
-            print('test episode: {}, returns: {}'.format(episode, returns))
+            print("test episode: {}, returns: {}".format(episode, returns))
 
     def _log_test(self, returns):
         for agent, agent_returns in returns.items():
             if not self._quiet:
                 mean = np.mean(agent_returns)
                 sem = np.std(agent_returns) / np.sqrt(len(agent_returns))
-                print('{} test returns (mean ± sem): {} ± {}'.format(agent, mean, sem))
-            self._logger.add_summary('{}/returns-test'.format(agent), np.mean(agent_returns), np.std(agent_returns))
+                print("{} test returns (mean ± sem): {} ± {}".format(agent, mean, sem))
+            self._logger.add_summary(
+                "{}/returns-test".format(agent),
+                np.mean(agent_returns),
+                np.std(agent_returns),
+            )
 
     def _save_model(self):
-        if self._save_freq != float('inf') and self._episode % self._save_freq == 0:
+        if self._save_freq != float("inf") and self._episode % self._save_freq == 0:
             self.save()
 
     def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
         if logger == "comet":
-            return CometLogger(self, agent_name, env_name, verbose=verbose, logdir=logdir)
-        return ExperimentLogger(self, agent_name, env_name, verbose=verbose, logdir=logdir)
+            return CometLogger(
+                self, agent_name, env_name, verbose=verbose, logdir=logdir
+            )
+        return ExperimentLogger(
+            self, agent_name, env_name, verbose=verbose, logdir=logdir
+        )

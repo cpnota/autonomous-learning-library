@@ -10,5 +10,5 @@ __all__ = [
     "ParallelGreedyPolicy",
     "SoftmaxPolicy",
     "DeterministicPolicy",
-    "SoftDeterministicPolicy"
+    "SoftDeterministicPolicy",
 ]

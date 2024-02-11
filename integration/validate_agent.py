@@ -1,6 +1,10 @@
 import os
 from all.logging import DummyLogger
-from all.experiments import SingleEnvExperiment, ParallelEnvExperiment, MultiagentEnvExperiment
+from all.experiments import (
+    SingleEnvExperiment,
+    ParallelEnvExperiment,
+    MultiagentEnvExperiment,
+)
 from all.presets import ParallelPreset, Preset
 
 

@@ -1,4 +1,3 @@
-
 import os
 import csv
 import subprocess
@@ -8,7 +7,7 @@ from ._logger import Logger
 
 
 class ExperimentLogger(SummaryWriter, Logger):
-    '''
+    """
     The default Logger object used by all.experiments.Experiment.
     Writes logs using tensorboard into the current logdir directory ('runs' by default),
     tagging the run with a combination of the agent name, the commit hash of the
@@ -19,11 +18,11 @@ class ExperimentLogger(SummaryWriter, Logger):
         agent_name (str): The name of the Agent the Experiment is being performed on
         env_name (str): The name of the environment the Experiment is being performed in
         verbose (bool, optional): Whether or not to log all data or only summary metrics.
-    '''
+    """
 
-    def __init__(self, experiment, agent_name, env_name, verbose=True, logdir='runs'):
+    def __init__(self, experiment, agent_name, env_name, verbose=True, logdir="runs"):
         self.env_name = env_name
-        current_time = datetime.now().strftime('%Y-%m-%d_%H:%M:%S_%f')
+        current_time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S_%f")
         dir_name = "%s_%s_%s" % (agent_name, COMMIT_HASH, current_time)
         os.makedirs(os.path.join(logdir, dir_name, env_name))
         self.log_dir = os.path.join(logdir, dir_name)
@@ -32,10 +31,16 @@ class ExperimentLogger(SummaryWriter, Logger):
         super().__init__(log_dir=self.log_dir)
 
     def add_summary(self, name, mean, std, step="frame"):
-        super().add_scalar('{}/summary/{}/mean'.format(self.env_name, name), mean, self._get_step(step))
-        super().add_scalar('{}/summary/{}/std'.format(self.env_name, name), std, self._get_step(step))
+        super().add_scalar(
+            "{}/summary/{}/mean".format(self.env_name, name), mean, self._get_step(step)
+        )
+        super().add_scalar(
+            "{}/summary/{}/std".format(self.env_name, name), std, self._get_step(step)
+        )
 
-        with open(os.path.join(self.log_dir, self.env_name, name + ".csv"), "a") as csvfile:
+        with open(
+            os.path.join(self.log_dir, self.env_name, name + ".csv"), "a"
+        ) as csvfile:
             csv.writer(csvfile).writerow([self._get_step(step), mean, std])
 
     def add_loss(self, name, value, step="frame"):
@@ -66,7 +71,7 @@ class ExperimentLogger(SummaryWriter, Logger):
 
 
 class CometLogger(Logger):
-    '''
+    """
     A Logger object to be used by all.experiments.Experiment.
     Writes logs using comet.ml Requires an API key to be stored in .comet.config or as an environment variable.
     Look at https://www.comet.ml/docs/python-sdk/advanced/#python-configuration for more info.
@@ -76,9 +81,9 @@ class CometLogger(Logger):
         env_name (str): The name of the environment the Experiment is being performed in
         loss (bool, optional): Whether or not to log loss/scheduling metrics, or only evaluation and summary metrics.
         logdir (str): The directory where run information is stored.
-    '''
+    """
 
-    def __init__(self, experiment, agent_name, env_name, verbose=True, logdir='runs'):
+    def __init__(self, experiment, agent_name, env_name, verbose=True, logdir="runs"):
         self.env_name = env_name
         self._experiment = experiment
         self._verbose = not verbose
@@ -86,23 +91,33 @@ class CometLogger(Logger):
         try:
             from comet_ml import Experiment
         except ImportError as e:
-            print("Failed to import comet_ml. CometLogger requires that comet_ml be installed")
+            print(
+                "Failed to import comet_ml. CometLogger requires that comet_ml be installed"
+            )
             raise e
         try:
             self._comet = Experiment(project_name=env_name)
         except ImportError as e:
-            print("See https://www.comet.ml/docs/python-sdk/warnings-errors/ for more info on this error.")
+            print(
+                "See https://www.comet.ml/docs/python-sdk/warnings-errors/ for more info on this error."
+            )
             raise e
         except ValueError as e:
-            print("See https://www.comet.ml/docs/python-sdk/advanced/#python-configuration for more info on this error.")
+            print(
+                "See https://www.comet.ml/docs/python-sdk/advanced/#python-configuration for more info on this error."
+            )
             raise e
 
         self._comet.set_name(agent_name)
         self.log_dir = logdir
 
     def add_summary(self, name, mean, std, step="frame"):
-        self._comet.log_metric('{}/summary/{}/mean'.format(self.env_name, name), mean, self._get_step(step))
-        self._comet.log_metric('{}/summary/{}/std'.format(self.env_name, name), std, self._get_step(step))
+        self._comet.log_metric(
+            "{}/summary/{}/mean".format(self.env_name, name), mean, self._get_step(step)
+        )
+        self._comet.log_metric(
+            "{}/summary/{}/std".format(self.env_name, name), std, self._get_step(step)
+        )
 
     def add_loss(self, name, value, step="frame"):
         self._add_scalar("loss/" + name, value, step)
@@ -137,11 +152,11 @@ def get_commit_hash():
             ["git", "rev-parse", "--short", "HEAD"],
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
-            check=False
+            check=False,
         )
         return result.stdout.decode("utf-8").rstrip()
     except Exception:
-        return ''
+        return ""
 
 
 COMMIT_HASH = get_commit_hash()

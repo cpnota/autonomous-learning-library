@@ -72,66 +72,77 @@ class PPOContinuousPreset(ParallelPreset):
         self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
         self.action_space = env.action_space
 
-    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
-        n_updates = train_steps * self.hyperparameters['epochs'] * self.hyperparameters['minibatches'] / (self.hyperparameters['n_steps'] * self.hyperparameters['n_envs'])
+    def agent(self, logger=DummyLogger(), train_steps=float("inf")):
+        n_updates = (
+            train_steps
+            * self.hyperparameters["epochs"]
+            * self.hyperparameters["minibatches"]
+            / (self.hyperparameters["n_steps"] * self.hyperparameters["n_envs"])
+        )
 
-        value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters['lr'], eps=self.hyperparameters['eps'])
-        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters['lr'], eps=self.hyperparameters['eps'])
+        value_optimizer = Adam(
+            self.value_model.parameters(),
+            lr=self.hyperparameters["lr"],
+            eps=self.hyperparameters["eps"],
+        )
+        policy_optimizer = Adam(
+            self.policy_model.parameters(),
+            lr=self.hyperparameters["lr"],
+            eps=self.hyperparameters["eps"],
+        )
 
         features = Identity(self.device)
 
         v = VNetwork(
             self.value_model,
             value_optimizer,
-            loss_scaling=self.hyperparameters['value_loss_scaling'],
-            clip_grad=self.hyperparameters['clip_grad'],
+            loss_scaling=self.hyperparameters["value_loss_scaling"],
+            clip_grad=self.hyperparameters["clip_grad"],
             logger=logger,
-            scheduler=CosineAnnealingLR(
-                value_optimizer,
-                n_updates
-            ),
+            scheduler=CosineAnnealingLR(value_optimizer, n_updates),
         )
 
         policy = GaussianPolicy(
             self.policy_model,
             policy_optimizer,
             self.action_space,
-            clip_grad=self.hyperparameters['clip_grad'],
+            clip_grad=self.hyperparameters["clip_grad"],
             logger=logger,
-            scheduler=CosineAnnealingLR(
-                policy_optimizer,
-                n_updates
-            ),
+            scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
         )
 
-        return TimeFeature(PPO(
-            features,
-            v,
-            policy,
-            epsilon=LinearScheduler(
-                self.hyperparameters['clip_initial'],
-                self.hyperparameters['clip_final'],
-                0,
-                n_updates,
-                name='clip',
-                logger=logger
-            ),
-            epochs=self.hyperparameters['epochs'],
-            minibatches=self.hyperparameters['minibatches'],
-            n_envs=self.hyperparameters['n_envs'],
-            n_steps=self.hyperparameters['n_steps'],
-            discount_factor=self.hyperparameters['discount_factor'],
-            lam=self.hyperparameters['lam'],
-            entropy_loss_scaling=self.hyperparameters['entropy_loss_scaling'],
-            logger=logger,
-        ))
+        return TimeFeature(
+            PPO(
+                features,
+                v,
+                policy,
+                epsilon=LinearScheduler(
+                    self.hyperparameters["clip_initial"],
+                    self.hyperparameters["clip_final"],
+                    0,
+                    n_updates,
+                    name="clip",
+                    logger=logger,
+                ),
+                epochs=self.hyperparameters["epochs"],
+                minibatches=self.hyperparameters["minibatches"],
+                n_envs=self.hyperparameters["n_envs"],
+                n_steps=self.hyperparameters["n_steps"],
+                discount_factor=self.hyperparameters["discount_factor"],
+                lam=self.hyperparameters["lam"],
+                entropy_loss_scaling=self.hyperparameters["entropy_loss_scaling"],
+                logger=logger,
+            )
+        )
 
     def test_agent(self):
-        policy = GaussianPolicy(copy.deepcopy(self.policy_model), space=self.action_space)
+        policy = GaussianPolicy(
+            copy.deepcopy(self.policy_model), space=self.action_space
+        )
         return TimeFeature(PPOTestAgent(Identity(self.device), policy))
 
     def parallel_test_agent(self):
         return self.test_agent()
 
 
-ppo = ParallelPresetBuilder('ppo', default_hyperparameters, PPOContinuousPreset)
+ppo = ParallelPresetBuilder("ppo", default_hyperparameters, PPOContinuousPreset)

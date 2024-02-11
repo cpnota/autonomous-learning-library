@@ -15,16 +15,11 @@ ACTION_DIM = 3
 class TestSoftDeterministic(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(2)
-        self.model = nn.Sequential(
-            nn.Linear0(STATE_DIM, ACTION_DIM * 2)
-        )
+        self.model = nn.Sequential(nn.Linear0(STATE_DIM, ACTION_DIM * 2))
         self.optimizer = torch.optim.RMSprop(self.model.parameters(), lr=0.01)
         self.space = Box(np.array([-1, -1, -1]), np.array([1, 1, 1]))
         self.policy = SoftDeterministicPolicy(
-            self.model,
-            self.optimizer,
-            self.space,
-            checkpointer=DummyCheckpointer()
+            self.model, self.optimizer, self.space, checkpointer=DummyCheckpointer()
         )
 
     def test_output_shape(self):
@@ -61,7 +56,7 @@ class TestSoftDeterministic(unittest.TestCase):
         policy1 = SoftDeterministicPolicy(
             self.model,
             self.optimizer,
-            Box(np.array([-1., -1., -1.]), np.array([1., 1., 1.]))
+            Box(np.array([-1.0, -1.0, -1.0]), np.array([1.0, 1.0, 1.0])),
         )
         action1, log_prob1 = policy1(state)
 
@@ -71,7 +66,7 @@ class TestSoftDeterministic(unittest.TestCase):
         policy2 = SoftDeterministicPolicy(
             self.model,
             self.optimizer,
-            Box(np.array([-2., -1., -1.]), np.array([2., 1., 1.]))
+            Box(np.array([-2.0, -1.0, -1.0]), np.array([2.0, 1.0, 1.0])),
         )
         action2, log_prob2 = policy2(state)
 
@@ -80,5 +75,5 @@ class TestSoftDeterministic(unittest.TestCase):
         tt.assert_allclose(log_prob1 - np.log(2), log_prob2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

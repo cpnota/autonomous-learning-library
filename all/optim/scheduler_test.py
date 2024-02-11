@@ -17,5 +17,5 @@ class TestScheduler(unittest.TestCase):
         np.testing.assert_allclose(actual, expected)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

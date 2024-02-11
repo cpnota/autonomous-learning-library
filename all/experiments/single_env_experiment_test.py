@@ -76,7 +76,7 @@ class TestSingleEnvExperiment(unittest.TestCase):
         experiment.train(episodes=3)
         np.testing.assert_equal(
             experiment._logger.data["eval/returns/frame"]["values"],
-            np.array([22., 17., 28.]),
+            np.array([22.0, 17.0, 28.0]),
         )
         np.testing.assert_equal(
             experiment._logger.data["eval/returns/frame"]["steps"],

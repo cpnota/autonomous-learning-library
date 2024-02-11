@@ -28,17 +28,18 @@ class DDPG(Agent):
         update_frequency (int): Number of timesteps per training update.
     """
 
-    def __init__(self,
-                 q,
-                 policy,
-                 replay_buffer,
-                 action_space,
-                 discount_factor=0.99,
-                 minibatch_size=32,
-                 noise=0.1,
-                 replay_start_size=5000,
-                 update_frequency=1,
-                 ):
+    def __init__(
+        self,
+        q,
+        policy,
+        replay_buffer,
+        action_space,
+        discount_factor=0.99,
+        minibatch_size=32,
+        noise=0.1,
+        replay_start_size=5000,
+        update_frequency=1,
+    ):
         # objects
         self.q = q
         self.policy = policy
@@ -49,7 +50,13 @@ class DDPG(Agent):
         self.minibatch_size = minibatch_size
         self.discount_factor = discount_factor
         # private
-        self._noise = Normal(0, noise * torch.tensor((action_space.high - action_space.low) / 2).to(policy.device))
+        self._noise = Normal(
+            0,
+            noise
+            * torch.tensor((action_space.high - action_space.low) / 2).to(
+                policy.device
+            ),
+        )
         self._low = torch.tensor(action_space.low, device=policy.device)
         self._high = torch.tensor(action_space.high, device=policy.device)
         self._state = None
@@ -76,11 +83,15 @@ class DDPG(Agent):
     def _train(self):
         if self._should_train():
             # sample transitions from buffer
-            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
+            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
+                self.minibatch_size
+            )
 
             # train q-network
             q_values = self.q(states, actions)
-            targets = rewards + self.discount_factor * self.q.target(next_states, self.policy.target(next_states))
+            targets = rewards + self.discount_factor * self.q.target(
+                next_states, self.policy.target(next_states)
+            )
             loss = mse_loss(q_values, targets)
             self.q.reinforce(loss)
 
@@ -92,7 +103,10 @@ class DDPG(Agent):
 
     def _should_train(self):
         self._frames_seen += 1
-        return self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0
+        return (
+            self._frames_seen > self.replay_start_size
+            and self._frames_seen % self.update_frequency == 0
+        )
 
 
 class DDPGTestAgent(Agent):

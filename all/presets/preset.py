@@ -18,7 +18,7 @@ class Preset(ABC):
         self.hyperparameters = hyperparameters
 
     @abstractmethod
-    def agent(self, logger=None, train_steps=float('inf')):
+    def agent(self, logger=None, train_steps=float("inf")):
         """
         Instantiate a training-mode Agent with the existing model.
 
@@ -71,7 +71,7 @@ class ParallelPreset(ABC):
         self.hyperparameters = hyperparameters
 
     @abstractmethod
-    def agent(self, logger=None, train_steps=float('inf')):
+    def agent(self, logger=None, train_steps=float("inf")):
         """
         Instantiate a training-mode ParallelAgent with the existing model.
 
@@ -108,7 +108,7 @@ class ParallelPreset(ABC):
 
     @property
     def n_envs(self):
-        return self.hyperparameters['n_envs']
+        return self.hyperparameters["n_envs"]
 
     def save(self, filename):
         """

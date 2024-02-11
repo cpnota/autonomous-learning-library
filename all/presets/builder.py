@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class PresetBuilder():
+class PresetBuilder:
     def __init__(
         self,
         default_name,
@@ -17,7 +17,9 @@ class PresetBuilder():
         self.constructor = constructor
         self._device = device
         self._env = env
-        self._hyperparameters = self._merge_hyperparameters(default_hyperparameters, hyperparameters)
+        self._hyperparameters = self._merge_hyperparameters(
+            default_hyperparameters, hyperparameters
+        )
         self._name = name or default_name
 
     def __call__(self, **kwargs):
@@ -30,20 +32,21 @@ class PresetBuilder():
         return self._preset_builder(env=env)
 
     def hyperparameters(self, **hyperparameters):
-        return self._preset_builder(hyperparameters=self._merge_hyperparameters(self._hyperparameters, hyperparameters))
+        return self._preset_builder(
+            hyperparameters=self._merge_hyperparameters(
+                self._hyperparameters, hyperparameters
+            )
+        )
 
     def name(self, name):
         return self._preset_builder(name=name)
 
     def build(self):
         if not self._env:
-            raise Exception('Env is required')
+            raise Exception("Env is required")
 
         return self.constructor(
-            self._env,
-            device=self._device,
-            name=self._name,
-            **self._hyperparameters
+            self._env, device=self._device, name=self._name, **self._hyperparameters
         )
 
     def _merge_hyperparameters(self, h1, h2):
@@ -56,12 +59,17 @@ class PresetBuilder():
 
     def _preset_builder(self, **kwargs):
         old_kwargs = {
-            'device': self._device,
-            'env': self._env,
-            'hyperparameters': self._hyperparameters,
-            'name': self._name,
+            "device": self._device,
+            "env": self._env,
+            "hyperparameters": self._hyperparameters,
+            "name": self._name,
         }
-        return PresetBuilder(self.default_name, self.default_hyperparameters, self.constructor, **{**old_kwargs, **kwargs})
+        return PresetBuilder(
+            self.default_name,
+            self.default_hyperparameters,
+            self.constructor,
+            **{**old_kwargs, **kwargs}
+        )
 
 
 class ParallelPresetBuilder(PresetBuilder):
@@ -75,8 +83,8 @@ class ParallelPresetBuilder(PresetBuilder):
         hyperparameters=None,
         name=None,
     ):
-        if 'n_envs' not in default_hyperparameters:
-            raise Exception('ParallelPreset hyperparameters must include n_envs')
+        if "n_envs" not in default_hyperparameters:
+            raise Exception("ParallelPreset hyperparameters must include n_envs")
         super().__init__(
             default_name,
             default_hyperparameters,
@@ -84,7 +92,7 @@ class ParallelPresetBuilder(PresetBuilder):
             device=device,
             env=env,
             hyperparameters=hyperparameters,
-            name=name
+            name=name,
         )
 
     def build(self):
