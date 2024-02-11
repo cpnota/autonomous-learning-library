@@ -1,5 +1,7 @@
 import torch
+
 from all.core import State, StateArray
+
 from ._body import Body
 
 
@@ -19,15 +21,15 @@ class FrameStack(Body):
         if self._lazy:
             return LazyState.from_state(state, self._frames, self._to_cache)
         if isinstance(state, StateArray):
-            return state.update('observation', torch.cat(self._frames, dim=1))
-        return state.update('observation', torch.cat(self._frames, dim=0))
+            return state.update("observation", torch.cat(self._frames, dim=1))
+        return state.update("observation", torch.cat(self._frames, dim=0))
 
 
 class TensorDeviceCache:
-    '''
+    """
     To efficiently implement device trasfer of lazy states, this class
     caches the transfered tensor so that it is not copied multiple times.
-    '''
+    """
 
     def __init__(self, max_size=16):
         self.max_size = max_size
@@ -54,11 +56,11 @@ class LazyState(State):
     def from_state(cls, state, frames, to_cache):
         state = LazyState(state, device=frames[0].device)
         state.to_cache = to_cache
-        state['observation'] = frames
+        state["observation"] = frames
         return state
 
     def __getitem__(self, key):
-        if key == 'observation':
+        if key == "observation":
             v = dict.__getitem__(self, key)
             if torch.is_tensor(v):
                 return v
@@ -71,7 +73,7 @@ class LazyState(State):
             if not k == key:
                 x[k] = dict.__getitem__(self, k)
         x[key] = value
-        state = LazyState.from_state(x, x['observation'], self.to_cache)
+        state = LazyState.from_state(x, x["observation"], self.to_cache)
         return state
 
     def to(self, device):
@@ -79,12 +81,12 @@ class LazyState(State):
             return self
         x = {}
         for key, value in self.items():
-            if key == 'observation':
+            if key == "observation":
                 x[key] = [self.to_cache.convert(v, device) for v in value]
                 # x[key] = [v.to(device) for v in value]#torch.cat(value,axis=0).to(device)
             elif torch.is_tensor(value):
                 x[key] = value.to(device)
             else:
                 x[key] = value
-        state = LazyState.from_state(x, x['observation'], self.to_cache)
+        state = LazyState.from_state(x, x["observation"], self.to_cache)
         return state

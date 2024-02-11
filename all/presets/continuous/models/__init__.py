@@ -1,11 +1,13 @@
-'''
+"""
 Pytorch models for continuous control.
 
 All models assume that a feature representing the
 current timestep is used in addition to the features
 received from the environment.
-'''
+"""
+
 import torch
+
 from all import nn
 
 
@@ -62,7 +64,7 @@ class fc_policy(nn.Module):
             nn.Tanh(),
             nn.Linear(hidden1, hidden2),
             nn.Tanh(),
-            nn.Linear(hidden2, env.action_space.shape[0])
+            nn.Linear(hidden2, env.action_space.shape[0]),
         )
         self.log_stds = nn.Parameter(torch.zeros(env.action_space.shape[0]))
 

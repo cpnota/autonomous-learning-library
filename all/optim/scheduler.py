@@ -2,7 +2,7 @@ from all.logging import DummyLogger
 
 
 class Schedulable:
-    '''Allow "instance" descriptors to implement parameter scheduling.'''
+    """Allow "instance" descriptors to implement parameter scheduling."""
 
     def __getattribute__(self, name):
         value = object.__getattribute__(self, name)
@@ -17,13 +17,13 @@ class Scheduler:
 
 class LinearScheduler(Scheduler):
     def __init__(
-            self,
-            initial_value,
-            final_value,
-            decay_start,
-            decay_end,
-            name='variable',
-            logger=DummyLogger(),
+        self,
+        initial_value,
+        final_value,
+        decay_start,
+        decay_end,
+        name="variable",
+        logger=DummyLogger(),
     ):
         self._initial_value = initial_value
         self._final_value = final_value

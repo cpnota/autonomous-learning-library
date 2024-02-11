@@ -1,16 +1,17 @@
 import copy
+
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
+
 from all.agents import DDPG, DDPGTestAgent
-from all.approximation import QContinuous, PolyakTarget
+from all.approximation import PolyakTarget, QContinuous
 from all.bodies import TimeFeature
 from all.logging import DummyLogger
-from all.policies import DeterministicPolicy
 from all.memory import ExperienceReplayBuffer
+from all.policies import DeterministicPolicy
 from all.presets.builder import PresetBuilder
+from all.presets.continuous.models import fc_deterministic_policy, fc_q
 from all.presets.preset import Preset
-from all.presets.continuous.models import fc_q, fc_deterministic_policy
-
 
 default_hyperparameters = {
     # Common settings
@@ -29,7 +30,7 @@ default_hyperparameters = {
     "noise": 0.1,
     # Model construction
     "q_model_constructor": fc_q,
-    "policy_model_constructor": fc_deterministic_policy
+    "policy_model_constructor": fc_deterministic_policy,
 }
 
 
@@ -62,8 +63,10 @@ class DDPGContinuousPreset(Preset):
         self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
         self.action_space = env.action_space
 
-    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
-        n_updates = (train_steps - self.hyperparameters["replay_start_size"]) / self.hyperparameters["update_frequency"]
+    def agent(self, logger=DummyLogger(), train_steps=float("inf")):
+        n_updates = (
+            train_steps - self.hyperparameters["replay_start_size"]
+        ) / self.hyperparameters["update_frequency"]
 
         q_optimizer = Adam(self.q_model.parameters(), lr=self.hyperparameters["lr_q"])
 
@@ -71,42 +74,39 @@ class DDPGContinuousPreset(Preset):
             self.q_model,
             q_optimizer,
             target=PolyakTarget(self.hyperparameters["polyak_rate"]),
-            scheduler=CosineAnnealingLR(
-                q_optimizer,
-                n_updates
-            ),
-            logger=logger
+            scheduler=CosineAnnealingLR(q_optimizer, n_updates),
+            logger=logger,
         )
 
-        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr_pi"])
+        policy_optimizer = Adam(
+            self.policy_model.parameters(), lr=self.hyperparameters["lr_pi"]
+        )
         policy = DeterministicPolicy(
             self.policy_model,
             policy_optimizer,
             self.action_space,
             target=PolyakTarget(self.hyperparameters["polyak_rate"]),
-            scheduler=CosineAnnealingLR(
-                policy_optimizer,
-                n_updates
-            ),
-            logger=logger
+            scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
+            logger=logger,
         )
 
         replay_buffer = ExperienceReplayBuffer(
-            self.hyperparameters["replay_buffer_size"],
-            device=self.device
+            self.hyperparameters["replay_buffer_size"], device=self.device
         )
 
-        return TimeFeature(DDPG(
-            q,
-            policy,
-            replay_buffer,
-            self.action_space,
-            noise=self.hyperparameters["noise"],
-            replay_start_size=self.hyperparameters["replay_start_size"],
-            discount_factor=self.hyperparameters["discount_factor"],
-            update_frequency=self.hyperparameters["update_frequency"],
-            minibatch_size=self.hyperparameters["minibatch_size"],
-        ))
+        return TimeFeature(
+            DDPG(
+                q,
+                policy,
+                replay_buffer,
+                self.action_space,
+                noise=self.hyperparameters["noise"],
+                replay_start_size=self.hyperparameters["replay_start_size"],
+                discount_factor=self.hyperparameters["discount_factor"],
+                update_frequency=self.hyperparameters["update_frequency"],
+                minibatch_size=self.hyperparameters["minibatch_size"],
+            )
+        )
 
     def test_agent(self):
         policy = DeterministicPolicy(
@@ -117,4 +117,4 @@ class DDPGContinuousPreset(Preset):
         return TimeFeature(DDPGTestAgent(policy))
 
 
-ddpg = PresetBuilder('ddpg', default_hyperparameters, DDPGContinuousPreset)
+ddpg = PresetBuilder("ddpg", default_hyperparameters, DDPGContinuousPreset)

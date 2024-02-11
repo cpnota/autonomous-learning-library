@@ -1,13 +1,16 @@
 import gymnasium
 import torch
+
 from all.core import State
+
 from ._environment import Environment
 from .duplicate_env import DuplicateEnvironment
+
 gymnasium.logger.set_level(40)
 
 
 class GymEnvironment(Environment):
-    '''
+    """
     A wrapper for OpenAI Gym environments (see: https://gymnasium.openai.com).
 
     This wrapper converts the output of the gym environment to PyTorch tensors,
@@ -23,11 +26,19 @@ class GymEnvironment(Environment):
         device (str, optional): the device on which tensors will be stored
         legacy_gym (str, optional): If true, calls gym.make() instead of gymnasium.make()
         **gym_make_kwargs: kwargs passed to gymnasium.make(id, **gym_make_kwargs)
-    '''
+    """
 
-    def __init__(self, id, device=torch.device('cpu'), name=None, legacy_gym=False, **gym_make_kwargs):
+    def __init__(
+        self,
+        id,
+        device=torch.device("cpu"),
+        name=None,
+        legacy_gym=False,
+        **gym_make_kwargs
+    ):
         if legacy_gym:
             import gym
+
             self._gym = gym
         else:
             self._gym = gymnasium
@@ -46,14 +57,18 @@ class GymEnvironment(Environment):
         return self._name
 
     def reset(self, **kwargs):
-        self._state = State.from_gym(self._env.reset(**kwargs), dtype=self._env.observation_space.dtype, device=self._device)
+        self._state = State.from_gym(
+            self._env.reset(**kwargs),
+            dtype=self._env.observation_space.dtype,
+            device=self._device,
+        )
         return self._state
 
     def step(self, action):
         self._state = State.from_gym(
             self._env.step(self._convert(action)),
             dtype=self._env.observation_space.dtype,
-            device=self._device
+            device=self._device,
         )
         return self._state
 
@@ -67,7 +82,12 @@ class GymEnvironment(Environment):
         self._env.seed(seed)
 
     def duplicate(self, n):
-        return DuplicateEnvironment([GymEnvironment(self._id, device=self.device, name=self._name) for _ in range(n)])
+        return DuplicateEnvironment(
+            [
+                GymEnvironment(self._id, device=self.device, name=self._name)
+                for _ in range(n)
+            ]
+        )
 
     @property
     def state_space(self):

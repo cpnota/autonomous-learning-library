@@ -1,20 +1,10 @@
 import unittest
+
 import torch
-from all.environments import AtariEnvironment
-from all.presets.atari import (
-    a2c,
-    c51,
-    ddqn,
-    dqn,
-    ppo,
-    rainbow,
-    vac,
-    vpg,
-    vsarsa,
-    vqn
-)
 from validate_agent import validate_agent
 
+from all.environments import AtariEnvironment
+from all.presets.atari import a2c, c51, ddqn, dqn, ppo, rainbow, vac, vpg, vqn, vsarsa
 
 CPU = torch.device("cpu")
 if torch.cuda.is_available():
@@ -66,10 +56,16 @@ class TestAtariPresets(unittest.TestCase):
         )
 
     def test_ppo(self):
-        validate_agent(ppo.device(CPU).hyperparameters(n_envs=4), AtariEnvironment("Breakout", device=CPU))
+        validate_agent(
+            ppo.device(CPU).hyperparameters(n_envs=4),
+            AtariEnvironment("Breakout", device=CPU),
+        )
 
     def test_ppo_cuda(self):
-        validate_agent(ppo.device(CUDA).hyperparameters(n_envs=4), AtariEnvironment("Breakout", device=CUDA))
+        validate_agent(
+            ppo.device(CUDA).hyperparameters(n_envs=4),
+            AtariEnvironment("Breakout", device=CUDA),
+        )
 
     def test_rainbow(self):
         validate_agent(
@@ -84,35 +80,45 @@ class TestAtariPresets(unittest.TestCase):
         )
 
     def test_vac(self):
-        validate_agent(vac.device(CPU).hyperparameters(n_envs=4), AtariEnvironment("Breakout", device=CPU))
+        validate_agent(
+            vac.device(CPU).hyperparameters(n_envs=4),
+            AtariEnvironment("Breakout", device=CPU),
+        )
 
     def test_vac_cuda(self):
         validate_agent(
-            vac.device(CUDA).hyperparameters(n_envs=4), AtariEnvironment("Breakout", device=CUDA)
+            vac.device(CUDA).hyperparameters(n_envs=4),
+            AtariEnvironment("Breakout", device=CUDA),
         )
 
     def test_vpg(self):
         validate_agent(vpg.device(CPU), AtariEnvironment("Breakout", device=CPU))
 
     def test_vpg_cuda(self):
-        validate_agent(
-            vpg.device(CUDA), AtariEnvironment("Breakout", device=CUDA)
-        )
+        validate_agent(vpg.device(CUDA), AtariEnvironment("Breakout", device=CUDA))
 
     def test_vsarsa(self):
-        validate_agent(vsarsa.device(CPU).hyperparameters(n_envs=4), AtariEnvironment("Breakout", device=CPU))
+        validate_agent(
+            vsarsa.device(CPU).hyperparameters(n_envs=4),
+            AtariEnvironment("Breakout", device=CPU),
+        )
 
     def test_vsarsa_cuda(self):
         validate_agent(
-            vsarsa.device(CUDA).hyperparameters(n_envs=4), AtariEnvironment("Breakout", device=CUDA)
+            vsarsa.device(CUDA).hyperparameters(n_envs=4),
+            AtariEnvironment("Breakout", device=CUDA),
         )
 
     def test_vqn(self):
-        validate_agent(vqn.device(CPU).hyperparameters(n_envs=4), AtariEnvironment("Breakout", device=CPU))
+        validate_agent(
+            vqn.device(CPU).hyperparameters(n_envs=4),
+            AtariEnvironment("Breakout", device=CPU),
+        )
 
     def test_vqn_cuda(self):
         validate_agent(
-            vqn.device(CUDA).hyperparameters(n_envs=4), AtariEnvironment("Breakout", device=CUDA)
+            vqn.device(CUDA).hyperparameters(n_envs=4),
+            AtariEnvironment("Breakout", device=CUDA),
         )
 
 

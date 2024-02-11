@@ -1,6 +1,7 @@
 import os
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def plot_returns_100(runs_dir, timesteps=-1):
@@ -51,11 +52,11 @@ def subplot_returns_100(ax, env, data, lines, timesteps=-1):
         if agent in lines:
             ax.plot(x, mean, label=agent, color=lines[agent].get_color())
         else:
-            line, = ax.plot(x, mean, label=agent)
+            (line,) = ax.plot(x, mean, label=agent)
             lines[agent] = line
         ax.fill_between(
             x, mean + std, mean - std, alpha=0.2, color=lines[agent].get_color()
         )
         ax.set_title(env)
         ax.set_xlabel("timesteps")
-        ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 5))
+        ax.ticklabel_format(style="sci", axis="x", scilimits=(0, 5))

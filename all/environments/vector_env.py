@@ -1,12 +1,13 @@
-import gymnasium
-import torch
-from all.core import StateArray
-from ._vector_environment import VectorEnvironment
 import numpy as np
+import torch
+
+from all.core import StateArray
+
+from ._vector_environment import VectorEnvironment
 
 
 class GymVectorEnvironment(VectorEnvironment):
-    '''
+    """
     A wrapper for Gym's vector environments
     (see: https://github.com/openai/gym/blob/master/gym/vector/vector_env.py).
 
@@ -19,9 +20,9 @@ class GymVectorEnvironment(VectorEnvironment):
     Args:
         vec_env: An OpenAI gym vector environment
         device (optional): the device on which tensors will be stored
-    '''
+    """
 
-    def __init__(self, vec_env, name, device=torch.device('cpu')):
+    def __init__(self, vec_env, name, device=torch.device("cpu")):
         self._name = name
         self._env = vec_env
         self._state = None
@@ -37,7 +38,13 @@ class GymVectorEnvironment(VectorEnvironment):
 
     def reset(self, **kwargs):
         obs, info = self._env.reset(**kwargs)
-        self._state = self._to_state(obs, np.zeros(self._env.num_envs), np.zeros(self._env.num_envs), np.zeros(self._env.num_envs), info)
+        self._state = self._to_state(
+            obs,
+            np.zeros(self._env.num_envs),
+            np.zeros(self._env.num_envs),
+            np.zeros(self._env.num_envs),
+            info,
+        )
         return self._state
 
     def _to_state(self, obs, rew, terminated, truncated, info):
@@ -45,12 +52,15 @@ class GymVectorEnvironment(VectorEnvironment):
         rew = rew.astype("float32")
         done = (terminated + truncated).astype("bool")
         mask = (1 - terminated).astype("float32")
-        return StateArray({
-            "observation": torch.tensor(obs, device=self._device),
-            "reward": torch.tensor(rew, device=self._device),
-            "done": torch.tensor(done, device=self._device),
-            "mask": torch.tensor(mask, device=self._device)
-        }, shape=(self._env.num_envs,))
+        return StateArray(
+            {
+                "observation": torch.tensor(obs, device=self._device),
+                "reward": torch.tensor(rew, device=self._device),
+                "done": torch.tensor(done, device=self._device),
+                "mask": torch.tensor(mask, device=self._device),
+            },
+            shape=(self._env.num_envs,),
+        )
 
     def step(self, action):
         state_tuple = self._env.step(action.cpu().detach().numpy())
@@ -62,11 +72,17 @@ class GymVectorEnvironment(VectorEnvironment):
 
     @property
     def state_space(self):
-        return getattr(self._env, "single_observation_space", getattr(self._env, "observation_space"))
+        return getattr(
+            self._env,
+            "single_observation_space",
+            getattr(self._env, "observation_space"),
+        )
 
     @property
     def action_space(self):
-        return getattr(self._env, "single_action_space", getattr(self._env, "action_space"))
+        return getattr(
+            self._env, "single_action_space", getattr(self._env, "action_space")
+        )
 
     @property
     def state_array(self):

@@ -1,10 +1,11 @@
 import numpy as np
 import torch
+
 from all.optim import Schedulable
 
 
 class GreedyPolicy(Schedulable):
-    '''
+    """
     An  "epsilon-greedy" action selection policy for discrete action spaces.
 
     This policy will usually choose the optimal action according to an approximation
@@ -16,13 +17,13 @@ class GreedyPolicy(Schedulable):
         q (all.approximation.QNetwork): The action-value or "q-function"
         num_actions (int): The number of available actions.
         epsilon (float, optional): The probability of selecting a random action.
-    '''
+    """
 
     def __init__(
-            self,
-            q,
-            num_actions,
-            epsilon=0.,
+        self,
+        q,
+        num_actions,
+        epsilon=0.0,
     ):
         self.q = q
         self.num_actions = num_actions
@@ -45,7 +46,7 @@ class GreedyPolicy(Schedulable):
 
 
 class ParallelGreedyPolicy(Schedulable):
-    '''
+    """
     A parallel version of the "epsilon-greedy" action selection policy for discrete action spaces.
 
     This policy will usually choose the optimal action according to an approximation
@@ -57,13 +58,13 @@ class ParallelGreedyPolicy(Schedulable):
         q (all.approximation.QNetwork): The action-value or "q-function"
         num_actions (int): The number of available actions.
         epsilon (float, optional): The probability of selecting a random action.
-    '''
+    """
 
     def __init__(
-            self,
-            q,
-            num_actions,
-            epsilon=0.,
+        self,
+        q,
+        num_actions,
+        epsilon=0.0,
     ):
         self.q = q
         self.num_actions = num_actions
@@ -80,6 +81,10 @@ class ParallelGreedyPolicy(Schedulable):
 
     def _choose_action(self, action_values):
         best_actions = torch.argmax(action_values, dim=-1)
-        random_actions = torch.randint(0, self.num_actions, best_actions.shape, device=best_actions.device)
-        choices = (torch.rand(best_actions.shape, device=best_actions.device) < self.epsilon).int()
+        random_actions = torch.randint(
+            0, self.num_actions, best_actions.shape, device=best_actions.device
+        )
+        choices = (
+            torch.rand(best_actions.shape, device=best_actions.device) < self.epsilon
+        ).int()
         return choices * random_actions + (1 - choices) * best_actions

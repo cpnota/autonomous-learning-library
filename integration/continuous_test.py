@@ -1,7 +1,9 @@
 import unittest
-from all.environments import GymEnvironment, PybulletEnvironment, MujocoEnvironment
-from all.presets.continuous import ddpg, ppo, sac
+
 from validate_agent import validate_agent
+
+from all.environments import GymEnvironment, MujocoEnvironment, PybulletEnvironment
+from all.presets.continuous import ddpg, ppo, sac
 
 
 class TestContinuousPresets(unittest.TestCase):

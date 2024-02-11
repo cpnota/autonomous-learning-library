@@ -1,13 +1,18 @@
 import copy
+
 from torch.optim import Adam
+
 from all.agents import A2C, A2CTestAgent
-from all.approximation import VNetwork, FeatureNetwork
+from all.approximation import FeatureNetwork, VNetwork
 from all.logging import DummyLogger
 from all.policies import SoftmaxPolicy
 from all.presets.builder import ParallelPresetBuilder
+from all.presets.classic_control.models import (
+    fc_policy_head,
+    fc_relu_features,
+    fc_value_head,
+)
 from all.presets.preset import ParallelPreset
-from all.presets.classic_control.models import fc_relu_features, fc_policy_head, fc_value_head
-
 
 default_hyperparameters = {
     # Common settings
@@ -24,7 +29,7 @@ default_hyperparameters = {
     # Model construction
     "feature_model_constructor": fc_relu_features,
     "value_model_constructor": fc_value_head,
-    "policy_model_constructor": fc_policy_head
+    "policy_model_constructor": fc_policy_head,
 }
 
 
@@ -54,33 +59,41 @@ class A2CClassicControlPreset(ParallelPreset):
 
     def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
-        self.value_model = hyperparameters['value_model_constructor']().to(device)
-        self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
-        self.feature_model = hyperparameters['feature_model_constructor'](env).to(device)
+        self.value_model = hyperparameters["value_model_constructor"]().to(device)
+        self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
+        self.feature_model = hyperparameters["feature_model_constructor"](env).to(
+            device
+        )
 
-    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
-        feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr"])
-        value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr"])
-        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr"])
+    def agent(self, logger=DummyLogger(), train_steps=float("inf")):
+        feature_optimizer = Adam(
+            self.feature_model.parameters(), lr=self.hyperparameters["lr"]
+        )
+        value_optimizer = Adam(
+            self.value_model.parameters(), lr=self.hyperparameters["lr"]
+        )
+        policy_optimizer = Adam(
+            self.policy_model.parameters(), lr=self.hyperparameters["lr"]
+        )
 
         features = FeatureNetwork(
             self.feature_model,
             feature_optimizer,
-            clip_grad=self.hyperparameters["clip_grad"]
+            clip_grad=self.hyperparameters["clip_grad"],
         )
 
         v = VNetwork(
             self.value_model,
             value_optimizer,
             clip_grad=self.hyperparameters["clip_grad"],
-            logger=logger
+            logger=logger,
         )
 
         policy = SoftmaxPolicy(
             self.policy_model,
             policy_optimizer,
             clip_grad=self.hyperparameters["clip_grad"],
-            logger=logger
+            logger=logger,
         )
 
         return A2C(
@@ -91,7 +104,7 @@ class A2CClassicControlPreset(ParallelPreset):
             n_steps=self.hyperparameters["n_steps"],
             discount_factor=self.hyperparameters["discount_factor"],
             entropy_loss_scaling=self.hyperparameters["entropy_loss_scaling"],
-            logger=logger
+            logger=logger,
         )
 
     def test_agent(self):
@@ -103,4 +116,4 @@ class A2CClassicControlPreset(ParallelPreset):
         return self.test_agent()
 
 
-a2c = ParallelPresetBuilder('a2c', default_hyperparameters, A2CClassicControlPreset)
+a2c = ParallelPresetBuilder("a2c", default_hyperparameters, A2CClassicControlPreset)

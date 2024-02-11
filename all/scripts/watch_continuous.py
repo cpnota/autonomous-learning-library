@@ -1,8 +1,9 @@
 # pylint: disable=unused-import
 import argparse
-from all.bodies import TimeFeature
+
 from all.environments import GymEnvironment, PybulletEnvironment
 from all.experiments import load_and_watch
+
 from .continuous import ENVS
 
 
@@ -24,7 +25,7 @@ def main():
 
     if args.env in ENVS:
         env = GymEnvironment(args.env, device=args.device, render_mode="human")
-    elif 'BulletEnv' in args.env or args.env in PybulletEnvironment.short_names:
+    elif "BulletEnv" in args.env or args.env in PybulletEnvironment.short_names:
         env = PybulletEnvironment(args.env, device=args.device, render_mode="human")
     else:
         env = GymEnvironment(args.env, device=args.device, render_mode="human")

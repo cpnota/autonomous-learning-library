@@ -1,11 +1,14 @@
 import argparse
+
 from all.environments import GymEnvironment
 from all.experiments import load_and_watch
 
 
 def main():
     parser = argparse.ArgumentParser(description="Run an Atari benchmark.")
-    parser.add_argument("env", help="Name of the environment (e.g. RoboschoolHalfCheetah-v1")
+    parser.add_argument(
+        "env", help="Name of the environment (e.g. RoboschoolHalfCheetah-v1"
+    )
     parser.add_argument("filename", help="File where the model was saved.")
     parser.add_argument(
         "--device",

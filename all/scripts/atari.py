@@ -1,4 +1,5 @@
 import argparse
+
 from all.environments import AtariEnvironment
 from all.experiments import run_experiment
 from all.presets import atari
@@ -21,13 +22,13 @@ def main():
     parser.add_argument(
         "--render", action="store_true", default=False, help="Render the environment."
     )
+    parser.add_argument("--logdir", default="runs", help="The base logging directory.")
     parser.add_argument(
-        "--logdir", default='runs', help="The base logging directory."
+        "--logger",
+        default="tensorboard",
+        help="The backend used for tracking experiment metrics.",
     )
-    parser.add_argument(
-        "--logger", default='tensorboard', help="The backend used for tracking experiment metrics."
-    )
-    parser.add_argument('--hyperparameters', default=[], nargs='*')
+    parser.add_argument("--hyperparameters", default=[], nargs="*")
     args = parser.parse_args()
 
     env = AtariEnvironment(args.env, device=args.device)
@@ -39,7 +40,7 @@ def main():
     # parse hyperparameters
     hyperparameters = {}
     for hp in args.hyperparameters:
-        key, value = hp.split('=')
+        key, value = hp.split("=")
         hyperparameters[key] = type(agent.default_hyperparameters[key])(value)
     agent = agent.hyperparameters(**hyperparameters)
 

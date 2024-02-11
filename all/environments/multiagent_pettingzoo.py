@@ -1,14 +1,14 @@
-import importlib
-import numpy as np
-import torch
 import cloudpickle
 import gymnasium
+import torch
+
 from all.core import MultiagentState
+
 from ._multiagent_environment import MultiagentEnvironment
 
 
 class MultiagentPettingZooEnv(MultiagentEnvironment):
-    '''
+    """
     A wrapper for generael PettingZoo environments (see: https://www.pettingzoo.ml/).
 
     This wrapper converts the output of the PettingZoo environment to PyTorch tensors,
@@ -17,9 +17,9 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
     Args:
         zoo_env (AECEnv): A PettingZoo AECEnv environment (e.g. pettingzoo.mpe.simple_push_v2)
         device (optional): the device on which tensors will be stored
-    '''
+    """
 
-    def __init__(self, zoo_env, name, device='cuda'):
+    def __init__(self, zoo_env, name, device="cuda"):
         env = zoo_env
         env.reset()
         self._env = env
@@ -27,22 +27,24 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         self._device = device
         self.agents = self._env.agents
         self.subenvs = {
-            agent: SubEnv(agent, device, self.state_space(agent), self.action_space(agent))
+            agent: SubEnv(
+                agent, device, self.state_space(agent), self.action_space(agent)
+            )
             for agent in self.agents
         }
 
-    '''
+    """
     Reset the environment and return a new initial state.
 
     Returns:
         An initial MultiagentState object.
-    '''
+    """
 
     def reset(self, **kwargs):
         self._env.reset(**kwargs)
         return self.last()
 
-    '''
+    """
     Reset the environment and return a new initial state.
 
     Args:
@@ -50,7 +52,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
 
     Returns:
         The MultiagentState object for the next agent
-    '''
+    """
 
     def step(self, action):
         if action is None:
@@ -75,12 +77,24 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         return self._env.terminations[agent]
 
     def duplicate(self, n):
-        return [MultiagentPettingZooEnv(cloudpickle.loads(cloudpickle.dumps(self._env)), self._name, device=self.device) for _ in range(n)]
+        return [
+            MultiagentPettingZooEnv(
+                cloudpickle.loads(cloudpickle.dumps(self._env)),
+                self._name,
+                device=self.device,
+            )
+            for _ in range(n)
+        ]
 
     def last(self):
         observation, reward, terminated, truncated, info = self._env.last()
         selected_obs_space = self._env.observation_space(self._env.agent_selection)
-        return MultiagentState.from_zoo(self._env.agent_selection, (observation, reward, terminated, truncated, info), device=self._device, dtype=selected_obs_space.dtype)
+        return MultiagentState.from_zoo(
+            self._env.agent_selection,
+            (observation, reward, terminated, truncated, info),
+            device=self._device,
+            dtype=selected_obs_space.dtype,
+        )
 
     @property
     def name(self):
@@ -112,7 +126,7 @@ class MultiagentPettingZooEnv(MultiagentEnvironment):
         return action
 
 
-class SubEnv():
+class SubEnv:
     def __init__(self, name, device, state_space, action_space):
         self.name = name
         self.device = device

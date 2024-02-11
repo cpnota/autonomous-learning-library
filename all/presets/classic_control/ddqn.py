@@ -1,15 +1,16 @@
 import copy
+
 from torch.optim import Adam
+
 from all.agents import DDQN, DDQNTestAgent
-from all.approximation import QNetwork, FixedTarget
+from all.approximation import FixedTarget, QNetwork
 from all.logging import DummyLogger
 from all.memory import PrioritizedReplayBuffer
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
 from all.presets.builder import PresetBuilder
-from all.presets.preset import Preset
 from all.presets.classic_control.models import dueling_fc_relu_q
-
+from all.presets.preset import Preset
 
 default_hyperparameters = {
     "discount_factor": 0.99,
@@ -23,15 +24,15 @@ default_hyperparameters = {
     "replay_start_size": 1000,
     "replay_buffer_size": 10000,
     # Exploration settings
-    "initial_exploration": 1.,
-    "final_exploration": 0.,
+    "initial_exploration": 1.0,
+    "final_exploration": 0.0,
     "final_exploration_step": 10000,
     "test_exploration": 0.001,
     # Prioritized replay settings
     "alpha": 0.2,
     "beta": 0.6,
     # Model construction
-    "model_constructor": dueling_fc_relu_q
+    "model_constructor": dueling_fc_relu_q,
 }
 
 
@@ -66,37 +67,38 @@ class DDQNClassicControlPreset(Preset):
 
     def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
-        self.model = hyperparameters['model_constructor'](env).to(device)
+        self.model = hyperparameters["model_constructor"](env).to(device)
         self.n_actions = env.action_space.n
 
-    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
-        optimizer = Adam(self.model.parameters(), lr=self.hyperparameters['lr'])
+    def agent(self, logger=DummyLogger(), train_steps=float("inf")):
+        optimizer = Adam(self.model.parameters(), lr=self.hyperparameters["lr"])
 
         q = QNetwork(
             self.model,
             optimizer,
-            target=FixedTarget(self.hyperparameters['target_update_frequency']),
-            logger=logger
+            target=FixedTarget(self.hyperparameters["target_update_frequency"]),
+            logger=logger,
         )
 
         policy = GreedyPolicy(
             q,
             self.n_actions,
             epsilon=LinearScheduler(
-                self.hyperparameters['initial_exploration'],
-                self.hyperparameters['final_exploration'],
-                self.hyperparameters['replay_start_size'],
-                self.hyperparameters['final_exploration_step'] - self.hyperparameters['replay_start_size'],
+                self.hyperparameters["initial_exploration"],
+                self.hyperparameters["final_exploration"],
+                self.hyperparameters["replay_start_size"],
+                self.hyperparameters["final_exploration_step"]
+                - self.hyperparameters["replay_start_size"],
                 name="exploration",
-                logger=logger
-            )
+                logger=logger,
+            ),
         )
 
         replay_buffer = PrioritizedReplayBuffer(
-            self.hyperparameters['replay_buffer_size'],
-            alpha=self.hyperparameters['alpha'],
-            beta=self.hyperparameters['beta'],
-            device=self.device
+            self.hyperparameters["replay_buffer_size"],
+            alpha=self.hyperparameters["alpha"],
+            beta=self.hyperparameters["beta"],
+            device=self.device,
         )
 
         return DDQN(
@@ -111,8 +113,10 @@ class DDQNClassicControlPreset(Preset):
 
     def test_agent(self):
         q = QNetwork(copy.deepcopy(self.model))
-        policy = GreedyPolicy(q, self.n_actions, epsilon=self.hyperparameters['test_exploration'])
+        policy = GreedyPolicy(
+            q, self.n_actions, epsilon=self.hyperparameters["test_exploration"]
+        )
         return DDQNTestAgent(policy)
 
 
-ddqn = PresetBuilder('ddqn', default_hyperparameters, DDQNClassicControlPreset)
+ddqn = PresetBuilder("ddqn", default_hyperparameters, DDQNClassicControlPreset)

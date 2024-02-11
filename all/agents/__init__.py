@@ -15,7 +15,6 @@ from .vpg import VPG, VPGTestAgent
 from .vqn import VQN, VQNTestAgent
 from .vsarsa import VSarsa, VSarsaTestAgent
 
-
 __all__ = [
     # Agent interfaces
     "Agent",

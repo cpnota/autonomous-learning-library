@@ -1,11 +1,11 @@
 import argparse
+
 from all.environments import MultiagentAtariEnv
 from all.experiments.multiagent_env_experiment import MultiagentEnvExperiment
-from all.presets import atari
-from all.presets import IndependentMultiagentPreset
+from all.presets import IndependentMultiagentPreset, atari
 
 
-class DummyEnv():
+class DummyEnv:
     def __init__(self, state_space, action_space):
         self.state_space = state_space
         self.action_space = action_space
@@ -14,9 +14,7 @@ class DummyEnv():
 def main():
     parser = argparse.ArgumentParser(description="Run an multiagent Atari benchmark.")
     parser.add_argument("env", help="Name of the Atari game (e.g. pong_v2).")
-    parser.add_argument(
-        "agents", nargs='*', help="List of agents."
-    )
+    parser.add_argument("agents", nargs="*", help="List of agents.")
     parser.add_argument(
         "--device",
         default="cuda",
@@ -34,13 +32,17 @@ def main():
         "--render", action="store_true", default=False, help="Render the environment."
     )
     parser.add_argument(
-        "--logger", default='tensorboard', help="The backend used for tracking experiment metrics."
+        "--logger",
+        default="tensorboard",
+        help="The backend used for tracking experiment metrics.",
     )
     args = parser.parse_args()
 
     env = MultiagentAtariEnv(args.env, device=args.device)
 
-    assert len(env.agents) == len(args.agents), f"Must specify {len(env.agents)} agents for this environment."
+    assert len(env.agents) == len(
+        args.agents
+    ), f"Must specify {len(env.agents)} agents for this environment."
 
     presets = {
         agent_id: getattr(atari, agent_type)
@@ -52,7 +54,7 @@ def main():
     }
 
     experiment = MultiagentEnvExperiment(
-        IndependentMultiagentPreset('Independent', args.device, presets),
+        IndependentMultiagentPreset("Independent", args.device, presets),
         env,
         verbose=False,
         render=args.render,

@@ -1,6 +1,8 @@
 import unittest
+
 import numpy as np
-from all.optim import Schedulable, LinearScheduler
+
+from all.optim import LinearScheduler, Schedulable
 
 
 class Obj(Schedulable):
@@ -17,5 +19,5 @@ class TestScheduler(unittest.TestCase):
         np.testing.assert_allclose(actual, expected)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

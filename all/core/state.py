@@ -1,6 +1,7 @@
+import warnings
+
 import numpy as np
 import torch
-import warnings
 
 
 class State(dict):
@@ -334,7 +335,7 @@ class StateArray(State):
     def as_input(self, key):
         value = self[key]
         return value.view(
-            (np.prod(self.shape), *value.shape[len(self.shape):])
+            (np.prod(self.shape), *value.shape[len(self.shape) :])
         ).float()
 
     def as_output(self, tensor):

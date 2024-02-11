@@ -1,5 +1,5 @@
 import argparse
-from all.bodies import DeepmindAtariBody
+
 from all.environments import AtariEnvironment
 from all.experiments import load_and_watch
 

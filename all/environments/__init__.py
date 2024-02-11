@@ -10,7 +10,6 @@ from .multiagent_pettingzoo import MultiagentPettingZooEnv
 from .pybullet import PybulletEnvironment
 from .vector_env import GymVectorEnvironment
 
-
 __all__ = [
     "AtariEnvironment",
     "DuplicateEnvironment",
@@ -22,4 +21,5 @@ __all__ = [
     "MultiagentPettingZooEnv",
     "MujocoEnvironment",
     "PybulletEnvironment",
+    "VectorEnvironment",
 ]
