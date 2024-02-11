@@ -28,6 +28,7 @@ default_hyperparameters = {
     # Exploration settings
     "temperature_initial": 0.1,
     "lr_temperature": 1e-5,
+    "entropy_backups": True,
     "entropy_target_scaling": 1.,
     # Model construction
     "q1_model_constructor": fc_q,
@@ -120,13 +121,14 @@ class SACContinuousPreset(Preset):
             q1,
             q2,
             replay_buffer,
-            temperature_initial=self.hyperparameters["temperature_initial"],
+            discount_factor=self.hyperparameters["discount_factor"],
+            entropy_backups=self.hyperparameters["entropy_backups"],
             entropy_target=(-self.action_space.shape[0] * self.hyperparameters["entropy_target_scaling"]),
             lr_temperature=self.hyperparameters["lr_temperature"],
-            replay_start_size=self.hyperparameters["replay_start_size"],
-            discount_factor=self.hyperparameters["discount_factor"],
-            update_frequency=self.hyperparameters["update_frequency"],
             minibatch_size=self.hyperparameters["minibatch_size"],
+            replay_start_size=self.hyperparameters["replay_start_size"],
+            temperature_initial=self.hyperparameters["temperature_initial"],
+            update_frequency=self.hyperparameters["update_frequency"],
             logger=logger
         ))
 
