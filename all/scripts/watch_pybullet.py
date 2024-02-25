@@ -21,7 +21,7 @@ def main():
     )
     args = parser.parse_args()
     env = PybulletEnvironment(args.env, device=args.device)
-    env.render(mode="human") # needed for pybullet envs
+    env.render(mode="human")  # needed for pybullet envs
     load_and_watch(args.filename, env, fps=args.fps)
 
 

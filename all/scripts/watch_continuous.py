@@ -6,7 +6,9 @@ from all.experiments import load_and_watch
 
 def main():
     parser = argparse.ArgumentParser(description="Watch a continuous agent.")
-    parser.add_argument("env", help="Name of the environment (e.g., LunarLanderContinuous-v2)")
+    parser.add_argument(
+        "env", help="Name of the environment (e.g., LunarLanderContinuous-v2)"
+    )
     parser.add_argument("filename", help="File where the model was saved.")
     parser.add_argument(
         "--device",
