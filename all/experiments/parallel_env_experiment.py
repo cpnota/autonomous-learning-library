@@ -21,6 +21,7 @@ class ParallelEnvExperiment(Experiment):
         logdir="runs",
         quiet=False,
         render=False,
+        save_freq=100,
         verbose=True,
         logger="tensorboard",
     ):
@@ -37,6 +38,7 @@ class ParallelEnvExperiment(Experiment):
         self._preset = preset
         self._agent = preset.agent(logger=self._logger, train_steps=train_steps)
         self._render = render
+        self._save_freq = save_freq
 
         # training state
         self._returns = []
@@ -87,9 +89,10 @@ class ParallelEnvExperiment(Experiment):
                 for i in range(num_envs):
                     if dones[i]:
                         self._log_training_episode(returns[i], episode_lengths[i], fps)
+                        self._save_model()
                         returns[i] = 0
                         episode_lengths[i] = 0
-            self._episode += episodes_completed
+                        self._episode += 1
 
     def test(self, episodes=100):
         test_agent = self._preset.parallel_test_agent()
@@ -144,3 +147,7 @@ class ParallelEnvExperiment(Experiment):
         return ExperimentLogger(
             self, agent_name, env_name, verbose=verbose, logdir=logdir
         )
+
+    def _save_model(self):
+        if self._save_freq != float("inf") and self._episode % self._save_freq == 0:
+            self.save()

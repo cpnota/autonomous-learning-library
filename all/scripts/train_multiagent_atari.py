@@ -13,7 +13,7 @@ class DummyEnv:
 
 def main():
     parser = argparse.ArgumentParser(description="Run an multiagent Atari benchmark.")
-    parser.add_argument("env", help="Name of the Atari game (e.g. pong_v2).")
+    parser.add_argument("env", help="Name of the Atari game (e.g. pong_v3).")
     parser.add_argument("agents", nargs="*", help="List of agents.")
     parser.add_argument(
         "--device",
@@ -27,6 +27,9 @@ def main():
     )
     parser.add_argument(
         "--frames", type=int, default=40e6, help="The number of training frames."
+    )
+    parser.add_argument(
+        "--save_freq", default=100, help="How often to save the model, in episodes."
     )
     parser.add_argument(
         "--render", action="store_true", default=False, help="Render the environment."
@@ -57,9 +60,11 @@ def main():
         IndependentMultiagentPreset("Independent", args.device, presets),
         env,
         verbose=False,
+        save_freq=args.save_freq,
         render=args.render,
         logger=args.logger,
     )
+    experiment.save()
     experiment.train(frames=args.frames)
     experiment.save()
     experiment.test(episodes=100)

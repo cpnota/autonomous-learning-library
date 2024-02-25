@@ -19,6 +19,7 @@ class SingleEnvExperiment(Experiment):
         logdir="runs",
         quiet=False,
         render=False,
+        save_freq=100,
         verbose=True,
         logger="tensorboard",
     ):
@@ -33,6 +34,7 @@ class SingleEnvExperiment(Experiment):
         self._render = render
         self._frame = 1
         self._episode = 1
+        self._save_freq = 100
 
         if render:
             self._env.render(mode="human")
@@ -88,6 +90,7 @@ class SingleEnvExperiment(Experiment):
 
         # log the results
         self._log_training_episode(returns, episode_length, fps)
+        self._save_model()
 
         # update experiment state
         self._episode += 1
@@ -121,3 +124,7 @@ class SingleEnvExperiment(Experiment):
         return ExperimentLogger(
             self, agent_name, env_name, verbose=verbose, logdir=logdir
         )
+
+    def _save_model(self):
+        if self._save_freq != float("inf") and self._episode % self._save_freq == 0:
+            self.save()

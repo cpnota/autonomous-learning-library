@@ -36,7 +36,7 @@ class TestParallelEnvExperiment(unittest.TestCase):
         self.experiment.train(episodes=4)
         np.testing.assert_equal(
             self.experiment._logger.data["eval/returns/episode"]["steps"],
-            np.array([1, 2, 3, 3]),
+            np.array([1, 2, 3, 4]),
         )
         np.testing.assert_equal(
             self.experiment._logger.data["eval/returns/episode"]["values"],

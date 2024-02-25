@@ -1,14 +1,12 @@
 import argparse
 
-from all.environments import GymEnvironment
+from all.environments import MujocoEnvironment
 from all.experiments import load_and_watch
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Watch a continuous agent.")
-    parser.add_argument(
-        "env", help="Name of the environment (e.g., LunarLanderContinuous-v2)"
-    )
+    parser = argparse.ArgumentParser(description="Watch a mujoco agent.")
+    parser.add_argument("env", help="ID of the Environment")
     parser.add_argument("filename", help="File where the model was saved.")
     parser.add_argument(
         "--device",
@@ -21,7 +19,7 @@ def main():
         help="Playback speed",
     )
     args = parser.parse_args()
-    env = GymEnvironment(args.env, device=args.device, render_mode="human")
+    env = MujocoEnvironment(args.env, device=args.device, render_mode="human")
     load_and_watch(args.filename, env, fps=args.fps)
 
 

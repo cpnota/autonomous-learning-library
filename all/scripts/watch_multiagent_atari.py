@@ -34,7 +34,7 @@ def watch_episode(env, agent, fps):
 
 def main():
     parser = argparse.ArgumentParser(description="Watch pretrained multiagent atari")
-    parser.add_argument("env", help="Name of the Atari game (e.g. pong-v1)")
+    parser.add_argument("env", help="Name of the Atari game (e.g. pong_v3)")
     parser.add_argument("filename", help="File where the model was saved.")
     parser.add_argument(
         "--device",

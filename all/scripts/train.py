@@ -1,15 +1,21 @@
 import argparse
 
-from all.environments import GymEnvironment
 from all.experiments import run_experiment
-from all.presets import classic_control
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Run a classic control benchmark.")
-    parser.add_argument("env", help="Name of the env (e.g. CartPole-v1).")
+def train(
+    presets,
+    env_constructor,
+    description="Train an RL agent",
+    env_help="Name of the environment (e.g., 'CartPole-v0')",
+    default_frames=40e6,
+):
+    # parse command line args
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument("env", help=env_help)
     parser.add_argument(
-        "agent", help="Name of the agent (e.g. dqn). See presets for available agents."
+        "agent",
+        help="Name of the agent (e.g. 'dqn'). See presets for available agents.",
     )
     parser.add_argument(
         "--device",
@@ -17,7 +23,10 @@ def main():
         help="The name of the device to run the agent on (e.g. cpu, cuda, cuda:0).",
     )
     parser.add_argument(
-        "--frames", type=int, default=50000, help="The number of training frames."
+        "--frames",
+        type=int,
+        default=default_frames,
+        help="The number of training frames.",
     )
     parser.add_argument(
         "--render", action="store_true", default=False, help="Render the environment."
@@ -29,17 +38,17 @@ def main():
         help="The backend used for tracking experiment metrics.",
     )
     parser.add_argument(
-        "--hyperparameters",
-        default=[],
-        nargs="*",
-        help="Custom hyperparameters, in the format hyperparameter1=value1 hyperparameter2=value2 etc.",
+        "--save_freq", default=100, help="How often to save the model, in episodes."
     )
+    parser.add_argument("--hyperparameters", default=[], nargs="*")
     args = parser.parse_args()
 
-    env = GymEnvironment(args.env, device=args.device)
+    # construct the environment
+    env = env_constructor(args.env, device=args.device)
 
+    # construct the agents
     agent_name = args.agent
-    agent = getattr(classic_control, agent_name)
+    agent = getattr(presets, agent_name)
     agent = agent.device(args.device)
 
     # parse hyperparameters
@@ -49,15 +58,13 @@ def main():
         hyperparameters[key] = type(agent.default_hyperparameters[key])(value)
     agent = agent.hyperparameters(**hyperparameters)
 
+    # run the experiment
     run_experiment(
         agent,
         env,
-        frames=args.frames,
+        args.frames,
         render=args.render,
         logdir=args.logdir,
         logger=args.logger,
+        save_freq=args.save_freq,
     )
-
-
-if __name__ == "__main__":
-    main()
