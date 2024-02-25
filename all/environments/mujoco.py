@@ -7,6 +7,7 @@ from .gym_wrappers import NoInfoWrapper
 
 class MujocoEnvironment(GymEnvironment):
     """A Mujoco Environment"""
+
     def __init__(
         self, id, device=torch.device("cpu"), name=None, no_info=True, **gym_make_kwargs
     ):
