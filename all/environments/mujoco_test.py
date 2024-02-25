@@ -34,3 +34,16 @@ class MujocoEnvironmentTest(unittest.TestCase):
         self.assertNotEqual(state.reward, 0.0)
         self.assertFalse(state.done)
         self.assertEqual(state.mask, 1)
+
+    def test_no_info_wrapper(self):
+        env = MujocoEnvironment("Ant-v4")
+        state = env.reset(seed=0)
+        self.assertFalse("reward_forward" in state)
+        state = env.step(env.action_space.sample())
+        self.assertFalse("reward_forward" in state)
+
+    def test_with_info(self):
+        env = MujocoEnvironment("Ant-v4", no_info=False)
+        state = env.reset(seed=0)
+        state = env.step(env.action_space.sample())
+        self.assertTrue("reward_forward" in state)

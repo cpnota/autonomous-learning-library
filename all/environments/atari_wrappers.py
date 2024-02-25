@@ -180,8 +180,9 @@ class LifeLostEnv(gymnasium.Wrapper):
         self.lives = 0
 
     def reset(self):
+        obs, _ = self.env.reset()
         self.lives = 0
-        return self.env.reset()
+        return obs, {"life_lost": False}
 
     def step(self, action):
         obs, reward, terminated, truncated, _ = self.env.step(action)
