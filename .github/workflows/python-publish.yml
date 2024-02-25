@@ -25,6 +25,7 @@ jobs:
         sudo apt-get install swig
         sudo apt-get install unrar
         pip install torch~=1.11 --extra-index-url https://download.pytorch.org/whl/cpu
+        pip install setuptools wheel
         make install
     - name: Build package
       run: make build
