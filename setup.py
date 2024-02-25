@@ -59,15 +59,19 @@ setup(
     author_email="cnota@cs.umass.edu",
     entry_points={
         "console_scripts": [
-            "all-atari=all.scripts.atari:main",
-            "all-classic=all.scripts.classic:main",
-            "all-continuous=all.scripts.continuous:main",
-            "all-multiagent-atari=all.scripts.multiagent_atari:main",
             "all-plot=all.scripts.plot:main",
+            "all-atari=all.scripts.train_atari:main",
+            "all-classic=all.scripts.train_classic:main",
+            "all-continuous=all.scripts.train_continuous:main",
+            "all-mujoco=all.scripts.train_mujoco:main",
+            "all-multiagent-atari=all.scripts.train_multiagent_atari:main",
+            "all-pybullet=all.scripts.train_pybullet:main",
             "all-watch-atari=all.scripts.watch_atari:main",
             "all-watch-classic=all.scripts.watch_classic:main",
             "all-watch-continuous=all.scripts.watch_continuous:main",
+            "all-watch-mujoco=all.scripts.watch_mujoco:main",
             "all-watch-multiagent-atari=all.scripts.watch_multiagent_atari:main",
+            "all-watch-pybullet=all.scripts.watch_pybullet:main",
         ],
     },
     install_requires=[

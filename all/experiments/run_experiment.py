@@ -11,6 +11,7 @@ def run_experiment(
     logdir="runs",
     quiet=False,
     render=False,
+    save_freq=100,
     test_episodes=100,
     verbose=True,
     logger="tensorboard",
@@ -32,6 +33,7 @@ def run_experiment(
                 logdir=logdir,
                 quiet=quiet,
                 render=render,
+                save_freq=save_freq,
                 verbose=verbose,
                 logger=logger,
             )
