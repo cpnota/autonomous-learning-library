@@ -30,7 +30,8 @@ class Aggregation(nn.Module):
     This layer computes a Q function by combining
     an estimate of V with an estimate of the advantage.
     The advantage is normalized by subtracting the average
-    advantage so that we can properly
+    advantage to force action-independent value to be
+    represented by value.
     """
 
     def forward(self, value, advantages):
