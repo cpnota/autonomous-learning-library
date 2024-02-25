@@ -1,4 +1,3 @@
-import gymnasium
 import torch
 
 from .gym import GymEnvironment
