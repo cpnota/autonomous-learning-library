@@ -34,7 +34,7 @@ class SingleEnvExperiment(Experiment):
         self._render = render
         self._frame = 1
         self._episode = 1
-        self._save_freq = 100
+        self._save_freq = save_freq
 
         if render:
             self._env.render(mode="human")
@@ -117,10 +117,6 @@ class SingleEnvExperiment(Experiment):
         return self._frame > frames or self._episode > episodes
 
     def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
-        if logger == "comet":
-            return CometLogger(
-                self, agent_name, env_name, verbose=verbose, logdir=logdir
-            )
         return ExperimentLogger(
             self, agent_name, env_name, verbose=verbose, logdir=logdir
         )
