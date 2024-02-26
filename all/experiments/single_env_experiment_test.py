@@ -126,11 +126,11 @@ class TestSingleEnvExperiment(unittest.TestCase):
         )
         np.testing.assert_equal(
             metric_dict["test/returns/max"],
-            np.array([9.]),
+            np.array([9.0]),
         )
         np.testing.assert_equal(
             metric_dict["test/returns/min"],
-            np.array([8.]),
+            np.array([8.0]),
         )
 
     def test_writes_test_episode_length(self):
@@ -150,11 +150,11 @@ class TestSingleEnvExperiment(unittest.TestCase):
         )
         np.testing.assert_equal(
             metric_dict["test/episode_length/max"],
-            np.array([9.]),
+            np.array([9.0]),
         )
         np.testing.assert_equal(
             metric_dict["test/episode_length/min"],
-            np.array([8.]),
+            np.array([8.0]),
         )
 
     def test_writes_loss(self):

@@ -36,22 +36,22 @@ class TestParallelEnvExperiment(unittest.TestCase):
         self.experiment.train(episodes=4)
         np.testing.assert_equal(
             self.experiment._logger.data["eval/returns"]["steps"],
-            np.array([65,  65, 101, 125]),
+            np.array([65, 65, 101, 125]),
         )
         np.testing.assert_equal(
             self.experiment._logger.data["eval/returns"]["values"],
-            np.array([16.0, 16.0, 25., 14.]),
+            np.array([16.0, 16.0, 25.0, 14.0]),
         )
 
     def test_writes_training_episode_length(self):
         self.experiment.train(episodes=4)
         np.testing.assert_equal(
             self.experiment._logger.data["eval/episode_length"]["steps"],
-            np.array([65,  65, 101, 125]),
+            np.array([65, 65, 101, 125]),
         )
         np.testing.assert_equal(
             self.experiment._logger.data["eval/episode_length"]["values"],
-            np.array([16.0, 16.0, 25., 14.]),
+            np.array([16.0, 16.0, 25.0, 14.0]),
         )
 
     def test_writes_hparams(self):
@@ -75,17 +75,15 @@ class TestParallelEnvExperiment(unittest.TestCase):
             np.array([expected_mean]),
         )
         np.testing.assert_almost_equal(
-            metric_dict["test/returns/std"],
-            np.array([6.869]),
-            decimal=3
+            metric_dict["test/returns/std"], np.array([6.869]), decimal=3
         )
         np.testing.assert_equal(
             metric_dict["test/returns/max"],
-            np.array([34.]),
+            np.array([34.0]),
         )
         np.testing.assert_equal(
             metric_dict["test/returns/min"],
-            np.array([18.]),
+            np.array([18.0]),
         )
 
     def test_writes_test_episode_length(self):
@@ -101,17 +99,15 @@ class TestParallelEnvExperiment(unittest.TestCase):
             np.array([expected_mean]),
         )
         np.testing.assert_almost_equal(
-            metric_dict["test/episode_length/std"],
-            np.array([6.869]),
-            decimal=3
+            metric_dict["test/episode_length/std"], np.array([6.869]), decimal=3
         )
         np.testing.assert_equal(
             metric_dict["test/episode_length/max"],
-            np.array([34.]),
+            np.array([34.0]),
         )
         np.testing.assert_equal(
             metric_dict["test/episode_length/min"],
-            np.array([18.]),
+            np.array([18.0]),
         )
 
     def test_writes_loss(self):
