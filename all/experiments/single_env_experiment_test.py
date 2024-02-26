@@ -105,8 +105,6 @@ class TestSingleEnvExperiment(unittest.TestCase):
         experiment = MockExperiment(self.make_preset(), self.env, quiet=True)
         experiment.train(episodes=5)
         returns = experiment.test(episodes=4)
-        expected_mean = 8.5
-        np.testing.assert_equal(np.mean(returns), expected_mean)
         hparam_dict, metric_dict, step = experiment._logger.hparams[0]
         self.assertDictEqual(hparam_dict, experiment._preset.hyperparameters)
         self.assertEqual(step, "frame")

@@ -90,7 +90,7 @@ class ParallelEnvExperiment(Experiment):
                         self._log_training_episode(returns[i], episode_lengths[i], fps)
                         self._save_model()
                         returns[i] = 0
-                        episode_lengths[i] = 0
+                        episode_lengths[i] = -1
                         self._episode += 1
 
     def test(self, episodes=100):
@@ -138,7 +138,7 @@ class ParallelEnvExperiment(Experiment):
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes
 
-    def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
+    def _make_logger(self, logdir, agent_name, env_name, verbose):
         return ExperimentLogger(
             self, agent_name, env_name, verbose=verbose, logdir=logdir
         )

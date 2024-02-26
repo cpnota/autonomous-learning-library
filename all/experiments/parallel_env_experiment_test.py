@@ -32,63 +32,86 @@ class TestParallelEnvExperiment(unittest.TestCase):
         experiment = MockExperiment(self.make_agent(), env, name="a2c", quiet=True)
         self.assertEqual(experiment._logger.label, "a2c_CartPole-v0")
 
-    def test_writes_training_returns_episode(self):
-        self.experiment.train(episodes=4)
-        np.testing.assert_equal(
-            self.experiment._logger.data["eval/returns/episode"]["steps"],
-            np.array([1, 2, 3, 4]),
-        )
-        np.testing.assert_equal(
-            self.experiment._logger.data["eval/returns/episode"]["values"],
-            np.array([12.0, 13.0, 16.0, 16.0]),
-        )
-
     def test_writes_training_returns_frame(self):
         self.experiment.train(episodes=4)
         np.testing.assert_equal(
-            self.experiment._logger.data["eval/returns/frame"]["steps"],
-            np.array([49, 53, 65, 65]),
+            self.experiment._logger.data["eval/returns"]["steps"],
+            np.array([65,  65, 101, 125]),
         )
         np.testing.assert_equal(
-            self.experiment._logger.data["eval/returns/frame"]["values"],
-            np.array([12.0, 13.0, 16.0, 16.0]),
+            self.experiment._logger.data["eval/returns"]["values"],
+            np.array([16.0, 16.0, 25., 14.]),
         )
 
     def test_writes_training_episode_length(self):
         self.experiment.train(episodes=4)
         np.testing.assert_equal(
             self.experiment._logger.data["eval/episode_length"]["steps"],
-            np.array([49, 53, 65, 65]),
+            np.array([65,  65, 101, 125]),
         )
         np.testing.assert_equal(
             self.experiment._logger.data["eval/episode_length"]["values"],
-            np.array([12.0, 13.0, 16.0, 16.0]),
+            np.array([16.0, 16.0, 25., 14.]),
         )
 
+    def test_writes_hparams(self):
+        experiment = self.experiment
+        experiment.train(episodes=5)
+        returns = experiment.test(episodes=4)
+        hparam_dict, metric_dict, step = experiment._logger.hparams[0]
+        self.assertDictEqual(hparam_dict, experiment._preset.hyperparameters)
+        self.assertEqual(step, "frame")
+
     def test_writes_test_returns(self):
-        self.experiment.train(episodes=5)
-        returns = self.experiment.test(episodes=4)
-        self.assertEqual(len(returns), 4)
+        experiment = self.experiment
+        experiment.train(episodes=5)
+        returns = experiment.test(episodes=4)
+        expected_mean = 26.25
+        np.testing.assert_equal(np.mean(returns), expected_mean)
+        hparam_dict, metric_dict, step = experiment._logger.hparams[0]
+        print(metric_dict)
         np.testing.assert_equal(
-            self.experiment._logger.data["summary/test_returns/mean"]["values"],
-            np.array([np.mean(returns)]),
+            metric_dict["test/returns/mean"],
+            np.array([expected_mean]),
+        )
+        np.testing.assert_almost_equal(
+            metric_dict["test/returns/std"],
+            np.array([6.869]),
+            decimal=3
         )
         np.testing.assert_equal(
-            self.experiment._logger.data["summary/test_returns/std"]["values"],
-            np.array([np.std(returns)]),
+            metric_dict["test/returns/max"],
+            np.array([34.]),
+        )
+        np.testing.assert_equal(
+            metric_dict["test/returns/min"],
+            np.array([18.]),
         )
 
     def test_writes_test_episode_length(self):
-        self.experiment.train(episodes=5)
-        returns = self.experiment.test(episodes=4)
-        self.assertEqual(len(returns), 4)
+        experiment = self.experiment
+        experiment.train(episodes=5)
+        returns = experiment.test(episodes=4)
+        expected_mean = 26.25
+        np.testing.assert_equal(np.mean(returns), expected_mean)
+        hparam_dict, metric_dict, step = experiment._logger.hparams[0]
+        print(metric_dict)
         np.testing.assert_equal(
-            self.experiment._logger.data["summary/test_episode_length/mean"]["values"],
-            np.array([np.mean(returns)]),
+            metric_dict["test/episode_length/mean"],
+            np.array([expected_mean]),
+        )
+        np.testing.assert_almost_equal(
+            metric_dict["test/episode_length/std"],
+            np.array([6.869]),
+            decimal=3
         )
         np.testing.assert_equal(
-            self.experiment._logger.data["summary/test_episode_length/std"]["values"],
-            np.array([np.std(returns)]),
+            metric_dict["test/episode_length/max"],
+            np.array([34.]),
+        )
+        np.testing.assert_equal(
+            metric_dict["test/episode_length/min"],
+            np.array([18.]),
         )
 
     def test_writes_loss(self):

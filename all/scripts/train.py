@@ -33,11 +33,6 @@ def train(
     )
     parser.add_argument("--logdir", default="runs", help="The base logging directory.")
     parser.add_argument(
-        "--logger",
-        default="tensorboard",
-        help="The backend used for tracking experiment metrics.",
-    )
-    parser.add_argument(
         "--save_freq", default=100, help="How often to save the model, in episodes."
     )
     parser.add_argument("--hyperparameters", default=[], nargs="*")
@@ -65,6 +60,5 @@ def train(
         args.frames,
         render=args.render,
         logdir=args.logdir,
-        logger=args.logger,
         save_freq=args.save_freq,
     )
