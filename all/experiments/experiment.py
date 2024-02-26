@@ -64,9 +64,7 @@ class Experiment(ABC):
             self._best_returns = returns
         self._returns100.append(returns)
         if len(self._returns100) == 100:
-            mean = np.mean(self._returns100)
-            std = np.std(self._returns100)
-            self._logger.add_summary("returns100", mean, std, step="frame")
+            self._logger.add_summary("returns100", self._returns100, step="frame")
             self._returns100 = []
         self._logger.add_eval("returns/episode", returns, step="episode")
         self._logger.add_eval("returns/frame", returns, step="frame")

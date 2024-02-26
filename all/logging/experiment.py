@@ -5,6 +5,7 @@ from datetime import datetime
 
 import torch
 from torch.utils.tensorboard import SummaryWriter
+import numpy as np
 
 from ._logger import Logger
 
@@ -26,25 +27,24 @@ class ExperimentLogger(SummaryWriter, Logger):
     def __init__(self, experiment, agent_name, env_name, verbose=True, logdir="runs"):
         self.env_name = env_name
         current_time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S_%f")
-        dir_name = "%s_%s" % (agent_name, current_time)
-        os.makedirs(os.path.join(logdir, dir_name, env_name))
+        dir_name = f"{agent_name}_{env_name}_{current_time}"
+        os.makedirs(os.path.join(logdir, dir_name))
         self.log_dir = os.path.join(logdir, dir_name)
         self._experiment = experiment
-        self._verbose = not verbose
+        self._verbose = verbose
         super().__init__(log_dir=self.log_dir)
 
-    def add_summary(self, name, mean, std, step="frame"):
-        super().add_scalar(
-            "{}/summary/{}/mean".format(self.env_name, name), mean, self._get_step(step)
-        )
-        super().add_scalar(
-            "{}/summary/{}/std".format(self.env_name, name), std, self._get_step(step)
-        )
+    def add_summary(self, name, values, step="frame"):
+        aggregators = ["mean", "std", "max", "min"]
+        metrics = {aggregator: getattr(np, aggregator)(values) for aggregator in aggregators}
+        for aggregator, value in metrics.items():
+            super().add_scalar(f"summary/{name}/{aggregator}", value, self._get_step(value))
 
+        # log summary statistics to file
         with open(
-            os.path.join(self.log_dir, self.env_name, name + ".csv"), "a"
+            os.path.join(self.log_dir, name + ".csv"), "a"
         ) as csvfile:
-            csv.writer(csvfile).writerow([self._get_step(step), mean, std])
+            csv.writer(csvfile).writerow([self._get_step(step), *metrics.values()])
 
     def add_loss(self, name, value, step="frame"):
         self._add_scalar("loss/" + name, value, step)
@@ -69,8 +69,8 @@ class ExperimentLogger(SummaryWriter, Logger):
         )
 
     def _add_scalar(self, name, value, step="frame"):
-        if not self._verbose:
-            super().add_scalar(self.env_name + "/" + name, value, self._get_step(step))
+        if self._verbose:
+            super().add_scalar(name, value, self._get_step(step))
 
     def _get_step(self, _type):
         if _type == "frame":
