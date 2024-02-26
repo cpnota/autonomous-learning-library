@@ -102,7 +102,9 @@ class Experiment(ABC):
         }
         aggregators = ["mean", "std", "max", "min"]
         metrics_dict = {
-            f"{metric}/{aggregator}": getattr(np, aggregator)(values) for metric, values in metrics.items() for aggregator in aggregators
+            f"{metric}/{aggregator}": getattr(np, aggregator)(values)
+            for metric, values in metrics.items()
+            for aggregator in aggregators
         }
         self._logger.add_hparams(self._preset.hyperparameters, metrics_dict)
 
