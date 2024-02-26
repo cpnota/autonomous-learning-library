@@ -26,7 +26,7 @@ class ExperimentLogger(SummaryWriter, Logger):
     def __init__(self, experiment, agent_name, env_name, verbose=True, logdir="runs"):
         self.env_name = env_name
         current_time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S_%f")
-        dir_name = "%s_%s_%s" % (agent_name, COMMIT_HASH, current_time)
+        dir_name = "%s_%s" % (agent_name, current_time)
         os.makedirs(os.path.join(logdir, dir_name, env_name))
         self.log_dir = os.path.join(logdir, dir_name)
         self._experiment = experiment
@@ -157,19 +157,3 @@ class CometLogger(Logger):
 
     def close(self):
         self._comet.end()
-
-
-def get_commit_hash():
-    try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--short", "HEAD"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            check=False,
-        )
-        return result.stdout.decode("utf-8").rstrip()
-    except Exception:
-        return ""
-
-
-COMMIT_HASH = get_commit_hash()
