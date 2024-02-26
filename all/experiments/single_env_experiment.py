@@ -24,7 +24,7 @@ class SingleEnvExperiment(Experiment):
     ):
         self._name = name if name is not None else preset.name
         super().__init__(
-            self._make_logger(logdir, self._name, env.name, verbose, logger), quiet
+            self._make_logger(logdir, self._name, env.name, verbose), quiet
         )
         self._logdir = logdir
         self._preset = preset

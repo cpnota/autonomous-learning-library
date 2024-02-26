@@ -10,7 +10,7 @@ from all.presets.classic_control import a2c
 
 
 class MockExperiment(ParallelEnvExperiment):
-    def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
+    def _make_logger(self, logdir, agent_name, env_name, verbose):
         self._logger = MockLogger(self, agent_name + "_" + env_name, verbose)
         return self._logger
 

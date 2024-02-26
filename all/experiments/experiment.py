@@ -64,13 +64,11 @@ class Experiment(ABC):
             self._best_returns = returns
         self._returns100.append(returns)
         if len(self._returns100) == 100:
-            self._logger.add_summary("returns100", self._returns100, step="frame")
+            self._logger.add_summary("returns100", self._returns100)
             self._returns100 = []
-        self._logger.add_eval("returns/episode", returns, step="episode")
-        self._logger.add_eval("returns/frame", returns, step="frame")
-        self._logger.add_eval("returns/max", self._best_returns, step="frame")
+        self._logger.add_eval("returns", returns)
         self._logger.add_eval("episode_length", episode_length)
-        self._logger.add_eval("fps", fps, step="frame")
+        self._logger.add_eval("fps", fps)
 
     def _log_test_episode(self, episode, returns, episode_length):
         if not self._quiet:
