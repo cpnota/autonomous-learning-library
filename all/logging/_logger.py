@@ -59,6 +59,9 @@ class Logger(ABC):
             value (number): The value of the hyperparameter at the current step
             step (str, optional): Which step to use (e.g., "frame" or "episode")
         """
+    # @abstractmethod
+    # def add_hparams(self, hparam_dict, metric_dict, global_step=None):
+    #     pass
 
     @abstractmethod
     def close(self):

@@ -96,10 +96,15 @@ class Experiment(ABC):
                     episode_length_mean, episode_length_sem
                 )
             )
-        self._logger.add_summary("test_returns", np.mean(returns), np.std(returns))
-        self._logger.add_summary(
-            "test_episode_length", np.mean(episode_lengths), np.std(episode_lengths)
-        )
+        metrics = {
+            "test/returns": returns,
+            "test/episode_length": episode_lengths,
+        }
+        aggregators = ["mean", "std", "max", "min"]
+        metrics_dict = {
+            f"{metric}/{aggregator}": getattr(np, aggregator)(values) for metric, values in metrics.items() for aggregator in aggregators
+        }
+        self._logger.add_hparams(self._preset.hyperparameters, metrics_dict)
 
     def save(self):
         return self._preset.save("{}/preset.pt".format(self._logger.log_dir))

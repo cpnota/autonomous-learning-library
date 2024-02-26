@@ -3,6 +3,7 @@ import os
 import subprocess
 from datetime import datetime
 
+import torch
 from torch.utils.tensorboard import SummaryWriter
 
 from ._logger import Logger
@@ -56,6 +57,12 @@ class ExperimentLogger(SummaryWriter, Logger):
 
     def add_schedule(self, name, value, step="frame"):
         self._add_scalar("schedule/" + name, value, step)
+
+    def add_hparams(self, hparam_dict, metric_dict, step="frame"):
+        allowed_types = (int, float, str, bool, torch.Tensor)
+        hparams = {k: v for k, v in hparam_dict.items() if isinstance(v, allowed_types)}
+        metrics = {f"{self.env_name}/{metric}": value for metric, value in metric_dict.items()}
+        super().add_hparams(hparams, metrics, run_name=".", global_step=self._get_step("frame"))
 
     def _add_scalar(self, name, value, step="frame"):
         if not self._verbose:
