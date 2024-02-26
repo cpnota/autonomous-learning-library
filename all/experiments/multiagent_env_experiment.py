@@ -32,10 +32,9 @@ class MultiagentEnvExperiment:
         save_freq=100,
         train_steps=float("inf"),
         verbose=True,
-        logger="tensorboard",
     ):
         self._name = name if name is not None else preset.name
-        self._logger = self._make_logger(logdir, self._name, env.name, verbose, logger)
+        self._logger = self._make_logger(logdir, self._name, env.name, verbose)
         self._agent = preset.agent(logger=self._logger, train_steps=train_steps)
         self._env = env
         self._episode = 1
@@ -188,7 +187,7 @@ class MultiagentEnvExperiment:
         if self._save_freq != float("inf") and self._episode % self._save_freq == 0:
             self.save()
 
-    def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
+    def _make_logger(self, logdir, agent_name, env_name, verbose):
         return ExperimentLogger(
             self, agent_name, env_name, verbose=verbose, logdir=logdir
         )

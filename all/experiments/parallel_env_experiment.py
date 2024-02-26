@@ -23,11 +23,10 @@ class ParallelEnvExperiment(Experiment):
         render=False,
         save_freq=100,
         verbose=True,
-        logger="tensorboard",
     ):
         self._name = name if name is not None else preset.name
         super().__init__(
-            self._make_logger(logdir, self._name, env.name, verbose, logger), quiet
+            self._make_logger(logdir, self._name, env.name, verbose), quiet
         )
         self._n_envs = preset.n_envs
         if isinstance(env, VectorEnvironment):
