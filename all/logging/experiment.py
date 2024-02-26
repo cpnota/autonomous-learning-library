@@ -2,9 +2,9 @@ import csv
 import os
 from datetime import datetime
 
+import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
-import numpy as np
 
 from ._logger import Logger
 
@@ -35,14 +35,16 @@ class ExperimentLogger(SummaryWriter, Logger):
 
     def add_summary(self, name, values, step="frame"):
         aggregators = ["mean", "std", "max", "min"]
-        metrics = {aggregator: getattr(np, aggregator)(values) for aggregator in aggregators}
+        metrics = {
+            aggregator: getattr(np, aggregator)(values) for aggregator in aggregators
+        }
         for aggregator, value in metrics.items():
-            super().add_scalar(f"summary/{name}/{aggregator}", value, self._get_step(value))
+            super().add_scalar(
+                f"summary/{name}/{aggregator}", value, self._get_step(value)
+            )
 
         # log summary statistics to file
-        with open(
-            os.path.join(self.log_dir, name + ".csv"), "a"
-        ) as csvfile:
+        with open(os.path.join(self.log_dir, name + ".csv"), "a") as csvfile:
             csv.writer(csvfile).writerow([self._get_step(step), *metrics.values()])
 
     def add_loss(self, name, value, step="frame"):
