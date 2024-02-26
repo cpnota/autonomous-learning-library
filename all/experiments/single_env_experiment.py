@@ -2,7 +2,7 @@ from timeit import default_timer as timer
 
 import numpy as np
 
-from all.logging import CometLogger, ExperimentLogger
+from all.logging import ExperimentLogger
 
 from .experiment import Experiment
 

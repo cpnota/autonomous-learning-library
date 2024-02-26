@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 from all.environments import VectorEnvironment
-from all.logging import CometLogger, ExperimentLogger
+from all.logging import ExperimentLogger
 
 from .experiment import Experiment
 

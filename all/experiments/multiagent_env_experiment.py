@@ -2,7 +2,7 @@ from timeit import default_timer as timer
 
 import numpy as np
 
-from all.logging import CometLogger, ExperimentLogger
+from all.logging import ExperimentLogger
 
 
 class MultiagentEnvExperiment:
@@ -181,8 +181,7 @@ class MultiagentEnvExperiment:
                 print("{} test returns (mean ± sem): {} ± {}".format(agent, mean, sem))
             self._logger.add_summary(
                 "{}/returns-test".format(agent),
-                np.mean(agent_returns),
-                np.std(agent_returns),
+                agent_returns,
             )
 
     def _save_model(self):
