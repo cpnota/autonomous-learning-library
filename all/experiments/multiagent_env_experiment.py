@@ -165,7 +165,7 @@ class MultiagentEnvExperiment:
             print("frames: {}, fps: {}".format(self._frame, fps))
         for agent in self._env.agents:
             self._logger.add_eval(
-                "{}/returns/frame".format(agent), returns[agent], step="frame"
+                "{}/returns".format(agent), returns[agent], step="frame"
             )
 
     def _log_test_episode(self, episode, returns):

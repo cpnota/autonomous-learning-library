@@ -35,9 +35,9 @@ class MockLogger(Logger):
     def add_schedule(self, name, value, step="frame"):
         pass
 
-    def add_summary(self, name, mean, std, step="frame"):
-        self._add_scalar("summary/" + name + "/mean", mean, step)
-        self._add_scalar("summary/" + name + "/std", std, step)
+    def add_summary(self, name, values, step="frame"):
+        self._add_scalar("summary/" + name + "/mean", np.mean(values), step)
+        self._add_scalar("summary/" + name + "/std", np.std(values), step)
 
     def add_hparams(self, hparam_dict, metric_dict, step="frame"):
         self.hparams.append((hparam_dict, metric_dict, step))
