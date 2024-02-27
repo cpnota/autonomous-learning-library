@@ -2,7 +2,7 @@ from timeit import default_timer as timer
 
 import numpy as np
 
-from all.logging import CometLogger, ExperimentLogger
+from all.logging import ExperimentLogger
 
 from .experiment import Experiment
 
@@ -21,11 +21,10 @@ class SingleEnvExperiment(Experiment):
         render=False,
         save_freq=100,
         verbose=True,
-        logger="tensorboard",
     ):
         self._name = name if name is not None else preset.name
         super().__init__(
-            self._make_logger(logdir, self._name, env.name, verbose, logger), quiet
+            self._make_logger(logdir, self._name, env.name, verbose), quiet
         )
         self._logdir = logdir
         self._preset = preset
@@ -34,7 +33,7 @@ class SingleEnvExperiment(Experiment):
         self._render = render
         self._frame = 1
         self._episode = 1
-        self._save_freq = 100
+        self._save_freq = save_freq
 
         if render:
             self._env.render(mode="human")
@@ -116,11 +115,7 @@ class SingleEnvExperiment(Experiment):
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes
 
-    def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
-        if logger == "comet":
-            return CometLogger(
-                self, agent_name, env_name, verbose=verbose, logdir=logdir
-            )
+    def _make_logger(self, logdir, agent_name, env_name, verbose):
         return ExperimentLogger(
             self, agent_name, env_name, verbose=verbose, logdir=logdir
         )

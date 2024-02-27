@@ -14,7 +14,6 @@ def run_experiment(
     save_freq=100,
     test_episodes=100,
     verbose=True,
-    logger="tensorboard",
 ):
     if not isinstance(agents, list):
         agents = [agents]
@@ -35,7 +34,6 @@ def run_experiment(
                 render=render,
                 save_freq=save_freq,
                 verbose=verbose,
-                logger=logger,
             )
             experiment.save()
             experiment.train(frames=frames)

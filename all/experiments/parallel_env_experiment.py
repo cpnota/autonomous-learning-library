@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 from all.environments import VectorEnvironment
-from all.logging import CometLogger, ExperimentLogger
+from all.logging import ExperimentLogger
 
 from .experiment import Experiment
 
@@ -23,11 +23,10 @@ class ParallelEnvExperiment(Experiment):
         render=False,
         save_freq=100,
         verbose=True,
-        logger="tensorboard",
     ):
         self._name = name if name is not None else preset.name
         super().__init__(
-            self._make_logger(logdir, self._name, env.name, verbose, logger), quiet
+            self._make_logger(logdir, self._name, env.name, verbose), quiet
         )
         self._n_envs = preset.n_envs
         if isinstance(env, VectorEnvironment):
@@ -91,7 +90,7 @@ class ParallelEnvExperiment(Experiment):
                         self._log_training_episode(returns[i], episode_lengths[i], fps)
                         self._save_model()
                         returns[i] = 0
-                        episode_lengths[i] = 0
+                        episode_lengths[i] = -1
                         self._episode += 1
 
     def test(self, episodes=100):
@@ -139,11 +138,7 @@ class ParallelEnvExperiment(Experiment):
     def _done(self, frames, episodes):
         return self._frame > frames or self._episode > episodes
 
-    def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
-        if logger == "comet":
-            return CometLogger(
-                self, agent_name, env_name, verbose=verbose, logdir=logdir
-            )
+    def _make_logger(self, logdir, agent_name, env_name, verbose):
         return ExperimentLogger(
             self, agent_name, env_name, verbose=verbose, logdir=logdir
         )

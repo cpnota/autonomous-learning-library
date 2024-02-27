@@ -64,15 +64,11 @@ class Experiment(ABC):
             self._best_returns = returns
         self._returns100.append(returns)
         if len(self._returns100) == 100:
-            mean = np.mean(self._returns100)
-            std = np.std(self._returns100)
-            self._logger.add_summary("returns100", mean, std, step="frame")
+            self._logger.add_summary("returns100", self._returns100)
             self._returns100 = []
-        self._logger.add_eval("returns/episode", returns, step="episode")
-        self._logger.add_eval("returns/frame", returns, step="frame")
-        self._logger.add_eval("returns/max", self._best_returns, step="frame")
+        self._logger.add_eval("returns", returns)
         self._logger.add_eval("episode_length", episode_length)
-        self._logger.add_eval("fps", fps, step="frame")
+        self._logger.add_eval("fps", fps)
 
     def _log_test_episode(self, episode, returns, episode_length):
         if not self._quiet:
@@ -96,10 +92,17 @@ class Experiment(ABC):
                     episode_length_mean, episode_length_sem
                 )
             )
-        self._logger.add_summary("test_returns", np.mean(returns), np.std(returns))
-        self._logger.add_summary(
-            "test_episode_length", np.mean(episode_lengths), np.std(episode_lengths)
-        )
+        metrics = {
+            "test/returns": returns,
+            "test/episode_length": episode_lengths,
+        }
+        aggregators = ["mean", "std", "max", "min"]
+        metrics_dict = {
+            f"{metric}/{aggregator}": getattr(np, aggregator)(values)
+            for metric, values in metrics.items()
+            for aggregator in aggregators
+        }
+        self._logger.add_hparams(self._preset.hyperparameters, metrics_dict)
 
     def save(self):
         return self._preset.save("{}/preset.pt".format(self._logger.log_dir))

@@ -2,7 +2,7 @@ from timeit import default_timer as timer
 
 import numpy as np
 
-from all.logging import CometLogger, ExperimentLogger
+from all.logging import ExperimentLogger
 
 
 class MultiagentEnvExperiment:
@@ -32,10 +32,9 @@ class MultiagentEnvExperiment:
         save_freq=100,
         train_steps=float("inf"),
         verbose=True,
-        logger="tensorboard",
     ):
         self._name = name if name is not None else preset.name
-        self._logger = self._make_logger(logdir, self._name, env.name, verbose, logger)
+        self._logger = self._make_logger(logdir, self._name, env.name, verbose)
         self._agent = preset.agent(logger=self._logger, train_steps=train_steps)
         self._env = env
         self._episode = 1
@@ -166,7 +165,7 @@ class MultiagentEnvExperiment:
             print("frames: {}, fps: {}".format(self._frame, fps))
         for agent in self._env.agents:
             self._logger.add_eval(
-                "{}/returns/frame".format(agent), returns[agent], step="frame"
+                "{}/returns".format(agent), returns[agent], step="frame"
             )
 
     def _log_test_episode(self, episode, returns):
@@ -181,19 +180,14 @@ class MultiagentEnvExperiment:
                 print("{} test returns (mean ± sem): {} ± {}".format(agent, mean, sem))
             self._logger.add_summary(
                 "{}/returns-test".format(agent),
-                np.mean(agent_returns),
-                np.std(agent_returns),
+                agent_returns,
             )
 
     def _save_model(self):
         if self._save_freq != float("inf") and self._episode % self._save_freq == 0:
             self.save()
 
-    def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
-        if logger == "comet":
-            return CometLogger(
-                self, agent_name, env_name, verbose=verbose, logdir=logdir
-            )
+    def _make_logger(self, logdir, agent_name, env_name, verbose):
         return ExperimentLogger(
             self, agent_name, env_name, verbose=verbose, logdir=logdir
         )

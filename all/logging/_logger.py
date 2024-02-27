@@ -61,6 +61,23 @@ class Logger(ABC):
         """
 
     @abstractmethod
+    def add_hparams(self, hparam_dict, metric_dict, step="frame"):
+        """
+        Logs metrics for a given set of hyperparameters.
+        Usually this should be called once at the end of a run in order to
+        log the final results for hyperparameters, though it can be called
+        multiple times throughout training. However, it should be called infrequently.
+
+        Args:
+            hparam_dict (dict): A dictionary of hyperparameters.
+                Only parameters of type (int, float, str, bool, torch.Tensor)
+                will be logged.
+            metric_dict (dict): A dictionary of metrics to record.
+            step (str, optional): Which step to use (e.g., "frame" or "episode")
+        """
+        pass
+
+    @abstractmethod
     def close(self):
         """
         Close the logger and perform any necessary cleanup.

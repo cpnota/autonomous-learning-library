@@ -12,7 +12,7 @@ from all.presets.atari import dqn
 
 
 class MockExperiment(MultiagentEnvExperiment):
-    def _make_logger(self, logdir, agent_name, env_name, verbose, logger):
+    def _make_logger(self, logdir, agent_name, env_name, verbose):
         self._logger = MockLogger(self, agent_name + "_" + env_name, verbose)
         return self._logger
 
@@ -50,16 +50,16 @@ class TestMultiagentEnvExperiment(unittest.TestCase):
         self.maxDiff = None
         # could not get the exact numbers to be reproducible across enviornments :(
         self.assertEqual(
-            len(experiment._logger.data["eval/first_0/returns/frame"]["values"]), 3
+            len(experiment._logger.data["eval/first_0/returns"]["values"]), 3
         )
         self.assertEqual(
-            len(experiment._logger.data["eval/first_0/returns/frame"]["steps"]), 3
+            len(experiment._logger.data["eval/first_0/returns"]["steps"]), 3
         )
         self.assertEqual(
-            len(experiment._logger.data["eval/second_0/returns/frame"]["values"]), 3
+            len(experiment._logger.data["eval/second_0/returns"]["values"]), 3
         )
         self.assertEqual(
-            len(experiment._logger.data["eval/second_0/returns/frame"]["steps"]), 3
+            len(experiment._logger.data["eval/second_0/returns"]["steps"]), 3
         )
 
     def test_writes_test_returns(self):
