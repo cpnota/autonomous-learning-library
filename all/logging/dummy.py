@@ -3,6 +3,7 @@ from ._logger import Logger
 
 class DummyLogger(Logger):
     """A default Logger object that performs no logging and has no side effects."""
+
     def add_eval(self, name, value, step="frame"):
         pass
 
