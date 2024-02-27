@@ -69,7 +69,6 @@ class TestParallelEnvExperiment(unittest.TestCase):
         expected_mean = 26.25
         np.testing.assert_equal(np.mean(returns), expected_mean)
         hparam_dict, metric_dict, step = experiment._logger.hparams[0]
-        print(metric_dict)
         np.testing.assert_equal(
             metric_dict["test/returns/mean"],
             np.array([expected_mean]),
@@ -93,7 +92,6 @@ class TestParallelEnvExperiment(unittest.TestCase):
         expected_mean = 26.25
         np.testing.assert_equal(np.mean(returns), expected_mean)
         hparam_dict, metric_dict, step = experiment._logger.hparams[0]
-        print(metric_dict)
         np.testing.assert_equal(
             metric_dict["test/episode_length/mean"],
             np.array([expected_mean]),
