@@ -134,4 +134,5 @@ class SACTestAgent(Agent):
         self.policy = policy
 
     def act(self, state):
-        return self.policy.eval(state)
+        action, log_prob = self.policy.eval(state)
+        return action
