@@ -17,11 +17,11 @@ default_hyperparameters = {
     # Common settings
     "discount_factor": 0.98,
     # Adam optimizer settings
-    "lr_q": 1e-3,
+    "lr_q": 3e-4,
     "lr_pi": 1e-4,
     # Training settings
     "minibatch_size": 100,
-    "update_frequency": 2,
+    "update_frequency": 1,
     "polyak_rate": 0.005,
     # Replay Buffer settings
     "replay_start_size": 5000,
