@@ -5,7 +5,6 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from all.agents import PPO, PPOTestAgent
 from all.approximation import Identity, VNetwork
-from all.bodies import TimeFeature
 from all.logging import DummyLogger
 from all.optim import LinearScheduler
 from all.policies import GaussianPolicy
@@ -15,7 +14,7 @@ from all.presets.preset import ParallelPreset
 
 default_hyperparameters = {
     # Common settings
-    "discount_factor": 0.98,
+    "discount_factor": 0.99,
     # Adam optimizer settings
     "lr": 3e-4,  # Adam learning rate
     "eps": 1e-5,  # Adam stability
@@ -112,35 +111,33 @@ class PPOContinuousPreset(ParallelPreset):
             scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
         )
 
-        return TimeFeature(
-            PPO(
-                features,
-                v,
-                policy,
-                epsilon=LinearScheduler(
-                    self.hyperparameters["clip_initial"],
-                    self.hyperparameters["clip_final"],
-                    0,
-                    n_updates,
-                    name="clip",
-                    logger=logger,
-                ),
-                epochs=self.hyperparameters["epochs"],
-                minibatches=self.hyperparameters["minibatches"],
-                n_envs=self.hyperparameters["n_envs"],
-                n_steps=self.hyperparameters["n_steps"],
-                discount_factor=self.hyperparameters["discount_factor"],
-                lam=self.hyperparameters["lam"],
-                entropy_loss_scaling=self.hyperparameters["entropy_loss_scaling"],
+        return PPO(
+            features,
+            v,
+            policy,
+            epsilon=LinearScheduler(
+                self.hyperparameters["clip_initial"],
+                self.hyperparameters["clip_final"],
+                0,
+                n_updates,
+                name="clip",
                 logger=logger,
-            )
+            ),
+            epochs=self.hyperparameters["epochs"],
+            minibatches=self.hyperparameters["minibatches"],
+            n_envs=self.hyperparameters["n_envs"],
+            n_steps=self.hyperparameters["n_steps"],
+            discount_factor=self.hyperparameters["discount_factor"],
+            lam=self.hyperparameters["lam"],
+            entropy_loss_scaling=self.hyperparameters["entropy_loss_scaling"],
+            logger=logger,
         )
 
     def test_agent(self):
         policy = GaussianPolicy(
             copy.deepcopy(self.policy_model), space=self.action_space
         )
-        return TimeFeature(PPOTestAgent(Identity(self.device), policy))
+        return PPOTestAgent(Identity(self.device), policy)
 
     def parallel_test_agent(self):
         return self.test_agent()

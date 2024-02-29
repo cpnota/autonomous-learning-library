@@ -5,7 +5,6 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from all.agents import DDPG, DDPGTestAgent
 from all.approximation import PolyakTarget, QContinuous
-from all.bodies import TimeFeature
 from all.logging import DummyLogger
 from all.memory import ExperienceReplayBuffer
 from all.policies import DeterministicPolicy
@@ -15,7 +14,7 @@ from all.presets.preset import Preset
 
 default_hyperparameters = {
     # Common settings
-    "discount_factor": 0.98,
+    "discount_factor": 0.99,
     # Adam optimizer settings
     "lr_q": 3e-4,
     "lr_pi": 3e-4,
@@ -94,18 +93,16 @@ class DDPGContinuousPreset(Preset):
             self.hyperparameters["replay_buffer_size"], device=self.device
         )
 
-        return TimeFeature(
-            DDPG(
-                q,
-                policy,
-                replay_buffer,
-                self.action_space,
-                noise=self.hyperparameters["noise"],
-                replay_start_size=self.hyperparameters["replay_start_size"],
-                discount_factor=self.hyperparameters["discount_factor"],
-                update_frequency=self.hyperparameters["update_frequency"],
-                minibatch_size=self.hyperparameters["minibatch_size"],
-            )
+        return DDPG(
+            q,
+            policy,
+            replay_buffer,
+            self.action_space,
+            noise=self.hyperparameters["noise"],
+            replay_start_size=self.hyperparameters["replay_start_size"],
+            discount_factor=self.hyperparameters["discount_factor"],
+            update_frequency=self.hyperparameters["update_frequency"],
+            minibatch_size=self.hyperparameters["minibatch_size"],
         )
 
     def test_agent(self):
@@ -114,7 +111,7 @@ class DDPGContinuousPreset(Preset):
             None,
             self.action_space,
         )
-        return TimeFeature(DDPGTestAgent(policy))
+        return DDPGTestAgent(policy)
 
 
 ddpg = PresetBuilder("ddpg", default_hyperparameters, DDPGContinuousPreset)
