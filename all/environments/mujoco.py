@@ -10,6 +10,7 @@ class MujocoEnvironment(GymEnvironment):
     def __init__(
         self, id, device=torch.device("cpu"), name=None, no_info=True, **gym_make_kwargs
     ):
-        super().__init__(id, device=device, name=name, **gym_make_kwargs)
-        if no_info:
-            self._env = NoInfoWrapper(self._env)
+        wrap_env = NoInfoWrapper if no_info else None
+        super().__init__(
+            id, device=device, name=name, wrap_env=wrap_env, **gym_make_kwargs
+        )

@@ -25,6 +25,7 @@ class GymEnvironment(Environment):
         name (str, optional): the name of the environment
         device (str, optional): the device on which tensors will be stored
         legacy_gym (str, optional): If true, calls gym.make() instead of gymnasium.make()
+        wrap_env (function, optional): A function that accepts an environment and returns a wrapped environment.
         **gym_make_kwargs: kwargs passed to gymnasium.make(id, **gym_make_kwargs)
     """
 
@@ -34,15 +35,23 @@ class GymEnvironment(Environment):
         device=torch.device("cpu"),
         name=None,
         legacy_gym=False,
+        wrap_env=None,
         **gym_make_kwargs
     ):
+        # handle gym vs. gymnasium distinction
         if legacy_gym:
             import gym
 
             self._gym = gym
         else:
             self._gym = gymnasium
+
+        # construct the environment and apply wrapper
         self._env = self._gym.make(id, **gym_make_kwargs)
+        if wrap_env:
+            self._env = wrap_env(self._env)
+
+        # initialize other instance variables
         self._id = id
         self._name = name if name else id
         self._state = None
@@ -51,6 +60,16 @@ class GymEnvironment(Environment):
         self._done = True
         self._info = None
         self._device = device
+
+        # store arguments for duplication
+        self._constructor_args = [id]
+        self._constructor_kwargs = {
+            "device": device,
+            "name": name,
+            "legacy_gym": legacy_gym,
+            "wrap_env": wrap_env,
+            **gym_make_kwargs,
+        }
 
     @property
     def name(self):
@@ -84,7 +103,7 @@ class GymEnvironment(Environment):
     def duplicate(self, n):
         return DuplicateEnvironment(
             [
-                GymEnvironment(self._id, device=self.device, name=self._name)
+                GymEnvironment(*self._constructor_args, **self._constructor_kwargs)
                 for _ in range(n)
             ]
         )
