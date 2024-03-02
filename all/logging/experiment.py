@@ -40,7 +40,7 @@ class ExperimentLogger(SummaryWriter, Logger):
         }
         for aggregator, value in metrics.items():
             super().add_scalar(
-                f"summary/{name}/{aggregator}", value, self._get_step(value)
+                f"summary/{name}/{aggregator}", value, self._get_step(step)
             )
 
         # log summary statistics to file

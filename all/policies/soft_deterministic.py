@@ -36,10 +36,8 @@ class SoftDeterministicPolicyNetwork(RLNetwork):
     def forward(self, state):
         outputs = super().forward(state)
         normal = self._normal(outputs)
-        if self.training:
-            action, log_prob = self._sample(normal)
-            return action, log_prob
-        return self._squash(normal.loc)
+        action, log_prob = self._sample(normal)
+        return action, log_prob
 
     def _normal(self, outputs):
         means = outputs[..., 0 : self._action_dim]

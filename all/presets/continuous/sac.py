@@ -5,7 +5,6 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from all.agents import SAC, SACTestAgent
 from all.approximation import PolyakTarget, QContinuous
-from all.bodies import TimeFeature
 from all.logging import DummyLogger
 from all.memory import ExperienceReplayBuffer
 from all.policies.soft_deterministic import SoftDeterministicPolicy
@@ -15,20 +14,20 @@ from all.presets.preset import Preset
 
 default_hyperparameters = {
     # Common settings
-    "discount_factor": 0.98,
+    "discount_factor": 0.99,
     # Adam optimizer settings
     "lr_q": 1e-3,
-    "lr_pi": 1e-4,
+    "lr_pi": 3e-4,
     # Training settings
-    "minibatch_size": 100,
-    "update_frequency": 2,
+    "minibatch_size": 256,
+    "update_frequency": 1,
     "polyak_rate": 0.005,
     # Replay Buffer settings
     "replay_start_size": 5000,
     "replay_buffer_size": 1e6,
     # Exploration settings
     "temperature_initial": 0.1,
-    "lr_temperature": 1e-5,
+    "lr_temperature_scaling": 3e-5,
     "entropy_backups": True,
     "entropy_target_scaling": 1.0,
     # Model construction
@@ -111,32 +110,31 @@ class SACContinuousPreset(Preset):
             self.hyperparameters["replay_buffer_size"], device=self.device
         )
 
-        return TimeFeature(
-            SAC(
-                policy,
-                q1,
-                q2,
-                replay_buffer,
-                temperature_initial=self.hyperparameters["temperature_initial"],
-                entropy_backups=self.hyperparameters["entropy_backups"],
-                entropy_target=(
-                    -self.action_space.shape[0]
-                    * self.hyperparameters["entropy_target_scaling"]
-                ),
-                lr_temperature=self.hyperparameters["lr_temperature"],
-                replay_start_size=self.hyperparameters["replay_start_size"],
-                discount_factor=self.hyperparameters["discount_factor"],
-                update_frequency=self.hyperparameters["update_frequency"],
-                minibatch_size=self.hyperparameters["minibatch_size"],
-                logger=logger,
-            )
+        return SAC(
+            policy,
+            q1,
+            q2,
+            replay_buffer,
+            temperature_initial=self.hyperparameters["temperature_initial"],
+            entropy_backups=self.hyperparameters["entropy_backups"],
+            entropy_target=(
+                -self.action_space.shape[0]
+                * self.hyperparameters["entropy_target_scaling"]
+            ),
+            lr_temperature=self.hyperparameters["lr_temperature_scaling"]
+            / self.action_space.shape[0],
+            replay_start_size=self.hyperparameters["replay_start_size"],
+            discount_factor=self.hyperparameters["discount_factor"],
+            update_frequency=self.hyperparameters["update_frequency"],
+            minibatch_size=self.hyperparameters["minibatch_size"],
+            logger=logger,
         )
 
     def test_agent(self):
         policy = SoftDeterministicPolicy(
             copy.deepcopy(self.policy_model), space=self.action_space
         )
-        return TimeFeature(SACTestAgent(policy))
+        return SACTestAgent(policy)
 
 
 sac = PresetBuilder("sac", default_hyperparameters, SACContinuousPreset)
