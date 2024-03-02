@@ -1,5 +1,7 @@
 import unittest
 
+import torch
+
 from all.environments import PybulletEnvironment
 
 
@@ -32,3 +34,11 @@ class PybulletEnvironmentTest(unittest.TestCase):
         self.assertNotEqual(state.reward, 0.0)
         self.assertFalse(state.done)
         self.assertEqual(state.mask, 1)
+
+    def test_duplicate(self):
+        env = PybulletEnvironment("cheetah")
+        duplicates = env.duplicate(3)
+        state = duplicates.reset()
+        self.assertEqual(state.shape, (3,))
+        state = duplicates.step(torch.zeros(3, env.action_space.shape[0]))
+        self.assertEqual(state.shape, (3,))

@@ -11,7 +11,6 @@ class PybulletEnvironment(GymEnvironment):
     }
 
     def __init__(self, name, **kwargs):
-        #
         import pybullet_envs  # noqa: F401
 
         if name in self.short_names:

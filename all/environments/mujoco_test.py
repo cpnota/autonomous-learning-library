@@ -47,3 +47,12 @@ class MujocoEnvironmentTest(unittest.TestCase):
         state = env.reset(seed=0)
         state = env.step(env.action_space.sample())
         self.assertTrue("reward_forward" in state)
+
+    def test_duplicate(self):
+        env = MujocoEnvironment("Ant-v4")
+        duplicates = env.duplicate(2)
+        for duplicate in duplicates._envs:
+            state = duplicate.reset()
+            self.assertFalse("reward_forward" in state)
+            state = duplicate.step(env.action_space.sample())
+            self.assertFalse("reward_forward" in state)

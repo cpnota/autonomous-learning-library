@@ -1,5 +1,9 @@
 import unittest
 
+import gym
+import gymnasium
+import torch
+
 from all.environments import GymEnvironment
 
 
@@ -36,3 +40,31 @@ class GymEnvironmentTest(unittest.TestCase):
         self.assertEqual(state.reward, 1.0)
         self.assertTrue(state.done)
         self.assertEqual(state.mask, 0)
+
+    def test_duplicate_default_params(self):
+        env = GymEnvironment("CartPole-v0")
+        duplicates = env.duplicate(5)
+        for duplicate in duplicates._envs:
+            self.assertEqual(duplicate._id, "CartPole-v0")
+            self.assertEqual(duplicate._name, "CartPole-v0")
+            self.assertEqual(env._device, torch.device("cpu"))
+            self.assertEqual(env._gym, gymnasium)
+
+    def test_duplicate_custom_params(self):
+        class MyWrapper:
+            def __init__(self, env):
+                self._env = env
+
+        env = GymEnvironment(
+            "CartPole-v0",
+            legacy_gym=True,
+            name="legacy_cartpole",
+            device="my_device",
+            wrap_env=MyWrapper,
+        )
+        duplicates = env.duplicate(5)
+        for duplicate in duplicates._envs:
+            self.assertEqual(duplicate._id, "CartPole-v0")
+            self.assertEqual(duplicate._name, "legacy_cartpole")
+            self.assertEqual(env._device, "my_device")
+            self.assertEqual(env._gym, gym)
