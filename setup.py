@@ -1,38 +1,38 @@
 from setuptools import find_packages, setup
 
-GYM_VERSION = "0.29.1"
-PETTINGZOO_VERSION = "1.24.2"
+GYMNASIUM_VERSION = "0.29.1"
+PETTINGZOO_VERSION = "1.24.3"
 
 
 extras = {
     "atari": [
-        "gymnasium[atari, accept-rom-license]~={}".format(GYM_VERSION),
+        f"gymnasium[atari, accept-rom-license]~={GYMNASIUM_VERSION}",
     ],
     "box2d": [
-        "gymnasium[box2d]~={}".format(GYM_VERSION),
+        f"gymnasium[box2d]~={GYMNASIUM_VERSION}",
     ],
     "pybullet": [
-        "pybullet>=3.2.2",
+        "pybullet>=3.2.2,<4",
         "gym>=0.10.0,<0.26.0",
     ],
     "mujoco": [
-        "gymnasium[mujoco]~={}".format(GYM_VERSION),
+        f"gymnasium[mujoco]~={GYMNASIUM_VERSION}",
     ],
     "ma-atari": [
-        "PettingZoo[atari, accept-rom-license]~={}".format(PETTINGZOO_VERSION),
-        "supersuit~=3.9.1",
+        f"PettingZoo[atari, accept-rom-license]~={PETTINGZOO_VERSION}",
+        "supersuit~=3.9.2",
     ],
     "test": [
-        "black>=24.1.1",  # linting/formatting
-        "isort>=5.13.2",  # sort imports
-        "flake8>=7.0.0",  # more linting
-        "torch-testing>=0.0.2",  # pytorch assertion library
+        "black~=24.2.0",  # linting/formatting
+        "isort~=5.13.2",  # sort imports
+        "flake8~=7.0.0",  # more linting
+        "torch-testing==0.0.2",  # pytorch assertion library
     ],
     "docs": [
-        "sphinx>=3.2.1",  # documentation library
-        "sphinx-autobuild>=2020.9.1",  # documentation live reload
-        "sphinx-rtd-theme>=0.5.0",  # documentation theme
-        "sphinx-automodapi>=0.13",  # autogenerate docs for modules
+        "sphinx~=3.2.1",  # documentation library
+        "sphinx-autobuild~=2020.9.1",  # documentation live reload
+        "sphinx-rtd-theme~=0.5.0",  # documentation theme
+        "sphinx-automodapi~=0.13",  # autogenerate docs for modules
     ],
 }
 
@@ -71,13 +71,13 @@ setup(
         ],
     },
     install_requires=[
-        "gymnasium~={}".format(GYM_VERSION),  # common environment interface
-        "numpy>=1.22.3",  # math library
-        "matplotlib>=3.5.1",  # plotting library
-        "opencv-python-headless>=4.0.0",  # used by atari wrappers
-        "torch>=2.0.0",  # core deep learning library
-        "tensorboard>=2.8.0",  # logging and visualization
-        "cloudpickle>=2.0.0",  # used to copy environments
+        f"gymnasium~={GYMNASIUM_VERSION}",  # common environment interface
+        "numpy~=1.22",  # math library
+        "matplotlib~=3.8",  # plotting library
+        "opencv-python-headless~=4.0",  # used by atari wrappers
+        "torch~=2.0",  # core deep learning library
+        "tensorboard~=2.16",  # logging and visualization
+        "cloudpickle~=2.0",  # used to copy environments
     ],
     extras_require=extras,
 )
