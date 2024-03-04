@@ -32,7 +32,7 @@ extras = {
         "sphinx~=3.2.1",  # documentation library
         "sphinx-autobuild~=2020.9.1",  # documentation live reload
         "sphinx-rtd-theme~=0.5.0",  # documentation theme
-        "sphinx-automodapi~=0.13",  # autogenerate docs for modules
+        "sphinx-automodapi~=0.13.0",  # autogenerate docs for modules
     ],
 }
 
@@ -73,10 +73,10 @@ setup(
     install_requires=[
         f"gymnasium~={GYMNASIUM_VERSION}",  # common environment interface
         "numpy~=1.22",  # math library
-        "matplotlib~=3.8",  # plotting library
+        "matplotlib~=3.7",  # plotting library
         "opencv-python-headless~=4.0",  # used by atari wrappers
         "torch~=2.0",  # core deep learning library
-        "tensorboard~=2.16",  # logging and visualization
+        "tensorboard~=2.8",  # logging and visualization
         "cloudpickle~=2.0",  # used to copy environments
     ],
     extras_require=extras,
