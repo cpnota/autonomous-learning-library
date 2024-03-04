@@ -1,4 +1,4 @@
-from all.environments import PybulletEnvironment
+from all.environments import MujocoEnvironment
 from all.experiments import SlurmExperiment
 from all.presets.continuous import ddpg, ppo, sac
 
@@ -9,15 +9,21 @@ def main():
     agents = [ddpg, ppo, sac]
 
     envs = [
-        PybulletEnvironment(env, device="cuda")
-        for env in PybulletEnvironment.short_names
+        MujocoEnvironment(env, device="cuda")
+        for env in [
+            "Ant-v4",
+            "HalfCheetah-v4",
+            "Hopper-v4",
+            "Swimmer-v4",
+            "Walker2d-v4",
+        ]
     ]
 
     SlurmExperiment(
         agents,
         envs,
         frames,
-        logdir="benchmarks/pybullet",
+        logdir="benchmarks/mujoco",
         sbatch_args={"partition": "gpu-long"},
     )
 
