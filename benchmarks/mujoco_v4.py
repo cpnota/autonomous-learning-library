@@ -23,7 +23,7 @@ def main():
         agents,
         envs,
         frames,
-        logdir="benchmarks/mujoco",
+        logdir="benchmarks/mujoco_v4",
         sbatch_args={"partition": "gpu-long"},
     )
 
