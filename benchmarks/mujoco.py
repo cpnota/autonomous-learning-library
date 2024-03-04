@@ -14,7 +14,7 @@ def main():
             "Ant-v4",
             "HalfCheetah-v4",
             "Hopper-v4",
-            "Swimmer-v4",
+            "Humanoid-v4",
             "Walker2d-v4",
         ]
     ]
