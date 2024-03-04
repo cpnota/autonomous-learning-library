@@ -91,8 +91,10 @@ class SlurmExperiment:
             "array": "0-" + str(num_experiments - 1),
             "partition": "gpu-long",
             "ntasks": 1,
+            "cpus-per-task": 4,
             "mem-per-cpu": 4000,
             "gpus-per-node": 1,
+            "time": "7-0",
         }
         sbatch_args.update(self.sbatch_args)
 

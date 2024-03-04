@@ -24,7 +24,9 @@ def main():
         envs,
         frames,
         logdir="benchmarks/mujoco_v4",
-        sbatch_args={"partition": "gpu-long"},
+        sbatch_args={
+            "partition": "gpu-long",
+        },
     )
 
 
