@@ -21,7 +21,7 @@ def main():
         envs,
         10e6,
         logdir="benchmarks/atari40",
-        sbatch_args={"partition": "gpu-long"},
+        sbatch_args={"partition": "gypsum-1080ti"},
     )
 
 

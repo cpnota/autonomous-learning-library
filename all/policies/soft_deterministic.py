@@ -20,18 +20,31 @@ class SoftDeterministicPolicy(Approximation):
         kwargs (optional): Any other arguments accepted by all.approximation.Approximation
     """
 
-    def __init__(self, model, optimizer=None, space=None, name="policy", **kwargs):
-        model = SoftDeterministicPolicyNetwork(model, space)
+    def __init__(
+        self,
+        model,
+        optimizer=None,
+        space=None,
+        name="policy",
+        log_std_min=-20,
+        log_std_max=2,
+        **kwargs
+    ):
+        model = SoftDeterministicPolicyNetwork(
+            model, space, log_std_min=log_std_min, log_std_max=log_std_max
+        )
         self._inner_model = model
         super().__init__(model, optimizer, name=name, **kwargs)
 
 
 class SoftDeterministicPolicyNetwork(RLNetwork):
-    def __init__(self, model, space):
+    def __init__(self, model, space, log_std_min=-20, log_std_max=2):
         super().__init__(model)
         self._action_dim = space.shape[0]
         self._tanh_scale = torch.tensor((space.high - space.low) / 2).to(self.device)
         self._tanh_mean = torch.tensor((space.high + space.low) / 2).to(self.device)
+        self._log_std_min = log_std_min
+        self._log_std_max = log_std_max
 
     def forward(self, state):
         outputs = super().forward(state)
@@ -41,9 +54,10 @@ class SoftDeterministicPolicyNetwork(RLNetwork):
 
     def _normal(self, outputs):
         means = outputs[..., 0 : self._action_dim]
-        logvars = outputs[..., self._action_dim :]
-        std = logvars.mul(0.5).exp_()
-        return torch.distributions.normal.Normal(means, std)
+        log_stds = outputs[..., self._action_dim :]
+        clipped_log_stds = torch.clamp(log_stds, self._log_std_min, self._log_std_max)
+        stds = clipped_log_stds.exp_()
+        return torch.distributions.normal.Normal(means, stds)
 
     def _sample(self, normal):
         raw = normal.rsample()

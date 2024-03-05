@@ -8,14 +8,16 @@ def main():
 
     agents = [ddpg, ppo, sac]
 
+    agents = [sac]
+
     envs = [
         MujocoEnvironment(env, device="cuda")
         for env in [
-            "Ant-v4",
+            # "Ant-v4",
             "HalfCheetah-v4",
-            "Hopper-v4",
-            "Humanoid-v4",
-            "Walker2d-v4",
+            # "Hopper-v4",
+            # "Humanoid-v4",
+            # "Walker2d-v4",
         ]
     ]
 
@@ -25,7 +27,7 @@ def main():
         frames,
         logdir="benchmarks/mujoco_v4",
         sbatch_args={
-            "partition": "gpu-long",
+            "partition": "gypsum-2080ti",
         },
     )
 
