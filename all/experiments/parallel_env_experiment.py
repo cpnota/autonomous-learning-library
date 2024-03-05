@@ -92,6 +92,8 @@ class ParallelEnvExperiment(Experiment):
                         returns[i] = 0
                         episode_lengths[i] = -1
                         self._episode += 1
+        if len(self._returns100) > 0:
+            self._logger.add_summary("returns100", self._returns100)
 
     def test(self, episodes=100):
         test_agent = self._preset.parallel_test_agent()

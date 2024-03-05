@@ -49,6 +49,8 @@ class SingleEnvExperiment(Experiment):
     def train(self, frames=np.inf, episodes=np.inf):
         while not self._done(frames, episodes):
             self._run_training_episode()
+        if len(self._returns100) > 0:
+            self._logger.add_summary("returns100", self._returns100)
 
     def test(self, episodes=100):
         test_agent = self._preset.test_agent()
