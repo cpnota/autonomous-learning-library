@@ -23,7 +23,7 @@ def load_returns_100_data(runs_dir):
     def add_data(agent, env, file):
         if env not in data:
             data[env] = {}
-        data[env][agent] = np.genfromtxt(file, delimiter=",").reshape((-1, 3))
+        data[env][agent] = np.genfromtxt(file, delimiter=",").reshape((-1, 5))
 
     for agent_dir in os.listdir(runs_dir):
         agent, env, *_ = agent_dir.split("_")
