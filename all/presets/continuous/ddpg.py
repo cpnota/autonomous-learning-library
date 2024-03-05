@@ -16,8 +16,8 @@ default_hyperparameters = {
     # Common settings
     "discount_factor": 0.99,
     # Adam optimizer settings
-    "lr_q": 3e-4,
-    "lr_pi": 3e-4,
+    "lr_q": 1e-3,
+    "lr_pi": 1e-3,
     # Training settings
     "minibatch_size": 256,
     "update_frequency": 1,
