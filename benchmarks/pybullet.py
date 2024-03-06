@@ -10,7 +10,13 @@ def main():
 
     envs = [
         PybulletEnvironment(env, device="cuda")
-        for env in PybulletEnvironment.short_names
+        for env in [
+            "AntBulletEnv-v0",
+            "HalfCheetahBulletEnv-v0",
+            "HopperBulletEnv-v0",
+            "HumanoidBulletEnv-v0",
+            "Walker2DBulletEnv-v0",
+        ]
     ]
 
     SlurmExperiment(
@@ -18,7 +24,9 @@ def main():
         envs,
         frames,
         logdir="benchmarks/pybullet",
-        sbatch_args={"partition": "gpu-long"},
+        sbatch_args={
+            "partition": "gpu-long",
+        },
     )
 
 

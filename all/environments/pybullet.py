@@ -5,8 +5,8 @@ class PybulletEnvironment(GymEnvironment):
     short_names = {
         "ant": "AntBulletEnv-v0",
         "cheetah": "HalfCheetahBulletEnv-v0",
-        "humanoid": "HumanoidBulletEnv-v0",
         "hopper": "HopperBulletEnv-v0",
+        "humanoid": "HumanoidBulletEnv-v0",
         "walker": "Walker2DBulletEnv-v0",
     }
 
