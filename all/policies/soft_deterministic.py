@@ -27,7 +27,7 @@ class SoftDeterministicPolicy(Approximation):
         space=None,
         name="policy",
         log_std_min=-20,
-        log_std_max=2,
+        log_std_max=4,
         **kwargs
     ):
         model = SoftDeterministicPolicyNetwork(
@@ -38,13 +38,14 @@ class SoftDeterministicPolicy(Approximation):
 
 
 class SoftDeterministicPolicyNetwork(RLNetwork):
-    def __init__(self, model, space, log_std_min=-20, log_std_max=2):
+    def __init__(self, model, space, log_std_min=-20, log_std_max=4, log_std_scale=0.5):
         super().__init__(model)
         self._action_dim = space.shape[0]
         self._tanh_scale = torch.tensor((space.high - space.low) / 2).to(self.device)
         self._tanh_mean = torch.tensor((space.high + space.low) / 2).to(self.device)
         self._log_std_min = log_std_min
         self._log_std_max = log_std_max
+        self._log_std_scale = log_std_scale
 
     def forward(self, state):
         outputs = super().forward(state)
@@ -54,7 +55,7 @@ class SoftDeterministicPolicyNetwork(RLNetwork):
 
     def _normal(self, outputs):
         means = outputs[..., 0 : self._action_dim]
-        log_stds = outputs[..., self._action_dim :]
+        log_stds = outputs[..., self._action_dim :] * self._log_std_scale
         clipped_log_stds = torch.clamp(log_stds, self._log_std_min, self._log_std_max)
         stds = clipped_log_stds.exp_()
         return torch.distributions.normal.Normal(means, stds)
