@@ -23,7 +23,7 @@ def main():
         agents,
         envs,
         frames,
-        logdir="benchmarks/pybullet",
+        logdir="benchmarks/pybullet_v0",
         sbatch_args={
             "partition": "gpu-long",
         },
