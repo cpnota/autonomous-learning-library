@@ -26,7 +26,7 @@ default_hyperparameters = {
     "replay_start_size": 5000,
     "replay_buffer_size": 1e6,
     # Exploration settings
-    "temperature_initial": 0.1,
+    "temperature_initial": 1.,
     "lr_temperature_scaling": 3e-5,
     "entropy_backups": True,
     "entropy_target_scaling": 1.0,
