@@ -8,9 +8,6 @@ extras = {
     "atari": [
         f"gymnasium[atari, accept-rom-license]~={GYMNASIUM_VERSION}",
     ],
-    "box2d": [
-        f"gymnasium[box2d]~={GYMNASIUM_VERSION}",
-    ],
     "pybullet": [
         "pybullet>=3.2.2,<4",
         "gym>=0.10.0,<0.26.0",
@@ -37,11 +34,7 @@ extras = {
 }
 
 extras["all"] = (
-    extras["atari"]
-    + extras["box2d"]
-    + extras["mujoco"]
-    + extras["pybullet"]
-    + extras["ma-atari"]
+    extras["atari"] + extras["mujoco"] + extras["pybullet"] + extras["ma-atari"]
 )
 extras["dev"] = extras["all"] + extras["test"] + extras["docs"]
 
@@ -75,7 +68,7 @@ setup(
         "numpy~=1.22",  # math library
         "matplotlib~=3.7",  # plotting library
         "opencv-python-headless~=4.0",  # used by atari wrappers
-        "torch~=2.0",  # core deep learning library
+        "torch~=2.2",  # core deep learning library
         "tensorboard~=2.8",  # logging and visualization
         "cloudpickle~=2.0",  # used to copy environments
     ],

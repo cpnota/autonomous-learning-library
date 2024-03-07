@@ -9,7 +9,7 @@ def main():
         continuous,
         GymEnvironment,
         description="Train an agent on a continuous control environment.",
-        env_help="The name of the environment (e.g., LunarLanderContinuous-v2).",
+        env_help="The name of the environment (e.g., MountainCarContinuous-v0).",
         default_frames=10e6,
     )
 
