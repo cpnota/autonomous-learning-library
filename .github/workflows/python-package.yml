@@ -25,8 +25,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        sudo apt-get install swig
-        sudo apt-get install unrar
+        python -m pip install --upgrade pip
         pip install torch~=2.0 --extra-index-url https://download.pytorch.org/whl/cpu
         make install
     - name: Lint code

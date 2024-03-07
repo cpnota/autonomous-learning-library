@@ -70,12 +70,13 @@ setup(
             "all-watch-pybullet=all.scripts.watch_pybullet:main",
         ],
     },
+    setup_requires=["swig~=4.0"],
     install_requires=[
         f"gymnasium~={GYMNASIUM_VERSION}",  # common environment interface
         "numpy~=1.22",  # math library
         "matplotlib~=3.7",  # plotting library
         "opencv-python-headless~=4.0",  # used by atari wrappers
-        "torch~=2.0",  # core deep learning library
+        "torch~=2.2",  # core deep learning library
         "tensorboard~=2.8",  # logging and visualization
         "cloudpickle~=2.0",  # used to copy environments
     ],
