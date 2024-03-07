@@ -1,5 +1,6 @@
 from setuptools import find_packages, setup
 
+
 GYMNASIUM_VERSION = "0.29.1"
 PETTINGZOO_VERSION = "1.24.3"
 
@@ -7,9 +8,6 @@ PETTINGZOO_VERSION = "1.24.3"
 extras = {
     "atari": [
         f"gymnasium[atari, accept-rom-license]~={GYMNASIUM_VERSION}",
-    ],
-    "box2d": [
-        f"gymnasium[box2d]~={GYMNASIUM_VERSION}",
     ],
     "pybullet": [
         "pybullet>=3.2.2,<4",
@@ -38,7 +36,6 @@ extras = {
 
 extras["all"] = (
     extras["atari"]
-    + extras["box2d"]
     + extras["mujoco"]
     + extras["pybullet"]
     + extras["ma-atari"]
@@ -70,7 +67,6 @@ setup(
             "all-watch-pybullet=all.scripts.watch_pybullet:main",
         ],
     },
-    setup_requires=["swig~=4.0"],
     install_requires=[
         f"gymnasium~={GYMNASIUM_VERSION}",  # common environment interface
         "numpy~=1.22",  # math library
