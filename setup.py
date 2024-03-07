@@ -1,6 +1,5 @@
 from setuptools import find_packages, setup
 
-
 GYMNASIUM_VERSION = "0.29.1"
 PETTINGZOO_VERSION = "1.24.3"
 
@@ -35,10 +34,7 @@ extras = {
 }
 
 extras["all"] = (
-    extras["atari"]
-    + extras["mujoco"]
-    + extras["pybullet"]
-    + extras["ma-atari"]
+    extras["atari"] + extras["mujoco"] + extras["pybullet"] + extras["ma-atari"]
 )
 extras["dev"] = extras["all"] + extras["test"] + extras["docs"]
 

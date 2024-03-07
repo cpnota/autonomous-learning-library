@@ -11,12 +11,12 @@ from all.presets.continuous import ddpg, ppo, sac
 
 class TestContinuousPresets(unittest.TestCase):
     def setUp(self):
-        self.env = GymEnvironment("LunarLanderContinuous-v2")
+        self.env = GymEnvironment("MountainCarContinuous-v0")
         self.env.reset()
         self.parallel_env = DuplicateEnvironment(
             [
-                GymEnvironment("LunarLanderContinuous-v2"),
-                GymEnvironment("LunarLanderContinuous-v2"),
+                GymEnvironment("MountainCarContinuous-v0"),
+                GymEnvironment("MountainCarContinuous-v0"),
             ]
         )
         self.parallel_env.reset()
