@@ -89,10 +89,12 @@ class SlurmExperiment:
             "output": os.path.join(self.outdir, "all_%A_%a.out"),
             "error": os.path.join(self.outdir, "all_%A_%a.err"),
             "array": "0-" + str(num_experiments - 1),
-            "partition": "1080ti-short",
+            "partition": "gpu-long",
             "ntasks": 1,
+            "cpus-per-task": 4,
             "mem-per-cpu": 4000,
-            "gres": "gpu:1",
+            "gpus-per-node": 1,
+            "time": "7-0",
         }
         sbatch_args.update(self.sbatch_args)
 

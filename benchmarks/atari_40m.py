@@ -20,8 +20,8 @@ def main():
         agents,
         envs,
         10e6,
-        logdir="benchmarks/atari40",
-        sbatch_args={"partition": "gpu-long"},
+        logdir="benchmarks/atari_40m",
+        sbatch_args={"partition": "gypsum-1080ti"},
     )
 
 
