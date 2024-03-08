@@ -17,7 +17,7 @@ default_hyperparameters = {
     "discount_factor": 0.99,
     # Adam optimizer settings
     "lr_q": 1e-3,
-    "lr_pi": 3e-4,
+    "lr_pi": 1e-3,
     # Training settings
     "minibatch_size": 256,
     "update_frequency": 1,
@@ -26,7 +26,7 @@ default_hyperparameters = {
     "replay_start_size": 5000,
     "replay_buffer_size": 1e6,
     # Exploration settings
-    "temperature_initial": 1.,
+    "temperature_initial": 1.0,
     "lr_temperature_scaling": 3e-5,
     "entropy_backups": True,
     "entropy_target_scaling": 1.0,
