@@ -50,7 +50,7 @@ Running a Preset Agent
 The goal of the Autonomous Learning Library is to provide components for building new agents.
 However, the library also includes a number of "preset" agent configurations for easy benchmarking and comparison,
 as well as some useful scripts.
-For example, a PPO agent can be run on Cart-Pole as follows:
+For example, an a2c agent can be run on CartPole as follows:
 
 .. code-block:: bash
 
@@ -89,4 +89,4 @@ Finally, to watch the trained model in action, we provide a `watch` scripts for 
 You need to find the <id> by checking the ``runs`` directory.
 
 Each of these scripts can be found the ``scripts`` directory of the main repository.
-Be sure to check out the ``atari`` and ``mujoco`` scripts for more fun!
+Be sure to check out the ``all-atari`` and ``all-mujoco`` scripts for more fun!
