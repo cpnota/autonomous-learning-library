@@ -6,4 +6,4 @@ class IndependentMultiagent(Multiagent):
         self.agents = agents
 
     def act(self, state):
-        return self.agents[state['agent']].act(state)
+        return self.agents[state["agent"]].act(state)

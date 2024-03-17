@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 
 class MultiagentEnvironment(ABC):
-    '''
+    """
     A multiagent reinforcement learning Environment.
 
     The Multiagent variant of the Environment object.
@@ -10,20 +10,20 @@ class MultiagentEnvironment(ABC):
     the states, the actions, the transitions between states, and the rewards given to the agent.
     Environments are often used to benchmark reinforcement learning agents,
     or to define real problems that the user hopes to solve using reinforcement learning.
-    '''
+    """
 
     @abstractmethod
     def reset(self):
-        '''
+        """
         Reset the environment and return a new initial state for the first agent.
 
         Returns
             all.core.MultiagentState: The initial state for the next episode.
-        '''
+        """
 
     @abstractmethod
     def step(self, action):
-        '''
+        """
         Apply an action for the current agent and get the multiagent state for the next agent.
 
         Parameters:
@@ -31,37 +31,37 @@ class MultiagentEnvironment(ABC):
 
         Returns:
             all.core.MultiagentState: The state for the next agent.
-        '''
+        """
 
     @abstractmethod
     def render(self, **kwargs):
-        '''Render the current environment state.'''
+        """Render the current environment state."""
 
     @abstractmethod
     def close(self):
-        '''Clean up any extraneous environment objects.'''
+        """Clean up any extraneous environment objects."""
 
     @abstractmethod
     def agent_iter(self):
-        '''
+        """
         Create an iterable which that the next element is always the name of the agent whose turn it is to act.
 
         Returns:
             An Iterable over Agent strings.
-        '''
+        """
 
     @abstractmethod
     def last(self):
-        '''
+        """
         Get the MultiagentState object for the current agent.
 
         Returns:
             The all.core.MultiagentState object for the current agent.
-        '''
+        """
 
     @abstractmethod
     def is_done(self, agent):
-        '''
+        """
         Determine whether a given agent is done.
 
         Args:
@@ -69,33 +69,33 @@ class MultiagentEnvironment(ABC):
 
         Returns:
             A boolean representing whether the given agent is done.
-        '''
+        """
 
     @property
     def state(self):
-        '''The State for the current agent.'''
+        """The State for the current agent."""
         return self.last()
 
     @property
     @abstractmethod
     def name(self):
-        '''str: The name of the environment.'''
+        """str: The name of the environment."""
 
     @abstractmethod
     def state_space(self, agent_id):
-        '''The state space for the given agent.'''
+        """The state space for the given agent."""
 
     def observation_space(self, agent_id):
-        '''Alias for MultiagentEnvironment.state_space(agent_id).'''
+        """Alias for MultiagentEnvironment.state_space(agent_id)."""
         return self.state_space(agent_id)
 
     @abstractmethod
     def action_space(self):
-        '''The action space for the given agent.'''
+        """The action space for the given agent."""
 
     @property
     @abstractmethod
     def device(self):
-        '''
+        """
         The torch device the environment lives on.
-        '''
+        """

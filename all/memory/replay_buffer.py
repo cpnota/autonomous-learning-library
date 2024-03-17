@@ -1,29 +1,32 @@
 from abc import ABC, abstractmethod
+
 import numpy as np
 import torch
+
 from all.core import State
 from all.optim import Schedulable
-from .segment_tree import SumSegmentTree, MinSegmentTree
+
+from .segment_tree import MinSegmentTree, SumSegmentTree
 
 
 class ReplayBuffer(ABC):
     @abstractmethod
     def store(self, state, action, reward, next_state):
-        '''Store the transition in the buffer'''
+        """Store the transition in the buffer"""
 
     @abstractmethod
     def sample(self, batch_size):
-        '''Sample from the stored transitions'''
+        """Sample from the stored transitions"""
 
     @abstractmethod
     def update_priorities(self, indexes, td_errors):
-        '''Update priorities based on the TD error'''
+        """Update priorities based on the TD error"""
 
 
 # Adapted from:
 # https://github.com/Shmuma/ptan/blob/master/ptan/experience.py
 class ExperienceReplayBuffer(ReplayBuffer):
-    def __init__(self, size, device='cpu', store_device=None):
+    def __init__(self, size, device="cpu", store_device=None):
         self.buffer = []
         self.capacity = int(size)
         self.pos = 0
@@ -58,7 +61,9 @@ class ExperienceReplayBuffer(ReplayBuffer):
         if torch.is_tensor(minibatch[0][1]):
             actions = torch.stack([sample[1] for sample in minibatch]).to(self.device)
         else:
-            actions = torch.tensor([sample[1] for sample in minibatch], device=self.device)
+            actions = torch.tensor(
+                [sample[1] for sample in minibatch], device=self.device
+            )
         next_states = State.array([sample[2] for sample in minibatch]).to(self.device)
         return (states, actions, next_states.reward, next_states, weights)
 
@@ -71,13 +76,13 @@ class ExperienceReplayBuffer(ReplayBuffer):
 
 class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
     def __init__(
-            self,
-            buffer_size,
-            alpha=0.6,
-            beta=0.4,
-            epsilon=1e-5,
-            device=torch.device('cpu'),
-            store_device=None
+        self,
+        buffer_size,
+        alpha=0.6,
+        beta=0.4,
+        epsilon=1e-5,
+        device=torch.device("cpu"),
+        store_device=None,
     ):
         super().__init__(buffer_size, device=device, store_device=store_device)
 
@@ -100,8 +105,8 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
             return
         idx = self.pos
         super().store(state, action, next_state)
-        self._it_sum[idx] = self._max_priority ** self._alpha
-        self._it_min[idx] = self._max_priority ** self._alpha
+        self._it_sum[idx] = self._max_priority**self._alpha
+        self._it_min[idx] = self._max_priority**self._alpha
 
     def sample(self, batch_size):
         beta = self._beta
@@ -120,7 +125,7 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
         try:
             samples = [self.buffer[idx] for idx in idxes]
         except IndexError as e:
-            print('index out of range: ', idxes)
+            print("index out of range: ", idxes)
             raise e
         self._cache = idxes
         return self._reshape(samples, torch.from_numpy(weights).to(self.device))
@@ -134,8 +139,8 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
             assert priority > 0
             assert priority < np.inf
             assert 0 <= idx < len(self)
-            self._it_sum[idx] = priority ** self._alpha
-            self._it_min[idx] = priority ** self._alpha
+            self._it_sum[idx] = priority**self._alpha
+            self._it_min[idx] = priority**self._alpha
             self._max_priority = max(self._max_priority, priority)
 
     def _sample_proportional(self, batch_size):
@@ -150,13 +155,13 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
 
 
 class NStepReplayBuffer(ReplayBuffer):
-    '''Converts any ReplayBuffer into an NStepReplayBuffer'''
+    """Converts any ReplayBuffer into an NStepReplayBuffer"""
 
     def __init__(
-            self,
-            steps,
-            discount_factor,
-            buffer,
+        self,
+        steps,
+        discount_factor,
+        buffer,
     ):
         assert steps >= 1
         assert discount_factor >= 0
@@ -166,7 +171,7 @@ class NStepReplayBuffer(ReplayBuffer):
         self._states = []
         self._actions = []
         self._rewards = []
-        self._reward = 0.
+        self._reward = 0.0
 
     def store(self, state, action, next_state):
         if state is None or state.done:
@@ -175,7 +180,9 @@ class NStepReplayBuffer(ReplayBuffer):
         self._states.append(state)
         self._actions.append(action)
         self._rewards.append(next_state.reward)
-        self._reward += (self.discount_factor ** (len(self._states) - 1)) * next_state.reward
+        self._reward += (
+            self.discount_factor ** (len(self._states) - 1)
+        ) * next_state.reward
 
         if len(self._states) == self.steps:
             self._store_next(next_state)
@@ -183,12 +190,14 @@ class NStepReplayBuffer(ReplayBuffer):
         if next_state.done:
             while self._states:
                 self._store_next(next_state)
-            self._reward = 0.
+            self._reward = 0.0
 
     def _store_next(self, next_state):
-        self.buffer.store(self._states[0], self._actions[0], next_state.update('reward', self._reward))
+        self.buffer.store(
+            self._states[0], self._actions[0], next_state.update("reward", self._reward)
+        )
         self._reward = self._reward - self._rewards[0]
-        self._reward *= self.discount_factor ** -1
+        self._reward *= self.discount_factor**-1
         del self._states[0]
         del self._actions[0]
         del self._rewards[0]

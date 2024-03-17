@@ -1,30 +1,29 @@
 import os
 import unittest
+
 import torch
-from all.core import State
-from all.environments import GymEnvironment, DuplicateEnvironment
+
+from all.environments import DuplicateEnvironment, GymEnvironment
 from all.logging import DummyLogger
-from all.presets import Preset, ParallelPreset
-from all.presets.continuous import (
-    ddpg,
-    ppo,
-    sac,
-)
+from all.presets import ParallelPreset
+from all.presets.continuous import ddpg, ppo, sac
 
 
 class TestContinuousPresets(unittest.TestCase):
     def setUp(self):
-        self.env = GymEnvironment('LunarLanderContinuous-v2')
+        self.env = GymEnvironment("MountainCarContinuous-v0")
         self.env.reset()
-        self.parallel_env = DuplicateEnvironment([
-            GymEnvironment('LunarLanderContinuous-v2'),
-            GymEnvironment('LunarLanderContinuous-v2'),
-        ])
+        self.parallel_env = DuplicateEnvironment(
+            [
+                GymEnvironment("MountainCarContinuous-v0"),
+                GymEnvironment("MountainCarContinuous-v0"),
+            ]
+        )
         self.parallel_env.reset()
 
     def tearDown(self):
-        if os.path.exists('test_preset.pt'):
-            os.remove('test_preset.pt')
+        if os.path.exists("test_preset.pt"):
+            os.remove("test_preset.pt")
 
     def test_ddpg(self):
         self.validate(ddpg)
@@ -36,7 +35,7 @@ class TestContinuousPresets(unittest.TestCase):
         self.validate(sac)
 
     def validate(self, builder):
-        preset = builder.device('cpu').env(self.env).build()
+        preset = builder.device("cpu").env(self.env).build()
         if isinstance(preset, ParallelPreset):
             return self.validate_parallel_preset(preset)
         return self.validate_standard_preset(preset)
@@ -49,8 +48,8 @@ class TestContinuousPresets(unittest.TestCase):
         test_agent = preset.test_agent()
         test_agent.act(self.env.state)
         # test save/load
-        preset.save('test_preset.pt')
-        preset = torch.load('test_preset.pt')
+        preset.save("test_preset.pt")
+        preset = torch.load("test_preset.pt")
         test_agent = preset.test_agent()
         test_agent.act(self.env.state)
 
@@ -65,8 +64,8 @@ class TestContinuousPresets(unittest.TestCase):
         parallel_test_agent = preset.test_agent()
         parallel_test_agent.act(self.parallel_env.state_array)
         # test save/load
-        preset.save('test_preset.pt')
-        preset = torch.load('test_preset.pt')
+        preset.save("test_preset.pt")
+        preset = torch.load("test_preset.pt")
         test_agent = preset.test_agent()
         test_agent.act(self.env.state)
 

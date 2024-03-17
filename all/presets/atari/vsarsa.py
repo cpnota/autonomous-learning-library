@@ -1,16 +1,17 @@
 import copy
+
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from all.approximation import QNetwork
+
 from all.agents import VSarsa, VSarsaTestAgent
+from all.approximation import QNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyLogger
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy, ParallelGreedyPolicy
+from all.presets.atari.models import nature_ddqn
 from all.presets.builder import ParallelPresetBuilder
 from all.presets.preset import ParallelPreset
-from all.presets.atari.models import nature_ddqn
-
 
 default_hyperparameters = {
     # Common settings
@@ -19,14 +20,14 @@ default_hyperparameters = {
     "lr": 1e-3,
     "eps": 1.5e-4,
     # Explicit exploration
-    "initial_exploration": 1.,
+    "initial_exploration": 1.0,
     "final_exploration": 0.01,
     "final_exploration_step": 250000,
     "test_exploration": 0.001,
     # Parallel actors
     "n_envs": 64,
     # Model construction
-    "model_constructor": nature_ddqn
+    "model_constructor": nature_ddqn,
 }
 
 
@@ -54,51 +55,56 @@ class VSarsaAtariPreset(ParallelPreset):
 
     def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
-        self.model = hyperparameters['model_constructor'](env).to(device)
+        self.model = hyperparameters["model_constructor"](env).to(device)
         self.n_actions = env.action_space.n
 
-    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
-        n_updates = train_steps / self.hyperparameters['n_envs']
+    def agent(self, logger=DummyLogger(), train_steps=float("inf")):
+        n_updates = train_steps / self.hyperparameters["n_envs"]
 
         optimizer = Adam(
             self.model.parameters(),
-            lr=self.hyperparameters['lr'],
-            eps=self.hyperparameters['eps']
+            lr=self.hyperparameters["lr"],
+            eps=self.hyperparameters["eps"],
         )
 
         q = QNetwork(
             self.model,
             optimizer,
             scheduler=CosineAnnealingLR(optimizer, n_updates),
-            logger=logger
+            logger=logger,
         )
 
         policy = ParallelGreedyPolicy(
             q,
             self.n_actions,
             epsilon=LinearScheduler(
-                self.hyperparameters['initial_exploration'],
-                self.hyperparameters['final_exploration'],
+                self.hyperparameters["initial_exploration"],
+                self.hyperparameters["final_exploration"],
                 0,
-                self.hyperparameters["final_exploration_step"] / self.hyperparameters["n_envs"],
+                self.hyperparameters["final_exploration_step"]
+                / self.hyperparameters["n_envs"],
                 name="exploration",
-                logger=logger
-            )
+                logger=logger,
+            ),
         )
 
         return DeepmindAtariBody(
-            VSarsa(q, policy, discount_factor=self.hyperparameters['discount_factor']),
+            VSarsa(q, policy, discount_factor=self.hyperparameters["discount_factor"]),
         )
 
     def test_agent(self):
         q = QNetwork(copy.deepcopy(self.model))
-        policy = GreedyPolicy(q, self.n_actions, epsilon=self.hyperparameters['test_exploration'])
+        policy = GreedyPolicy(
+            q, self.n_actions, epsilon=self.hyperparameters["test_exploration"]
+        )
         return DeepmindAtariBody(VSarsaTestAgent(policy))
 
     def parallel_test_agent(self):
         q = QNetwork(copy.deepcopy(self.model))
-        policy = ParallelGreedyPolicy(q, self.n_actions, epsilon=self.hyperparameters['test_exploration'])
+        policy = ParallelGreedyPolicy(
+            q, self.n_actions, epsilon=self.hyperparameters["test_exploration"]
+        )
         return DeepmindAtariBody(VSarsaTestAgent(policy))
 
 
-vsarsa = ParallelPresetBuilder('vsarsa', default_hyperparameters, VSarsaAtariPreset)
+vsarsa = ParallelPresetBuilder("vsarsa", default_hyperparameters, VSarsaAtariPreset)

@@ -28,7 +28,7 @@ Additionally, we use the following agent "bodies":
 
 The results were as follows:
 
-.. image:: ../../../benchmarks/atari40.png
+.. image:: ../../../benchmarks/atari_40m.png
 
 For comparison, we look at the results published in the paper, `Rainbow: Combining Improvements in Deep Reinforcement Learning <https://arxiv.org/abs/1710.02298>`_:
 
@@ -40,23 +40,29 @@ Our ``dqn`` and ``ddqn`` in particular were better almost across the board.
 While there are some minor implementation differences (for example, we use ``Adam`` for most algorithms instead of ``RMSprop``),
 our agents achieved very similar behavior to the agents tested by DeepMind.
 
+MuJoCo Benchmark
+------------------
+
+`MuJoCo <https://mujoco.org>`_ is "a free and open source physics engine that aims to facilitate research and development in robotics, biomechanics, graphics and animation, and other areas where fast and accurate simulation is needed."
+The MuJoCo Gym environments are a common benchmark in RL research for evaluating agents with continuous action spaces.
+We ran each continuous preset for 5 million timesteps (in this case, timesteps are equal to frames).
+The learning rate was decayed over the course of training using cosine annealing.
+The results were as follows:
+
+.. image:: ../../../benchmarks/mujoco_v4.png 
+
+These results are similar to results found elsewhere, and in some cases better.
+However, results can very based on hyperparameter tuning, implementation specifics, and the random seed.
+
 PyBullet Benchmark
 ------------------
 
 `PyBullet <https://pybullet.org/wordpress/>`_ provides a free alternative to the popular MuJoCo robotics environments.
-While MuJoCo requires a license key and can be difficult for independent researchers to afford, PyBullet is free and open.
-Additionally, the PyBullet environments are widely considered more challenging, making them a more discriminant test bed.
-For these reasons, we chose to benchmark the ``all.presets.continuous`` presets using PyBullet.
-
-Similar to the Atari benchmark, we ran each agent for 10 million timesteps (in this case, timesteps are equal to frames).
+We ran each agent for 5 million timesteps (in this case, timesteps are equal to frames).
 The learning rate was decayed over the course of training using cosine annealing.
-To reduce the variance of the updates, we added an extra time feature to the state (t * 0.001, where t is the current timestep).
 The results were as follows:
 
-.. image:: ../../../benchmarks/pybullet.png
-
-PPO was omitted from the plot for Humanoid because it achieved very large negative returns which interfered with the scale of the graph.
-Note, however, that our implementation of soft actor-critic (SAC) is able to solve even this difficult environment.
+.. image:: ../../../benchmarks/pybullet_v0.png
 
 Because most research papers still use MuJoCo, direct comparisons are difficult to come by.
 However, George Sung helpfully benchmarked TD3 and DDPG on several PyBullet environments [here](https://github.com/georgesung/TD3).

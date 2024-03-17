@@ -13,7 +13,7 @@ def nature_dqn(env, frames=4):
         nn.Flatten(),
         nn.Linear(3136, 512),
         nn.ReLU(),
-        nn.Linear0(512, env.action_space.n)
+        nn.Linear0(512, env.action_space.n),
     )
 
 
@@ -28,17 +28,11 @@ def nature_ddqn(env, frames=4):
         nn.ReLU(),
         nn.Flatten(),
         nn.Dueling(
+            nn.Sequential(nn.Linear(3136, 512), nn.ReLU(), nn.Linear0(512, 1)),
             nn.Sequential(
-                nn.Linear(3136, 512),
-                nn.ReLU(),
-                nn.Linear0(512, 1)
+                nn.Linear(3136, 512), nn.ReLU(), nn.Linear0(512, env.action_space.n)
             ),
-            nn.Sequential(
-                nn.Linear(3136, 512),
-                nn.ReLU(),
-                nn.Linear0(512, env.action_space.n)
-            ),
-        )
+        ),
     )
 
 
@@ -77,7 +71,7 @@ def nature_c51(env, frames=4, atoms=51):
         nn.Flatten(),
         nn.Linear(3136, 512),
         nn.ReLU(),
-        nn.Linear0(512, env.action_space.n * atoms)
+        nn.Linear0(512, env.action_space.n * atoms),
     )
 
 
@@ -95,22 +89,14 @@ def nature_rainbow(env, frames=4, hidden=512, atoms=51, sigma=0.5):
             nn.Sequential(
                 nn.NoisyFactorizedLinear(3136, hidden, sigma_init=sigma),
                 nn.ReLU(),
-                nn.NoisyFactorizedLinear(
-                    hidden,
-                    atoms,
-                    init_scale=0,
-                    sigma_init=sigma
-                )
+                nn.NoisyFactorizedLinear(hidden, atoms, init_scale=0, sigma_init=sigma),
             ),
             nn.Sequential(
                 nn.NoisyFactorizedLinear(3136, hidden, sigma_init=sigma),
                 nn.ReLU(),
                 nn.NoisyFactorizedLinear(
-                    hidden,
-                    env.action_space.n * atoms,
-                    init_scale=0,
-                    sigma_init=sigma
-                )
-            )
-        )
+                    hidden, env.action_space.n * atoms, init_scale=0, sigma_init=sigma
+                ),
+            ),
+        ),
     )

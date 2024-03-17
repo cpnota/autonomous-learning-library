@@ -1,10 +1,11 @@
 import torch
+
 from all.approximation import Approximation
 from all.nn import RLNetwork
 
 
 class DeterministicPolicy(Approximation):
-    '''
+    """
     A DDPG-style deterministic policy.
 
     Args:
@@ -13,25 +14,13 @@ class DeterministicPolicy(Approximation):
             and the output shape should be the same as the shape of the action space.
         optimizer (torch.optim.Optimizer): A optimizer initialized with the
             model parameters, e.g. SGD, Adam, RMSprop, etc.
-        action_space (gym.spaces.Box): The Box representing the action space.
+        action_space (gymnasium.spaces.Box): The Box representing the action space.
         kwargs (optional): Any other arguments accepted by all.approximation.Approximation
-    '''
+    """
 
-    def __init__(
-            self,
-            model,
-            optimizer=None,
-            space=None,
-            name='policy',
-            **kwargs
-    ):
+    def __init__(self, model, optimizer=None, space=None, name="policy", **kwargs):
         model = DeterministicPolicyNetwork(model, space)
-        super().__init__(
-            model,
-            optimizer,
-            name=name,
-            **kwargs
-        )
+        super().__init__(model, optimizer, name=name, **kwargs)
 
 
 class DeterministicPolicyNetwork(RLNetwork):

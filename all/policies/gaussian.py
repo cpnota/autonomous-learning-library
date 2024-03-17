@@ -1,12 +1,13 @@
 import torch
 from torch.distributions.independent import Independent
 from torch.distributions.normal import Normal
+
 from all.approximation import Approximation
 from all.nn import RLNetwork
 
 
 class GaussianPolicy(Approximation):
-    '''
+    """
     A Gaussian stochastic policy.
 
     This policy will choose actions from a distribution represented by a spherical Gaussian.
@@ -22,23 +23,13 @@ class GaussianPolicy(Approximation):
             and the last n outputs will be the logarithm of the variance.
         optimizer (torch.optim.Optimizer): A optimizer initialized with the
             model parameters, e.g. SGD, Adam, RMSprop, etc.
-        action_space (gym.spaces.Box): The Box representing the action space.
+        action_space (gymnasium.spaces.Box): The Box representing the action space.
         kwargs (optional): Any other arguments accepted by all.approximation.Approximation
-    '''
+    """
 
-    def __init__(
-            self,
-            model,
-            optimizer=None,
-            space=None,
-            name='policy',
-            **kwargs
-    ):
+    def __init__(self, model, optimizer=None, space=None, name="policy", **kwargs):
         super().__init__(
-            GaussianPolicyNetwork(model, space),
-            optimizer,
-            name=name,
-            **kwargs
+            GaussianPolicyNetwork(model, space), optimizer, name=name, **kwargs
         )
 
 

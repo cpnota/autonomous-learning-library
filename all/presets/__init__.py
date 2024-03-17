@@ -1,9 +1,8 @@
-from all.presets import atari
-from all.presets import classic_control
-from all.presets import continuous
-from .preset import Preset, ParallelPreset
-from .builder import PresetBuilder, ParallelPresetBuilder
+from all.presets import atari, classic_control, continuous
+
+from .builder import ParallelPresetBuilder, PresetBuilder
 from .independent_multiagent import IndependentMultiagentPreset
+from .preset import ParallelPreset, Preset
 
 __all__ = [
     "Preset",
@@ -13,5 +12,5 @@ __all__ = [
     "atari",
     "classic_control",
     "continuous",
-    "IndependentMultiagentPreset"
+    "IndependentMultiagentPreset",
 ]

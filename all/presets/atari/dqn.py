@@ -1,21 +1,19 @@
 import copy
-import torch
-import numpy as np
+
+from torch.nn.functional import smooth_l1_loss
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from torch.nn.functional import smooth_l1_loss
-from all import nn
-from all.approximation import QNetwork, FixedTarget
-from all.agents import Agent, DQN, DQNTestAgent
+
+from all.agents import DQN, DQNTestAgent
+from all.approximation import FixedTarget, QNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyLogger
 from all.memory import ExperienceReplayBuffer
 from all.optim import LinearScheduler
 from all.policies import GreedyPolicy
+from all.presets.atari.models import nature_dqn
 from all.presets.builder import PresetBuilder
 from all.presets.preset import Preset
-from all.presets.atari.models import nature_dqn
-
 
 default_hyperparameters = {
     # Common settings
@@ -31,12 +29,12 @@ default_hyperparameters = {
     "replay_start_size": 80000,
     "replay_buffer_size": 1000000,
     # Explicit exploration
-    "initial_exploration": 1.,
+    "initial_exploration": 1.0,
     "final_exploration": 0.01,
     "final_exploration_step": 250000,
     "test_exploration": 0.001,
     # Model construction
-    "model_constructor": nature_dqn
+    "model_constructor": nature_dqn,
 }
 
 
@@ -69,42 +67,44 @@ class DQNAtariPreset(Preset):
     def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
         hyperparameters = {**default_hyperparameters, **hyperparameters}
-        self.model = hyperparameters['model_constructor'](env).to(device)
+        self.model = hyperparameters["model_constructor"](env).to(device)
         self.n_actions = env.action_space.n
 
-    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
-        n_updates = (train_steps - self.hyperparameters['replay_start_size']) / self.hyperparameters['update_frequency']
+    def agent(self, logger=DummyLogger(), train_steps=float("inf")):
+        n_updates = (
+            train_steps - self.hyperparameters["replay_start_size"]
+        ) / self.hyperparameters["update_frequency"]
 
         optimizer = Adam(
             self.model.parameters(),
-            lr=self.hyperparameters['lr'],
-            eps=self.hyperparameters['eps']
+            lr=self.hyperparameters["lr"],
+            eps=self.hyperparameters["eps"],
         )
 
         q = QNetwork(
             self.model,
             optimizer,
             scheduler=CosineAnnealingLR(optimizer, n_updates),
-            target=FixedTarget(self.hyperparameters['target_update_frequency']),
-            logger=logger
+            target=FixedTarget(self.hyperparameters["target_update_frequency"]),
+            logger=logger,
         )
 
         policy = GreedyPolicy(
             q,
             self.n_actions,
             epsilon=LinearScheduler(
-                self.hyperparameters['initial_exploration'],
-                self.hyperparameters['final_exploration'],
-                self.hyperparameters['replay_start_size'],
-                self.hyperparameters['final_exploration_step'] - self.hyperparameters['replay_start_size'],
+                self.hyperparameters["initial_exploration"],
+                self.hyperparameters["final_exploration"],
+                self.hyperparameters["replay_start_size"],
+                self.hyperparameters["final_exploration_step"]
+                - self.hyperparameters["replay_start_size"],
                 name="exploration",
-                logger=logger
-            )
+                logger=logger,
+            ),
         )
 
         replay_buffer = ExperienceReplayBuffer(
-            self.hyperparameters['replay_buffer_size'],
-            device=self.device
+            self.hyperparameters["replay_buffer_size"], device=self.device
         )
 
         return DeepmindAtariBody(
@@ -112,23 +112,21 @@ class DQNAtariPreset(Preset):
                 q,
                 policy,
                 replay_buffer,
-                discount_factor=self.hyperparameters['discount_factor'],
+                discount_factor=self.hyperparameters["discount_factor"],
                 loss=smooth_l1_loss,
-                minibatch_size=self.hyperparameters['minibatch_size'],
-                replay_start_size=self.hyperparameters['replay_start_size'],
-                update_frequency=self.hyperparameters['update_frequency'],
+                minibatch_size=self.hyperparameters["minibatch_size"],
+                replay_start_size=self.hyperparameters["replay_start_size"],
+                update_frequency=self.hyperparameters["update_frequency"],
             ),
-            lazy_frames=True
+            lazy_frames=True,
         )
 
     def test_agent(self):
         q = QNetwork(copy.deepcopy(self.model))
         policy = GreedyPolicy(
-            q,
-            self.n_actions,
-            epsilon=self.hyperparameters['test_exploration']
+            q, self.n_actions, epsilon=self.hyperparameters["test_exploration"]
         )
         return DeepmindAtariBody(DQNTestAgent(policy))
 
 
-dqn = PresetBuilder('dqn', default_hyperparameters, DQNAtariPreset)
+dqn = PresetBuilder("dqn", default_hyperparameters, DQNAtariPreset)

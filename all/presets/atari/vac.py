@@ -1,15 +1,20 @@
 import copy
+
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
+
 from all.agents import VAC, VACTestAgent
-from all.approximation import VNetwork, FeatureNetwork
+from all.approximation import FeatureNetwork, VNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyLogger
 from all.policies import SoftmaxPolicy
+from all.presets.atari.models import (
+    nature_features,
+    nature_policy_head,
+    nature_value_head,
+)
 from all.presets.builder import ParallelPresetBuilder
 from all.presets.preset import ParallelPreset
-from all.presets.atari.models import nature_features, nature_value_head, nature_policy_head
-
 
 default_hyperparameters = {
     # Common settings
@@ -26,7 +31,7 @@ default_hyperparameters = {
     # Model construction
     "feature_model_constructor": nature_features,
     "value_model_constructor": nature_value_head,
-    "policy_model_constructor": nature_policy_head
+    "policy_model_constructor": nature_policy_head,
 }
 
 
@@ -55,23 +60,35 @@ class VACAtariPreset(ParallelPreset):
 
     def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
-        self.value_model = hyperparameters['value_model_constructor']().to(device)
-        self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
-        self.feature_model = hyperparameters['feature_model_constructor']().to(device)
+        self.value_model = hyperparameters["value_model_constructor"]().to(device)
+        self.policy_model = hyperparameters["policy_model_constructor"](env).to(device)
+        self.feature_model = hyperparameters["feature_model_constructor"]().to(device)
 
-    def agent(self, logger=DummyLogger(), train_steps=float('inf')):
+    def agent(self, logger=DummyLogger(), train_steps=float("inf")):
         n_updates = train_steps / self.hyperparameters["n_envs"]
 
-        feature_optimizer = Adam(self.feature_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
-        value_optimizer = Adam(self.value_model.parameters(), lr=self.hyperparameters["lr_v"], eps=self.hyperparameters["eps"])
-        policy_optimizer = Adam(self.policy_model.parameters(), lr=self.hyperparameters["lr_pi"], eps=self.hyperparameters["eps"])
+        feature_optimizer = Adam(
+            self.feature_model.parameters(),
+            lr=self.hyperparameters["lr_pi"],
+            eps=self.hyperparameters["eps"],
+        )
+        value_optimizer = Adam(
+            self.value_model.parameters(),
+            lr=self.hyperparameters["lr_v"],
+            eps=self.hyperparameters["eps"],
+        )
+        policy_optimizer = Adam(
+            self.policy_model.parameters(),
+            lr=self.hyperparameters["lr_pi"],
+            eps=self.hyperparameters["eps"],
+        )
 
         features = FeatureNetwork(
             self.feature_model,
             feature_optimizer,
             scheduler=CosineAnnealingLR(feature_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
-            logger=logger
+            logger=logger,
         )
 
         v = VNetwork(
@@ -80,7 +97,7 @@ class VACAtariPreset(ParallelPreset):
             scheduler=CosineAnnealingLR(value_optimizer, n_updates),
             loss_scaling=self.hyperparameters["value_loss_scaling"],
             clip_grad=self.hyperparameters["clip_grad"],
-            logger=logger
+            logger=logger,
         )
 
         policy = SoftmaxPolicy(
@@ -88,11 +105,16 @@ class VACAtariPreset(ParallelPreset):
             policy_optimizer,
             scheduler=CosineAnnealingLR(policy_optimizer, n_updates),
             clip_grad=self.hyperparameters["clip_grad"],
-            logger=logger
+            logger=logger,
         )
 
         return DeepmindAtariBody(
-            VAC(features, v, policy, discount_factor=self.hyperparameters["discount_factor"]),
+            VAC(
+                features,
+                v,
+                policy,
+                discount_factor=self.hyperparameters["discount_factor"],
+            ),
         )
 
     def test_agent(self):
@@ -104,4 +126,4 @@ class VACAtariPreset(ParallelPreset):
         return self.test_agent()
 
 
-vac = ParallelPresetBuilder('vac', default_hyperparameters, VACAtariPreset)
+vac = ParallelPresetBuilder("vac", default_hyperparameters, VACAtariPreset)

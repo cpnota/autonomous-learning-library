@@ -21,10 +21,11 @@ Additionally, we provide an [example project](https://github.com/cpnota/all-exam
 
 ## High-Quality Reference Implementations
 
-The `autonomous-learning-library` separates reinforcement learning agents into two modules: `all.agents`, which provides flexible, high-level implementations of many common algorithms which can be adapted to new problems and environments, and `all.presets` which provides specific instansiations of these agents tuned for particular sets of environments, including Atari games, classic control tasks, and PyBullet robotics simulations. Some benchmark results showing results on-par with published results can be found below:
+The `autonomous-learning-library` separates reinforcement learning agents into two modules: `all.agents`, which provides flexible, high-level implementations of many common algorithms which can be adapted to new problems and environments, and `all.presets` which provides specific instansiations of these agents tuned for particular sets of environments, including Atari games, classic control tasks, and MuJoCo/Pybullet robotics simulations. Some benchmark results showing results on-par with published results can be found below:
 
-![atari40](benchmarks/atari40.png)
-![pybullet](benchmarks/pybullet.png)
+![atari40](benchmarks/atari_40m.png)
+![atari40](benchmarks/mujoco_v4.png)
+![pybullet](benchmarks/pybullet_v0.png)
 
 As of today, `all` contains implementations of the following deep RL algorithms:
 

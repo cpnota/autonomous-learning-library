@@ -4,10 +4,4 @@ from .rewards import ClipRewards
 from .time import TimeFeature
 from .vision import FrameStack
 
-__all__ = [
-    "Body",
-    "ClipRewards",
-    "DeepmindAtariBody",
-    "FrameStack",
-    "TimeFeature"
-]
+__all__ = ["Body", "ClipRewards", "DeepmindAtariBody", "FrameStack", "TimeFeature"]

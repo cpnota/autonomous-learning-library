@@ -1,7 +1,8 @@
-import torch
 from torch.nn.functional import mse_loss
+
 from all.logging import DummyLogger
 from all.memory import NStepAdvantageBuffer
+
 from ._agent import Agent
 from ._parallel_agent import ParallelAgent
 
@@ -28,15 +29,15 @@ class A2C(ParallelAgent):
     """
 
     def __init__(
-            self,
-            features,
-            v,
-            policy,
-            discount_factor=0.99,
-            entropy_loss_scaling=0.01,
-            n_envs=None,
-            n_steps=4,
-            logger=DummyLogger()
+        self,
+        features,
+        v,
+        policy,
+        discount_factor=0.99,
+        entropy_loss_scaling=0.01,
+        n_envs=None,
+        n_steps=4,
+        logger=DummyLogger(),
     ):
         if n_envs is None:
             raise RuntimeError("Must specify n_envs.")
@@ -80,7 +81,9 @@ class A2C(ParallelAgent):
             value_loss = mse_loss(values, targets)
             policy_gradient_loss = -(distribution.log_prob(actions) * advantages).mean()
             entropy_loss = -distribution.entropy().mean()
-            policy_loss = policy_gradient_loss + self.entropy_loss_scaling * entropy_loss
+            policy_loss = (
+                policy_gradient_loss + self.entropy_loss_scaling * entropy_loss
+            )
             loss = value_loss + policy_loss
 
             # backward pass
@@ -90,8 +93,8 @@ class A2C(ParallelAgent):
             self.features.step()
 
             # record metrics
-            self.logger.add_info('entropy', -entropy_loss)
-            self.logger.add_info('normalized_value_error', value_loss / targets.var())
+            self.logger.add_info("entropy", -entropy_loss)
+            self.logger.add_info("normalized_value_error", value_loss / targets.var())
 
     def _make_buffer(self):
         return NStepAdvantageBuffer(
@@ -99,7 +102,7 @@ class A2C(ParallelAgent):
             self.features,
             self.n_steps,
             self.n_envs,
-            discount_factor=self.discount_factor
+            discount_factor=self.discount_factor,
         )
 
 

@@ -1,9 +1,9 @@
 import argparse
 import time
+
 import torch
-from all.bodies import DeepmindAtariBody
+
 from all.environments import MultiagentAtariEnv
-from all.experiments import load_and_watch
 
 
 def watch(env, filename, fps, reload):
@@ -15,7 +15,7 @@ def watch(env, filename, fps, reload):
             try:
                 agent = torch.load(filename).test_agent()
             except Exception as e:
-                print('Warning: error reloading model: {}'.format(filename))
+                print("Warning: error reloading model: {}".format(filename))
                 print(e)
 
 
@@ -34,7 +34,7 @@ def watch_episode(env, agent, fps):
 
 def main():
     parser = argparse.ArgumentParser(description="Watch pretrained multiagent atari")
-    parser.add_argument("env", help="Name of the Atari game (e.g. pong-v1)")
+    parser.add_argument("env", help="Name of the Atari game (e.g. pong_v3)")
     parser.add_argument("filename", help="File where the model was saved.")
     parser.add_argument(
         "--device",
@@ -49,10 +49,12 @@ def main():
     )
     parser.add_argument(
         "--reload",
-        action="store_true", default=False, help="Reload the model from disk after every episode"
+        action="store_true",
+        default=False,
+        help="Reload the model from disk after every episode",
     )
     args = parser.parse_args()
-    env = MultiagentAtariEnv(args.env, device=args.device)
+    env = MultiagentAtariEnv(args.env, device=args.device, render_mode="human")
     watch(env, args.filename, args.fps, args.reload)
 
 

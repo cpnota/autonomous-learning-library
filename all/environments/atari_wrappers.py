@@ -1,31 +1,34 @@
-'''
+"""
 A subset of Atari wrappers modified from:
 https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
 Other behaviors were implemented as Bodies.
-'''
-import numpy as np
+"""
+
 import os
-os.environ.setdefault('PATH', '')
-from collections import deque
-import gym
-from gym import spaces
+
+import numpy as np
+
+os.environ.setdefault("PATH", "")
+
 import cv2
+import gymnasium
+
 cv2.ocl.setUseOpenCL(False)
 
 
-class NoopResetEnv(gym.Wrapper):
+class NoopResetEnv(gymnasium.Wrapper):
     def __init__(self, env, noop_max=30):
-        '''Sample initial states by taking random number of no-ops on reset.
+        """Sample initial states by taking random number of no-ops on reset.
         No-op is assumed to be action 0.
-        '''
-        gym.Wrapper.__init__(self, env)
+        """
+        gymnasium.Wrapper.__init__(self, env)
         self.noop_max = noop_max
         self.override_num_noops = None
         self.noop_action = 0
-        assert env.unwrapped.get_action_meanings()[0] == 'NOOP'
+        assert env.unwrapped.get_action_meanings()[0] == "NOOP"
 
     def reset(self, **kwargs):
-        ''' Do no-op action for a number of steps in [1, noop_max].'''
+        """Do no-op action for a number of steps in [1, noop_max]."""
         self.env.reset(**kwargs)
         if self.override_num_noops is not None:
             noops = self.override_num_noops
@@ -34,8 +37,8 @@ class NoopResetEnv(gym.Wrapper):
         assert noops > 0
         obs = None
         for _ in range(noops):
-            obs, _, done, _ = self.env.step(self.noop_action)
-            if done:
+            obs, _, terminated, truncated, _ = self.env.step(self.noop_action)
+            if terminated or truncated:
                 obs = self.env.reset(**kwargs)
         return obs
 
@@ -43,85 +46,83 @@ class NoopResetEnv(gym.Wrapper):
         return self.env.step(ac)
 
 
-class FireResetEnv(gym.Wrapper):
+class FireResetEnv(gymnasium.Wrapper):
     def __init__(self, env):
-        '''
+        """
         Take action on reset for environments that are fixed until firing.
 
         Important: This was modified to also fire on lives lost.
-        '''
-        gym.Wrapper.__init__(self, env)
-        assert env.unwrapped.get_action_meanings()[1] == 'FIRE'
+        """
+        gymnasium.Wrapper.__init__(self, env)
+        assert env.unwrapped.get_action_meanings()[1] == "FIRE"
         assert len(env.unwrapped.get_action_meanings()) >= 3
         self.lives = 0
         self.was_real_done = True
 
     def reset(self, **kwargs):
         self.env.reset(**kwargs)
-        obs, _ = self.fire()
+        obs, info = self.fire()
         self.lives = self.env.unwrapped.ale.lives()
-        return obs
+        return obs, info
 
     def step(self, action):
-        obs, reward, done, info = self.env.step(action)
+        obs, reward, terminated, truncated, info = self.env.step(action)
         if self.lost_life():
-            obs, done = self.fire()
+            obs, info = self.fire()
         self.lives = self.env.unwrapped.ale.lives()
-        return obs, reward, done, info
+        return obs, reward, terminated, truncated, info
 
     def fire(self):
-        obs, _, done, _ = self.env.step(1)
-        if done:
+        obs, _, terminated, truncated, info = self.env.step(1)
+        if terminated or truncated:
             self.env.reset()
-        obs, _, done, _ = self.env.step(2)
-        if done:
-            obs = self.env.reset()
-            done = False
-        return obs, done
+        obs, _, terminated, truncated, info = self.env.step(2)
+        if terminated or truncated:
+            obs, info = self.env.reset()
+        return obs, info
 
     def lost_life(self):
         lives = self.env.unwrapped.ale.lives()
         return lives < self.lives and lives > 0
 
 
-class MaxAndSkipEnv(gym.Wrapper):
+class MaxAndSkipEnv(gymnasium.Wrapper):
     def __init__(self, env, skip=4):
-        '''Return only every `skip`-th frame'''
-        gym.Wrapper.__init__(self, env)
+        """Return only every `skip`-th frame"""
+        gymnasium.Wrapper.__init__(self, env)
         # most recent raw observations (for max pooling across time steps)
         self._obs_buffer = np.zeros((2,) + env.observation_space.shape, dtype=np.uint8)
         self._skip = skip
 
     def step(self, action):
-        '''Repeat action, sum reward, and max over last observations.'''
+        """Repeat action, sum reward, and max over last observations."""
         total_reward = 0.0
-        done = None
         for i in range(self._skip):
-            obs, reward, done, info = self.env.step(action)
+            obs, reward, terminated, truncated, info = self.env.step(action)
             if i == self._skip - 2:
                 self._obs_buffer[0] = obs
             if i == self._skip - 1:
                 self._obs_buffer[1] = obs
             total_reward += reward
-            if done:
+            if terminated or truncated:
                 break
         # Note that the observation on the done=True frame
         # doesn't matter
         max_frame = self._obs_buffer.max(axis=0)
 
-        return max_frame, total_reward, done, info
+        return max_frame, total_reward, terminated, truncated, info
 
     def reset(self, **kwargs):
         return self.env.reset(**kwargs)
 
 
-class WarpFrame(gym.ObservationWrapper):
+class WarpFrame(gymnasium.ObservationWrapper):
     def __init__(self, env, width=84, height=84, grayscale=True, dict_space_key=None):
-        '''
+        """
         Warp frames to 84x84 as done in the Nature paper and later work.
         If the environment uses dictionary observations, `dict_space_key` can be specified which indicates which
         observation should be warped.
-        '''
+        """
         super().__init__(env)
         self._width = width
         self._height = height
@@ -132,7 +133,7 @@ class WarpFrame(gym.ObservationWrapper):
         else:
             num_colors = 3
 
-        new_space = gym.spaces.Box(
+        new_space = gymnasium.spaces.Box(
             low=0,
             high=255,
             shape=(self._height, self._width, num_colors),
@@ -168,24 +169,25 @@ class WarpFrame(gym.ObservationWrapper):
         return np.moveaxis(obs, -1, 0)
 
 
-class LifeLostEnv(gym.Wrapper):
+class LifeLostEnv(gymnasium.Wrapper):
     def __init__(self, env):
-        '''
+        """
         Modified wrapper to add a "life_lost" key to info.
         This allows the agent Body to make the episode as done
         if it desires.
-        '''
-        gym.Wrapper.__init__(self, env)
+        """
+        gymnasium.Wrapper.__init__(self, env)
         self.lives = 0
 
     def reset(self):
+        obs, _ = self.env.reset()
         self.lives = 0
-        return self.env.reset()
+        return obs, {"life_lost": False}
 
     def step(self, action):
-        obs, reward, done, _ = self.env.step(action)
+        obs, reward, terminated, truncated, _ = self.env.step(action)
         lives = self.env.unwrapped.ale.lives()
-        life_lost = (lives < self.lives and lives > 0)
+        life_lost = lives < self.lives and lives > 0
         self.lives = lives
-        info = {'life_lost': life_lost}
-        return obs, reward, done, info
+        info = {"life_lost": life_lost}
+        return obs, reward, terminated, truncated, info

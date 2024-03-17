@@ -1,18 +1,19 @@
-from .single_env_experiment import SingleEnvExperiment
-from .parallel_env_experiment import ParallelEnvExperiment
 from all.presets import ParallelPreset
+
+from .parallel_env_experiment import ParallelEnvExperiment
+from .single_env_experiment import SingleEnvExperiment
 
 
 def run_experiment(
-        agents,
-        envs,
-        frames,
-        logdir='runs',
-        quiet=False,
-        render=False,
-        test_episodes=100,
-        verbose=True,
-        logger="tensorboard"
+    agents,
+    envs,
+    frames,
+    logdir="runs",
+    quiet=False,
+    render=False,
+    save_freq=100,
+    test_episodes=100,
+    verbose=True,
 ):
     if not isinstance(agents, list):
         agents = [agents]
@@ -31,9 +32,10 @@ def run_experiment(
                 logdir=logdir,
                 quiet=quiet,
                 render=render,
+                save_freq=save_freq,
                 verbose=verbose,
-                logger=logger
             )
+            experiment.save()
             experiment.train(frames=frames)
             experiment.save()
             experiment.test(episodes=test_episodes)

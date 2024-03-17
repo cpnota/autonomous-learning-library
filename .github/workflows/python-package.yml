@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: [3.8, 3.11]
 
     steps:
     - uses: actions/checkout@v2
@@ -25,9 +25,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        sudo apt-get install swig
-        sudo apt-get install unrar
-        pip install torch~=1.11 --extra-index-url https://download.pytorch.org/whl/cpu
+        python -m pip install --upgrade pip
+        pip install torch~=2.0 --extra-index-url https://download.pytorch.org/whl/cpu
         make install
     - name: Lint code
       run: |

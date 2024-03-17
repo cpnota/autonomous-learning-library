@@ -1,12 +1,12 @@
-import gym
 import torch
+
 from all.core import State
+
 from ._vector_environment import VectorEnvironment
-import numpy as np
 
 
 class DuplicateEnvironment(VectorEnvironment):
-    '''
+    """
     Turns a list of ALL Environment objects into a VectorEnvironment object
 
     This wrapper just takes the list of States the environments generate and outputs
@@ -16,9 +16,9 @@ class DuplicateEnvironment(VectorEnvironment):
     Args:
         envs: A list of ALL environments
         device (optional): the device on which tensors will be stored
-    '''
+    """
 
-    def __init__(self, envs, device=torch.device('cpu')):
+    def __init__(self, envs, device=torch.device("cpu")):
         self._name = envs[0].name
         self._envs = envs
         self._state = None
@@ -32,8 +32,18 @@ class DuplicateEnvironment(VectorEnvironment):
     def name(self):
         return self._name
 
-    def reset(self):
-        self._state = State.array([sub_env.reset() for sub_env in self._envs])
+    def reset(self, seed=None, **kwargs):
+        if seed is not None:
+            self._state = State.array(
+                [
+                    sub_env.reset(seed=(seed + i), **kwargs)
+                    for i, sub_env in enumerate(self._envs)
+                ]
+            )
+        else:
+            self._state = State.array(
+                [sub_env.reset(**kwargs) for sub_env in self._envs]
+            )
         return self._state
 
     def step(self, actions):
@@ -47,10 +57,6 @@ class DuplicateEnvironment(VectorEnvironment):
 
     def close(self):
         return self._env.close()
-
-    def seed(self, seed):
-        for i, env in enumerate(self._envs):
-            env.seed(seed + i)
 
     @property
     def state_space(self):

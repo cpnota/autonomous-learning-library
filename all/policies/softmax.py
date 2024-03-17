@@ -1,11 +1,12 @@
 import torch
 from torch.nn import functional
-from all.nn import RLNetwork
+
 from all.approximation import Approximation
+from all.nn import RLNetwork
 
 
 class SoftmaxPolicy(Approximation):
-    '''
+    """
     A softmax (or Boltzmann) stochastic policy for discrete actions.
 
     Args:
@@ -15,15 +16,9 @@ class SoftmaxPolicy(Approximation):
         optimizer (torch.optim.Optimizer): A optimizer initialized with the
             model parameters, e.g. SGD, Adam, RMSprop, etc.
         kwargs (optional): Any other arguments accepted by all.approximation.Approximation
-    '''
+    """
 
-    def __init__(
-            self,
-            model,
-            optimizer=None,
-            name='policy',
-            **kwargs
-    ):
+    def __init__(self, model, optimizer=None, name="policy", **kwargs):
         model = SoftmaxPolicyNetwork(model)
         super().__init__(model, optimizer, name=name, **kwargs)
 

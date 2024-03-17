@@ -1,19 +1,22 @@
-import gym
+import gymnasium
 import torch
+
 from all.core import State
+
 from ._environment import Environment
 from .duplicate_env import DuplicateEnvironment
-gym.logger.set_level(40)
+
+gymnasium.logger.set_level(40)
 
 
 class GymEnvironment(Environment):
-    '''
-    A wrapper for OpenAI Gym environments (see: https://gym.openai.com).
+    """
+    A wrapper for OpenAI Gym environments (see: https://gymnasium.openai.com).
 
     This wrapper converts the output of the gym environment to PyTorch tensors,
     and wraps them in a State object that can be passed to an Agent.
     This constructor supports either a string, which will be passed to the
-    gym.make(name) function, or a preconstructed gym environment. Note that
+    gymnasium.make(name) function, or a preconstructed gym environment. Note that
     in the latter case, the name property is set to be the whatever the name
     of the outermost wrapper on the environment is.
 
@@ -21,10 +24,34 @@ class GymEnvironment(Environment):
         env: Either a string or an OpenAI gym environment
         name (str, optional): the name of the environment
         device (str, optional): the device on which tensors will be stored
-    '''
+        legacy_gym (str, optional): If true, calls gym.make() instead of gymnasium.make()
+        wrap_env (function, optional): A function that accepts an environment and returns a wrapped environment.
+        **gym_make_kwargs: kwargs passed to gymnasium.make(id, **gym_make_kwargs)
+    """
 
-    def __init__(self, id, device=torch.device('cpu'), name=None):
-        self._env = gym.make(id)
+    def __init__(
+        self,
+        id,
+        device=torch.device("cpu"),
+        name=None,
+        legacy_gym=False,
+        wrap_env=None,
+        **gym_make_kwargs
+    ):
+        # handle gym vs. gymnasium distinction
+        if legacy_gym:
+            import gym
+
+            self._gym = gym
+        else:
+            self._gym = gymnasium
+
+        # construct the environment and apply wrapper
+        self._env = self._gym.make(id, **gym_make_kwargs)
+        if wrap_env:
+            self._env = wrap_env(self._env)
+
+        # initialize other instance variables
         self._id = id
         self._name = name if name else id
         self._state = None
@@ -34,20 +61,33 @@ class GymEnvironment(Environment):
         self._info = None
         self._device = device
 
+        # store arguments for duplication
+        self._constructor_args = [id]
+        self._constructor_kwargs = {
+            "device": device,
+            "name": name,
+            "legacy_gym": legacy_gym,
+            "wrap_env": wrap_env,
+            **gym_make_kwargs,
+        }
+
     @property
     def name(self):
         return self._name
 
-    def reset(self):
-        state = self._env.reset(), 0., False, None
-        self._state = State.from_gym(state, dtype=self._env.observation_space.dtype, device=self._device)
+    def reset(self, **kwargs):
+        self._state = State.from_gym(
+            self._env.reset(**kwargs),
+            dtype=self._env.observation_space.dtype,
+            device=self._device,
+        )
         return self._state
 
     def step(self, action):
         self._state = State.from_gym(
             self._env.step(self._convert(action)),
             dtype=self._env.observation_space.dtype,
-            device=self._device
+            device=self._device,
         )
         return self._state
 
@@ -61,7 +101,12 @@ class GymEnvironment(Environment):
         self._env.seed(seed)
 
     def duplicate(self, n):
-        return DuplicateEnvironment([GymEnvironment(self._id, device=self.device, name=self._name) for _ in range(n)])
+        return DuplicateEnvironment(
+            [
+                GymEnvironment(*self._constructor_args, **self._constructor_kwargs)
+                for _ in range(n)
+            ]
+        )
 
     @property
     def state_space(self):
@@ -85,9 +130,9 @@ class GymEnvironment(Environment):
 
     def _convert(self, action):
         if torch.is_tensor(action):
-            if isinstance(self.action_space, gym.spaces.Discrete):
+            if isinstance(self.action_space, self._gym.spaces.Discrete):
                 return action.item()
-            if isinstance(self.action_space, gym.spaces.Box):
+            if isinstance(self.action_space, self._gym.spaces.Box):
                 return action.cpu().detach().numpy().reshape(-1)
             raise TypeError("Unknown action space type")
         return action

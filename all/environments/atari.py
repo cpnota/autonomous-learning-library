@@ -1,22 +1,24 @@
-import gym
+import gymnasium
 import torch
+
 from all.core import State
-from .duplicate_env import DuplicateEnvironment
-from .atari_wrappers import (
-    NoopResetEnv,
-    MaxAndSkipEnv,
-    FireResetEnv,
-    WarpFrame,
-    LifeLostEnv,
-)
+
 from ._environment import Environment
+from .atari_wrappers import (
+    FireResetEnv,
+    LifeLostEnv,
+    MaxAndSkipEnv,
+    NoopResetEnv,
+    WarpFrame,
+)
+from .duplicate_env import DuplicateEnvironment
 
 
 class AtariEnvironment(Environment):
-    def __init__(self, name, device='cpu'):
+    def __init__(self, name, device="cpu", **gym_make_kwargs):
 
         # construct the environment
-        env = gym.make(name + "NoFrameskip-v4")
+        env = gymnasium.make(name + "NoFrameskip-v4", **gym_make_kwargs)
 
         # apply a subset of wrappers
         env = NoopResetEnv(env, noop_max=30)
@@ -37,15 +39,18 @@ class AtariEnvironment(Environment):
         self._device = device
 
     def reset(self):
-        state = self._env.reset(), 0., False, None
-        self._state = State.from_gym(state, dtype=self._env.observation_space.dtype, device=self._device)
+        self._state = State.from_gym(
+            self._env.reset(),
+            dtype=self._env.observation_space.dtype,
+            device=self._device,
+        )
         return self._state
 
     def step(self, action):
         self._state = State.from_gym(
             self._env.step(self._convert(action)),
             dtype=self._env.observation_space.dtype,
-            device=self._device
+            device=self._device,
         )
         return self._state
 
@@ -59,7 +64,9 @@ class AtariEnvironment(Environment):
         self._env.seed(seed)
 
     def duplicate(self, n):
-        return DuplicateEnvironment([AtariEnvironment(self._name, device=self._device) for _ in range(n)])
+        return DuplicateEnvironment(
+            [AtariEnvironment(self._name, device=self._device) for _ in range(n)]
+        )
 
     @property
     def name(self):
