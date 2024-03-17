@@ -1,14 +1,16 @@
-from . import plot
-from . import train_atari
-from . import train_classic
-from . import train_continuous
-from . import train_mujoco
-from . import train_multiagent_atari
-from . import train_pybullet
-from . import train
-from . import watch_atari
-from . import watch_classic
-from . import watch_continuous
-from . import watch_mujoco
-from . import watch_multiagent_atari
-from . import watch_pybullet
+from . import (
+    plot,
+    train,
+    train_atari,
+    train_classic,
+    train_continuous,
+    train_mujoco,
+    train_multiagent_atari,
+    train_pybullet,
+    watch_atari,
+    watch_classic,
+    watch_continuous,
+    watch_mujoco,
+    watch_multiagent_atari,
+    watch_pybullet,
+)
