@@ -324,7 +324,7 @@ The library contains an automatically plotting utility that generates appropriat
 
 This will generate a plot that looks like the following (after tweaking the whitespace through the ``matplotlib`` UI):
 
-.. image:: ../../../benchmarks/atari40.png
+.. image:: ../../../benchmarks/atari_40m.png
 
 An optional parameter is ``test_episodes``, which is set to 100 by default.
 After running for the given number of frames, the agent will be evaluated for a number of episodes specified by ``test_episodes`` with training disabled.
