@@ -63,7 +63,7 @@ You can view these results and other information through `tensorboard`:
 
     tensorboard --logdir runs
 
-By opening your browser to <http://localhost:6006>, you should see a dashboard that looks something like the following (you may need to adjust the "smoothing" parameter):
+By opening your browser to `http://localhost:6006`_, you should see a dashboard that looks something like the following (you may need to adjust the "smoothing" parameter):
 
 .. image:: tensorboard.png
 
