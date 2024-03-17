@@ -36,7 +36,7 @@ extras = {
 extras["all"] = (
     extras["atari"] + extras["mujoco"] + extras["pybullet"] + extras["ma-atari"]
 )
-extras["dev"] = extras["all"] + extras["test"] + extras["docs"]
+extras["dev"] = extras["all"] + extras["test"]
 
 setup(
     name="autonomous-learning-library",
