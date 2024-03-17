@@ -160,8 +160,8 @@ A few other quick things to note: ``f.no_grad(x)`` runs a forward pass with ``to
 ``f.target(x)`` calls the *target network* (an advanced concept used in algorithms such as DQN. For example, David Silver's `course notes <http://www0.cs.ucl.ac.uk/staff/d.silver/web/Talks_files/deep_rl.pdf>`_) associated with the ``Approximation``, also with ``torch.no_grad()``.
 The ``autonomous-learning-library`` provides a few thin wrappers over ``Approximation`` for particular purposes, such as ``QNetwork``, ``VNetwork``, ``FeatureNetwork``, and several ``Policy`` implementations.
 
-Environments
-------------
+ALL Environments
+----------------
 
 The importance of the ``Environment`` in reinforcement learning nearly goes without saying.
 In the ``autonomous-learning-library``, the prepackaged environments are simply wrappers for `OpenAI Gym <http://gym.openai.com>`_, the defacto standard library for RL environments.
@@ -216,8 +216,8 @@ Of course, this control loop is not exactly feature-packed.
 Generally, it's better to use the ``Experiment`` module described later.
 
 
-Presets
--------
+ALL Presets
+-----------
 
 In the ``autonomous-learning-library``, agents are *compositional*, which means that the behavior of a given ``Agent`` depends on the behavior of several other objects.
 Users can compose agents with specific behavior by passing appropriate objects into the constructor of the high-level algorithms contained in ``all.agents``.
@@ -274,8 +274,8 @@ If a ``Preset`` is loaded from disk, then we can instansiate a test ``Agent`` us
 
 
 
-Experiment
-----------
+ALL Experiments
+---------------
 
 Finally, we have all of the components necessary to introduce the ``run_experiment`` helper function.
 ``run_experiment`` is the built-in control loop for running reinforcement learning experiment.
