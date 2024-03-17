@@ -43,7 +43,7 @@ our agents achieved very similar behavior to the agents tested by DeepMind.
 MuJoCo Benchmark
 ------------------
 
-`MuJoCo https://mujoco.org`_ is "a free and open source physics engine that aims to facilitate research and development in robotics, biomechanics, graphics and animation, and other areas where fast and accurate simulation is needed."
+`MuJoCo <https://mujoco.org>`_ is "a free and open source physics engine that aims to facilitate research and development in robotics, biomechanics, graphics and animation, and other areas where fast and accurate simulation is needed."
 The MuJoCo Gym environments are a common benchmark in RL research for evaluating agents with continuous action spaces.
 We ran each continuous preset for 5 million timesteps (in this case, timesteps are equal to frames).
 The learning rate was decayed over the course of training using cosine annealing.

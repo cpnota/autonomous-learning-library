@@ -26,17 +26,17 @@ extras = {
         "torch-testing==0.0.2",  # pytorch assertion library
     ],
     "docs": [
-        "sphinx~=3.2.1",  # documentation library
-        "sphinx-autobuild~=2020.9.1",  # documentation live reload
-        "sphinx-rtd-theme~=0.5.0",  # documentation theme
-        "sphinx-automodapi~=0.13.0",  # autogenerate docs for modules
+        "sphinx~=7.2.6",  # documentation library
+        "sphinx-autobuild~=2024.2.4",  # documentation live reload
+        "sphinx-rtd-theme~=2.0.0",  # documentation theme
+        "sphinx-automodapi~=0.17.0",  # autogenerate docs for modules
     ],
 }
 
 extras["all"] = (
     extras["atari"] + extras["mujoco"] + extras["pybullet"] + extras["ma-atari"]
 )
-extras["dev"] = extras["all"] + extras["test"] + extras["docs"]
+extras["dev"] = extras["all"] + extras["test"]
 
 setup(
     name="autonomous-learning-library",
