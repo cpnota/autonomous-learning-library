@@ -22,7 +22,7 @@ copyright = '2024, Chris Nota'
 author = 'Chris Nota'
 
 # The full version, including alpha/beta/rc tags
-release = '0.9.1-alpha.4'
+release = '0.9.1'
 
 # -- General configuration ---------------------------------------------------
 
