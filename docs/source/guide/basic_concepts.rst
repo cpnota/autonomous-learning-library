@@ -164,7 +164,7 @@ ALL Environments
 ----------------
 
 The importance of the ``Environment`` in reinforcement learning nearly goes without saying.
-In the ``autonomous-learning-library``, the prepackaged environments are simply wrappers for `OpenAI Gym <http://gym.openai.com>`_, the defacto standard library for RL environments.
+In the ``autonomous-learning-library``, the prepackaged environments are simply wrappers for `Gymnasium <https://gymnasium.farama.org>`_ (formerly OpenAI Gym), the defacto standard library for RL environments.
 
 .. figure:: ./ale.png
 
@@ -173,7 +173,7 @@ In the ``autonomous-learning-library``, the prepackaged environments are simply 
 
 We add a few additional features:
 
-1) ``gym`` primarily uses ``numpy.array`` for representing states and actions. We automatically convert to and from ``torch.Tensor`` objects so that agent implemenetations need not consider the difference.
+1) ``gymnasium`` primarily uses ``numpy.array`` for representing states and actions. We automatically convert to and from ``torch.Tensor`` objects so that agent implemenetations need not consider the difference.
 2) We add properties to the environment for ``state``, ``reward``, etc. This simplifies the control loop and is generally useful.
 3) We apply common preprocessors, such as several standard Atari wrappers. However, where possible, we prefer to perform preprocessing using ``Body`` objects to maximize the flexibility of the agents.
 
@@ -181,7 +181,7 @@ Below, we show how several different types of environments can be created:
 
 .. code-block:: python
 
-    from all.environments import AtariEnvironment, GymEnvironment, PybulletEnvironment
+    from all.environments import AtariEnvironment, GymEnvironment, MujocoEnvironment
 
     # create an Atari environment on the gpu
     env = AtariEnvironment('Breakout', device='cuda')
@@ -190,7 +190,7 @@ Below, we show how several different types of environments can be created:
     env = GymEnvironment('CartPole-v0')
 
     # create a PyBullet environment on the cpu
-    env = PybulletEnvironment('cheetah')
+    env = MujocoEnvironment('HalfCheetah-v4')
 
 Now we can write our first control loop:
 
@@ -284,7 +284,6 @@ Here is a quick example:
 
 .. code-block:: python
 
-    from gym import envs
     from all.experiments import run_experiment
     from all.presets import atari
     from all.environments import AtariEnvironment
@@ -313,7 +312,7 @@ You can view the results in ``tensorboard`` by running the following command:
 
     tensorboard --logdir runs
 
-In addition to the ``tensorboard`` logs, every 100 episodes, the mean and standard deviation of the previous 100 episode returns are written to ``runs/[agent]/[env]/returns100.csv``.
+In addition to the ``tensorboard`` logs, every 100 episodes, the mean, standard deviation, min, and max of the previous 100 episode returns are written to ``runs/[agent]/[env]/returns100.csv``.
 This is much faster to read and plot than Tensorboard's proprietary format.
 The library contains an automatically plotting utility that generates appropriate plots for an *entire* ``runs`` directory as follows:
 

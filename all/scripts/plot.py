@@ -1,3 +1,4 @@
+"""Plot the results of experiments."""
 import argparse
 
 from all.experiments import plot_returns_100
